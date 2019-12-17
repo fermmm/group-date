@@ -1,0 +1,7 @@
+.git/
+node_modules/
+.vscode/
+build/
+coverage/
+.gitignore
+README.md
