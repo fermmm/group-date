@@ -29,6 +29,6 @@ RUN npm install
 COPY --from=dev /app/build ./build
 
 # Application port
-EXPOSE ${PORT}
+EXPOSE 8080
 
 CMD [ "node", "build/index.js" ]
