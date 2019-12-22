@@ -4,6 +4,7 @@ build/
 coverage/
 yarn.lock
 *.log
+.env
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
