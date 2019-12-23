@@ -1,15 +1,13 @@
 import * as Gremlin from 'gremlin';
 
 console.log('Setting up autentication...');
-console.log(process.env.COLLECTION);
 const authenticator = new Gremlin.driver.auth.PlainTextSaslAuthenticator(
-  `/dbs/${process.env.DATABASE}/colls/${process.env.COLLECTION}`,
-  process.env.PRIMARY_KEY,
+  `/dbs/${process.env.DATABASE_NAME}/colls/${process.env.DATABASE_COLLECTION}`,
+  process.env.DATABASE_PRIMARY_KEY_PROD,
 );
 
 console.log('Starting Gremlin client...');
-console.log(process.env.ENDPOINT);
-const client = new Gremlin.driver.Client(process.env.ENDPOINT, {
+const client = new Gremlin.driver.Client(process.env.DATABASE_URL_PROD, {
   authenticator,
   traversalsource: 'g',
   rejectUnauthorized: true,
@@ -59,7 +57,9 @@ async function dropGraph(): Promise<unknown> {
 async function addVertex1() {
   console.log('Running Add Vertex1');
   const result = await dBCall(
-    "g.addV(label).property('id', id).property('firstName', firstName).property('age', age).property('userid', userid).property('pk', 'pk')",
+    `g.addV(label).property('id', id).property('firstName', firstName).property('age', age).property('userid', userid).property('${
+      process.env.DATABASE_PARTITION_NAME_GENERAL
+    }', '${process.env.DATABASE_PARTITION_NAME_GENERAL}')`,
     {
       label: 'person',
       id: 'thomas',
@@ -75,7 +75,9 @@ async function addVertex1() {
 async function addVertex2() {
   console.log('Running Add Vertex2');
   const result = await dBCall(
-    "g.addV(label).property('id', id).property('firstName', firstName).property('lastName', lastName).property('age', age).property('userid', userid).property('pk', 'pk')",
+    `g.addV(label).property('id', id).property('firstName', firstName).property('lastName', lastName).property('age', age).property('userid', userid).property('${
+      process.env.DATABASE_PARTITION_NAME_GENERAL
+    }', '${process.env.DATABASE_PARTITION_NAME_GENERAL}')`,
     {
       label: 'person',
       id: 'mary',
