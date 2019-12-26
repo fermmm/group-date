@@ -1,4 +1,4 @@
-# Server for a group dating app
+# Polyamory dates server
 
 This project uses Node + Express + TypeScript for the API and "Tinkerpop3 Gremlin" for the database .
 
