@@ -29,69 +29,71 @@ If you do not have it, install the [latest Java Development Kit (JDK) from Oracl
 
 4. Unzip gremlin server into the permanent location you want like ``/home/(user)/`` in Linux/MacOS or ``C:/Program Files`` in Windows.
 
-5. Notice that there is a ``/bin`` folder in the downloaded gremlin server, we are going to add that folder into the PATH environment variables.
+5. Notice that there is a ``/bin`` folder in the downloaded gremlin server, we are going to add that folder into the PATH environment variables. 
+
+   In Windows you must search on the web "how to add a folder to environment variables" for your version of windows and add (gremlin server folder)/bin to it.
+   If you run gremlin-server.bat in the console and see some text instructions you are done with this step.
 
    In Ubuntu open ``/home/(user)/.bashrc`` in MacOS open or create ``/home/(user)/.bash_profile``
    
-6. Add the following line at the end of the opened file replacing the example path to your correct bin folder path:
+   Add the following line at the end of the opened file replacing the example path to your correct bin folder path:
 
    ```export PATH=/home/(user)/gremlin-server/bin/:$PATH```
    
    Save and restart the console and if you see some text instructions when running ```gremlin-server.sh``` on the console, then you are done with this step, If not then search on the web how to add environment variables to PATH (for your OS) and add (gremlin server folder)/bin to it.
 
-   In Windows you must search on the web "how to add a folder to environment variables" for your version of windows and add (gremlin server folder)/bin to it.
-   If you run gremlin-server.bat in the console and see some text instructions you are done with this step.
+
 
 6. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat step 5 with the gremlin console /bin folder to install it.
 
 7. **Optional** If you want to use Visual Studio Code you can optionally follow this:
 
-Configure default build and test tasks by pasting this into `.vscode/tasks.json`:
+      Configure default build and test tasks by pasting this into `.vscode/tasks.json`:
 
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Start",
-      "type": "npm",
-      "script": "dev",
-      "group": {
-        "kind": "build",
-        "isDefault": true
+      ```json
+      {
+        "version": "2.0.0",
+        "tasks": [
+          {
+            "label": "Start",
+            "type": "npm",
+            "script": "dev",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            }
+          },
+          {
+            "label": "Test",
+            "type": "npm",
+            "script": "test:watch",
+            "group": {
+              "kind": "test",
+              "isDefault": true
+            }
+          }
+        ]
       }
-    },
-    {
-      "label": "Test",
-      "type": "npm",
-      "script": "test:watch",
-      "group": {
-        "kind": "test",
-        "isDefault": true
+      ```
+
+      Configure the debugger to attach to a running Node process by pasting this into `.vscode/launch.json`:
+
+      ```json
+      {
+        "version": "0.2.0",
+        "configurations": [
+          {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to Node",
+            "address": "localhost",
+            "port": 5858,
+            "restart": true,
+            "protocol": "inspector"
+          }
+        ]
       }
-    }
-  ]
-}
-```
-
-Configure the debugger to attach to a running Node process by pasting this into `.vscode/launch.json`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to Node",
-      "address": "localhost",
-      "port": 5858,
-      "restart": true,
-      "protocol": "inspector"
-    }
-  ]
-}
-```
+      ```
 
 ## Running the project in local (in case you are going to modify the project)
 
@@ -164,4 +166,4 @@ The container will be removed when you press `Ctrl+C`.
 
 ## Actions
 
-The project contains a simple GitHub Action Workflow which uses the Docker images to build and run various tests on the image. You can extend it to release and deploy your applications.
+The project contains a simple GitHub Action Workflow which uses the Docker images to build and run various tests on the image. You can extend it to release and deploy the application.
