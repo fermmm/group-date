@@ -1,21 +1,50 @@
-# Node + TypeScript + Express boilerplate
+# Server for a group dating app
 
-This is a boilerplate for Node with Express server using TypeScript. It includes:
+This project uses Node + Express + TypeScript for the API and "Tinkerpop3 Gremlin" for the database .
 
-- Automatic restart on file save with `nodemon`
-- Automatic transpilation of TypeScript code with `ts-node`
-- Easy debugging in Visual Studio Code
-- Testing with `jest`
-- Code formatting with `prettier`
-- Code linting with `tslint`
-- Git hooks with `husky`
-- CI with GitHub Actions
+You can run all in local for developing or host it on a hosting provider that supports Node.js and Gremlin, for example: AWS Elastic Beanstalk + AWS Neptune (recomended) or Azure App Engine + Cosmos DB. Both AWS and Azure are free on the begginning.
+Or you can use a hosting provider for the code and another hosting provider company for the database, here is a list of compatible database hosting providers:
+http://tinkerpop.apache.org/providers.html
 
-## Requirements
+## Uploading to AWS Elastic Beanstalk + AWS Neptune (recomended)
+1. Follow [this tutorial](https://medium.com/@sommershurbaji/deploying-a-docker-container-to-aws-with-elastic-beanstalk-28adfd6e7e95) to upload the code:
 
-You should have at least Node 8.10.0.
 
-## Setup with Visual Studio Code
+## Uploading to Azure App Engine + Cosmos DB
+> :warning: :warning: :warning: Only use Azure Cosmos DB to host the database if they implemented Gremlin bytecode see [this thread](https://feedback.azure.com/forums/263030-azure-cosmos-db/suggestions/33632779-support-gremlin-bytecode-to-enable-the-fluent-api?page=1&per_page=20). At the moment of writing this they didn't implement it yet. Not implementing this feature means that this project does not work with Cosmos DB. Also means you need to write the queries in a specific way that only works on thier servers, making the code incompatible with other hosting providers and community tools and libraries.
+
+1. To upload the code to App Engine use the Visual Studio Code Azure extension.
+2. To start the database and connect it rename .env.example file to .env and edit it following the instructions on this page: 
+https://docs.microsoft.com/en-us/azure/cosmos-db/create-graph-nodejs#update-your-connection-string
+
+## Installing on your local computer (in case you are going to modify the project)
+
+1. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
+
+2. For running the Gremlin database make sure you have Java installed, at least version 8. 
+To verify that Java is installed and the version, run the command ```java –version```
+If you do not have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or  [OpenJDK](https://openjdk.java.net/)
+
+3. Go to: http://tinkerpop.apache.org/ and download Gremlin Server
+
+4. Unzip gremlin server into the permanent location you want like ``/home/(user)/`` in Linux/MacOS or ``C:/Program Files`` in Windows.
+
+5. Notice that there is a ``/bin`` folder in the downloaded gremlin server, we are going to add that folder into the PATH environment variables.
+
+   In Ubuntu open ``/home/(user)/.bashrc`` in MacOS open or create ``/home/(user)/.bash_profile``
+   
+6. Add the following line at the end of the opened file replacing the example path to your correct bin folder path:
+
+   ```export PATH=/home/(user)/gremlin-server/bin/:$PATH```
+   
+   Save and restart the console and if you see some text instructions when running ```gremlin-server.sh``` on the console, then you are done with this step, If not then search on the web how to add environment variables to PATH (for your OS) and add (gremlin server folder)/bin to it.
+
+   In Windows you must search on the web "how to add a folder to environment variables" for your version of windows and add (gremlin server folder)/bin to it.
+   If you run gremlin-server.bat in the console and see some text instructions you are done with this step.
+
+6. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat step 5 with the gremlin console /bin folder to install it.
+
+7. **Optional** If you want to use Visual Studio Code you can optionally follow this:
 
 Configure default build and test tasks by pasting this into `.vscode/tasks.json`:
 
@@ -64,13 +93,27 @@ Configure the debugger to attach to a running Node process by pasting this into 
 }
 ```
 
-## Usage
+## Running the project in local (in case you are going to modify the project)
 
-Start a development server with automatic restart:
+Start the database (Linux / MacOS only) 
+
+```
+gremlin-server.sh start
+```
+
+Start the database (Windows only) 
+
+```
+gremlin-server.bat start
+```
+
+Start a local development server with automatic restart:
 
 ```
 npm run dev
 ```
+
+## Other commands
 
 Build the project:
 
@@ -86,7 +129,7 @@ npm run test:coverage
 npm run test:watch
 ```
 
-Format the code with Prettier:
+Format the code with Prettier (required for commits):
 
 ```
 npm run format
@@ -104,7 +147,7 @@ The project contains a pre-commit git hook which checks the code with Prettier a
 
 ## Docker
 
-You can build the project as a Docker image with a standard `docker build` command. The commands below let you quickly build and run the example on port 80:
+You can build the project as a Docker image with a standard `docker build` command. The commands below let you quickly build and run on port 80:
 
 ```
 docker build -t node-ts:latest .
@@ -114,7 +157,7 @@ docker run --rm -it -p 80:8080 --pid=host node-ts:latest
 The server should be available under your Docker machine address, for example:
 
 ```
-http://localhost/hello/World
+http://localhost/
 ```
 
 The container will be removed when you press `Ctrl+C`.
