@@ -1,20 +1,33 @@
-import * as Gremlin from 'gremlin';
+import * as gremlin from 'gremlin';
 
-async function test(): Promise<void> {
+export async function test(): Promise<void> {
    // Connection:
-   const traversal = Gremlin.process.AnonymousTraversalSource.traversal;
-   const DriverRemoteConnection = Gremlin.driver.DriverRemoteConnection;
+   const traversal = gremlin.process.AnonymousTraversalSource.traversal;
+   const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
    const g = traversal().withRemote(
       new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL),
    );
 
-   // Query:
+   g.V()
+      .drop()
+      .iterate();
+   const { id } = gremlin.process.t;
+   const { within } = gremlin.process.P;
+
+   // Create
+   console.log(
+      await g
+         .addV('person')
+         .property(gremlin.process.t.id, 5)
+         .property('name', 'marko')
+         .next(),
+   );
+
+   // Retreive:
    const names2 = await g
       .V()
-      .hasLabel('person')
-      .values('name')
+      .valueMap(true)
       .toList();
-   console.log(names2);
+   console.log(typeof names2);
+   console.log(names2[0]);
 }
-
-test();
