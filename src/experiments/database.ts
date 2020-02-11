@@ -1,6 +1,6 @@
 import * as gremlin from 'gremlin';
 
-export async function test(): Promise<void> {
+export async function databaseExperiments(): Promise<void> {
    // Connection:
    const traversal = gremlin.process.AnonymousTraversalSource.traversal;
    const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
