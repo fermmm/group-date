@@ -1,27 +1,25 @@
 import * as Koa from 'koa';
 
 export function serverOperating(ctx: Koa.Context) {
-   const response: ServerHandshakeResponse = {
+   // TODO: Estaria bueno que haya un tipado funcionando aca
+   ctx.body = {
       ...ctx.body,
       serverOperating: false,
-   }
-   ctx.body = response;
+   } as ServerHandshakeResponse;
 }
 
 export function validateVersion(ctx: Koa.Context) {
-   const response: ServerHandshakeResponse = {
+   ctx.body = {
       ...ctx.body,
       versionCompatible: true,
-   }
-   ctx.body = response;
+   } as ServerHandshakeResponse;
 }
 
 export function serverMessage(ctx: Koa.Context) {
-   const response: ServerHandshakeResponse = {
+   ctx.body = {
       ...ctx.body,
       serverMessage: "Server not finished",
-   }
-   ctx.body = response;
+   } as ServerHandshakeResponse;
 }
 
 
