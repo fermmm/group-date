@@ -1,24 +1,29 @@
-import * as express from 'express';
+import * as Koa from 'koa';
 
-export function serverOperating(req: express.Request, res: express.Response, next: express.NextFunction) {
+export function serverOperating(ctx: Koa.Context) {
    const response: ServerHandshakeResponse = {
-      ...res.locals,
+      ...ctx.body,
       serverOperating: false,
-      serverMessage: "Server is unfinished"
    }
-   res.locals = response;
-   next();
+   ctx.body = response;
 }
 
-export function validateVersion(req: express.Request, res: express.Response, next: express.NextFunction) {
-   console.log(`${JSON.stringify(req.query)}`);
+export function validateVersion(ctx: Koa.Context) {
    const response: ServerHandshakeResponse = {
-      ...res.locals,
+      ...ctx.body,
       versionCompatible: true,
    }
-   res.locals = response;
-   next();
+   ctx.body = response;
 }
+
+export function serverMessage(ctx: Koa.Context) {
+   const response: ServerHandshakeResponse = {
+      ...ctx.body,
+      serverMessage: "Server not finished",
+   }
+   ctx.body = response;
+}
+
 
 export interface ServerHandshakeResponse {
    versionCompatible: boolean;

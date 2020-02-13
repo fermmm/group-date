@@ -1,15 +1,21 @@
 // tslint:disable-next-line: no-var-requires
 require('dotenv').config();
-import * as express from 'express';
+import * as Koa from 'koa';
+import * as router from 'koa-route';
 import handshake from './components/handshake/routes';
 import { databaseExperiments } from './experiments/database';
 
-const app = express();
-const port = process.env.PORT || 8080;
+const app: Koa = new Koa();
 
-app.listen(port, () => console.log(`Server running on ${port}!`));
-app.get('/', (req, res) => res.send('Poly Dates server'));
+const root = router.all('/', ctx => {
+   ctx.body = "Poly Dates server";
+});
 
-app.use('/handshake', handshake);
+app
+   .use(root)
+   .use(handshake)
+   .listen(process.env.PORT);
 
-databaseExperiments();
+console.log(`Server running on ${process.env.PORT}!`);
+
+// databaseExperiments();
