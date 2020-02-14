@@ -1,8 +1,7 @@
-import * as router from 'koa-route';
-import { serverMessage, serverOperating, validateVersion } from './models';
+import * as Koa from 'koa';
+import * as r from 'koa-route';
+import { handshakePost } from './models';
 
-export default router.post('/handshake', ctx => {
-   serverOperating(ctx);
-   validateVersion(ctx);
-   serverMessage(ctx);
-});
+export function handshakeRoutes(app: Koa): void {
+   app.use(r.post('/handshake', handshakePost));
+}

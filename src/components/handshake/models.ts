@@ -1,30 +1,32 @@
 import * as Koa from 'koa';
 
-export function serverOperating(ctx: Koa.Context) {
-   // TODO: Estaria bueno que haya un tipado funcionando aca
-   ctx.body = {
-      ...ctx.body,
-      serverOperating: false,
-   } as ServerHandshakeResponse;
-}
-
-export function validateVersion(ctx: Koa.Context) {
-   ctx.body = {
-      ...ctx.body,
-      versionCompatible: true,
-   } as ServerHandshakeResponse;
-}
-
-export function serverMessage(ctx: Koa.Context) {
-   ctx.body = {
-      ...ctx.body,
-      serverMessage: "Server not finished",
-   } as ServerHandshakeResponse;
-}
-
-
 export interface ServerHandshakeResponse {
    versionCompatible: boolean;
    serverOperating: boolean;
    serverMessage?: string;
+}
+
+export function handshakePost(ctx: Koa.Context) {
+   ctx.body = {
+      serverOperating: true,
+      serverMessage: "",
+      versionCompatible: versionIsCompatible(ctx.request.query.version),
+   } as ServerHandshakeResponse;
+}
+
+function versionIsCompatible(version: string): boolean {
+   const min: string[] = process.env.MINIMUM_CLIENT_VERSION_ALLOWED.split(".");
+   const current: string[] = version.split(".");
+
+   for (let i = 0; i < min.length; i++) {
+      if (current[i] < min[i]) {
+         return false;
+      }
+   
+      if (current[i] > min[i]) {
+         return true;
+      }
+   }
+
+   return true;
 }
