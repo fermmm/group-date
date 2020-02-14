@@ -14,12 +14,11 @@ export function handshakePost(ctx: Koa.Context) {
    } as ServerHandshakeResponse;
 }
 
-function versionIsCompatible(version: string): boolean {
-   const min: string[] = process.env.MINIMUM_CLIENT_VERSION_ALLOWED.split(".");
-   const current: string[] = version.split(".");
+function versionIsCompatible(current: string): boolean {
+   const min: string = process.env.MINIMUM_CLIENT_VERSION_ALLOWED;
 
    for (let i = 0; i < min.length; i++) {
-      if (current[i] < min[i]) {
+      if ((current[i] || 0) < min[i]) {
          return false;
       }
    
