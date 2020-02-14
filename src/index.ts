@@ -13,6 +13,8 @@ const root = router.all('/', ctx => {
 app.use(root).listen(process.env.PORT);
 console.log(`Server running on ${process.env.PORT}!`);
 
-// Application logic:
+// Routes:
 handshakeRoutes(app);
+
+// Other:
 // databaseExperiments();
