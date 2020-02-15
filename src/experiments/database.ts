@@ -4,9 +4,7 @@ export async function databaseExperiments(): Promise<void> {
    // Connection:
    const traversal = gremlin.process.AnonymousTraversalSource.traversal;
    const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
-   const g = traversal().withRemote(
-      new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL),
-   );
+   const g = traversal().withRemote(new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL));
 
    g.V()
       .drop()
