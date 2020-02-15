@@ -1,5 +1,9 @@
 import { QuestionData } from './questions';
 
+export interface LoginRequestParams {
+  token: string;
+}
+
 export interface ServerLoginResponse {
   success: boolean;
   showRegistrationStepScreen?: RequiredRegistrationStep;

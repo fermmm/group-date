@@ -1,12 +1,16 @@
-import * as Koa from 'koa';
-import { ServerLoginResponse } from '../../common-tools/endpoints-interfaces/login';
+import { LoginRequestParams } from '../../common-tools/endpoints-interfaces/login';
+import { 
+   RegistrationStepScreen, 
+   ServerLoginResponse 
+} from '../../common-tools/endpoints-interfaces/login';
 
 export function loginPost(params: LoginRequestParams): ServerLoginResponse {
-   return {};
+   return {
+      success: true,
+      showRegistrationStepScreen: {
+         screenType: RegistrationStepScreen.BasicInfo,
+         screenData: null
+      },
+   };
 }
-
-export interface LoginRequestParams {
-
-}
-
 

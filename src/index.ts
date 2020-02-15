@@ -15,7 +15,7 @@ app.use(root).listen(process.env.PORT);
 console.log(`Server running on ${process.env.PORT}!`);
 
 // Routes:
-handshakeRoutes(app.use);
+handshakeRoutes(app);
 loginRoutes(app.use);
 
 // Other:

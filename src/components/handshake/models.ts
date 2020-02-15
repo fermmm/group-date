@@ -1,4 +1,3 @@
-import * as Koa from 'koa';
 import { HandshakeParams, ServerHandshakeResponse } from '../../common-tools/endpoints-interfaces/handshake';
 import { versionIsCompatible } from '../../common-tools/string-tools';
 
