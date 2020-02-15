@@ -3,6 +3,7 @@ require('dotenv').config();
 import * as Koa from 'koa';
 import * as router from 'koa-route';
 import { handshakeRoutes } from './components/handshake/routes';
+import { loginRoutes } from './components/login/routes';
 import { databaseExperiments } from './experiments/database';
 
 // Koa initialization:
@@ -14,7 +15,11 @@ app.use(root).listen(process.env.PORT);
 console.log(`Server running on ${process.env.PORT}!`);
 
 // Routes:
-handshakeRoutes(app);
+handshakeRoutes(app.use);
+loginRoutes(app.use);
+
+// TODO: Move this and stop using typeof
+export type UseFunction = typeof app.use;
 
 // Other:
 // databaseExperiments();
