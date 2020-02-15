@@ -18,8 +18,5 @@ console.log(`Server running on ${process.env.PORT}!`);
 handshakeRoutes(app.use);
 loginRoutes(app.use);
 
-// TODO: Move this and stop using typeof
-export type UseFunction = typeof app.use;
-
 // Other:
 // databaseExperiments();
