@@ -1,5 +1,5 @@
 import * as Koa from 'koa';
-import { ServerHandshakeResponse } from '../../common-tools/endpoints-interfaces';
+import { ServerHandshakeResponse } from '../../common-tools/endpoints-interfaces/handshake';
 import { versionIsCompatible } from '../../common-tools/string-tools';
 
 export function handshakePost(ctx: Koa.Context) {
