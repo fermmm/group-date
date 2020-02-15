@@ -16,7 +16,7 @@ console.log(`Server running on ${process.env.PORT}!`);
 
 // Routes:
 handshakeRoutes(app);
-loginRoutes(app.use);
+loginRoutes(app);
 
 // Other:
 // databaseExperiments();
