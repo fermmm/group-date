@@ -1,6 +1,6 @@
 # Polyamory dates server
 
-This project uses Node + Express + TypeScript for the API and "Tinkerpop3 Gremlin" for the database .
+This project uses Node.js + Koa.js + TypeScript + "Tinkerpop3 Gremlin" for the database .
 
 You can run all in local for developing or host it on a hosting provider that supports Node.js and Gremlin, for example: AWS Elastic Beanstalk + AWS Neptune (recommended) or Azure App Engine + Cosmos DB. Both AWS and Azure are free on the begginning (except for Neptune).
 Or you can use a hosting provider for the code and another hosting provider company for the database, here is a list of compatible database hosting providers:
@@ -21,30 +21,28 @@ http://tinkerpop.apache.org/providers.html
 
 1. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
-2. For running the Gremlin database make sure you have Java installed, at least version 8. 
-To verify that Java is installed and the version, run the command ```java –version```
+2. For running the Gremlin database make sure you have Java installed, at least version 8 (or 1.8). 
+To verify that Java is installed and the version, run the command ```java -version```
 If you do not have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or  [OpenJDK](https://openjdk.java.net/)
 
 3. Go to: http://tinkerpop.apache.org/ and download Gremlin Server
 
 4. Unzip gremlin server into the permanent location you want like ``/home/(user)/`` in Linux/MacOS or ``C:/Program Files`` in Windows.
 
-5. Notice that there is a ``/bin`` folder in the downloaded gremlin server, we are going to add that folder into the PATH environment variables. 
+5. Notice that there is a ``/bin`` folder in the downloaded gremlin server, we are going to add that folder into the PATH environment variables:
 
    In Windows you must search on the web "how to add a folder to environment variables" for your version of windows and add (gremlin server folder)/bin to it.
    If you run gremlin-server.bat in the console and see some text instructions you are done with this step.
 
    In Ubuntu open ``/home/(user)/.bashrc`` in MacOS open or create ``/home/(user)/.bash_profile``
    
-   Add the following line at the end of the opened file replacing the example path to your correct bin folder path:
+   Add the following line at the end of the opened file (replacing the example path to your correct gremlin bin folder path):
 
    ```export PATH=/home/(user)/gremlin-server/bin/:$PATH```
    
-   Save and restart the console and if you see some text instructions when running ```gremlin-server.sh``` on the console, then you are done with this step, If not then search on the web how to add environment variables to PATH (for your OS) and add (gremlin server folder)/bin to it.
+   Save and restart the console and if you see some text instructions when running ```gremlin-server.sh``` on the console, then you are done with this step, if not, make sure you are using a code text editor when editing files, don't use editors like MacOS's TextEdit, if that is not the case eather then search on the web how to add environment variables to PATH (for your OS) and add (gremlin server folder)/bin to it.
 
-
-
-6. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat step 5 with the gremlin console /bin folder to install it.
+6. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat previous step with the gremlin console /bin folder to install it.
 
 7. **Optional** If you want to use Visual Studio Code you can optionally follow this:
 

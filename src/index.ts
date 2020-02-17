@@ -3,7 +3,7 @@ require('dotenv').config();
 import * as Koa from 'koa';
 import * as router from 'koa-route';
 import { handshakeRoutes } from './components/handshake/routes';
-import { loginRoutes } from './components/login/routes';
+import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
 
 // Koa initialization:
@@ -16,7 +16,7 @@ console.log(`Server running on ${process.env.PORT}!`);
 
 // Routes:
 handshakeRoutes(app);
-loginRoutes(app);
+userRoutes(app);
 
 // Other:
 // databaseExperiments();

@@ -1,12 +1,11 @@
 import { QuestionData } from './questions';
 
-export interface LoginRequestParams {
+export interface UserRequestParams {
   token: string;
 }
 
-export interface ServerLoginResponse {
-  success: boolean;
-  showRegistrationStepScreen?: RequiredRegistrationStep;
+export interface ProfileStatusServerResponse {
+  missingRegistrationStep?: RequiredRegistrationStep;
 }
 
 export interface RequiredRegistrationStep {

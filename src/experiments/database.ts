@@ -6,11 +6,12 @@ export async function databaseExperiments(): Promise<void> {
    const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
    const g = traversal().withRemote(new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL));
 
+   const { id } = gremlin.process.t;
+   const { within } = gremlin.process.P;
+
    g.V()
       .drop()
       .iterate();
-   const { id } = gremlin.process.t;
-   const { within } = gremlin.process.P;
 
    // Create
    console.log(
@@ -26,6 +27,7 @@ export async function databaseExperiments(): Promise<void> {
       .V()
       .valueMap(true)
       .toList();
+
    console.log(typeof names2);
    console.log(names2[0]);
 }
