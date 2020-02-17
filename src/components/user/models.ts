@@ -25,6 +25,17 @@ async function retreiveUser(token: string): Promise<User> {
    // Si no se encuentra usuario pedir a facebook el mail con el token
    // Usar el mail para encontrar el usuario, guardar el token nuevo y devolver el usuario
    // Si el usuario no se encuentra con el email crear el usuario y guardar el email y token y devolver eso
+   
+   
+   // export async function facebookTokenIsValid(token: string): Promise<boolean> {
+   //    const response: { id: string; name: string } = await httpRequest({
+   //       baseURL: `https://graph.facebook.com/me?access_token=${token}`,
+   //       errorResponseSilent: true
+   //    });
+   //    return Promise.resolve(response?.name != null);
+   // }
+   
+   
    return Promise.resolve(null);
 }
 
