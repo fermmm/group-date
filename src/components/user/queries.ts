@@ -1,6 +1,6 @@
-import { g } from '../../common-tools/database-manager';
-import { asUser, asUserList } from '../../common-tools/gremlin/data-convertion-tools';
-import { GremlinResponse } from '../../common-tools/gremlin/gremlin-typing-tools';
+import { asUser, asUserList } from '../../common-tools/database-tools/data-convertion-tools';
+import { g } from '../../common-tools/database-tools/database-manager';
+import { GremlinResponse } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User } from './models';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
