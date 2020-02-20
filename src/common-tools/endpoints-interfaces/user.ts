@@ -1,22 +1,20 @@
 import { QuestionData } from './questions';
 
-export interface UserRequestParams {
-  token: string;
-}
+export type RequiredUserProp =
+   | 'name'
+   | 'birthdate'
+   | 'targetAgeMin'
+   | 'targetAgeMax'
+   | 'pictures'
+   | 'dateIdeaName'
+   | 'dateIdeaAddress'
+   | 'profileDescription';
 
 export interface ProfileStatusServerResponse {
-  missingRegistrationStep?: RequiredRegistrationStep;
+   missingUserProp?: MissingUserProp;
 }
 
-export interface RequiredRegistrationStep {
-  screenType: RegistrationStepScreen;
-  screenData?: QuestionData;
-}
-
-export enum RegistrationStepScreen {
-  BasicInfo = 'BasicInfo',
-  ProfilePictures = 'ProfilePictures',
-  DateIdea = 'DateIdea',
-  ProfileText = 'ProfileText',
-  Question = 'Question',
+export interface MissingUserProp {
+   prop: RequiredUserProp;
+   questionData?: QuestionData;
 }
