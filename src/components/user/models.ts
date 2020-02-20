@@ -22,9 +22,9 @@ export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Conte
 
 /**
  * Tries to get the user using the token and if the user does not exist it creates it.
- * Also solves the problems that can happen in this order:
+ * It does the following:
  * 
- * 1. If the database returns the user with the token returns the user
+ * 1. If the database returns the user with the token returns the user and finish
  * 2. If the token does not exist in database asks Facebook for the user email using the token
  * 3. If Facebook does not return a user email when sending the token, then throws error with ctx.throw()
  * 4. If the email returned by Facebook exists in the database replaces the token and returns the user
@@ -47,11 +47,11 @@ async function retreiveUser(token: string, ctx: Koa.Context): Promise<Partial<Us
    });
 
    if (userDataFromFacebook.success === false) {
-      ctx.throw(userDataFromFacebook.error.message, 500);
+      ctx.throw(400, userDataFromFacebook.error.message);
    }
 
    if (!userDataFromFacebook.content || !userDataFromFacebook.content.email) {
-      ctx.throw("Facebook error 01", 500);
+      ctx.throw(400, "Facebook error 01");
    }
 
    user = await getUserByEmail(userDataFromFacebook.content.email);   

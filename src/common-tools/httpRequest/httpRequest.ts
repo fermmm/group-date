@@ -20,15 +20,11 @@ export async function httpRequest<T>(options: AxiosRequestConfig): Promise<HttpR
       if (error.response) {
          // Request was made but server responded with something
          // other than 2xx
-         console.debug("Request error:", error.response);
          promiseResolve({success: false, error: {message: error.response.data?.error?.message, code: error.response.status}})
-         return;
       } else {
          // Something else happened while setting up the request
          // triggered the error
-         console.debug("Request error:", error.message);
          promiseResolve({success: false, error: {message: error.message, code: 0}});
-         return;
       }
    }
 
