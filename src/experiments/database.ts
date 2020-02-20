@@ -26,6 +26,7 @@ export async function databaseExperiments(): Promise<void> {
    const names2 = await g
       .V()
       .valueMap(true)
+      .limit(10)
       .toList();
 
    console.log(typeof names2);

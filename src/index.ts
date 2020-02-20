@@ -2,6 +2,7 @@
 require('dotenv').config();
 import * as Koa from 'koa';
 import * as router from 'koa-route';
+import { checkDatabaseStatus } from './common-tools/database-tools/database-manager';
 import { handshakeRoutes } from './components/handshake/routes';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
@@ -13,6 +14,7 @@ const root = router.all('/', ctx => {
 });
 app.use(root).listen(process.env.PORT);
 console.log(`Server running on ${process.env.PORT}!`);
+checkDatabaseStatus();
 
 // Routes:
 handshakeRoutes(app);

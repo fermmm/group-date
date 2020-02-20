@@ -35,6 +35,18 @@ export async function getUserByToken(token: string): Promise<Partial<User>> {
    );
 }
 
+export async function getUserByEmail(email: string): Promise<Partial<User>> {
+   return Promise.resolve(
+      asUser(
+         (await g
+            .V()
+            .has('user', 'email', email)
+            .valueMap(true)
+            .next()).value,
+      ),
+   );
+}
+
 export async function getAllUsers(): Promise<Array<Partial<User>>> {
    return Promise.resolve(
       asUserList((await g
@@ -43,6 +55,16 @@ export async function getAllUsers(): Promise<Array<Partial<User>>> {
          .valueMap(true)
          .toList()) as Array<Map<string, string[]>>),
    );
+}
+
+export async function updateUserToken(userEmail: string, newToken: string): Promise<void> {
+   await g
+      .V()
+      .has('user', 'email', userEmail)
+      .property('token', newToken)
+      .next();
+
+   return Promise.resolve();
 }
 
 /**

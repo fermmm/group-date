@@ -1,9 +1,9 @@
 {
-   "name": "node-typescript-boilerplate",
+   "name": "poly-dates-server",
    "version": "0.1.0",
-   "description": "Node.js + TypeScript Express REST API boilerplate",
+   "description": "Poly Dates Server",
    "main": "build/index.js",
-   "author": "Jakub Sapalski",
+   "author": "Fernando Medina",
    "license": "ISC",
    "private": true,
    "scripts": {
@@ -33,7 +33,7 @@
       "ts-node": "^7.0.1",
       "tslint": "^5.11.0",
       "tslint-config-prettier": "^1.15.0",
-      "typescript": "^3.1.1"
+      "typescript": "^3.7.5"
    },
    "dependencies": {
       "axios": "^0.19.2",

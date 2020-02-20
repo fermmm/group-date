@@ -6,7 +6,7 @@ export function userRoutes(app: Koa): void {
    app.use(
       r.get(
          '/user/profile-status',
-         async ctx => (ctx.body = await profileStatusGet(ctx.request.query)),
+         async ctx => (ctx.body = await profileStatusGet(ctx.request.query, ctx)),
       ),
    );
 }
