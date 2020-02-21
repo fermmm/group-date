@@ -1,9 +1,7 @@
 import * as Koa from 'koa';
 import { UserRequestParams } from '../../common-tools/endpoints-interfaces/common';
-import { 
-   ProfileStatusServerResponse, RequiredUserProp 
-} from '../../common-tools/endpoints-interfaces/user';
-import { retreiveUser, User } from '../common/models';
+import { ProfileStatusServerResponse, RequiredUserProp, User } from '../../common-tools/endpoints-interfaces/user';
+import { retreiveUser } from '../common/models';
 
 const mandatoryUserProps: RequiredUserProp[] = [
    "name",
@@ -13,34 +11,50 @@ const mandatoryUserProps: RequiredUserProp[] = [
    "pictures",
    "dateIdeaName",
    "dateIdeaAddress",
-   "profileDescription"
+   "profileDescription",
+   "locationLat",
+   "locationLon",
+   "gender",
+   "genderPreference",
+   "question"
 ];
 
-export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<ProfileStatusServerResponse> {
+export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
-   const missingProp: RequiredUserProp = getFirstMissingUserProp(user);
-
-   if (missingProp == null) {
-      return Promise.resolve({
-         missingUserProp: null,
-      });
+   const result: ProfileStatusServerResponse = {
+      missingUserProps: getMissingUserProps(user),
+      missingQuestionsId: getMissingQuestions(user)
    }
+   
+   // TODO: Aca si el usuario esta completo setear user.profileCompleted = true
 
-   return Promise.resolve({
-      missingUserProp: {
-         prop: missingProp,
-         questionData: null
-      },
-   });
+   return Promise.resolve(result);
 }
 
-function getFirstMissingUserProp(user: Partial<User>): RequiredUserProp | null {
-   for (const prop of mandatoryUserProps) {
-      if(user[prop] == null) {
-         return prop;
+function getMissingUserProps(user: Partial<User>): RequiredUserProp[] {
+   const result: RequiredUserProp[] = [];
+
+   for (const mandatoryProp of mandatoryUserProps) {
+      if(mandatoryProp === "question") {
+         continue;
+      }
+      
+      if(user[mandatoryProp] == null) {
+         result.push(mandatoryProp);
       }
    }
 
-   // TODO: Add questions to the return value of this function
-   return null;
+   return result;
+}
+
+function getMissingQuestions(user: Partial<User>): number[] {
+   const result: number[] = [];
+   
+   // TODO: Hacer una query para crear los vertex con las preguntas
+   // TODO: Hacer una query para responder una pregunta
+   // TODO: Hacer una query para obtener las preguntas respondidas
+
+   result.push()
+
+   return result;
 }

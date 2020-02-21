@@ -47,22 +47,6 @@ export async function retreiveUser(token: string, ctx: Koa.Context): Promise<Par
    return createUser(token, userDataFromFacebook.content.email);
 }
 
-// TODO: Terminarlo?
-export interface User {
-   id: number;
-   token: string;
-   email: string;
-   name: string;
-   birthdate: Date;
-   targetAgeMin: number;
-   targetAgeMax: number;
-   pictures: string[];
-   height?: number;
-   dateIdeaName: string;
-   dateIdeaAddress: string;
-   profileDescription: string;
-}
-
 export interface FacebookResponse {
    id: string;
    email: string;
