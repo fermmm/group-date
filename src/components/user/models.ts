@@ -25,7 +25,7 @@ export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Conte
       missingQuestionsId: getMissingQuestions(user)
    }
 
-   // TODO: Aca si el usuario esta completo setear user.profileCompleted = true
+   // TODO: Aca si el usuario esta completo setear user.profileCompleted = true llamando directo a una query
 
    return Promise.resolve(result);
 }
