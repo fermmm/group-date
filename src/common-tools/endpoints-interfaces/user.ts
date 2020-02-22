@@ -10,9 +10,7 @@ export type RequiredUserProp =
    | 'locationLat'
    | 'locationLon'
    | 'gender'
-   | 'genderPreference'
-   | 'question'
-;
+   | 'genderPreference';
 
 export interface User {
    id: number;

@@ -16,16 +16,15 @@ const mandatoryUserProps: RequiredUserProp[] = [
    "locationLon",
    "gender",
    "genderPreference",
-   "question"
 ];
 
-export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<> {
+export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
    const result: ProfileStatusServerResponse = {
       missingUserProps: getMissingUserProps(user),
       missingQuestionsId: getMissingQuestions(user)
    }
-   
+
    // TODO: Aca si el usuario esta completo setear user.profileCompleted = true
 
    return Promise.resolve(result);
@@ -34,11 +33,7 @@ export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Conte
 function getMissingUserProps(user: Partial<User>): RequiredUserProp[] {
    const result: RequiredUserProp[] = [];
 
-   for (const mandatoryProp of mandatoryUserProps) {
-      if(mandatoryProp === "question") {
-         continue;
-      }
-      
+   for (const mandatoryProp of mandatoryUserProps) {      
       if(user[mandatoryProp] == null) {
          result.push(mandatoryProp);
       }
