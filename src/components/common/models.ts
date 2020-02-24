@@ -1,4 +1,5 @@
 import * as Koa from 'koa';
+import { User } from '../../common-tools/endpoints-interfaces/user';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { HttpRequestResponse } from '../../common-tools/typing-tools/typing-tools';
 import { createUser, getUserByEmail, getUserByToken, updateUserToken } from './queries';

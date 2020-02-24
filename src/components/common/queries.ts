@@ -1,7 +1,7 @@
 import { asUser, asUserList } from '../../common-tools/database-tools/data-convertion-tools';
 import { g } from '../../common-tools/database-tools/database-manager';
 import { GremlinResponse } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { User } from './models';
+import { User } from '../../common-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
    const creationResponse: GremlinResponse = await g

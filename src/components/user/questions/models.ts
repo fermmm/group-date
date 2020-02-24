@@ -1,4 +1,17 @@
-import { QuestionData } from '../../common-tools/endpoints-interfaces/questions';
+import { GenericRequestResponse } from '../../../common-tools/endpoints-interfaces/common';
+import { QuestionData } from '../../../common-tools/endpoints-interfaces/user';
+
+export function installQuestionsPost(): Promise<GenericRequestResponse> {
+  
+}
+
+export function answerQuestionPost(): Promise<GenericRequestResponse> {
+
+}
+
+export function questionsGet(): Promise<void> {
+
+}
 
 const companyQuestion: QuestionData = {
    id: 0,
