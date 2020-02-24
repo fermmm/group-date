@@ -4,15 +4,13 @@ import { GremlinResponse } from '../../../common-tools/database-tools/gremlin-ty
 
 
 export async function createQuestions(questionsId: number[]): Promise<GremlinResponse> {
-  const q: gremlin.process.GraphTraversalSource = g;
-  let query2: gremlin.process.GraphTraversal = null;
+  let query2: gremlin.process.GraphTraversal | gremlin.process.GraphTraversalSource = g;
 
-  // TODO: esto no andaria
   for (const question of questionsId) {
-    query2 = q
+    query2 = query2
       .addV('question')
       .property('questionId', question)
   }
 
-  return query2.next();
+  return (query2 as gremlin.process.GraphTraversal).next();
 }
