@@ -1,4 +1,4 @@
-import { User } from '../../components/user/models';
+import { User } from "../endpoints-interfaces/user";
 
 /**
  * Converts the format of the Gremlin output into a User object

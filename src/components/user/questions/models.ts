@@ -1,16 +1,13 @@
+import { GremlinResponse } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { GenericRequestResponse } from '../../../common-tools/endpoints-interfaces/common';
 import { QuestionData } from '../../../common-tools/endpoints-interfaces/user';
 
-export function installQuestionsPost(): Promise<GenericRequestResponse> {
-  
-}
-
 export function answerQuestionPost(): Promise<GenericRequestResponse> {
-
+   return null;
 }
 
 export function questionsGet(): Promise<void> {
-
+   return null;
 }
 
 const companyQuestion: QuestionData = {

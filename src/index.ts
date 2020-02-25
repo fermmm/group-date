@@ -4,6 +4,7 @@ import * as Koa from 'koa';
 import * as router from 'koa-route';
 import { checkDatabaseStatus } from './common-tools/database-tools/database-manager';
 import { handshakeRoutes } from './components/handshake/routes';
+import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
 
@@ -15,6 +16,10 @@ const root = router.all('/', ctx => {
 app.use(root).listen(process.env.PORT);
 console.log(`Server running on ${process.env.PORT}!`);
 checkDatabaseStatus();
+
+// App initialization
+// TODO: Testear esto
+createQuestions([0, 1, 2])
 
 // Routes:
 handshakeRoutes(app);
