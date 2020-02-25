@@ -28,7 +28,7 @@ import { databaseExperiments } from './experiments/database';
    userRoutes(app);
 
    // Finish:
-   ora('Application ready').succeed();
+   ora('Application initialized!').succeed();
 
    // Other:
    // databaseExperiments();

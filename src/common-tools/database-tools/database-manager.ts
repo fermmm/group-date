@@ -6,7 +6,7 @@ const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
 export const g = traversal().withRemote(new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL));
 
-const spinner: ora.Ora = ora('Waiting for database');
+const spinner: ora.Ora = ora({text: 'Waiting for database...', spinner: 'noise'});
 /**
  * The promise of this function resolves only when database starts working
  */
@@ -25,11 +25,11 @@ export async function databaseIsWorking(): Promise<void> {
       .toList()
       .then(() => {
          clearTimeout(timeout);
-         spinner.succeed();
+         spinner.succeed('Database running!');
          resolvePromise();
       })
       .catch(error => {
-         spinner.fail();
+         spinner.fail('Database error');
          console.log(error);
       });
 
