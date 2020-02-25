@@ -11,7 +11,8 @@
       "prebuild": "npm run clean",
       "build": "tsc",
       "start": "node --inspect=localhost:5858 --nolazy -r ts-node/register src/index.ts",
-      "dev": "nodemon --watch",
+      "dev": "gremlin-server.sh restart && nodemon --watch",
+      "dev-win": "gremlin-server.bat restart && nodemon --watch",
       "test": "jest",
       "test:coverage": "jest --coverage",
       "test:watch": "jest --watch",
@@ -40,7 +41,8 @@
       "dotenv": "^8.2.0",
       "gremlin": "^3.4.4",
       "koa": "^2.11.0",
-      "koa-route": "^3.2.0"
+      "koa-route": "^3.2.0",
+      "ora": "^4.0.3"
    },
    "jest": {
       "preset": "ts-jest",

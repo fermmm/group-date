@@ -2,28 +2,35 @@
 require('dotenv').config();
 import * as Koa from 'koa';
 import * as router from 'koa-route';
-import { checkDatabaseStatus } from './common-tools/database-tools/database-manager';
+import * as ora from 'ora';
+import { databaseIsWorking } from './common-tools/database-tools/database-manager';
 import { handshakeRoutes } from './components/handshake/routes';
 import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
 
-// Koa initialization:
-const app: Koa = new Koa();
-const root = router.all('/', ctx => {
-   ctx.body = 'Poly Dates server';
-});
-app.use(root).listen(process.env.PORT);
-console.log(`Server running on ${process.env.PORT}!`);
-checkDatabaseStatus();
+(async () => {
 
-// App initialization
-// TODO: Testear esto
-createQuestions([0, 1, 2])
+   // Koa initialization:
+   const app: Koa = new Koa();
+   const root = router.all('/', ctx => {
+      ctx.body = 'Poly Dates server';
+   });
+   app.use(root).listen(process.env.PORT);
+   ora(`Server running on ${process.env.PORT}!`).succeed();
 
-// Routes:
-handshakeRoutes(app);
-userRoutes(app);
+   // Database initialization:
+   await databaseIsWorking();
+   createQuestions([0, 1, 2]);
 
-// Other:
-// databaseExperiments();
+   // Routes:
+   handshakeRoutes(app);
+   userRoutes(app);
+
+   // Finish:
+   ora('Application ready').succeed();
+
+   // Other:
+   // databaseExperiments();
+
+})();

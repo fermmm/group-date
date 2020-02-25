@@ -95,22 +95,16 @@ If you do not have it, install the [latest Java Development Kit (JDK) from Oracl
 
 ## Running the project in local (in case you are going to modify the project)
 
-Start the database (Linux / MacOS only) 
-
-```
-gremlin-server.sh start
-```
-
-Start the database (Windows only) 
-
-```
-gremlin-server.bat start
-```
-
-Start a local development server with automatic restart:
+Linux / MacOS: Start a local development server with automatic restart
 
 ```
 npm run dev
+```
+
+Windows: Start a local development server with automatic restart
+
+```
+npm run dev-win
 ```
 
 ## Other commands
