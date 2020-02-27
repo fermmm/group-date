@@ -5,6 +5,7 @@ import * as router from 'koa-route';
 import * as ora from 'ora';
 import { databaseIsWorking } from './common-tools/database-tools/database-manager';
 import { handshakeRoutes } from './components/handshake/routes';
+import { questions } from './components/user/questions/models';
 import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
@@ -21,7 +22,7 @@ import { databaseExperiments } from './experiments/database';
 
    // Database initialization:
    await databaseIsWorking();
-   createQuestions([0, 1, 2]);
+   createQuestions(questions);
 
    // Routes:
    handshakeRoutes(app);

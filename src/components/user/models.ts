@@ -45,8 +45,8 @@ function getMissingUserProps(user: Partial<User>): RequiredUserProp[] {
 function getMissingQuestions(user: Partial<User>): number[] {
    const result: number[] = [];
    
-   // TODO: Hacer una query para crear los vertex con las preguntas
-   // TODO: Hacer una query para responder una pregunta
+   // [Hecho] Hacer una query para crear los vertex con las preguntas
+   // [Hecho] Hacer una query para responder una pregunta
    // TODO: Hacer una query para obtener las preguntas respondidas
 
    result.push()

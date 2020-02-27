@@ -46,7 +46,7 @@ export interface ProfileStatusServerResponse {
 }
 
 export interface QuestionData {
-   id: number;
+   questionId: number;
    text: string;
    extraText?: string;
    shortVersion?: string;
@@ -57,7 +57,7 @@ export interface QuestionData {
  }
  
  export interface QuestionAnswerData {
-   id: number;
+   answerId: number;
    text: string;
    extraText?: string;
    shortVersion?: string;
