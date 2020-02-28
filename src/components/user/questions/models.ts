@@ -1,11 +1,19 @@
-import { GremlinResponse } from '../../../common-tools/database-tools/gremlin-typing-tools';
+import * as Koa from 'koa';
 import { GenericRequestResponse } from '../../../common-tools/endpoints-interfaces/common';
-import { QuestionData } from '../../../common-tools/endpoints-interfaces/user';
+import {
+   QuestionData,
+   RespondQuestionParameters,
+   User,
+} from '../../../common-tools/endpoints-interfaces/user';
+import { retreiveUser } from '../../common/models';
 import { respondQuestion } from './queries';
 
-export async function respondQuestionPost(): Promise<GenericRequestResponse> {
-   // TODO: Testear esto
-   await respondQuestion(0, 0, 0, false);
+export async function respondQuestionPost(
+   params: RespondQuestionParameters,
+   ctx: Koa.Context,
+): Promise<GenericRequestResponse> {
+   const user: Partial<User> = await retreiveUser(params.token, ctx);
+   console.log(await respondQuestion(params.questionId, user.id, params.responseId, params.useAsFilter));
    return null;
 }
 
@@ -15,66 +23,66 @@ export async function questionsGet(): Promise<void> {
 
 const companyQuestion: QuestionData = {
    questionId: 0,
-   text: "¿Irías acompañade a las citas grupales de esta app?",
-   shortVersion: "Iría a la cita con",
+   text: '¿Irías acompañade a las citas grupales de esta app?',
+   shortVersion: 'Iría a la cita con',
    answers: [
       {
          answerId: 0,
-         text: "Iría sole",
+         text: 'Iría sole',
       },
       {
          answerId: 1,
-         text: "Iría en pareja",
-      }
-   ]
+         text: 'Iría en pareja',
+      },
+   ],
 };
 
 const sexIntentionsQuestion: QuestionData = {
    questionId: 1,
-   text: "¿Estás abierte a relacionarte sexualmente?",
-   shortVersion: "Abierte a relacionarse sexualmente",
+   text: '¿Estás abierte a relacionarte sexualmente?',
+   shortVersion: 'Abierte a relacionarse sexualmente',
    answers: [
       {
          answerId: 0,
-         text: "Si",
+         text: 'Si',
       },
       {
          answerId: 1,
-         text: "No, no quiero relacionarme sexualmente",
-      }
+         text: 'No, no quiero relacionarme sexualmente',
+      },
    ],
    incompatibilitiesBetweenAnswers: {
       0: [1],
-      1: [0]
+      1: [0],
    },
 };
 
 const feminismQuestion: QuestionData = {
    questionId: 2,
-   text: "¿Estás de acuerdo con el feminismo en general?",
-   extraText: "O con algún movimiento feminista",
-   shortVersion: "Está de acuerdo con algún feminismo",
+   text: '¿Estás de acuerdo con el feminismo en general?',
+   extraText: 'O con algún movimiento feminista',
+   shortVersion: 'Está de acuerdo con algún feminismo',
    answers: [
       {
          answerId: 0,
-         text: "Si, muy de acuerdo",
+         text: 'Si, muy de acuerdo',
       },
       {
          answerId: 1,
-         text: "Podría ser en alguna cosa, pero en general no",
+         text: 'Podría ser en alguna cosa, pero en general no',
       },
       {
          answerId: 2,
-         text: "No sé nada sobre el tema",
+         text: 'No sé nada sobre el tema',
       },
       {
          answerId: 3,
-         text: "No me interesa / No me parece importante",
+         text: 'No me interesa / No me parece importante',
       },
       {
          answerId: 4,
-         text: "No estoy de acuerdo con el feminismo para nada",
-      }
+         text: 'No estoy de acuerdo con el feminismo para nada',
+      },
    ],
    incompatibilitiesBetweenAnswers: {
       0: [1, 2, 3, 4],
@@ -87,82 +95,83 @@ const feminismQuestion: QuestionData = {
 
 const groupSexQuestion: QuestionData = {
    questionId: 3,
-   text: "¿Qué pensas del sexo grupal?",
-   shortVersion: "Su opinión sobre el sexo grupal",
+   text: '¿Qué pensas del sexo grupal?',
+   shortVersion: 'Su opinión sobre el sexo grupal',
    answers: [
       {
          answerId: 0,
-         text: "No me molesta / Me gustaría probar",
+         text: 'No lo se / Prefiero no opinar',
       },
       {
          answerId: 1,
-         text: "Me gustó, lo haría de nuevo",
+         text: 'No me molesta la idea / Me gustaría probar',
       },
       {
          answerId: 2,
-         text: "No lo se / Prefiero no opinar",
+         text: 'Me gustó, lo haría de nuevo',
       },
       {
          answerId: 3,
-         text: "No me interesa",
-      }
+         text: 'No tengo interés',
+      },
    ],
    incompatibilitiesBetweenAnswers: {
-      0: [3],
       1: [3],
-      3: [0, 1],
+      2: [3],
+      3: [1, 2],
    },
 };
 
 const smokeQuestion: QuestionData = {
    questionId: 4,
-   text: "¿Fumas? (tabaco)",
-   shortVersion: "Fuma",
+   text: '¿Fumas? (tabaco)',
+   shortVersion: 'Fuma',
    answers: [
       {
          answerId: 0,
-         text: "No",
+         text: 'No',
       },
       {
          answerId: 1,
-         text: "Muy poco",
+         text: 'Muy poco',
       },
       {
          answerId: 2,
-         text: "Si",
-      }
-   ]
+         text: 'Si',
+      },
+   ],
 };
 
 const politicsQuestion: QuestionData = {
    questionId: 5,
-   text: "¿Cuál es tu postura política?",
-   extraText: "Puede ser incómoda la pregunta pero es importante para la mayoría de personas consultadas",
-   shortVersion: "Su postura política",
+   text: '¿Cuál es tu postura política?',
+   extraText:
+      'Puede ser incómoda la pregunta pero es importante para la mayoría de personas consultadas',
+   shortVersion: 'Su postura política',
    itsImportantSelectedByDefault: true,
    answers: [
       {
          answerId: 0,
-         text: "No es un tema para hablar en una cita",
+         text: 'No es un tema para hablar en una cita',
       },
       {
          answerId: 1,
-         text: "Libre mercado / Centro-derecha / Derecha / Otras cercanas",
-         shortVersion: "Libre mercado / Derecha / Otras"
+         text: 'Libre mercado / Centro-derecha / Derecha / Otras cercanas',
+         shortVersion: 'Libre mercado / Derecha / Otras',
       },
       {
          answerId: 2,
-         text: "Socialismo / Centro-izquierda / Izquierda / Anarquismo / Otras cercanas",
-         shortVersion: "Izquierda / Otras"
+         text: 'Socialismo / Centro-izquierda / Izquierda / Anarquismo / Otras cercanas',
+         shortVersion: 'Izquierda / Otras',
       },
       {
          answerId: 3,
-         text: "Otra"
+         text: 'Otra',
       },
    ],
    incompatibilitiesBetweenAnswers: {
       1: [2],
-      2: [1]
+      2: [1],
    },
 };
 

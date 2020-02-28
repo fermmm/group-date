@@ -45,6 +45,13 @@ export interface ProfileStatusServerResponse {
    missingQuestionsId: number[];
 }
 
+export interface RespondQuestionParameters {
+   token: string;
+   questionId: number;
+   responseId: number;
+   useAsFilter: boolean;
+}
+
 export interface QuestionData {
    questionId: number;
    text: string;

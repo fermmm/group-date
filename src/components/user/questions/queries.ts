@@ -26,9 +26,14 @@ export async function respondQuestion(
    useAsFilter: boolean,
 ): Promise<void> {
    return await g
+      .V(userId)
       .addE('response')
-      .from_(userId)
-      .to(questionId)
+      .to(
+         (await g
+            .V()
+            .has('question', 'questionId', Number(questionId))
+            .next()).value,
+      )
       .property('responseId', responseId)
       .property('useAsFilter', useAsFilter)
       .iterate();
