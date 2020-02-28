@@ -42,9 +42,10 @@ If you do not have it, install the [latest Java Development Kit (JDK) from Oracl
    
    Save and restart the console and if you see some text instructions when running ```gremlin-server.sh``` on the console, then you are done with this step, if not, make sure you are using a code text editor when editing files, don't use editors like MacOS's TextEdit, if that is not the case eather then search on the web how to add environment variables to PATH (for your OS) and add (gremlin server folder)/bin to it.
 
-6. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat previous step with the gremlin console /bin folder to install it.
+6. **Optional**: You can install a database visualizer application to use only in local development: ``npm run install-visualizer``
+7. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat previous step with the gremlin console /bin folder to install it.
 
-7. **Optional** If you want to use Visual Studio Code you can optionally follow this:
+8. **Optional** If you want to use Visual Studio Code you can optionally follow this:
 
       Configure default build and test tasks by pasting this into `.vscode/tasks.json`:
 
@@ -106,6 +107,13 @@ Windows: Start a local development server with automatic restart
 ```
 npm run dev-win
 ```
+
+**Optional**: Database visualizer application (see installation step 6 if it's not installed):
+
+```
+npm run visualizer
+```
+Then run a query like ```g.V()```
 
 ## Other commands
 
