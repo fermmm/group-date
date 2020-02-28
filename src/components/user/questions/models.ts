@@ -11,10 +11,9 @@ import { respondQuestion } from './queries';
 export async function respondQuestionPost(
    params: RespondQuestionParameters,
    ctx: Koa.Context,
-): Promise<GenericRequestResponse> {
+): Promise<void> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
-   console.log(await respondQuestion(params.questionId, user.id, params.responseId, params.useAsFilter));
-   return null;
+   return respondQuestion(params.questionId, user.id, params.responseId, params.useAsFilter);
 }
 
 export async function questionsGet(): Promise<void> {
