@@ -12,7 +12,7 @@ export function questionsRoutes(app: Koa): void {
 
    app.use(
       r.get(
-         '/user/questions',
+         '/user/questions-responded',
          async ctx => (ctx.body = await questionsGet(/*ctx.request.query, ctx*/)),
       ),
    );
