@@ -6,6 +6,7 @@ yarn.lock
 package-lock.json
 *.log
 .env
+gremlin-visualizer/package-lock.json
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
