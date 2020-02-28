@@ -5,16 +5,16 @@ import { HttpRequestResponse } from '../../common-tools/typing-tools/typing-tool
 import { createUser, getUserByEmail, getUserByToken, updateUserToken } from './queries';
 
 /**
- * Tries to get the user using the token and if the user does not exist it creates it.
- * It does the following:
+ * Tries to get the user using the Facebook token and if the user does not exist it creates it.
+ * It does the following in order:
  * 
- * 1. If the database returns the user with the token returns the user and finish
- * 2. If the token does not exist in database asks Facebook for the user email using the token
- * 3. If Facebook does not return a user email when sending the token, then throws error with ctx.throw()
- * 4. If the email returned by Facebook exists in the database replaces the token and returns the user
- * 5. If not, creates a new user saving the email and token, then returns the new user
+ * 1. If the database finds the user with the provided token returns the user and that's all
+ * 2. If the token does not exist in database then sends the token to Facebook to try to get the user email
+ * 3. If Facebook does not return the email of the user it means the token is invalid: throws error (ctx.throw)
+ * 4. If using the email the database finds a user then replaces token cached and returns the user 
+ * 5. If not, it means we are dealing with a new user, so it creates it with the email and token and returns it
  * 
- * @param token 
+ * @param token Token from the Facebook login in the client application
  * @param ctx 
  */
 export async function retreiveUser(token: string, ctx: Koa.Context): Promise<Partial<User>> {
