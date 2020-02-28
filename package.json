@@ -18,7 +18,9 @@
       "test:watch": "jest --watch",
       "prettier": "prettier --write src/**/*.ts test/**/*.ts",
       "style": "prettier --list-different src/**/*.ts test/**/*.ts",
-      "lint": "tslint src/**/*.ts"
+      "lint": "tslint src/**/*.ts",
+      "install-visualizer": "git submodule init && git submodule update && cd gremlin-visualizer && npm install",
+      "visualizer": "cd gremlin-visualizer && npm start"
    },
    "devDependencies": {
       "@types/gremlin": "^3.4.3",
