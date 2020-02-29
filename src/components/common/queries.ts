@@ -73,6 +73,16 @@ export async function updateUserToken(userEmail: string, newToken: string): Prom
    return Promise.resolve();
 }
 
+export async function updateUserProp(token: string, prop: string, value: number | string | boolean): Promise<void> {
+   await g
+      .V()
+      .has('user', 'token', String(token))
+      .property(prop, value)
+      .next();
+
+   return Promise.resolve();
+}
+
 /**
  * Obviously this is only for testing
  */

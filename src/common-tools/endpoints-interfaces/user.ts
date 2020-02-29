@@ -49,7 +49,7 @@ export interface ProfileStatusServerResponse {
 export interface RespondQuestionParameters {
    token: string;
    questionId: number;
-   responseId: number;
+   answerId: number;
    useAsFilter: boolean;
 }
 

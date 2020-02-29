@@ -56,7 +56,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
 export async function respondQuestion(
    questionId: number,
    userToken: string,
-   responseId: number,
+   answerId: number,
    useAsFilter: boolean,
 ): Promise<void> {
 
@@ -68,7 +68,7 @@ export async function respondQuestion(
          __.inE('response').where(__.outV().as('user')),
          __.addE('response')
             .from_('user')
-            .property('responseId', Number(responseId))
+            .property('answerId', Number(answerId))
             .property('useAsFilter', Boolean(useAsFilter)),
       )
       .iterate();

@@ -2,7 +2,7 @@ import { QuestionData, RespondQuestionParameters } from '../../../common-tools/e
 import { respondQuestion } from './queries';
 
 export async function respondQuestionPost(params: RespondQuestionParameters): Promise<void> {
-   return respondQuestion(params.questionId, params.token, params.responseId, params.useAsFilter);
+   return respondQuestion(params.questionId, params.token, params.answerId, params.useAsFilter);
 }
 
 const companyQuestion: QuestionData = {
