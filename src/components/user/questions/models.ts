@@ -1,23 +1,8 @@
-import * as Koa from 'koa';
-import { GenericRequestResponse } from '../../../common-tools/endpoints-interfaces/common';
-import {
-   QuestionData,
-   RespondQuestionParameters,
-   User,
-} from '../../../common-tools/endpoints-interfaces/user';
-import { retreiveUser } from '../../common/models';
+import { QuestionData, RespondQuestionParameters } from '../../../common-tools/endpoints-interfaces/user';
 import { respondQuestion } from './queries';
 
-export async function respondQuestionPost(
-   params: RespondQuestionParameters,
-   ctx: Koa.Context,
-): Promise<void> {
-   const user: Partial<User> = await retreiveUser(params.token, ctx);
-   return respondQuestion(params.questionId, user.id, params.responseId, params.useAsFilter);
-}
-
-export async function questionsGet(): Promise<void> {
-   return null;
+export async function respondQuestionPost(params: RespondQuestionParameters): Promise<void> {
+   return respondQuestion(params.questionId, params.token, params.responseId, params.useAsFilter);
 }
 
 const companyQuestion: QuestionData = {
@@ -144,8 +129,7 @@ const smokeQuestion: QuestionData = {
 const politicsQuestion: QuestionData = {
    questionId: 5,
    text: '¿Cuál es tu postura política?',
-   extraText:
-      'Puede ser incómoda la pregunta pero es importante para la mayoría de personas consultadas',
+   extraText: 'Puede ser incómoda la pregunta pero es importante para la mayoría de personas consultadas',
    shortVersion: 'Su postura política',
    itsImportantSelectedByDefault: true,
    answers: [

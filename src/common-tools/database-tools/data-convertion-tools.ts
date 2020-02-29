@@ -1,48 +1,45 @@
-import { User } from "../endpoints-interfaces/user";
+import { User } from '../endpoints-interfaces/user';
+import { UserFromDatabase } from './gremlin-typing-tools';
 
 /**
  * Converts the format of the Gremlin output into a User object
  *
  * @param userMap The Map<string, string[]> object returned by Gremlin database when using valueMap(true).next() in the query
  */
-export function asUser(userMap: Map<string, string[]>): Partial<User> {
+export function asUser(userMap: UserFromDatabase): Partial<User> {
    if (userMap == null) {
       return null;
    }
 
-   const result: Partial<User> = {};
-   for (const userKey of userMap.keys()) {
-      const keyAsString: string = userKey.toString();
-      if (keyAsString === 'label') {
-         continue;
-      }
-
-      const value: number | string | string[] = userMap.get(userKey);
-      if (value.length && value.length === 1) {
-         result[keyAsString] = value[0];
-         continue;
-      }
-      result[keyAsString] = value;
-   }
+   const result: Partial<User> = {
+      ...mapToObject(userMap.get('profile')),
+      questions: mapToObjectDeep(userMap.get('questions')),
+   };
 
    return result;
 }
 
-/**
- * Converts the format of the Gremlin output into User objects when requesting a list of Users
- *
- * @param userMap The Array<Map<string, string[]>> object returned by Gremlin database when using valueMap(true).toList() in the query
- */
-export function asUserList(userMapList: Array<Map<string, string[]>>): Array<Partial<User>> {
-   if (userMapList == null) {
-      return null;
+function mapToObject<T>(map: Map<string, T>): Record<string, T> {
+   const result: Record<string, T> = {};
+   map.forEach((v, k) => {
+      result[k] = v;
+   });
+   return result;
+}
+
+function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
+   if(map instanceof Array) {
+      return map.map((v) => mapToObjectDeep(v));
    }
 
-   const result: Array<Partial<User>> = [];
-
-   for (const user of userMapList) {
-      result.push(asUser(user));
+   if(!(map instanceof Map)) {
+      return map;
    }
+   
+   const result: Record<string, any> = {};
+   map.forEach((v, k) => {
+      result[k] = mapToObjectDeep(v);
+   });
 
    return result;
 }

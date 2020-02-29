@@ -1,60 +1,66 @@
-import { asUser, asUserList } from '../../common-tools/database-tools/data-convertion-tools';
-import { g } from '../../common-tools/database-tools/database-manager';
-import { GremlinResponse } from '../../common-tools/database-tools/gremlin-typing-tools';
+import * as gremlin from 'gremlin';
+import { asUser } from '../../common-tools/database-tools/data-convertion-tools';
+import { __, g } from '../../common-tools/database-tools/database-manager';
+import {
+   GraphTraversal,
+   Traversal,
+   UserFromDatabase,
+} from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User } from '../../common-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
-   const creationResponse: GremlinResponse = await g
-      .addV('user')
-      .property('email', email)
-      .property('token', token)
-      .next();
-   return Promise.resolve(await getUserByVertexId(creationResponse.value.id));
-}
-
-export async function getUserByVertexId(vertexId: number): Promise<Partial<User>> {
-   return Promise.resolve(
-      asUser(
-         (await g
-            .V(vertexId)
-            .valueMap(true)
-            .next()).value,
-      ),
+   return asUser(
+      (await g
+         .addV('user')
+         .property('email', email)
+         .property('token', token)
+         .project('profile')
+         .by(__.valueMap().by(__.unfold()))
+         .next()).value,
    );
 }
 
 export async function getUserByToken(token: string): Promise<Partial<User>> {
    return Promise.resolve(
-      asUser(
-         (await g
-            .V()
-            .has('user', 'token', token)
-            .valueMap(true)
-            .next()).value,
-      ),
+      asUser((await profileAndQuestions(getUserTraversalByToken(token)).next()).value as UserFromDatabase),
    );
 }
 
 export async function getUserByEmail(email: string): Promise<Partial<User>> {
    return Promise.resolve(
-      asUser(
-         (await g
-            .V()
-            .has('user', 'email', email)
-            .valueMap(true)
-            .next()).value,
-      ),
+      asUser((await profileAndQuestions(getUserTraversalByEmail(email)).next()).value as UserFromDatabase),
    );
 }
 
-export async function getAllUsers(): Promise<Array<Partial<User>>> {
-   return Promise.resolve(
-      asUserList((await g
-         .V()
-         .hasLabel('user')
-         .valueMap(true)
-         .toList()) as Array<Map<string, string[]>>),
-   );
+function profileAndQuestions(traversal: gremlin.process.GraphTraversal): GraphTraversal {
+   return traversal
+      .project('profile', 'questions')
+      .by(__.valueMap().by(__.unfold()))
+      .by(
+         __.outE('response')
+            .as('response')
+            .inV()
+            .as('question')
+            .select('question', 'response')
+            .by(__.valueMap().by(__.unfold()))
+            .fold(),
+      );
+}
+
+export function getUserTraversalByToken(token: string, currentTraversal?: Traversal): gremlin.process.GraphTraversal {
+   if (currentTraversal == null) {
+      currentTraversal = g;
+   }
+
+   return currentTraversal.V().has('user', 'token', String(token));
+}
+
+export function getUserTraversalByEmail(email: string, currentTraversal?: Traversal): gremlin.process.GraphTraversal {
+   if (currentTraversal == null) {
+      currentTraversal = g;
+   }
+
+   return currentTraversal.V().has('user', 'email', String(email));
 }
 
 export async function updateUserToken(userEmail: string, newToken: string): Promise<void> {

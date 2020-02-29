@@ -30,6 +30,7 @@ export interface User {
    dateIdeaAddress: string;
    profileDescription: string;
    profileCompleted: boolean;
+   questions?: Array<{question: QuestionInDatabase, response: QuestionResponseInDatabase}>;
 }
 
 export enum Gender {
@@ -37,7 +38,7 @@ export enum Gender {
    Male = 1,
    FemaleTrans = 2,
    MaleTrans = 3,
-   Other = 4
+   Other = 4,
 }
 
 export interface ProfileStatusServerResponse {
@@ -61,11 +62,20 @@ export interface QuestionData {
    itsImportantSelectedByDefault?: boolean;
    answers: QuestionAnswerData[];
    incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
- }
- 
- export interface QuestionAnswerData {
+}
+
+export interface QuestionAnswerData {
    answerId: number;
    text: string;
    extraText?: string;
    shortVersion?: string;
- }
+}
+
+export interface QuestionResponseInDatabase {
+   answerId: number;
+   useAsFilter: boolean;
+}
+
+export interface QuestionInDatabase {
+   questionId: number;
+}
