@@ -5,6 +5,10 @@ export async function respondQuestionPost(params: RespondQuestionParameters): Pr
    return respondQuestion(params.questionId, params.token, params.answerId, params.useAsFilter);
 }
 
+export function questionsGet(): QuestionData[] {
+   return questions;
+}
+
 const companyQuestion: QuestionData = {
    questionId: 0,
    text: '¿Irías acompañade a las citas grupales de esta app?',

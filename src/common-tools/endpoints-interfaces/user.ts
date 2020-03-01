@@ -58,7 +58,6 @@ export interface QuestionData {
    text: string;
    extraText?: string;
    shortVersion?: string;
-   multipleAnswersAllowed?: boolean;
    itsImportantSelectedByDefault?: boolean;
    answers: QuestionAnswerData[];
    incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
