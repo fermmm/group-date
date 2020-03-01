@@ -53,6 +53,11 @@ export interface RespondQuestionParameters {
    useAsFilter: boolean;
 }
 
+export interface UserSetPropsParameters {
+   token: string;
+   props: Array<Record<RequiredUserProp, number | string | string[]>>
+}
+
 export interface QuestionData {
    questionId: number;
    text: string;

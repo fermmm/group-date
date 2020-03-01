@@ -1,6 +1,6 @@
 import * as Koa from 'koa';
 import { UserRequestParams } from '../../common-tools/endpoints-interfaces/common';
-import { ProfileStatusServerResponse, RequiredUserProp, User } from '../../common-tools/endpoints-interfaces/user';
+import { ProfileStatusServerResponse, RequiredUserProp, User, UserSetPropsParameters } from '../../common-tools/endpoints-interfaces/user';
 import { retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
 import { questions } from './questions/models';
@@ -73,3 +73,13 @@ function getMissingQuestions(user: Partial<User>): number[] {
 export async function userGet(params: UserRequestParams, ctx: Koa.Context): Promise<Partial<User>> {
    return retreiveUser(params.token, ctx);
 }
+
+export async function userPost(params: UserSetPropsParameters, ctx: Koa.Context): Promise<void> {
+   console.log(params.props[0]); // Ya funciona
+
+   // TODO: Tal vez habria que hacer alguna especia de validacion para esto
+
+   const user: Partial<User> = await retreiveUser(params.token, ctx);
+   return Promise.resolve();
+}
+
