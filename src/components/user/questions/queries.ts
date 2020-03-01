@@ -11,7 +11,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
     * Add question to the database from the questions list provided (only when it does not
     * exist already)
     */
-   
+
    for (const question of questions) {
       traversal = traversal
          .V()
@@ -59,17 +59,20 @@ export async function respondQuestion(
    answerId: number,
    useAsFilter: boolean,
 ): Promise<void> {
-
-   return await getUserTraversalByToken(userToken)
-      .as("user")
+   return getUserTraversalByToken(userToken)
+      .as('user')
       .V()
       .has('question', 'questionId', Number(questionId))
-      .coalesce(
-         __.inE('response').where(__.outV().as('user')),
-         __.addE('response')
-            .from_('user')
-            .property('answerId', Number(answerId))
-            .property('useAsFilter', Boolean(useAsFilter)),
+      .as('question')
+      .sideEffect(
+         __.inE('response')
+            .where(__.outV().as('user'))
+            .drop(),
       )
+      .select('user')
+      .addE('response')
+      .to('question')
+      .property('answerId', Number(answerId))
+      .property('useAsFilter', Boolean(useAsFilter))
       .iterate();
 }
