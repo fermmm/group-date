@@ -69,3 +69,7 @@ function getMissingQuestions(user: Partial<User>): number[] {
 
    return result;
 }
+
+export async function userGet(params: UserRequestParams, ctx: Koa.Context): Promise<Partial<User>> {
+   return retreiveUser(params.token, ctx);
+}
