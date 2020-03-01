@@ -4,17 +4,23 @@ import { UserFromDatabase } from './gremlin-typing-tools';
 /**
  * Converts the format of the Gremlin output into a User object
  *
- * @param userMap The Map<string, string[]> object returned by Gremlin database when using valueMap(true).next() in the query
+ * @param userFromDatabase
  */
-export function asUser(userMap: UserFromDatabase): Partial<User> {
-   if (userMap == null) {
+export function asUser(userFromDatabase: UserFromDatabase): Partial<User> {
+   if (userFromDatabase == null) {
       return null;
    }
 
+   // Add general props
    const result: Partial<User> = {
-      ...mapToObject(userMap.get('profile')),
-      questions: mapToObjectDeep(userMap.get('questions')),
+      ...mapToObject(userFromDatabase.get('profile'))
    };
+
+   // Add questions:
+   const questions: typeof result.questions = mapToObjectDeep(userFromDatabase.get('questions'));
+   if (questions?.length > 0) {
+      result.questions = questions;
+   }
 
    return result;
 }

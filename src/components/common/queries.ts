@@ -14,6 +14,7 @@ export async function createUser(token: string, email: string): Promise<Partial<
          .addV('user')
          .property('email', email)
          .property('token', token)
+         .property('profileCompleted', false)
          .project('profile')
          .by(__.valueMap().by(__.unfold()))
          .next()).value,
