@@ -9,14 +9,14 @@ export function userRoutes(app: Koa): void {
    app.use(
       r.get(
          '/user/profile-status',
-         async ctx => (ctx.body = await profileStatusGet(ctx.request.query, ctx)),
+         async ctx => (ctx.body = await profileStatusGet(ctx.request.body, ctx)),
       ),
    );
 
    app.use(
       r.get(
          '/user',
-         async ctx => (ctx.body = await userGet(ctx.request.query, ctx)),
+         async ctx => (ctx.body = await userGet(ctx.request.body, ctx)),
       ),
    );
    
