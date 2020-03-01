@@ -69,9 +69,8 @@ export async function respondQuestion(
             .where(__.outV().as('user'))
             .drop(),
       )
-      .select('user')
       .addE('response')
-      .to('question')
+      .from_('user')
       .property('answerId', Number(answerId))
       .property('useAsFilter', Boolean(useAsFilter))
       .iterate();
