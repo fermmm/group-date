@@ -43,6 +43,7 @@
       "axios": "^0.19.2",
       "babel-jest": "^24.9.0",
       "dotenv": "^8.2.0",
+      "fastest-validator": "^1.0.2",
       "gremlin": "^3.4.4",
       "koa": "^2.11.0",
       "koa-bodyparser": "^4.2.1",

@@ -75,9 +75,7 @@ export async function userGet(params: UserRequestParams, ctx: Koa.Context): Prom
 }
 
 export async function userPost(params: UserSetPropsParameters, ctx: Koa.Context): Promise<void> {
-   console.log(params.props[0]); // Ya funciona
-
-   // TODO: Tal vez habria que hacer alguna especia de validacion para esto
+   // TODO: Validar con fastest-validator
 
    const user: Partial<User> = await retreiveUser(params.token, ctx);
    return Promise.resolve();
