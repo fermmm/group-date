@@ -1,4 +1,4 @@
-import { User } from '../endpoints-interfaces/user';
+import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { UserFromDatabase } from './gremlin-typing-tools';
 
 /**

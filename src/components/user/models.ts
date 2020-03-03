@@ -1,11 +1,11 @@
 import * as Koa from 'koa';
-import { UserRequestParams } from '../../common-tools/endpoints-interfaces/common';
+import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
 import {
    ProfileStatusServerResponse,
    RequiredUserProp,
    User,
    UserSetPropsParameters,
-} from '../../common-tools/endpoints-interfaces/user';
+} from '../../shared-tools/endpoints-interfaces/user';
 import { retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
 import { questions } from './questions/models';

@@ -2,7 +2,7 @@ import * as gremlin from 'gremlin';
 import { asUser } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g } from '../../common-tools/database-tools/database-manager';
 import { GraphTraversal, Traversal, UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { User } from '../../common-tools/endpoints-interfaces/user';
+import { User } from '../../shared-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
    return asUser(

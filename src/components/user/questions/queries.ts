@@ -1,7 +1,7 @@
 import * as gremlin from 'gremlin';
 import { __, g } from '../../../common-tools/database-tools/database-manager';
 import { VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { QuestionData } from '../../../common-tools/endpoints-interfaces/user';
+import { QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
 
 export async function createQuestions(questions: QuestionData[]): Promise<void> {

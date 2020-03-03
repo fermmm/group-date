@@ -1,4 +1,4 @@
-import { QuestionData, RespondQuestionParameters } from '../../../common-tools/endpoints-interfaces/user';
+import { QuestionData, RespondQuestionParameters } from '../../../shared-tools/endpoints-interfaces/user';
 import { respondQuestion } from './queries';
 
 export async function respondQuestionPost(params: RespondQuestionParameters): Promise<void> {
