@@ -48,6 +48,7 @@
       "koa": "^2.11.0",
       "koa-bodyparser": "^4.2.1",
       "koa-route": "^3.2.0",
+      "moment": "^2.24.0",
       "ora": "^4.0.3"
    },
    "jest": {
