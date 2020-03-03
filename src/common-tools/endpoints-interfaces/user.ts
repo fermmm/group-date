@@ -30,7 +30,7 @@ export interface User {
    dateIdeaAddress: string;
    profileDescription: string;
    profileCompleted: boolean;
-   questions?: Array<{question: QuestionInDatabase, response: QuestionResponseInDatabase}>;
+   questions?: Array<{ question: QuestionInDatabase; response: QuestionResponseInDatabase }>;
 }
 
 export enum Gender {
@@ -55,7 +55,7 @@ export interface RespondQuestionParameters {
 
 export interface UserSetPropsParameters {
    token: string;
-   props: Array<Record<RequiredUserProp, number | string | string[]>>
+   props: Array<Record<RequiredUserProp, number | string | string[]>>;
 }
 
 export interface QuestionData {

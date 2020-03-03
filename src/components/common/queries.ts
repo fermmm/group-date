@@ -1,23 +1,21 @@
 import * as gremlin from 'gremlin';
 import { asUser } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g } from '../../common-tools/database-tools/database-manager';
-import {
-   GraphTraversal,
-   Traversal,
-   UserFromDatabase,
-} from '../../common-tools/database-tools/gremlin-typing-tools';
+import { GraphTraversal, Traversal, UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User } from '../../common-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
    return asUser(
-      (await g
-         .addV('user')
-         .property('email', email)
-         .property('token', token)
-         .property('profileCompleted', false)
-         .project('profile')
-         .by(__.valueMap().by(__.unfold()))
-         .next()).value,
+      (
+         await g
+            .addV('user')
+            .property('email', email)
+            .property('token', token)
+            .property('profileCompleted', false)
+            .project('profile')
+            .by(__.valueMap().by(__.unfold()))
+            .next()
+      ).value,
    );
 }
 

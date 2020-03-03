@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { HttpRequestResponse } from '../typing-tools/typing-tools';
 
 /**
@@ -15,16 +15,19 @@ export async function httpRequest<T>(options: AxiosRequestConfig): Promise<HttpR
 
    try {
       const response: AxiosResponse<T> = await client(options);
-      promiseResolve({success: true, content: response.data});
+      promiseResolve({ success: true, content: response.data });
    } catch (error) {
       if (error.response) {
          // Request was made but server responded with something
          // other than 2xx
-         promiseResolve({success: false, error: {message: error.response.data?.error?.message, code: error.response.status}})
+         promiseResolve({
+            success: false,
+            error: { message: error.response.data?.error?.message, code: error.response.status },
+         });
       } else {
          // Something else happened while setting up the request
          // triggered the error
-         promiseResolve({success: false, error: {message: error.message, code: 0}});
+         promiseResolve({ success: false, error: { message: error.message, code: 0 } });
       }
    }
 

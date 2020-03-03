@@ -13,7 +13,7 @@ export function asUser(userFromDatabase: UserFromDatabase): Partial<User> {
 
    // Add general props
    const result: Partial<User> = {
-      ...mapToObject(userFromDatabase.get('profile'))
+      ...mapToObject(userFromDatabase.get('profile')),
    };
 
    // Add questions:
@@ -34,14 +34,14 @@ function mapToObject<T>(map: Map<string, T>): Record<string, T> {
 }
 
 function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
-   if(map instanceof Array) {
-      return map.map((v) => mapToObjectDeep(v));
+   if (map instanceof Array) {
+      return map.map(v => mapToObjectDeep(v));
    }
 
-   if(!(map instanceof Map)) {
+   if (!(map instanceof Map)) {
       return map;
    }
-   
+
    const result: Record<string, any> = {};
    map.forEach((v, k) => {
       result[k] = mapToObjectDeep(v);

@@ -3,5 +3,5 @@ export interface UserRequestParams {
 }
 
 export interface GenericRequestResponse {
-  success: boolean;
+   success: boolean;
 }

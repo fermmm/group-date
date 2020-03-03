@@ -1,6 +1,11 @@
 import * as Koa from 'koa';
 import { UserRequestParams } from '../../common-tools/endpoints-interfaces/common';
-import { ProfileStatusServerResponse, RequiredUserProp, User, UserSetPropsParameters } from '../../common-tools/endpoints-interfaces/user';
+import {
+   ProfileStatusServerResponse,
+   RequiredUserProp,
+   User,
+   UserSetPropsParameters,
+} from '../../common-tools/endpoints-interfaces/user';
 import { retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
 import { questions } from './questions/models';
@@ -80,4 +85,3 @@ export async function userPost(params: UserSetPropsParameters, ctx: Koa.Context)
    const user: Partial<User> = await retreiveUser(params.token, ctx);
    return Promise.resolve();
 }
-

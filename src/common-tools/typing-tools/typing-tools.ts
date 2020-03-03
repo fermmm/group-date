@@ -1,6 +1,6 @@
 export interface HttpRequestResponse<T> {
    success: boolean;
-   error?: HttpRequestError
+   error?: HttpRequestError;
    content?: T;
 }
 

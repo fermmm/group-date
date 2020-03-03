@@ -8,8 +8,7 @@ export const g = traversal().withRemote(new DriverRemoteConnection(process.env.D
 export const __ = gremlin.process.statics;
 export const withOptions = gremlin.process.withOptions;
 
-
-const spinner: ora.Ora = ora({text: 'Waiting for database...', spinner: 'noise'});
+const spinner: ora.Ora = ora({ text: 'Waiting for database...', spinner: 'noise' });
 /**
  * The promise of this function resolves only when database starts working
  */
