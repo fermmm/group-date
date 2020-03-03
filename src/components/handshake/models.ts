@@ -1,5 +1,5 @@
-import { HandshakeParams, ServerHandshakeResponse } from '../../shared-tools/endpoints-interfaces/handshake';
 import { versionIsCompatible } from '../../common-tools/string-tools/string-tools';
+import { HandshakeParams, ServerHandshakeResponse } from '../../shared-tools/endpoints-interfaces/handshake';
 
 export function handshakePost(params: HandshakeParams): ServerHandshakeResponse {
    return {

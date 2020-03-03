@@ -1,7 +1,7 @@
 import * as Koa from 'koa';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { HttpRequestResponse } from '../../common-tools/typing-tools/typing-tools';
+import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { createUser, getUserByEmail, getUserByToken, updateUserToken } from './queries';
 
 /**
