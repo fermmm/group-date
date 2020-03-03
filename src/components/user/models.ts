@@ -1,10 +1,11 @@
 import { ValidationError } from 'fastest-validator';
+import { process } from 'gremlin';
 import * as Koa from 'koa';
 import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
 import { ProfileStatusServerResponse, User, UserSetPropsParameters } from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProp, editableUserPropsList, validateUserProps } from '../../shared-tools/validators/user';
 import { retreiveUser } from '../common/models';
-import { updateUserProp } from '../common/queries';
+import { getUserTraversalByToken, updateUserProp } from '../common/queries';
 import { questions } from './questions/models';
 
 export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<ProfileStatusServerResponse> {
@@ -65,18 +66,16 @@ export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Con
       ctx.throw(400, JSON.stringify(validationResult));
    }
 
-   const user: Partial<User> = await retreiveUser(params.token, ctx);
-
-   // TODO: Loopear editableUserPropsList y si la prop esta presente en el objeto recibido se agrega
-   // esto evita loopear una lista random gigante que puedan mandar si quieren atacar
+   let query: process.GraphTraversal = getUserTraversalByToken(params.token);
+   /**
+    * Loop trough the editableUserPropsList instead of looping params.props because params.props
+    * comes from the request and the system should not be stressed with a possible big object attack.
+    */
    editableUserPropsList.forEach(editableUserProp => {
       if (params.props[editableUserProp] != null) {
-         /**
-          * Agregar
-          * key: editableUserProp
-          * value:  params.props[editableUserProp]
-          */
+         query = query.property(editableUserProp, params.props[editableUserProp]);
       }
    });
-   return Promise.resolve();
+
+   return query.iterate();
 }
