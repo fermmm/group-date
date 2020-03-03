@@ -1,16 +1,4 @@
-export type RequiredUserProp =
-   | 'name'
-   | 'birthdate'
-   | 'targetAgeMin'
-   | 'targetAgeMax'
-   | 'pictures'
-   | 'dateIdeaName'
-   | 'dateIdeaAddress'
-   | 'profileDescription'
-   | 'locationLat'
-   | 'locationLon'
-   | 'gender'
-   | 'genderPreference';
+import { EditableUserProp } from '../validators/user';
 
 export interface User {
    id: number;
@@ -34,15 +22,15 @@ export interface User {
 }
 
 export enum Gender {
-   Female = 0,
-   Male = 1,
-   FemaleTrans = 2,
-   MaleTrans = 3,
-   Other = 4,
+   Woman = 'Woman',
+   Man = 'Man',
+   TransgenderWoman = 'TransgenderWoman',
+   TransgenderMan = 'TransgenderMan',
+   Other = 'Other',
 }
 
 export interface ProfileStatusServerResponse {
-   missingUserProps: RequiredUserProp[];
+   missingEditableUserProps: EditableUserProp[];
    missingQuestionsId: number[];
 }
 
@@ -55,7 +43,7 @@ export interface RespondQuestionParameters {
 
 export interface UserSetPropsParameters {
    token: string;
-   props: Array<Record<RequiredUserProp, number | string | string[]>>;
+   props: Record<EditableUserProp, number | string | string[]>;
 }
 
 export interface QuestionData {
