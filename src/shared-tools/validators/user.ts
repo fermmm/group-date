@@ -14,6 +14,16 @@ export const editableUserPropsSchema = {
    profileDescription: { type: 'string', max: 4000, optional: true },
    locationLat: { type: 'number', optional: true },
    locationLon: { type: 'number', optional: true },
+   likesWoman: { type: 'boolean', optional: true },
+   likesMan: { type: 'boolean', optional: true },
+   likesWomanTrans: { type: 'boolean', optional: true },
+   likesManTrans: { type: 'boolean', optional: true },
+   likesOtherGenders: { type: 'boolean', optional: true },
+   gender: {
+      type: 'enum',
+      values: [Gender.Woman, Gender.Man, Gender.TransgenderWoman, Gender.TransgenderMan, Gender.Other],
+      optional: true,
+   },
 };
 
 export type EditableUserProp = keyof typeof editableUserPropsSchema;

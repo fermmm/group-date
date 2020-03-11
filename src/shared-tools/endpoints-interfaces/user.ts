@@ -11,7 +11,11 @@ export interface User {
    gender: Gender;
    targetAgeMin: number;
    targetAgeMax: number;
-   genderPreference: Gender[];
+   likesWoman: boolean;
+   likesMan: boolean;
+   likesWomanTrans: boolean;
+   likesManTrans: boolean;
+   likesOtherGenders: boolean;
    pictures: string[];
    height?: number;
    dateIdeaName: string;
