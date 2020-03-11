@@ -1,11 +1,11 @@
 import { ValidationError } from 'fastest-validator';
-import { process } from 'gremlin';
 import * as Koa from 'koa';
 import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
 import { ProfileStatusServerResponse, User, UserSetPropsParameters } from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProp, editableUserPropsList, validateUserProps } from '../../shared-tools/validators/user';
 import { retreiveUser } from '../common/models';
-import { getUserTraversalByToken, updateUserProp } from '../common/queries';
+import { updateUserProp } from '../common/queries';
+import { setUserProps } from './queries';
 import { questions } from './questions/models';
 
 export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<ProfileStatusServerResponse> {
@@ -66,16 +66,5 @@ export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Con
       ctx.throw(400, JSON.stringify(validationResult));
    }
 
-   let query: process.GraphTraversal = getUserTraversalByToken(params.token);
-   /**
-    * Loop trough the editableUserPropsList instead of looping params.props because params.props
-    * comes from the request and the system should not be stressed with a possible big object attack.
-    */
-   editableUserPropsList.forEach(editableUserProp => {
-      if (params.props[editableUserProp] != null) {
-         query = query.property(editableUserProp, params.props[editableUserProp]);
-      }
-   });
-
-   return query.iterate();
+   setUserProps(params.token, params.props);
 }

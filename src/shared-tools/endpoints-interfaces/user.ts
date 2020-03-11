@@ -43,7 +43,7 @@ export interface RespondQuestionParameters {
 
 export interface UserSetPropsParameters {
    token: string;
-   props: Record<EditableUserProp, number | string | string[]>;
+   props: Record<EditableUserProp, number | string>;
 }
 
 export interface QuestionData {
