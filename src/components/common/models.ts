@@ -17,7 +17,7 @@ import { createUser, getUserByEmail, getUserByToken, updateUserToken } from './q
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveUser(token: string, ctx: Koa.Context): Promise<Partial<User>> {
+export async function retreiveUser(token: string, ctx: Koa.BaseContext): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
    user = await getUserByToken(token);

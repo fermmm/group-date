@@ -1,3 +1,5 @@
+import * as Koa from 'koa';
+
 export interface HttpRequestResponse<T> {
    success: boolean;
    error?: HttpRequestError;

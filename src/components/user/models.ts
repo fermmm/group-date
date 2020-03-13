@@ -8,9 +8,10 @@ import { updateUserProp } from '../common/queries';
 import { setUserProps } from './queries';
 import { questions } from './questions/models';
 
-export async function profileStatusGet(params: UserRequestParams, ctx: Koa.Context): Promise<ProfileStatusServerResponse> {
-   // TODO: Implementar los generos
-
+export async function profileStatusGet(
+   params: UserRequestParams,
+   ctx: Koa.BaseContext,
+): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
@@ -56,11 +57,11 @@ function getMissingQuestions(user: Partial<User>): number[] {
    return result;
 }
 
-export async function userGet(params: UserRequestParams, ctx: Koa.Context): Promise<Partial<User>> {
+export async function userGet(params: UserRequestParams, ctx: Koa.BaseContext): Promise<Partial<User>> {
    return retreiveUser(params.token, ctx);
 }
 
-export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Context): Promise<void> {
+export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.BaseContext): Promise<void> {
    const validationResult: true | ValidationError[] = validateUserProps(params.props);
    if (validationResult !== true) {
       ctx.throw(400, JSON.stringify(validationResult));

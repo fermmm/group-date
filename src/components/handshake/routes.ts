@@ -1,7 +1,7 @@
+import * as Router from '@koa/router';
 import * as Koa from 'koa';
-import * as r from 'koa-route';
 import { handshakePost } from './models';
 
-export function handshakeRoutes(app: Koa): void {
-   app.use(r.post('/handshake', ctx => (ctx.body = handshakePost(ctx.request.body))));
+export function handshakeRoutes(router: Router): void {
+   router.post('/handshake', ctx => (ctx.body = handshakePost(ctx.request.body)));
 }
