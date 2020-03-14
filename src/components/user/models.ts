@@ -94,5 +94,18 @@ export function setupFileReceiver(): multer.Instance {
       },
    });
 
-   return multer({ storage });
+   const limits = {
+      fileSize: 500 * 1024 * 1024,
+   };
+
+   const fileFilter = (req, file, cb) => {
+      const extension: string = path.extname(file.originalname).toLowerCase();
+      if (extension !== '.jpg' && extension !== '.jpeg' && extension !== '.png') {
+         return cb(null, false);
+      }
+
+      cb(null, true);
+   };
+
+   return multer({ storage, limits, fileFilter });
 }
