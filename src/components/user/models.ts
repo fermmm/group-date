@@ -85,9 +85,10 @@ export function setupFileReceiver(): multer.Instance {
          cb(null, path.join(appRoot.path, '/uploads/'));
       },
       filename: (req: any, file, cb) => {
-         // TODO: Deberia frenar la subida si el archivo es muy grande
-         // TODO: Despues de recibir el archivo deberia optimizarlo
-         // TODO: Deberia tambien guardar una version pequeña para el avatar
+         // TODO: Deberia frenar la subida si el archivo es muy grande (habria que usar formidable)
+         // TODO: Solo deberia permitir archivos con extension de imagenes o algun filtro similar
+         // TODO: Despues de recibir el archivo deberia optimizarlo a unos 800 pixeles de alto o ancho
+         // TODO: Deberia tambien guardar una version pequeña para el avatar fijarse el tamaño que usa facebook
          // TODO: Solo un token de usuario valido deberia poder subir imagenes
          console.log(req.body.token);
          cb(null, moment().unix() + file.originalname);
