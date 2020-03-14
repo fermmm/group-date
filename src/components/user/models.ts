@@ -1,5 +1,10 @@
+import * as multer from '@koa/multer';
+import * as appRoot from 'app-root-path';
 import { ValidationError } from 'fastest-validator';
+import * as fs from 'fs';
 import * as Koa from 'koa';
+import * as moment from 'moment';
+import * as path from 'path';
 import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
 import { ProfileStatusServerResponse, User, UserSetPropsParameters } from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProp, editableUserPropsList, validateUserProps } from '../../shared-tools/validators/user';
@@ -68,4 +73,26 @@ export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Bas
    }
 
    setUserProps(params.token, params.props);
+}
+
+export function setupFileReceiver(): multer.Instance {
+   const storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+         if (!fs.existsSync(appRoot.path + '/uploads')) {
+            fs.mkdirSync(appRoot.path + '/uploads');
+         }
+
+         cb(null, path.join(appRoot.path, '/uploads/'));
+      },
+      filename: (req: any, file, cb) => {
+         // TODO: Deberia frenar la subida si el archivo es muy grande
+         // TODO: Despues de recibir el archivo deberia optimizarlo
+         // TODO: Deberia tambien guardar una version pequeña para el avatar
+         // TODO: Solo un token de usuario valido deberia poder subir imagenes
+         console.log(req.body.token);
+         cb(null, moment().unix() + file.originalname);
+      },
+   });
+
+   return multer({ storage });
 }

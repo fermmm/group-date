@@ -1,8 +1,11 @@
 // tslint:disable-next-line: no-var-requires
 require('dotenv').config();
 import * as Router from '@koa/router';
+import * as appRoot from 'app-root-path';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
+import * as mount from 'koa-mount';
+import * as serve from 'koa-static';
 import * as ora from 'ora';
 import { databaseIsWorking } from './common-tools/database-tools/database-manager';
 import { handshakeRoutes } from './components/handshake/routes';
@@ -34,6 +37,7 @@ import { databaseExperiments } from './experiments/database';
    app.use(bodyParser())
       .use(router.routes())
       .use(router.allowedMethods())
+      .use(mount('/images', serve('./uploads/')))
       .listen(process.env.PORT);
    ora(`Server running on ${process.env.PORT}!`).succeed();
    ora('Application initialized!').succeed();
