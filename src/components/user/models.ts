@@ -3,7 +3,7 @@ import { ValidationError } from 'fastest-validator';
 import { File } from 'formidable';
 import * as fs from 'fs';
 import * as Koa from 'koa';
-import { ParameterizedContext, Middleware } from 'koa';
+import { ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
 import * as moment from 'moment';
 import * as path from 'path';
