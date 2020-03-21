@@ -7,6 +7,7 @@ import * as mount from 'koa-mount';
 import * as serve from 'koa-static';
 import * as ora from 'ora';
 import { databaseIsWorking } from './common-tools/database-tools/database-manager';
+import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
 import { handshakeRoutes } from './components/handshake/routes';
 import { questions } from './components/user/questions/models';
 import { createQuestions } from './components/user/questions/queries';
@@ -20,6 +21,7 @@ import { databaseExperiments } from './experiments/database';
    router.get('/', (ctx, next) => {
       ctx.body = 'Poly Dates server';
    });
+   createFolderOnRoot('uploads');
 
    // Database initialization:
    await databaseIsWorking();

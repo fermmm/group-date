@@ -5,7 +5,6 @@ import * as fs from 'fs';
 import * as Koa from 'koa';
 import { ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
-import * as moment from 'moment';
 import * as path from 'path';
 import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
 import {
@@ -80,10 +79,6 @@ export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Bas
    }
 
    setUserProps(params.token, params.props);
-}
-
-if (!fs.existsSync(appRoot.path + '/uploads')) {
-   fs.mkdirSync(appRoot.path + '/uploads');
 }
 
 const koaBodyConfig = koaBody({
