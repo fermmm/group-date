@@ -87,12 +87,7 @@ const imageSaver = koaBody({
    formidable: {
       uploadDir: path.join(appRoot.path, '/uploads/'),
       keepExtensions: true,
-      maxFileSize: 3 * 1024 * 1024,
-      onFileBegin: async (name, file) => {
-         // Removes upload_ from the file name:
-         const fileName = path.basename(file.path).replace('upload_', '');
-         file.path = path.join(appRoot.path, '/uploads/') + fileName;
-      },
+      maxFileSize: 0.3 * 1024 * 1024,
    },
    onError: (error, ctx) => {
       ctx.throw(400, error);
@@ -140,7 +135,7 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
     * Resize image to an optimal format and create a small version to use as profile picture
     */
    await sharp(file.path)
-      .resize(800, 800, { fit: sharp.fit.inside })
+      .resize(600, 600, { fit: sharp.fit.inside })
       .jpeg()
       .toFile(`${folderPath}/${targetFileNameBig}`);
 
