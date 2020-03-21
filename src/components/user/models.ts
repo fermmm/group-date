@@ -135,7 +135,7 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
     * Resize image to an optimal format and create a small version to use as profile picture
     */
    await sharp(file.path)
-      .resize(600, 600, { fit: sharp.fit.inside })
+      .resize(512, 512, { fit: sharp.fit.inside })
       .jpeg()
       .toFile(`${folderPath}/${targetFileNameBig}`);
 
