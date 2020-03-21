@@ -109,9 +109,11 @@ export async function onFileSaved(file: File, ctx: Koa.BaseContext): Promise<Fil
    const originalFileExtension: string = path.extname(file.name).toLowerCase();
    const folderPath: string = path.dirname(file.path);
    const fileName: string = path.basename(file.path).replace(originalFileExtension, '');
+   const targetFileNameSmall: string = `${fileName}_small.jpg`;
+   const targetFileNameBig: string = `${fileName}_big.jpg`;
 
    /**
-    * Remove files with invalid extension or format
+    * Throw error and remove files with invalid extension or format
     */
    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
       fs.unlinkSync(file.path);
@@ -126,18 +128,15 @@ export async function onFileSaved(file: File, ctx: Koa.BaseContext): Promise<Fil
    /**
     * Resize image to an optimal format and create a small version to use as profile picture
     */
-   const targetFileNameSmall = `${fileName}_small.jpg`;
-   const targetFileNameBig = `${fileName}_big.jpg`;
+   await sharp(file.path)
+      .resize(800, 800, { fit: sharp.fit.inside })
+      .jpeg()
+      .toFile(`${folderPath}/${targetFileNameBig}`);
 
    await sharp(file.path)
       .resize(64, 64, { fit: sharp.fit.inside })
       .jpeg()
       .toFile(`${folderPath}/${targetFileNameSmall}`);
-
-   await sharp(file.path)
-      .resize(800, 800, { fit: sharp.fit.inside })
-      .jpeg()
-      .toFile(`${folderPath}/${targetFileNameBig}`);
 
    // Remove the original image file to save disk space:
    fs.unlinkSync(file.path);
