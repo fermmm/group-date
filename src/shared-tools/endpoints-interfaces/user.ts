@@ -77,5 +77,6 @@ export interface QuestionInDatabase {
 }
 
 export interface FileUploadResponse {
-   fileName: string;
+   fileNameSmall: string;
+   fileNameBig: string;
 }

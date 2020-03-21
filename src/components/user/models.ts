@@ -6,6 +6,7 @@ import * as Koa from 'koa';
 import { ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
 import * as path from 'path';
+import * as sharp from 'sharp';
 import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
 import {
    FileUploadResponse,
@@ -81,7 +82,7 @@ export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Bas
    setUserProps(params.token, params.props);
 }
 
-const koaBodyConfig = koaBody({
+const imageSaver = koaBody({
    multipart: true,
    formidable: {
       uploadDir: path.join(appRoot.path, '/uploads/'),
@@ -96,31 +97,53 @@ const koaBodyConfig = koaBody({
 });
 
 export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
-   // TODO: Despues de recibir el archivo deberia optimizarlo a unos 800 pixeles de alto o ancho
-   // TODO: Deberia tambien guardar una version pequeña para el avatar fijarse el tamaño que usa facebook
-
+   // Only valid users can upload pictures
    const user: Partial<User> = await retreiveUser(ctx.request.query.token, ctx);
-
    if (user == null) {
       return;
    }
-   return koaBodyConfig(ctx, next);
+   return imageSaver(ctx, next);
 }
 
-export function onFileSaved(file: File, ctx: Koa.BaseContext): FileUploadResponse {
-   const extension: string = path.extname(file.name).toLowerCase();
+export async function onFileSaved(file: File, ctx: Koa.BaseContext): Promise<FileUploadResponse> {
+   const originalFileExtension: string = path.extname(file.name).toLowerCase();
+   const folderPath: string = path.dirname(file.path);
+   const fileName: string = path.basename(file.path).replace(originalFileExtension, '');
 
+   /**
+    * Remove files with invalid extension or format
+    */
    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
       fs.unlinkSync(file.path);
       ctx.throw(400, 'Attempted to upload a file with wrong format');
    }
 
-   if (extension !== '.jpg' && extension !== '.jpeg' && extension !== '.png') {
+   if (originalFileExtension !== '.jpg' && originalFileExtension !== '.jpeg' && originalFileExtension !== '.png') {
       fs.unlinkSync(file.path);
       ctx.throw(400, 'Attempted to upload a file with wrong extension');
    }
 
+   /**
+    * Resize image to an optimal format and create a small version to use as profile picture
+    */
+   const targetFileNameSmall = `${fileName}_small.jpg`;
+   const targetFileNameBig = `${fileName}_big.jpg`;
+
+   await sharp(file.path)
+      .resize(64, 64, { fit: sharp.fit.inside })
+      .jpeg()
+      .toFile(`${folderPath}/${targetFileNameSmall}`);
+
+   await sharp(file.path)
+      .resize(800, 800, { fit: sharp.fit.inside })
+      .jpeg()
+      .toFile(`${folderPath}/${targetFileNameBig}`);
+
+   // Remove the original image file to save disk space:
+   fs.unlinkSync(file.path);
+
    return {
-      fileName: path.basename(file.path),
+      fileNameSmall: targetFileNameSmall,
+      fileNameBig: targetFileNameBig,
    };
 }
