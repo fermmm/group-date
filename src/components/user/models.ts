@@ -87,12 +87,15 @@ const imageSaver = koaBody({
    formidable: {
       uploadDir: path.join(appRoot.path, '/uploads/'),
       keepExtensions: true,
-      maxFileSize: 5 * 1024 * 1024,
+      maxFileSize: 3 * 1024 * 1024,
       onFileBegin: async (name, file) => {
          // Removes upload_ from the file name:
          const fileName = path.basename(file.path).replace('upload_', '');
          file.path = path.join(appRoot.path, '/uploads/') + fileName;
       },
+   },
+   onError: (error, ctx) => {
+      ctx.throw(400, error);
    },
 });
 
@@ -102,10 +105,18 @@ export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Ko
    if (user == null) {
       return;
    }
+
    return imageSaver(ctx, next);
 }
 
-export async function onFileSaved(file: File, ctx: Koa.BaseContext): Promise<FileUploadResponse> {
+export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext): Promise<FileUploadResponse> {
+   if (file == null || file.size === 0) {
+      if (file) {
+         fs.unlinkSync(file.path);
+      }
+      ctx.throw(400, 'Invalid file provided');
+   }
+
    const originalFileExtension: string = path.extname(file.name).toLowerCase();
    const folderPath: string = path.dirname(file.path);
    const fileName: string = path.basename(file.path).replace(originalFileExtension, '');
@@ -117,7 +128,7 @@ export async function onFileSaved(file: File, ctx: Koa.BaseContext): Promise<Fil
     */
    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
       fs.unlinkSync(file.path);
-      ctx.throw(400, 'Attempted to upload a file with wrong format');
+      ctx.throw(400, 'File format not supported');
    }
 
    if (originalFileExtension !== '.jpg' && originalFileExtension !== '.jpeg' && originalFileExtension !== '.png') {
