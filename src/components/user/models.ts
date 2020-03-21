@@ -1,12 +1,19 @@
-import * as multer from '@koa/multer';
 import * as appRoot from 'app-root-path';
 import { ValidationError } from 'fastest-validator';
+import { File } from 'formidable';
 import * as fs from 'fs';
 import * as Koa from 'koa';
+import { ParameterizedContext, Middleware } from 'koa';
+import * as koaBody from 'koa-body';
 import * as moment from 'moment';
 import * as path from 'path';
 import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
-import { ProfileStatusServerResponse, User, UserSetPropsParameters } from '../../shared-tools/endpoints-interfaces/user';
+import {
+   FileUploadResponse,
+   ProfileStatusServerResponse,
+   User,
+   UserSetPropsParameters,
+} from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProp, editableUserPropsList, validateUserProps } from '../../shared-tools/validators/user';
 import { retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
@@ -75,38 +82,50 @@ export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.Bas
    setUserProps(params.token, params.props);
 }
 
-export function setupFileReceiver(): multer.Instance {
-   const storage = multer.diskStorage({
-      destination: (req, file, cb) => {
-         if (!fs.existsSync(appRoot.path + '/uploads')) {
-            fs.mkdirSync(appRoot.path + '/uploads');
-         }
+if (!fs.existsSync(appRoot.path + '/uploads')) {
+   fs.mkdirSync(appRoot.path + '/uploads');
+}
 
-         cb(null, path.join(appRoot.path, '/uploads/'));
+const koaBodyConfig = koaBody({
+   multipart: true,
+   formidable: {
+      uploadDir: path.join(appRoot.path, '/uploads/'),
+      keepExtensions: true,
+      maxFileSize: 5 * 1024 * 1024,
+      onFileBegin: async (name, file) => {
+         // Removes upload_ from the file name:
+         const fileName = path.basename(file.path).replace('upload_', '');
+         file.path = path.join(appRoot.path, '/uploads/') + fileName;
       },
-      filename: (req: any, file, cb) => {
-         // TODO: Deberia frenar la subida si el archivo es muy grande (habria que usar formidable)
-         // TODO: Solo deberia permitir archivos con extension de imagenes o algun filtro similar
-         // TODO: Despues de recibir el archivo deberia optimizarlo a unos 800 pixeles de alto o ancho
-         // TODO: Deberia tambien guardar una version pequeña para el avatar fijarse el tamaño que usa facebook
-         // TODO: Solo un token de usuario valido deberia poder subir imagenes
-         console.log(req.body.token);
-         cb(null, moment().unix() + file.originalname);
-      },
-   });
+   },
+});
 
-   const limits = {
-      fileSize: 500 * 1024 * 1024,
+export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
+   // TODO: Despues de recibir el archivo deberia optimizarlo a unos 800 pixeles de alto o ancho
+   // TODO: Deberia tambien guardar una version pequeña para el avatar fijarse el tamaño que usa facebook
+
+   const user: Partial<User> = await retreiveUser(ctx.request.query.token, ctx);
+
+   if (user == null) {
+      return;
+   }
+   return koaBodyConfig(ctx, next);
+}
+
+export function onFileSaved(file: File, ctx: Koa.BaseContext): FileUploadResponse {
+   const extension: string = path.extname(file.name).toLowerCase();
+
+   if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+      fs.unlinkSync(file.path);
+      ctx.throw(400, 'Attempted to upload a file with wrong format');
+   }
+
+   if (extension !== '.jpg' && extension !== '.jpeg' && extension !== '.png') {
+      fs.unlinkSync(file.path);
+      ctx.throw(400, 'Attempted to upload a file with wrong extension');
+   }
+
+   return {
+      fileName: path.basename(file.path),
    };
-
-   const fileFilter = (req, file, cb) => {
-      const extension: string = path.extname(file.originalname).toLowerCase();
-      if (extension !== '.jpg' && extension !== '.jpeg' && extension !== '.png') {
-         return cb(null, false);
-      }
-
-      cb(null, true);
-   };
-
-   return multer({ storage, limits, fileFilter });
 }

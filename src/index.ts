@@ -1,9 +1,8 @@
 // tslint:disable-next-line: no-var-requires
 require('dotenv').config();
 import * as Router from '@koa/router';
-import * as appRoot from 'app-root-path';
 import * as Koa from 'koa';
-import * as bodyParser from 'koa-bodyparser';
+import * as koaBody from 'koa-body';
 import * as mount from 'koa-mount';
 import * as serve from 'koa-static';
 import * as ora from 'ora';
@@ -33,12 +32,13 @@ import { databaseExperiments } from './experiments/database';
    // Other:
    // databaseExperiments();
 
-   // Finish:
-   app.use(bodyParser())
+   // App uses:
+   app.use(koaBody({ parsedMethods: ['GET', 'POST'] }))
       .use(router.routes())
       .use(router.allowedMethods())
       .use(mount('/images', serve('./uploads/')))
       .listen(process.env.PORT);
-   ora(`Server running on ${process.env.PORT}!`).succeed();
+
    ora('Application initialized!').succeed();
+   ora(`Server running on ${process.env.PORT}!`).succeed();
 })();

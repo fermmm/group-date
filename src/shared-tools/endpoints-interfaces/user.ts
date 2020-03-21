@@ -75,3 +75,7 @@ export interface QuestionResponseInDatabase {
 export interface QuestionInDatabase {
    questionId: number;
 }
+
+export interface FileUploadResponse {
+   fileName: string;
+}
