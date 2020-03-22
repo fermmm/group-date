@@ -5,10 +5,10 @@ const v = new ((Validator as unknown) as typeof Validator.default)();
 
 export const editableUserPropsSchema = {
    name: { type: 'string', min: 2, max: 22, optional: true },
-   birthdate: { type: 'string', min: 6, max: 40, optional: true },
-   targetAgeMin: { type: 'number', min: 13, max: 100, optional: true },
-   targetAgeMax: { type: 'number', min: 13, max: 100, optional: true },
-   pictures: { type: 'array', items: 'string', min: 1, max: 6, optional: true },
+   age: { type: 'number', min: 18, max: 120, optional: true },
+   targetAgeMin: { type: 'number', min: 18, max: 120, optional: true },
+   targetAgeMax: { type: 'number', min: 18, max: 120, optional: true },
+   pictures: { type: 'array', items: 'url', min: 1, max: 6, optional: true },
    dateIdeaName: { type: 'string', min: 3, max: 100, optional: true },
    dateIdeaAddress: { type: 'string', min: 3, max: 200, optional: true },
    profileDescription: { type: 'string', max: 4000, optional: true },
@@ -19,11 +19,7 @@ export const editableUserPropsSchema = {
    likesWomanTrans: { type: 'boolean', optional: true },
    likesManTrans: { type: 'boolean', optional: true },
    likesOtherGenders: { type: 'boolean', optional: true },
-   gender: {
-      type: 'enum',
-      values: [Gender.Woman, Gender.Man, Gender.TransgenderWoman, Gender.TransgenderMan, Gender.Other],
-      optional: true,
-   },
+   gender: { type: 'enum', values: Object.values(Gender), optional: true },
 };
 
 export type EditableUserProp = keyof typeof editableUserPropsSchema;

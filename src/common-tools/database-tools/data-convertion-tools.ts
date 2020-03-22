@@ -2,7 +2,7 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { UserFromDatabase } from './gremlin-typing-tools';
 
 /**
- * Converts the format of the Gremlin output into a User object
+ * Converts the format of the Gremlin Map output into a User object
  *
  * @param userFromDatabase
  */
@@ -20,6 +20,11 @@ export function asUser(userFromDatabase: UserFromDatabase): Partial<User> {
    const questions: typeof result.questions = mapToObjectDeep(userFromDatabase.get('questions'));
    if (questions?.length > 0) {
       result.questions = questions;
+   }
+
+   // Deserialize serialized values:
+   if (result.pictures != null) {
+      result.pictures = JSON.parse((result.pictures as unknown) as string);
    }
 
    return result;
@@ -48,4 +53,14 @@ function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
    });
 
    return result;
+}
+
+export function serializeIfNeeded(value: number | string | boolean | string[]): number | string | boolean {
+   const type: string = typeof value;
+
+   if (type !== 'string' && type !== 'boolean' && type !== 'number') {
+      return JSON.stringify(value);
+   }
+
+   return value as number | string | boolean;
 }
