@@ -15,7 +15,7 @@ import {
    UserSetPropsParameters,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProp, editableUserPropsList, validateUserProps } from '../../shared-tools/validators/user';
-import { retreiveUser } from '../common/models';
+import { removePrivacySensitiveUserProps, retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
 import { setUserProps } from './queries';
 import { questions } from './questions/models';
@@ -70,7 +70,7 @@ function getMissingQuestions(user: Partial<User>): number[] {
 }
 
 export async function userGet(params: UserRequestParams, ctx: Koa.BaseContext): Promise<Partial<User>> {
-   return retreiveUser(params.token, ctx);
+   return removePrivacySensitiveUserProps(await retreiveUser(params.token, ctx));
 }
 
 export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.BaseContext): Promise<void> {
@@ -115,8 +115,8 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
    const originalFileExtension: string = path.extname(file.name).toLowerCase();
    const folderPath: string = path.dirname(file.path);
    const fileName: string = path.basename(file.path).replace(originalFileExtension, '');
-   const targetFileNameSmall: string = `${fileName}_small.jpg`;
-   const targetFileNameBig: string = `${fileName}_big.jpg`;
+   const fileNameSmall: string = `${fileName}_small.jpg`;
+   const fileNameBig: string = `${fileName}_big.jpg`;
 
    /**
     * Throw error and remove files with invalid extension or format
@@ -137,18 +137,15 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
    await sharp(file.path)
       .resize(512, 512, { fit: sharp.fit.inside })
       .jpeg()
-      .toFile(`${folderPath}/${targetFileNameBig}`);
+      .toFile(`${folderPath}/${fileNameBig}`);
 
    await sharp(file.path)
       .resize(64, 64, { fit: sharp.fit.inside })
       .jpeg()
-      .toFile(`${folderPath}/${targetFileNameSmall}`);
+      .toFile(`${folderPath}/${fileNameSmall}`);
 
    // Remove the original image file to save disk space:
    fs.unlinkSync(file.path);
 
-   return {
-      fileNameSmall: targetFileNameSmall,
-      fileNameBig: targetFileNameBig,
-   };
+   return { fileNameSmall, fileNameBig };
 }

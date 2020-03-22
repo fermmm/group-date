@@ -48,6 +48,16 @@ export async function retreiveUser(token: string, ctx: Koa.BaseContext): Promise
    return createUser(token, userDataFromFacebook.content.email);
 }
 
+/**
+ * Removes user props that should never get out of the server like the user position
+ */
+export function removePrivacySensitiveUserProps(user: Partial<User>): Partial<User> {
+   const result: Partial<User> = { ...user };
+   delete result.locationLat;
+   delete result.locationLon;
+   return result;
+}
+
 export interface FacebookResponse {
    id: string;
    email: string;
