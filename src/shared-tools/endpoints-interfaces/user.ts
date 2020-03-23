@@ -1,4 +1,6 @@
-import { EditableUserProp } from '../validators/user';
+import { ExposedUserPropKey, ExposedUserProps } from '../validators/user';
+
+export type UserPropsValueTypes = number | string | boolean | string[];
 
 export interface User {
    id: number;
@@ -7,7 +9,7 @@ export interface User {
    locationLat: number;
    locationLon: number;
    name: string;
-   birthdate: Date;
+   age: number;
    gender: Gender;
    targetAgeMin: number;
    targetAgeMax: number;
@@ -34,7 +36,7 @@ export enum Gender {
 }
 
 export interface ProfileStatusServerResponse {
-   missingEditableUserProps: EditableUserProp[];
+   missingEditableUserProps: ExposedUserPropKey[];
    missingQuestionsId: number[];
 }
 
@@ -47,7 +49,7 @@ export interface RespondQuestionParameters {
 
 export interface UserSetPropsParameters {
    token: string;
-   props: Record<EditableUserProp, number | string>;
+   props: ExposedUserProps;
 }
 
 export interface QuestionData {

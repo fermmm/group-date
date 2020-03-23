@@ -1,5 +1,5 @@
 import * as Validator from 'fastest-validator';
-import { Gender } from '../endpoints-interfaces/user';
+import { Gender, UserPropsValueTypes } from '../endpoints-interfaces/user';
 
 const v = new ((Validator as unknown) as typeof Validator.default)();
 
@@ -20,10 +20,13 @@ export const editableUserPropsSchema = {
    likesManTrans: { type: 'boolean', optional: true },
    likesOtherGenders: { type: 'boolean', optional: true },
    gender: { type: 'enum', values: Object.values(Gender), optional: true },
+   height: { type: 'number', min: 100, max: 300, optional: true },
 };
 
-export type EditableUserProp = keyof typeof editableUserPropsSchema;
+export type ExposedUserPropKey = keyof typeof editableUserPropsSchema;
 
-export const editableUserPropsList: EditableUserProp[] = Object.keys(editableUserPropsSchema) as EditableUserProp[];
+export type ExposedUserProps = Record<ExposedUserPropKey, UserPropsValueTypes>;
+
+export const editableUserPropsList: ExposedUserPropKey[] = Object.keys(editableUserPropsSchema) as ExposedUserPropKey[];
 
 export const validateUserProps = v.compile(editableUserPropsSchema);

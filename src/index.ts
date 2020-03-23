@@ -7,7 +7,7 @@ import * as mount from 'koa-mount';
 import * as ratelimit from 'koa-ratelimit';
 import * as serve from 'koa-static';
 import * as ora from 'ora';
-import { databaseIsWorking } from './common-tools/database-tools/database-manager';
+import { waitForDatabase } from './common-tools/database-tools/database-manager';
 import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
 import { rateLimitterConfig } from './common-tools/security-tools/security-tools';
 import { handshakeRoutes } from './components/handshake/routes';
@@ -16,6 +16,10 @@ import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
 
+import { createFakeUsers } from '../test/tools/users';
+import { User } from './shared-tools/endpoints-interfaces/user';
+
+let fakeUsers: Array<Partial<User>> = null;
 (async () => {
    // Koa initialization:
    const app: Koa = new Koa();
@@ -26,7 +30,7 @@ import { databaseExperiments } from './experiments/database';
    createFolderOnRoot('uploads');
 
    // Database initialization:
-   await databaseIsWorking();
+   await waitForDatabase();
    createQuestions(questions);
 
    // Routes:
@@ -46,4 +50,14 @@ import { databaseExperiments } from './experiments/database';
 
    ora('Application initialized!').succeed();
    ora(`Server running on ${process.env.PORT}!`).succeed();
+
+   // For testing:
+   if (fakeUsers == null) {
+      try {
+         // TODO: Tira un error al crear 1000 fake users, investigar
+         fakeUsers = await createFakeUsers(400, 1234);
+      } catch (error) {
+         console.log(error);
+      }
+   }
 })();

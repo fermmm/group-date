@@ -12,12 +12,12 @@ const spinner: ora.Ora = ora({ text: 'Waiting for database...', spinner: 'noise'
 /**
  * The promise of this function resolves only when database starts working
  */
-export async function databaseIsWorking(): Promise<void> {
+export async function waitForDatabase(): Promise<void> {
    let resolvePromise: (v?: void | PromiseLike<void>) => void = null;
    const promise = new Promise<void>(r => (resolvePromise = r));
 
    const timeout = setTimeout(async () => {
-      await databaseIsWorking();
+      await waitForDatabase();
       resolvePromise();
    }, 1000);
 

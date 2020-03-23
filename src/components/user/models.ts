@@ -14,7 +14,7 @@ import {
    User,
    UserSetPropsParameters,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { EditableUserProp, editableUserPropsList, validateUserProps } from '../../shared-tools/validators/user';
+import { editableUserPropsList, ExposedUserPropKey, validateUserProps } from '../../shared-tools/validators/user';
 import { removePrivacySensitiveUserProps, retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
 import { setUserProps } from './queries';
@@ -25,6 +25,7 @@ export async function profileStatusGet(
    ctx: Koa.BaseContext,
 ): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
+
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
       missingQuestionsId: getMissingQuestions(user),
@@ -39,8 +40,8 @@ export async function profileStatusGet(
    return Promise.resolve(result);
 }
 
-function getMissingEditableUserProps(user: Partial<User>): EditableUserProp[] {
-   const result: EditableUserProp[] = [];
+function getMissingEditableUserProps(user: Partial<User>): ExposedUserPropKey[] {
+   const result: ExposedUserPropKey[] = [];
 
    editableUserPropsList.forEach(editableUserProp => {
       if (user[editableUserProp] == null) {

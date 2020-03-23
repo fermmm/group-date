@@ -1,20 +1,23 @@
 import * as gremlin from 'gremlin';
-import { asUser } from '../../common-tools/database-tools/data-convertion-tools';
+import { asUser, serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g } from '../../common-tools/database-tools/database-manager';
 import { GraphTraversal, Traversal, UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
+import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
    return asUser(
       (
-         await g
-            .addV('user')
-            .property('email', email)
-            .property('token', token)
-            .property('profileCompleted', false)
-            .project('profile')
-            .by(__.valueMap().by(__.unfold()))
-            .next()
+         await profileAndQuestions(
+            getUserTraversalByToken(token)
+               .fold()
+               .coalesce(
+                  __.unfold(),
+                  __.addV('user')
+                     .property('email', email)
+                     .property('token', token)
+                     .property('profileCompleted', false),
+               ),
+         ).next()
       ).value,
    );
 }
@@ -72,22 +75,12 @@ export async function updateUserToken(userEmail: string, newToken: string): Prom
    return Promise.resolve();
 }
 
-export async function updateUserProp(token: string, prop: string, value: number | string | boolean): Promise<void> {
+export async function updateUserProp(token: string, prop: string, value: UserPropsValueTypes): Promise<void> {
    await g
       .V()
       .has('user', 'token', String(token))
-      .property(prop, value)
+      .property(prop, serializeIfNeeded(value))
       .next();
 
    return Promise.resolve();
-}
-
-/**
- * Obviously this is only for testing
- */
-export async function removeAllUsers(): Promise<void> {
-   return g
-      .V()
-      .drop()
-      .iterate();
 }

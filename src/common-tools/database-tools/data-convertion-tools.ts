@@ -1,5 +1,5 @@
-import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { UserFromDatabase } from './gremlin-typing-tools';
+import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
+import { SuportedGremlinTypes, UserFromDatabase } from './gremlin-typing-tools';
 
 /**
  * Converts the format of the Gremlin Map output into a User object
@@ -55,12 +55,12 @@ function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
    return result;
 }
 
-export function serializeIfNeeded(value: number | string | boolean | string[]): number | string | boolean {
+export function serializeIfNeeded(value: UserPropsValueTypes): SuportedGremlinTypes {
    const type: string = typeof value;
 
    if (type !== 'string' && type !== 'boolean' && type !== 'number') {
       return JSON.stringify(value);
    }
 
-   return value as number | string | boolean;
+   return value as SuportedGremlinTypes;
 }
