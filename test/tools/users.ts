@@ -6,11 +6,11 @@ import { questions, respondQuestionPost } from '../../src/components/user/questi
 import { Gender, User } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 
-export async function createFakeUsers(ammount: number, seed: number, timeout?: number): Promise<Array<Partial<User>>> {
+export async function createFakeUsers(ammount: number, seed: number): Promise<Array<Partial<User>>> {
    const users: Array<Partial<User>> = [];
 
    for (let i = 0; i < ammount; i++) {
-      users.push(await createFakeUser(seed + i, timeout));
+      users.push(await createFakeUser(seed + i));
    }
 
    console.log(`Created ${users.length} fake users.`);
@@ -20,10 +20,8 @@ export async function createFakeUsers(ammount: number, seed: number, timeout?: n
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(seed: number, timeout?: number): Promise<Partial<User>> {
+export async function createFakeUser(seed: number): Promise<Partial<User>> {
    const chance = new Chance(seed);
-   let promiseResolver: (value?: unknown) => void;
-   const promise = new Promise(r => (promiseResolver = r));
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const token: string = chance.apple_token();
@@ -66,15 +64,6 @@ export async function createFakeUser(seed: number, timeout?: number): Promise<Pa
    const user: Partial<User> = await retreiveUser(token, null);
 
    fakeUsersCount++;
-   console.log(`${fakeUsersCount} fake users created: ${user.name}`);
 
-   if (timeout != null) {
-      setTimeout(() => {
-         promiseResolver(user);
-      }, timeout);
-   } else {
-      promiseResolver(user);
-   }
-
-   return promise;
+   return user;
 }

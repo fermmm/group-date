@@ -5,7 +5,7 @@ import { User } from '../src/shared-tools/endpoints-interfaces/user';
 import { createFakeUsers } from './tools/users';
 jest.setTimeout(30000);
 
-const FAKE_USERS_AMMOUNT: number = 80;
+const FAKE_USERS_AMMOUNT: number = 300;
 const SEED: number = 666;
 let fakeUsers: Array<Partial<User>>;
 
