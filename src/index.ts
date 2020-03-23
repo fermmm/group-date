@@ -11,11 +11,11 @@ import { waitForDatabase } from './common-tools/database-tools/database-manager'
 import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
 import { rateLimitterConfig } from './common-tools/security-tools/security-tools';
 import { handshakeRoutes } from './components/handshake/routes';
+import { testingRoutes } from './components/testing/routes';
 import { questions } from './components/user/questions/models';
 import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
-import { testingRoutes } from './components/testing/routes';
 
 (async () => {
    // Koa initialization:
