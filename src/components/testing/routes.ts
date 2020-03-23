@@ -7,8 +7,7 @@ export function testingRoutes(router: Router): void {
       let users: Array<Partial<User>> = null;
 
       try {
-         // TODO: Tira un error al crear 1000 fake users, investigar
-         users = await createFakeUsers(1000, 1234);
+         users = await createFakeUsers(1000, 564);
       } catch (error) {
          console.log(error);
       }
