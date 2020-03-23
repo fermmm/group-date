@@ -15,11 +15,8 @@ import { questions } from './components/user/questions/models';
 import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 import { databaseExperiments } from './experiments/database';
+import { testingRoutes } from './components/testing/routes';
 
-import { createFakeUsers } from '../test/tools/users';
-import { User } from './shared-tools/endpoints-interfaces/user';
-
-let fakeUsers: Array<Partial<User>> = null;
 (async () => {
    // Koa initialization:
    const app: Koa = new Koa();
@@ -36,6 +33,7 @@ let fakeUsers: Array<Partial<User>> = null;
    // Routes:
    handshakeRoutes(router);
    userRoutes(router);
+   testingRoutes(router);
 
    // Other:
    // databaseExperiments();
@@ -50,14 +48,4 @@ let fakeUsers: Array<Partial<User>> = null;
 
    ora('Application initialized!').succeed();
    ora(`Server running on ${process.env.PORT}!`).succeed();
-
-   // For testing:
-   if (fakeUsers == null) {
-      try {
-         // TODO: Tira un error al crear 1000 fake users, investigar
-         fakeUsers = await createFakeUsers(400, 1234);
-      } catch (error) {
-         console.log(error);
-      }
-   }
 })();
