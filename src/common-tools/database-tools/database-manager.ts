@@ -37,3 +37,24 @@ export async function waitForDatabase(): Promise<void> {
 
    return promise;
 }
+
+/**
+ * Executes the query promise and retry once, if at the second try is still throwing an error
+ * then lets the error to be thrown as usual.
+ * This solves the "ConcurrentModificationException" error that happens when gremlin has
+ * too many modifications requests in a short period of time and requires a retry sometimes.
+ *
+ * @param query The query wraped into a arrow function like this: () => g.V().toList()
+ */
+export async function retryOnError<T>(query: () => Promise<T>): Promise<T> {
+   try {
+      return await query();
+   } catch (error) {
+      try {
+         return await query();
+      } catch (error) {
+         console.error(error);
+         throw new Error(error);
+      }
+   }
+}

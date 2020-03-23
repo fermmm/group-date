@@ -1,5 +1,6 @@
 import { process } from 'gremlin';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
+import { retryOnError } from '../../common-tools/database-tools/database-manager';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
 import { getUserTraversalByToken } from '../common/queries';
 
@@ -12,5 +13,5 @@ export async function setUserProps(token: string, userProps: ExposedUserProps): 
       }
    });
 
-   return query.iterate();
+   return retryOnError(() => query.iterate());
 }

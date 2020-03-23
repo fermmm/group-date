@@ -1,36 +1,42 @@
 import * as gremlin from 'gremlin';
 import { asUser, serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
-import { __, g } from '../../common-tools/database-tools/database-manager';
+import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
 import { GraphTraversal, Traversal, UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
    return asUser(
       (
-         await profileAndQuestions(
-            getUserTraversalByToken(token)
-               .fold()
-               .coalesce(
-                  __.unfold(),
-                  __.addV('user')
-                     .property('email', email)
-                     .property('token', token)
-                     .property('profileCompleted', false),
-               ),
-         ).next()
+         await retryOnError(() =>
+            profileAndQuestions(
+               getUserTraversalByToken(token)
+                  .fold()
+                  .coalesce(
+                     __.unfold(),
+                     __.addV('user')
+                        .property('email', email)
+                        .property('token', token)
+                        .property('profileCompleted', false),
+                  ),
+            ).next(),
+         )
       ).value,
    );
 }
 
 export async function getUserByToken(token: string): Promise<Partial<User>> {
    return Promise.resolve(
-      asUser((await profileAndQuestions(getUserTraversalByToken(token)).next()).value as UserFromDatabase),
+      asUser(
+         (await retryOnError(() => profileAndQuestions(getUserTraversalByToken(token)).next())).value as UserFromDatabase,
+      ),
    );
 }
 
 export async function getUserByEmail(email: string): Promise<Partial<User>> {
    return Promise.resolve(
-      asUser((await profileAndQuestions(getUserTraversalByEmail(email)).next()).value as UserFromDatabase),
+      asUser(
+         (await retryOnError(() => profileAndQuestions(getUserTraversalByEmail(email)).next())).value as UserFromDatabase,
+      ),
    );
 }
 
@@ -66,21 +72,25 @@ export function getUserTraversalByEmail(email: string, currentTraversal?: Traver
 }
 
 export async function updateUserToken(userEmail: string, newToken: string): Promise<void> {
-   await g
-      .V()
-      .has('user', 'email', userEmail)
-      .property('token', newToken)
-      .next();
+   await retryOnError(() =>
+      g
+         .V()
+         .has('user', 'email', userEmail)
+         .property('token', newToken)
+         .next(),
+   );
 
    return Promise.resolve();
 }
 
 export async function updateUserProp(token: string, prop: string, value: UserPropsValueTypes): Promise<void> {
-   await g
-      .V()
-      .has('user', 'token', String(token))
-      .property(prop, serializeIfNeeded(value))
-      .next();
+   await retryOnError(() =>
+      g
+         .V()
+         .has('user', 'token', String(token))
+         .property(prop, serializeIfNeeded(value))
+         .next(),
+   );
 
    return Promise.resolve();
 }

@@ -1,5 +1,5 @@
 import * as gremlin from 'gremlin';
-import { __, g } from '../../../common-tools/database-tools/database-manager';
+import { __, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
 import { VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
@@ -59,19 +59,21 @@ export async function respondQuestion(
    answerId: number,
    useAsFilter: boolean,
 ): Promise<void> {
-   return getUserTraversalByToken(userToken)
-      .as('user')
-      .V()
-      .has('question', 'questionId', Number(questionId))
-      .as('question')
-      .sideEffect(
-         __.inE('response')
-            .where(__.outV().as('user'))
-            .drop(),
-      )
-      .addE('response')
-      .from_('user')
-      .property('answerId', Number(answerId))
-      .property('useAsFilter', Boolean(useAsFilter))
-      .iterate();
+   return retryOnError(() =>
+      getUserTraversalByToken(userToken)
+         .as('user')
+         .V()
+         .has('question', 'questionId', Number(questionId))
+         .as('question')
+         .sideEffect(
+            __.inE('response')
+               .where(__.outV().as('user'))
+               .drop(),
+         )
+         .addE('response')
+         .from_('user')
+         .property('answerId', Number(answerId))
+         .property('useAsFilter', Boolean(useAsFilter))
+         .iterate(),
+   );
 }
