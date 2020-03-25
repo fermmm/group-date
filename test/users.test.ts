@@ -3,9 +3,9 @@ import '../src';
 import { waitForDatabase } from '../src/common-tools/database-tools/database-manager';
 import { User } from '../src/shared-tools/endpoints-interfaces/user';
 import { createFakeUsers } from './tools/users';
-jest.setTimeout(30000);
+jest.setTimeout(60 * 60 * 1000);
 
-const FAKE_USERS_AMMOUNT: number = 300;
+const FAKE_USERS_AMMOUNT: number = 500;
 const SEED: number = 666;
 let fakeUsers: Array<Partial<User>>;
 
@@ -17,7 +17,6 @@ beforeAll(async done => {
 
 describe('Fake users creation', () => {
    test('Fake users are created', () => {
-      console.log(fakeUsers.length);
       expect(fakeUsers).toHaveLength(FAKE_USERS_AMMOUNT);
    });
    test('Fake users profile is completed', () => {
