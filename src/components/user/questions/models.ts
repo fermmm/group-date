@@ -1,9 +1,4 @@
-import { QuestionData, RespondQuestionsParameters } from '../../../shared-tools/endpoints-interfaces/user';
-import { respondQuestions } from './queries';
-
-export async function respondQuestionsPost(params: RespondQuestionsParameters): Promise<void> {
-   return respondQuestions(params.token, params.questions);
-}
+import { QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 
 export function questionsGet(): QuestionData[] {
    return questions;

@@ -2,8 +2,8 @@ import * as Chance from 'chance';
 import ora = require('ora');
 import { retreiveUser } from '../../src/components/common/models';
 import { createUser } from '../../src/components/common/queries';
-import { profileStatusGet, userPropsPost } from '../../src/components/user/models';
-import { questions, respondQuestionsPost } from '../../src/components/user/questions/models';
+import { profileStatusGet, userPost } from '../../src/components/user/models';
+import { questions } from '../../src/components/user/questions/models';
 import { Gender, QestionResponseParams, User } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 
@@ -55,9 +55,6 @@ export async function createFakeUser(seed: number): Promise<Partial<User>> {
       height: chance.integer({ min: 100, max: 300 }),
    };
 
-   await createUser(token, chance.email());
-   await userPropsPost({ token, props }, null);
-
    const questionResponses: QestionResponseParams[] = questions.map(question => {
       return {
          questionId: question.questionId,
@@ -66,7 +63,8 @@ export async function createFakeUser(seed: number): Promise<Partial<User>> {
       };
    });
 
-   await respondQuestionsPost({ token, questions: questionResponses });
+   await createUser(token, chance.email());
+   await userPost({ token, props, questions: questionResponses }, null);
    await profileStatusGet({ token }, null);
    const user: Partial<User> = await retreiveUser(token, null);
 

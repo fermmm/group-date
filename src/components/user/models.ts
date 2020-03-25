@@ -20,6 +20,7 @@ import { removePrivacySensitiveUserProps, retreiveUser } from '../common/models'
 import { updateUserProp } from '../common/queries';
 import { setUserProps } from './queries';
 import { questions } from './questions/models';
+import { respondQuestions } from './questions/queries';
 
 export async function profileStatusGet(
    params: UserRequestParams,
@@ -79,13 +80,19 @@ export async function userGet(params: UserRequestParams, ctx: Koa.BaseContext): 
    return removePrivacySensitiveUserProps(await retreiveUser(params.token, ctx));
 }
 
-export async function userPropsPost(params: UserSetPropsParameters, ctx: Koa.BaseContext): Promise<void> {
-   const validationResult: true | ValidationError[] = validateUserProps(params.props);
-   if (validationResult !== true) {
-      ctx.throw(400, JSON.stringify(validationResult));
+export async function userPost(params: UserSetPropsParameters, ctx: Koa.BaseContext): Promise<void> {
+   if (params.props != null) {
+      const validationResult: true | ValidationError[] = validateUserProps(params.props);
+      if (validationResult !== true) {
+         ctx.throw(400, JSON.stringify(validationResult));
+      }
+
+      await setUserProps(params.token, params.props);
    }
 
-   setUserProps(params.token, params.props);
+   if (params.questions != null) {
+      await respondQuestions(params.token, params.questions);
+   }
 }
 
 const imageSaver = koaBody({

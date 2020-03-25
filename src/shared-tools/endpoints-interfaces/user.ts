@@ -46,14 +46,10 @@ export interface QestionResponseParams {
    useAsFilter: boolean;
 }
 
-export interface RespondQuestionsParameters {
-   token: string;
-   questions: QestionResponseParams[];
-}
-
 export interface UserSetPropsParameters {
    token: string;
-   props: ExposedUserProps;
+   props?: ExposedUserProps;
+   questions?: QestionResponseParams[];
 }
 
 export interface QuestionData {
