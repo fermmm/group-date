@@ -1,7 +1,7 @@
 import * as gremlin from 'gremlin';
 import { __, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
 import { VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
+import { QestionResponseParams, QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
 
 export async function createQuestions(questions: QuestionData[]): Promise<void> {
@@ -53,17 +53,13 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
    return Promise.resolve();
 }
 
-export async function respondQuestion(
-   questionId: number,
-   userToken: string,
-   answerId: number,
-   useAsFilter: boolean,
-): Promise<void> {
-   return retryOnError(() =>
-      getUserTraversalByToken(userToken)
-         .as('user')
+export async function respondQuestions(token: string, questions: QestionResponseParams[]): Promise<void> {
+   let query: gremlin.process.GraphTraversal = getUserTraversalByToken(token).as('user');
+
+   for (const question of questions) {
+      query = query
          .V()
-         .has('question', 'questionId', Number(questionId))
+         .has('question', 'questionId', Number(question.questionId))
          .as('question')
          .sideEffect(
             __.inE('response')
@@ -72,8 +68,9 @@ export async function respondQuestion(
          )
          .addE('response')
          .from_('user')
-         .property('answerId', Number(answerId))
-         .property('useAsFilter', Boolean(useAsFilter))
-         .iterate(),
-   );
+         .property('answerId', Number(question.answerId))
+         .property('useAsFilter', Boolean(question.useAsFilter));
+   }
+
+   return retryOnError(() => query.iterate());
 }

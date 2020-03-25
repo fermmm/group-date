@@ -11,6 +11,7 @@ import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/commo
 import {
    FileUploadResponse,
    ProfileStatusServerResponse,
+   QuestionWithResponse,
    User,
    UserSetPropsParameters,
 } from '../../shared-tools/endpoints-interfaces/user';
@@ -55,14 +56,18 @@ function getMissingEditableUserProps(user: Partial<User>): ExposedUserPropKey[] 
 function getMissingQuestions(user: Partial<User>): number[] {
    const result: number[] = [];
    questions.forEach(q => {
-      if (
-         user.questions == null ||
-         user.questions.find(uq => {
-            return (
-               q.questionId === uq.question.questionId && q.answers.find(a => a.answerId === uq.response.answerId) != null
-            );
-         }) == null
-      ) {
+      if (user.questions == null) {
+         result.push(q.questionId);
+         return;
+      }
+
+      const responsePresentAndValid: QuestionWithResponse = user.questions.find(uq => {
+         const questionPresent: boolean = q.questionId === uq.question.questionId;
+         const responseIsValid: boolean = q.answers.find(a => a.answerId === uq.response.answerId) != null;
+         return questionPresent && responseIsValid;
+      });
+
+      if (responsePresentAndValid == null) {
          result.push(q.questionId);
       }
    });

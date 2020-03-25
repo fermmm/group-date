@@ -1,19 +1,24 @@
 import * as Chance from 'chance';
+import ora = require('ora');
 import { retreiveUser } from '../../src/components/common/models';
 import { createUser } from '../../src/components/common/queries';
 import { profileStatusGet, userPropsPost } from '../../src/components/user/models';
-import { questions, respondQuestionPost } from '../../src/components/user/questions/models';
-import { Gender, User } from '../../src/shared-tools/endpoints-interfaces/user';
+import { questions, respondQuestionsPost } from '../../src/components/user/questions/models';
+import { Gender, QestionResponseParams, User } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
+
+const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
 export async function createFakeUsers(ammount: number, seed: number): Promise<Array<Partial<User>>> {
    const users: Array<Partial<User>> = [];
+
+   spinner.start();
 
    for (let i = 0; i < ammount; i++) {
       users.push(await createFakeUser(seed + i));
    }
 
-   console.log(`Created ${users.length} fake users.`);
+   spinner.succeed(`Created ${users.length} fake users.`);
 
    return users;
 }
@@ -52,18 +57,21 @@ export async function createFakeUser(seed: number): Promise<Partial<User>> {
 
    await createUser(token, chance.email());
    await userPropsPost({ token, props }, null);
-   for (const question of questions) {
-      await respondQuestionPost({
-         token,
+
+   const questionResponses: QestionResponseParams[] = questions.map(question => {
+      return {
          questionId: question.questionId,
          answerId: chance.pickone(question.answers).answerId,
          useAsFilter: chance.bool(),
-      });
-   }
+      };
+   });
+
+   await respondQuestionsPost({ token, questions: questionResponses });
    await profileStatusGet({ token }, null);
    const user: Partial<User> = await retreiveUser(token, null);
 
    fakeUsersCount++;
+   spinner.text = `Created ${fakeUsersCount} fake users...`;
 
    return user;
 }

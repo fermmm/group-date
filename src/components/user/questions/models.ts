@@ -1,8 +1,8 @@
-import { QuestionData, RespondQuestionParameters } from '../../../shared-tools/endpoints-interfaces/user';
-import { respondQuestion } from './queries';
+import { QuestionData, RespondQuestionsParameters } from '../../../shared-tools/endpoints-interfaces/user';
+import { respondQuestions } from './queries';
 
-export async function respondQuestionPost(params: RespondQuestionParameters): Promise<void> {
-   return respondQuestion(params.questionId, params.token, params.answerId, params.useAsFilter);
+export async function respondQuestionsPost(params: RespondQuestionsParameters): Promise<void> {
+   return respondQuestions(params.token, params.questions);
 }
 
 export function questionsGet(): QuestionData[] {

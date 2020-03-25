@@ -40,11 +40,15 @@ export interface ProfileStatusServerResponse {
    missingQuestionsId: number[];
 }
 
-export interface RespondQuestionParameters {
-   token: string;
+export interface QestionResponseParams {
    questionId: number;
    answerId: number;
    useAsFilter: boolean;
+}
+
+export interface RespondQuestionsParameters {
+   token: string;
+   questions: QestionResponseParams[];
 }
 
 export interface UserSetPropsParameters {
@@ -76,6 +80,11 @@ export interface QuestionResponseInDatabase {
 
 export interface QuestionInDatabase {
    questionId: number;
+}
+
+export interface QuestionWithResponse {
+   question: QuestionInDatabase;
+   response: QuestionResponseInDatabase;
 }
 
 export interface FileUploadResponse {
