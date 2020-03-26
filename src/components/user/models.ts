@@ -14,7 +14,7 @@ import {
    QuestionWithResponse,
    SetAttractionParams,
    User,
-   UserSetPropsParameters,
+   UserPostParams,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserPropKey, validateUserProps } from '../../shared-tools/validators/user';
 import { removePrivacySensitiveUserProps, retreiveUser } from '../common/models';
@@ -78,7 +78,7 @@ export async function userGet(params: TokenParameter, ctx: Koa.BaseContext): Pro
    return removePrivacySensitiveUserProps(await retreiveUser(params.token, ctx));
 }
 
-export async function userPost(params: UserSetPropsParameters, ctx: Koa.BaseContext): Promise<void> {
+export async function userPost(params: UserPostParams, ctx: Koa.BaseContext): Promise<void> {
    if (params.props != null) {
       const validationResult: true | ValidationError[] = validateUserProps(params.props);
       if (validationResult !== true) {

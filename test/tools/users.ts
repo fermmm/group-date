@@ -4,12 +4,7 @@ import { retreiveUser } from '../../src/components/common/models';
 import { createUser } from '../../src/components/common/queries';
 import { profileStatusGet, userPost } from '../../src/components/user/models';
 import { questions } from '../../src/components/user/questions/models';
-import {
-   Gender,
-   QestionResponseParams,
-   User,
-   UserSetPropsParameters,
-} from '../../src/shared-tools/endpoints-interfaces/user';
+import { Gender, QestionResponseParams, User, UserPostParams } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
@@ -32,7 +27,7 @@ export async function createFakeUsers(ammount: number, seed: number = 666): Prom
 let fakeUsersCount = 0;
 
 export async function createFakeUser(
-   customParameters: Partial<UserSetPropsParameters> = null,
+   customParams: Partial<UserPostParams> = null,
    seed: number = 666,
 ): Promise<Partial<User>> {
    const chance = new Chance(seed);
@@ -72,12 +67,12 @@ export async function createFakeUser(
       };
    });
 
-   await createUser(customParameters?.token || token, chance.email());
+   await createUser(customParams?.token || token, chance.email());
    await userPost(
       {
-         token: customParameters?.token || token,
-         props: { ...props, ...customParameters?.props },
-         questions: [...questionResponses, ...(customParameters?.questions || [])],
+         token: customParams?.token || token,
+         props: { ...props, ...customParams?.props },
+         questions: [...questionResponses, ...(customParams?.questions || [])],
       },
       null,
    );

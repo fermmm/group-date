@@ -46,7 +46,7 @@ export interface QestionResponseParams {
    useAsFilter: boolean;
 }
 
-export interface UserSetPropsParameters {
+export interface UserPostParams {
    token: string;
    props?: ExposedUserProps;
    questions?: QestionResponseParams[];
