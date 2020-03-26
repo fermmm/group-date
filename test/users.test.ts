@@ -6,12 +6,11 @@ import { createFakeUsers } from './tools/users';
 jest.setTimeout(60 * 60 * 1000);
 
 const FAKE_USERS_AMMOUNT: number = 500;
-const SEED: number = 666;
 let fakeUsers: Array<Partial<User>>;
 
 beforeAll(async done => {
    await waitForDatabase();
-   fakeUsers = await createFakeUsers(FAKE_USERS_AMMOUNT, SEED);
+   fakeUsers = await createFakeUsers(FAKE_USERS_AMMOUNT);
    done();
 });
 

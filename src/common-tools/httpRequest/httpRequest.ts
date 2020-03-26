@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { HttpRequestResponse } from '../typing-tools/typing-tools';
+import { HttpRequestResponse } from '../database-tools/typing-tools/typing-tools';
 
 /**
  * Axios request wrapper with error handling.

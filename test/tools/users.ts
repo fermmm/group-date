@@ -4,28 +4,37 @@ import { retreiveUser } from '../../src/components/common/models';
 import { createUser } from '../../src/components/common/queries';
 import { profileStatusGet, userPost } from '../../src/components/user/models';
 import { questions } from '../../src/components/user/questions/models';
-import { Gender, QestionResponseParams, User } from '../../src/shared-tools/endpoints-interfaces/user';
+import {
+   Gender,
+   QestionResponseParams,
+   User,
+   UserSetPropsParameters,
+} from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
-export async function createFakeUsers(ammount: number, seed: number): Promise<Array<Partial<User>>> {
+export async function createFakeUsers(ammount: number, seed: number = 666): Promise<Array<Partial<User>>> {
    const users: Array<Partial<User>> = [];
 
    spinner.start();
 
    for (let i = 0; i < ammount; i++) {
-      users.push(await createFakeUser(seed + i));
+      users.push(await createFakeUser(null, seed + i));
    }
 
    spinner.succeed(`Created ${users.length} fake users.`);
+   fakeUsersCount = 0;
 
    return users;
 }
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(seed: number): Promise<Partial<User>> {
+export async function createFakeUser(
+   customParameters: Partial<UserSetPropsParameters> = null,
+   seed: number = 666,
+): Promise<Partial<User>> {
    const chance = new Chance(seed);
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
@@ -63,8 +72,15 @@ export async function createFakeUser(seed: number): Promise<Partial<User>> {
       };
    });
 
-   await createUser(token, chance.email());
-   await userPost({ token, props, questions: questionResponses }, null);
+   await createUser(customParameters?.token || token, chance.email());
+   await userPost(
+      {
+         token: customParameters?.token || token,
+         props: { ...props, ...customParameters?.props },
+         questions: [...questionResponses, ...(customParameters?.questions || [])],
+      },
+      null,
+   );
    await profileStatusGet({ token }, null);
    const user: Partial<User> = await retreiveUser(token, null);
 
