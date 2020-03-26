@@ -4,7 +4,7 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      const users: Array<Partial<User>> = await createFakeUsers(1000, 666);
+      const users: Array<Partial<User>> = await createFakeUsers(2, 666);
       ctx.body = `Created ${users.length} fake users`;
    });
 }

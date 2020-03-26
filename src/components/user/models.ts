@@ -7,25 +7,23 @@ import { ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
 import * as path from 'path';
 import * as sharp from 'sharp';
-import { UserRequestParams } from '../../shared-tools/endpoints-interfaces/common';
+import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    FileUploadResponse,
    ProfileStatusServerResponse,
    QuestionWithResponse,
+   SetAttractionParams,
    User,
    UserSetPropsParameters,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserPropKey, validateUserProps } from '../../shared-tools/validators/user';
 import { removePrivacySensitiveUserProps, retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
-import { setUserProps } from './queries';
+import { setAttraction, setUserProps } from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
 
-export async function profileStatusGet(
-   params: UserRequestParams,
-   ctx: Koa.BaseContext,
-): Promise<ProfileStatusServerResponse> {
+export async function profileStatusGet(params: TokenParameter, ctx: Koa.BaseContext): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
 
    const result: ProfileStatusServerResponse = {
@@ -76,7 +74,7 @@ function getMissingQuestions(user: Partial<User>): number[] {
    return result;
 }
 
-export async function userGet(params: UserRequestParams, ctx: Koa.BaseContext): Promise<Partial<User>> {
+export async function userGet(params: TokenParameter, ctx: Koa.BaseContext): Promise<Partial<User>> {
    return removePrivacySensitiveUserProps(await retreiveUser(params.token, ctx));
 }
 
@@ -161,4 +159,8 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
    fs.unlinkSync(file.path);
 
    return { fileNameSmall, fileNameBig };
+}
+
+export async function setAttractionPost(params: SetAttractionParams, ctx: Koa.BaseContext): Promise<void> {
+   return setAttraction(params);
 }

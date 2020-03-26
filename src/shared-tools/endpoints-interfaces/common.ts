@@ -1,4 +1,4 @@
-export interface UserRequestParams {
+export interface TokenParameter {
    token: string;
 }
 

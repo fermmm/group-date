@@ -87,3 +87,18 @@ export interface FileUploadResponse {
    fileNameSmall: string;
    fileNameBig: string;
 }
+
+export interface SetAttractionParams {
+   token: string;
+   attractions: Attraction[];
+}
+
+export interface Attraction {
+   userEmail: string;
+   attractionType: AttractionType;
+}
+
+export enum AttractionType {
+   Like = 'Like',
+   Dislike = 'Dislike',
+}
