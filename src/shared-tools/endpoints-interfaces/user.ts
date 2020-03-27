@@ -13,6 +13,7 @@ export interface User {
    gender: Gender;
    targetAgeMin: number;
    targetAgeMax: number;
+   targetDistance: number;
    likesWoman: boolean;
    likesMan: boolean;
    likesWomanTrans: boolean;
@@ -43,7 +44,7 @@ export interface ProfileStatusServerResponse {
 export interface QestionResponseParams {
    questionId: number;
    answerId: number;
-   useAsFilter: boolean;
+   useAsFilter?: boolean;
 }
 
 export interface UserPostParams {

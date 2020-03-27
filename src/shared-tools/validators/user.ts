@@ -8,6 +8,7 @@ export const editableUserPropsSchema = {
    age: { type: 'number', min: 18, max: 120, optional: true },
    targetAgeMin: { type: 'number', min: 18, max: 120, optional: true },
    targetAgeMax: { type: 'number', min: 18, max: 120, optional: true },
+   targetDistance: { type: 'number', min: 25, max: 150, optional: true },
    pictures: { type: 'array', items: 'url', min: 1, max: 6, optional: true },
    dateIdeaName: { type: 'string', min: 3, max: 100, optional: true },
    dateIdeaAddress: { type: 'string', min: 3, max: 200, optional: true },

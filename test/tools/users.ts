@@ -9,28 +9,24 @@ import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
-export async function createFakeUsers(ammount: number, seed: number = 666): Promise<Array<Partial<User>>> {
+export async function createFakeUsers(ammount: number, seed?: number): Promise<Array<Partial<User>>> {
    const users: Array<Partial<User>> = [];
 
    spinner.start();
 
    for (let i = 0; i < ammount; i++) {
-      users.push(await createFakeUser(null, seed + i));
+      users.push(await createFakeUser(null, seed));
    }
 
    spinner.succeed(`Created ${users.length} fake users.`);
-   fakeUsersCount = 0;
 
    return users;
 }
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(
-   customParams: Partial<UserPostParams> = null,
-   seed: number = 666,
-): Promise<Partial<User>> {
-   const chance = new Chance(seed);
+export async function createFakeUser(customParams: Partial<UserPostParams> = null, seed?: number): Promise<Partial<User>> {
+   const chance = new Chance(seed || fakeUsersCount);
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const token: string = chance.apple_token();
@@ -40,6 +36,7 @@ export async function createFakeUser(
       age: chance.integer({ min: 18, max: 55 }),
       targetAgeMin: chance.integer({ min: 18, max: 20 }),
       targetAgeMax: chance.integer({ min: 30, max: 55 }),
+      targetDistance: chance.integer({ min: 25, max: 150 }),
       pictures: [
          'https://data.whicdn.com/images/75413003/large.jpg',
          'https://i.pinimg.com/originals/f9/dc/16/f9dc1608b6b94b29ed9070ac54b9e3b8.jpg',
