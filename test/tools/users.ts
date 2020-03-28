@@ -2,15 +2,22 @@ import * as Chance from 'chance';
 import ora = require('ora');
 import { retreiveUser } from '../../src/components/common/models';
 import { createUser } from '../../src/components/common/queries';
-import { profileStatusGet, userPost } from '../../src/components/user/models';
+import { profileStatusGet, setAttractionPost, userPost } from '../../src/components/user/models';
 import { questions } from '../../src/components/user/questions/models';
-import { Gender, QestionResponseParams, User, UserPostParams } from '../../src/shared-tools/endpoints-interfaces/user';
+import {
+   Attraction,
+   AttractionType,
+   Gender,
+   QestionResponseParams,
+   User,
+   UserPostParams,
+} from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
-export async function createFakeUsers(ammount: number, seed?: number): Promise<Array<Partial<User>>> {
-   const users: Array<Partial<User>> = [];
+export async function createFakeUsers(ammount: number, seed?: number): Promise<User[]> {
+   const users: User[] = [];
 
    spinner.start();
 
@@ -25,7 +32,7 @@ export async function createFakeUsers(ammount: number, seed?: number): Promise<A
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(customParams: Partial<UserPostParams> = null, seed?: number): Promise<Partial<User>> {
+export async function createFakeUser(customParams: Partial<UserPostParams> = null, seed?: number): Promise<User> {
    const chance = new Chance(seed || fakeUsersCount);
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
@@ -79,5 +86,23 @@ export async function createFakeUser(customParams: Partial<UserPostParams> = nul
    fakeUsersCount++;
    spinner.text = `Created ${fakeUsersCount} fake users...`;
 
-   return user;
+   return user as User;
+}
+
+export async function setFakeAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
+   const attractions: Attraction[] = to.map(user => ({ userEmail: user.email, attractionType }));
+   console.log(`from: ${from.token} to: ${attractions.map(a => a.userEmail)}`);
+   await setAttractionPost(
+      {
+         token: from.token,
+         attractions,
+      },
+      null,
+   );
+}
+
+export async function setFakeAttractionMatch(users: User[]): Promise<void> {
+   for (const user of users) {
+      await setFakeAttraction(user, users, AttractionType.Like);
+   }
 }

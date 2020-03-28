@@ -1,6 +1,6 @@
 import * as Router from '@koa/router';
-import { createFakeUser } from '../../../test/tools/users';
-import { Gender, UserPostParams } from '../../shared-tools/endpoints-interfaces/user';
+import { createFakeUser, setFakeAttractionMatch } from '../../../test/tools/users';
+import { Gender, User, UserPostParams } from '../../shared-tools/endpoints-interfaces/user';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
@@ -65,9 +65,13 @@ export function testingRoutes(router: Router): void {
          },
       };
 
-      await createFakeUser(basicCloseUser);
-      await createFakeUser(basicCloseUser2);
-      await createFakeUser(tooFarUser);
+      const users: User[] = [
+         await createFakeUser(basicCloseUser),
+         await createFakeUser(basicCloseUser2),
+         await createFakeUser(tooFarUser),
+      ];
+
+      await setFakeAttractionMatch(users);
 
       ctx.body = `Finished`;
    });
