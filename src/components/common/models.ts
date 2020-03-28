@@ -49,13 +49,19 @@ export async function retreiveUser(token: string, ctx: Koa.BaseContext): Promise
 }
 
 /**
- * Removes user props that should never get out of the server like the user position
+ * Calls retreiveUser and returns the same thing, but if profileCompleted is not true throws error
+ *
+ * @param token Token from the Facebook login in the client application
+ * @param ctx
  */
-export function removePrivacySensitiveUserProps(user: Partial<User>): Partial<User> {
-   const result: Partial<User> = { ...user };
-   delete result.locationLat;
-   delete result.locationLon;
-   return result;
+export async function retreiveCompleteUser(token: string, ctx: Koa.BaseContext): Promise<User> {
+   const user = await retreiveUser(token, ctx);
+
+   if (!user.profileCompleted) {
+      ctx.throw(400, 'Incomplete profiles not allowed in this endpoint');
+   }
+
+   return user as User;
 }
 
 export interface FacebookResponse {

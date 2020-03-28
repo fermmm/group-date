@@ -8,7 +8,7 @@ export async function createUser(token: string, email: string): Promise<Partial<
    return asUser(
       (
          await retryOnError(() =>
-            profileAndQuestions(
+            addQuestionsResponded(
                getUserTraversalByToken(token)
                   .fold()
                   .coalesce(
@@ -27,7 +27,7 @@ export async function createUser(token: string, email: string): Promise<Partial<
 export async function getUserByToken(token: string): Promise<Partial<User>> {
    return Promise.resolve(
       asUser(
-         (await retryOnError(() => profileAndQuestions(getUserTraversalByToken(token)).next())).value as UserFromDatabase,
+         (await retryOnError(() => addQuestionsResponded(getUserTraversalByToken(token)).next())).value as UserFromDatabase,
       ),
    );
 }
@@ -35,12 +35,12 @@ export async function getUserByToken(token: string): Promise<Partial<User>> {
 export async function getUserByEmail(email: string): Promise<Partial<User>> {
    return Promise.resolve(
       asUser(
-         (await retryOnError(() => profileAndQuestions(getUserTraversalByEmail(email)).next())).value as UserFromDatabase,
+         (await retryOnError(() => addQuestionsResponded(getUserTraversalByEmail(email)).next())).value as UserFromDatabase,
       ),
    );
 }
 
-function profileAndQuestions(traversal: gremlin.process.GraphTraversal): GraphTraversal {
+export function addQuestionsResponded(traversal: gremlin.process.GraphTraversal): GraphTraversal {
    return traversal
       .project('profile', 'questions')
       .by(__.valueMap().by(__.unfold()))
@@ -69,6 +69,10 @@ export function getUserTraversalByEmail(email: string, currentTraversal?: Traver
    }
 
    return currentTraversal.V().has('user', 'email', String(email));
+}
+
+export function hasProfileCompleted(currentTraversal?: gremlin.process.GraphTraversal): gremlin.process.GraphTraversal {
+   return currentTraversal.has('user', 'profileCompleted', true);
 }
 
 export async function updateUserToken(userEmail: string, newToken: string): Promise<void> {

@@ -3,7 +3,7 @@ import { serializeIfNeeded } from '../../common-tools/database-tools/data-conver
 import { __, retryOnError } from '../../common-tools/database-tools/database-manager';
 import { AttractionType, SetAttractionParams } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
-import { getUserTraversalByToken } from '../common/queries';
+import { getUserTraversalByToken, hasProfileCompleted } from '../common/queries';
 
 export async function setUserProps(token: string, userProps: ExposedUserProps): Promise<void> {
    let query: process.GraphTraversal = getUserTraversalByToken(token);
@@ -20,7 +20,7 @@ export async function setUserProps(token: string, userProps: ExposedUserProps): 
 const allAtractionTypes: AttractionType[] = Object.values(AttractionType);
 
 export async function setAttraction(params: SetAttractionParams): Promise<void> {
-   let query: process.GraphTraversal = getUserTraversalByToken(params.token).as('user');
+   let query: process.GraphTraversal = hasProfileCompleted(getUserTraversalByToken(params.token)).as('user');
 
    for (const attraction of params.attractions) {
       // Selects target user
