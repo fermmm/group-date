@@ -1,23 +1,23 @@
 import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
-import { SuportedGremlinTypes, UserFromDatabase } from './gremlin-typing-tools';
+import { GremlinValueType, SuportedGremlinTypes, UserFromDatabase } from './gremlin-typing-tools';
 
 /**
  * Converts the format of the Gremlin Map output into a User object
  *
  * @param userFromDatabase
  */
-export function asUser(userFromDatabase: UserFromDatabase): Partial<User> {
+export function asUser<T extends User | Partial<User>>(userFromDatabase: UserFromDatabase): T {
    if (userFromDatabase == null) {
       return null;
    }
 
    // Add general props
-   const result: Partial<User> = {
+   const result: Record<string, GremlinValueType> = {
       ...mapToObject(userFromDatabase.get('profile')),
    };
 
    // Add questions:
-   const questions: typeof result.questions = mapToObjectDeep(userFromDatabase.get('questions'));
+   const questions = mapToObjectDeep(userFromDatabase.get('questions'));
    if (questions?.length > 0) {
       result.questions = questions;
    }
@@ -27,7 +27,7 @@ export function asUser(userFromDatabase: UserFromDatabase): Partial<User> {
       result.pictures = JSON.parse((result.pictures as unknown) as string);
    }
 
-   return result;
+   return (result as unknown) as T;
 }
 
 function mapToObject<T>(map: Map<string, T>): Record<string, T> {

@@ -7,6 +7,7 @@ import { ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
 import * as path from 'path';
 import * as sharp from 'sharp';
+import { removePrivacySensitiveUserProps } from '../../common-tools/security-tools/security-tools';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    FileUploadResponse,
@@ -17,7 +18,7 @@ import {
    UserPostParams,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserPropKey, validateUserProps } from '../../shared-tools/validators/user';
-import { removePrivacySensitiveUserProps, retreiveUser } from '../common/models';
+import { retreiveUser } from '../common/models';
 import { updateUserProp } from '../common/queries';
 import { setAttraction, setUserProps } from './queries';
 import { questions } from './questions/models';

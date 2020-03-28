@@ -10,6 +10,7 @@ import * as ora from 'ora';
 import { waitForDatabase } from './common-tools/database-tools/database-manager';
 import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
 import { rateLimitterConfig } from './common-tools/security-tools/security-tools';
+import { cardsGameRoutes } from './components/cards-game/routes';
 import { handshakeRoutes } from './components/handshake/routes';
 import { testingRoutes } from './components/testing/routes';
 import { questions } from './components/user/questions/models';
@@ -33,6 +34,7 @@ import { databaseExperiments } from './experiments/database';
    // Routes:
    handshakeRoutes(router);
    userRoutes(router);
+   cardsGameRoutes(router);
    testingRoutes(router);
 
    // Other:
