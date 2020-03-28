@@ -24,7 +24,10 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
 
    for (const attraction of params.attractions) {
       // Selects target user
-      query = query.V().has('user', 'email', attraction.userEmail);
+      query = query
+         .V()
+         .has('user', 'email', attraction.userEmail)
+         .not(__.has('user', 'token', params.token)); // Prevents self liking
 
       // Removes all edges pointing to the target user that are labeled as any attraction type
       for (const attractionType of allAtractionTypes) {
