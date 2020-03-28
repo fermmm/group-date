@@ -24,14 +24,14 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
 
    for (const attraction of params.attractions) {
       // Selects target user
-      query = query
-         .V()
+      const search = __.V()
          .has('user', 'email', attraction.userEmail)
-         .not(__.has('user', 'token', params.token)); // Prevents self liking
+         .where(__.not(__.has('user', 'token', params.token))); // Prevents self liking
 
+      let action: process.GraphTraversal = search;
       // Removes all edges pointing to the target user that are labeled as any attraction type
       for (const attractionType of allAtractionTypes) {
-         query = query.sideEffect(
+         action = action.sideEffect(
             __.inE(attractionType)
                .where(__.outV().as('user'))
                .drop(),
@@ -39,7 +39,10 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
       }
 
       // Adds the attraction edge
-      query = query.addE(attraction.attractionType).from_('user');
+      action = action.addE(attraction.attractionType).from_('user');
+
+      // If the search returned a result perform the action, otherwise it will continue
+      query = query.choose(search, action);
    }
 
    return retryOnError(() => query.iterate());
