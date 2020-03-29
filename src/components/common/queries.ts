@@ -103,14 +103,19 @@ export async function updateUserToken(userEmail: string, newToken: string): Prom
    return Promise.resolve();
 }
 
-export async function updateUserProp(token: string, prop: string, value: UserPropsValueTypes): Promise<void> {
-   await retryOnError(() =>
-      g
-         .V()
-         .has('user', 'token', String(token))
-         .property(prop, serializeIfNeeded(value))
-         .next(),
-   );
+export async function updateUserProps(
+   token: string,
+   props: Array<{ key: keyof User; value: UserPropsValueTypes }>,
+): Promise<void> {
+   await retryOnError(() => {
+      let query = g.V().has('user', 'token', String(token));
+
+      for (const prop of props) {
+         query = query.property(prop.key, serializeIfNeeded(prop.value));
+      }
+
+      return query.next();
+   });
 
    return Promise.resolve();
 }

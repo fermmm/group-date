@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as Koa from 'koa';
 import { ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
+import * as moment from 'moment';
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { removePrivacySensitiveUserProps } from '../../common-tools/security-tools/security-tools';
@@ -19,7 +20,7 @@ import {
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserPropKey, validateUserProps } from '../../shared-tools/validators/user';
 import { retreiveUser } from '../common/models';
-import { updateUserProp } from '../common/queries';
+import { updateUserProps } from '../common/queries';
 import { setAttraction, setUserProps } from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
@@ -32,11 +33,16 @@ export async function profileStatusGet(params: TokenParameter, ctx: Koa.BaseCont
       missingQuestionsId: getMissingQuestions(user),
    };
 
-   updateUserProp(
-      user.token,
-      'profileCompleted',
-      result.missingEditableUserProps.length === 0 && result.missingQuestionsId.length === 0,
-   );
+   updateUserProps(user.token, [
+      {
+         key: 'profileCompleted',
+         value: result.missingEditableUserProps.length === 0 && result.missingQuestionsId.length === 0,
+      },
+      {
+         key: 'lastLoginDate',
+         value: moment().unix(),
+      },
+   ]);
 
    return Promise.resolve(result);
 }

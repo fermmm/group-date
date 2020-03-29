@@ -6,6 +6,7 @@ export interface User {
    userId: string;
    token: string;
    email: string;
+   lastLoginDate: number;
    locationLat: number;
    locationLon: number;
    name: string;
