@@ -9,6 +9,7 @@ export const __ = gremlin.process.statics;
 export const withOptions = gremlin.process.withOptions;
 export const TextP = gremlin.process.TextP;
 export const P = gremlin.process.P;
+export const order = gremlin.process.order;
 export const id = gremlin.process.t.id;
 
 const spinner: ora.Ora = ora({ text: 'Waiting for database...', spinner: 'noise' });
