@@ -1,6 +1,7 @@
 import { process } from 'gremlin';
-import { __, g, P, retryOnError, TextP } from '../../common-tools/database-tools/database-manager';
-import { KM_IN_GPS_FORMAT } from '../../common-tools/math-tools/math-tools';
+import * as moment from 'moment';
+import { __, g, order, P, retryOnError, TextP } from '../../common-tools/database-tools/database-manager';
+import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/math-tools';
 import {
    allAtractionTypes,
    AttractionType,
@@ -10,6 +11,8 @@ import {
 } from '../../shared-tools/endpoints-interfaces/user';
 import { addQuestionsResponded, getUserTraversalByToken } from '../common/queries';
 import { questions } from '../user/questions/models';
+
+// TODO: Hacer unos test en base al endpoint de test
 
 export async function getRecommendations(user: User): Promise<process.Traverser[]> {
    let query: process.GraphTraversal = g
@@ -23,6 +26,11 @@ export async function getRecommendations(user: User): Promise<process.Traverser[
    for (const attractionType of allAtractionTypes) {
       query = query.not(__.inE(attractionType).where(__.outV().has('token', user.token)));
    }
+
+   /**
+    * Dont show inactive accounts
+    */
+   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT * 2)));
 
    /**
     * User likes the gender
@@ -128,6 +136,16 @@ export async function getRecommendations(user: User): Promise<process.Traverser[
             .has('incompatibleAnswers', TextP.containing(`${userAnswer.answerId}`)),
       );
    }
+
+   /**
+    * Order the results
+    */
+   query = query.order().by(order.shuffle);
+
+   /**
+    * Limit results
+    */
+   query = query.limit(40);
 
    return await retryOnError(() => addQuestionsResponded(query).toList());
 }
