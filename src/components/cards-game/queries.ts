@@ -12,8 +12,6 @@ import {
 import { addQuestionsResponded, getUserTraversalByToken } from '../common/queries';
 import { questions } from '../user/questions/models';
 
-// TODO: Hacer unos test en base al endpoint de test
-
 export async function getRecommendations(user: User): Promise<process.Traverser[]> {
    let query: process.GraphTraversal = g
       .V()
@@ -30,7 +28,7 @@ export async function getRecommendations(user: User): Promise<process.Traverser[
    /**
     * Dont show inactive accounts
     */
-   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT * 2)));
+   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
 
    /**
     * User likes the gender
@@ -151,8 +149,12 @@ export async function getRecommendations(user: User): Promise<process.Traverser[
 }
 
 export async function getDislikedUsers(token: string): Promise<process.Traverser[]> {
-   const query: process.GraphTraversal = getUserTraversalByToken(token)
-      .out(AttractionType.Dislike)
-      .unfold();
+   let query: process.GraphTraversal = getUserTraversalByToken(token).out(AttractionType.Dislike);
+
+   /**
+    * Dont show inactive accounts
+    */
+   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
+
    return await retryOnError(() => addQuestionsResponded(query).toList());
 }
