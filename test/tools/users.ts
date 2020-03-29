@@ -90,8 +90,7 @@ export async function createFakeUser(customParams: Partial<UserPostParams> = nul
 }
 
 export async function setFakeAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
-   const attractions: Attraction[] = to.map(user => ({ userEmail: user.email, attractionType }));
-   console.log(`from: ${from.token} to: ${attractions.map(a => a.userEmail)}`);
+   const attractions: Attraction[] = to.map(user => ({ userId: user.userId, attractionType }));
    await setAttractionPost(
       {
          token: from.token,

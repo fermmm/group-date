@@ -3,6 +3,7 @@ import { __, g, retryOnError } from '../../../common-tools/database-tools/databa
 import { VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QestionResponseParams, QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
+import { getIncompatibleAnswers } from './models';
 
 export async function createQuestions(questions: QuestionData[]): Promise<void> {
    let traversal: gremlin.process.GraphTraversal | gremlin.process.GraphTraversalSource = g;
@@ -68,8 +69,10 @@ export async function respondQuestions(token: string, questions: QestionResponse
          )
          .addE('response')
          .from_('user')
+         .property('questionId', Number(question.questionId))
          .property('answerId', Number(question.answerId))
-         .property('useAsFilter', Boolean(question.useAsFilter));
+         .property('useAsFilter', Boolean(question.useAsFilter))
+         .property('incompatibleAnswers', `[${getIncompatibleAnswers(question.questionId, question.answerId) || ''}]`);
    }
 
    return retryOnError(() => query.iterate());

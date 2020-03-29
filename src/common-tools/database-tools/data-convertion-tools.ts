@@ -26,6 +26,11 @@ export function asUser<T extends User | Partial<User>>(userFromDatabase: UserFro
    if (result.pictures != null) {
       result.pictures = JSON.parse((result.pictures as unknown) as string);
    }
+   if (result.questions != null) {
+      for (const question of ((result as unknown) as T).questions) {
+         question.incompatibleAnswers = JSON.parse((question.incompatibleAnswers as unknown) as string);
+      }
+   }
 
    return (result as unknown) as T;
 }

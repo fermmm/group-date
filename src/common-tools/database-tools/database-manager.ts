@@ -7,6 +7,9 @@ const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 export const g = traversal().withRemote(new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL));
 export const __ = gremlin.process.statics;
 export const withOptions = gremlin.process.withOptions;
+export const TextP = gremlin.process.TextP;
+export const P = gremlin.process.P;
+export const id = gremlin.process.t.id;
 
 const spinner: ora.Ora = ora({ text: 'Waiting for database...', spinner: 'noise' });
 /**

@@ -3,7 +3,7 @@ import { ExposedUserPropKey, ExposedUserProps } from '../validators/user';
 export type UserPropsValueTypes = number | string | boolean | string[];
 
 export interface User {
-   id: number;
+   userId: string;
    token: string;
    email: string;
    locationLat: number;
@@ -25,7 +25,7 @@ export interface User {
    dateIdeaAddress: string;
    profileDescription: string;
    profileCompleted: boolean;
-   questions?: Array<{ question: QuestionInDatabase; response: QuestionResponseInDatabase }>;
+   questions?: QuestionResponse[];
 }
 
 export enum Gender {
@@ -70,18 +70,15 @@ export interface QuestionAnswerData {
    shortVersion?: string;
 }
 
-export interface QuestionResponseInDatabase {
+export interface QuestionResponse {
+   questionId: number;
    answerId: number;
    useAsFilter: boolean;
+   incompatibleAnswers: number[];
 }
 
 export interface QuestionInDatabase {
    questionId: number;
-}
-
-export interface QuestionWithResponse {
-   question: QuestionInDatabase;
-   response: QuestionResponseInDatabase;
 }
 
 export interface FileUploadResponse {
@@ -95,7 +92,7 @@ export interface SetAttractionParams {
 }
 
 export interface Attraction {
-   userEmail: string;
+   userId: string;
    attractionType: AttractionType;
 }
 
@@ -103,3 +100,5 @@ export enum AttractionType {
    Like = 'Like',
    Dislike = 'Dislike',
 }
+
+export const allAtractionTypes: AttractionType[] = Object.values(AttractionType);

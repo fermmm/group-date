@@ -1,7 +1,7 @@
 import { process } from 'gremlin';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, retryOnError } from '../../common-tools/database-tools/database-manager';
-import { AttractionType, SetAttractionParams } from '../../shared-tools/endpoints-interfaces/user';
+import { allAtractionTypes, SetAttractionParams } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
 import { getUserTraversalByToken, hasProfileCompleted } from '../common/queries';
 
@@ -17,15 +17,13 @@ export async function setUserProps(token: string, userProps: ExposedUserProps): 
    return retryOnError(() => query.iterate());
 }
 
-const allAtractionTypes: AttractionType[] = Object.values(AttractionType);
-
 export async function setAttraction(params: SetAttractionParams): Promise<void> {
    let query: process.GraphTraversal = hasProfileCompleted(getUserTraversalByToken(params.token)).as('user');
 
    for (const attraction of params.attractions) {
       // Selects target user
       const search = __.V()
-         .has('user', 'email', attraction.userEmail)
+         .has('user', 'userId', attraction.userId)
          .where(__.not(__.has('user', 'token', params.token))); // Prevents self liking
 
       let action: process.GraphTraversal = search;

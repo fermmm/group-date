@@ -4,7 +4,7 @@ import { Gender, User, UserPostParams } from '../../shared-tools/endpoints-inter
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      const basicCloseUser: Partial<UserPostParams> = {
+      const compatibleUser: Partial<UserPostParams> = {
          props: {
             gender: Gender.Woman,
             likesMan: true,
@@ -46,32 +46,158 @@ export function testingRoutes(router: Router): void {
          ],
       };
 
-      const basicCloseUser2: Partial<UserPostParams> = {
-         ...basicCloseUser,
+      const compatibleUser2: Partial<UserPostParams> = {
+         ...compatibleUser,
          props: {
-            ...basicCloseUser.props,
+            ...compatibleUser.props,
             locationLat: -34.608204,
             locationLon: -58.502031,
             likesWoman: true,
          },
       };
 
-      const tooFarUser: Partial<UserPostParams> = {
-         ...basicCloseUser,
+      const distanceIncompatibleUser: Partial<UserPostParams> = {
+         ...compatibleUser,
          props: {
-            ...basicCloseUser.props,
+            ...compatibleUser.props,
             locationLat: -34.566223,
             locationLon: -59.11482,
          },
       };
 
+      const sexIncompatibleUser: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+            gender: Gender.Man,
+         },
+      };
+
+      const sexIncompatibleUser2: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+            likesMan: false,
+         },
+      };
+
+      const ageIncompatibleUser: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+            age: 40,
+         },
+      };
+
+      const ageIncompatibleUser2: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+            age: 18,
+         },
+      };
+
+      const ageIncompatibleUser3: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+            targetAgeMin: 18,
+            targetAgeMax: 25,
+         },
+      };
+
+      const questionsIncompatibleUser: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+         },
+         questions: [
+            {
+               questionId: 0,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 1,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 2,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 3,
+               answerId: 1,
+               useAsFilter: false,
+            },
+            {
+               questionId: 4,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 5,
+               answerId: 1, // This makes it incompatible
+               useAsFilter: false,
+            },
+         ],
+      };
+
+      const questionsIncompatibleUser2: Partial<UserPostParams> = {
+         ...compatibleUser,
+         props: {
+            ...compatibleUser.props,
+         },
+         questions: [
+            {
+               questionId: 0,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 1,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 2,
+               answerId: 0, // This makes it incompatible
+               useAsFilter: true,
+            },
+            {
+               questionId: 3,
+               answerId: 1,
+               useAsFilter: false,
+            },
+            {
+               questionId: 4,
+               answerId: 0,
+               useAsFilter: false,
+            },
+            {
+               questionId: 5,
+               answerId: 2,
+               useAsFilter: false,
+            },
+         ],
+      };
+
       const users: User[] = [
-         await createFakeUser(basicCloseUser),
-         await createFakeUser(basicCloseUser2),
-         await createFakeUser(tooFarUser),
+         await createFakeUser(compatibleUser),
+         await createFakeUser(compatibleUser2),
+         await createFakeUser(distanceIncompatibleUser),
+         await createFakeUser(sexIncompatibleUser),
+         await createFakeUser(sexIncompatibleUser2),
+         await createFakeUser(ageIncompatibleUser),
+         await createFakeUser(ageIncompatibleUser2),
+         await createFakeUser(ageIncompatibleUser3),
+         await createFakeUser(questionsIncompatibleUser),
+         await createFakeUser(questionsIncompatibleUser2),
       ];
 
-      await setFakeAttractionMatch(users);
+      // await setFakeAttractionMatch(users);
 
       ctx.body = `Finished`;
    });

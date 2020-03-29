@@ -12,7 +12,7 @@ import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    FileUploadResponse,
    ProfileStatusServerResponse,
-   QuestionWithResponse,
+   QuestionResponse,
    SetAttractionParams,
    User,
    UserPostParams,
@@ -61,13 +61,13 @@ function getMissingQuestions(user: Partial<User>): number[] {
          return;
       }
 
-      const responsePresentAndValid: QuestionWithResponse = user.questions.find(uq => {
-         const questionPresent: boolean = q.questionId === uq.question.questionId;
-         const responseIsValid: boolean = q.answers.find(a => a.answerId === uq.response.answerId) != null;
-         return questionPresent && responseIsValid;
+      const answerPresentAndValid: QuestionResponse = user.questions.find(uq => {
+         const questionPresent: boolean = q.questionId === uq.questionId;
+         const answerIsValid: boolean = q.answers.find(a => a.answerId === uq.answerId) != null;
+         return questionPresent && answerIsValid;
       });
 
-      if (responsePresentAndValid == null) {
+      if (answerPresentAndValid == null) {
          result.push(q.questionId);
       }
    });

@@ -1,4 +1,5 @@
 import * as gremlin from 'gremlin';
+import { v1 as uuidv1 } from 'uuid';
 import { asUser, serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
 import { GraphTraversal, Traversal, UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
@@ -16,6 +17,7 @@ export async function createUser(token: string, email: string): Promise<Partial<
                      __.addV('user')
                         .property('email', email)
                         .property('token', token)
+                        .property('userId', uuidv1())
                         .property('profileCompleted', false),
                   ),
             ).next(),
@@ -40,6 +42,14 @@ export async function getUserByEmail(email: string): Promise<Partial<User>> {
    );
 }
 
+export async function getUserById(userId: string): Promise<Partial<User>> {
+   return Promise.resolve(
+      asUser(
+         (await retryOnError(() => addQuestionsResponded(getUserTraversalById(userId)).next())).value as UserFromDatabase,
+      ),
+   );
+}
+
 export function addQuestionsResponded(traversal: gremlin.process.GraphTraversal): GraphTraversal {
    return traversal
       .project('profile', 'questions')
@@ -47,9 +57,7 @@ export function addQuestionsResponded(traversal: gremlin.process.GraphTraversal)
       .by(
          __.outE('response')
             .as('response')
-            .inV()
-            .as('question')
-            .select('question', 'response')
+            .select('response')
             .by(__.valueMap().by(__.unfold()))
             .fold(),
       );
@@ -69,6 +77,14 @@ export function getUserTraversalByEmail(email: string, currentTraversal?: Traver
    }
 
    return currentTraversal.V().has('user', 'email', String(email));
+}
+
+export function getUserTraversalById(userId: string, currentTraversal?: Traversal): gremlin.process.GraphTraversal {
+   if (currentTraversal == null) {
+      currentTraversal = g;
+   }
+
+   return currentTraversal.V().has('user', 'userId', String(userId));
 }
 
 export function hasProfileCompleted(currentTraversal?: gremlin.process.GraphTraversal): gremlin.process.GraphTraversal {

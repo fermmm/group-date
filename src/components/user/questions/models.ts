@@ -165,3 +165,23 @@ export const questions: QuestionData[] = [
    smokeQuestion,
    politicsQuestion,
 ];
+
+export function getIncompatibleAnswers(questionId: number, responseId: number): number[] | null {
+   const question: QuestionData = questions.find(q => q.questionId === questionId);
+
+   if (question.incompatibilitiesBetweenAnswers == null) {
+      return null;
+   }
+
+   const result = question.incompatibilitiesBetweenAnswers[responseId];
+
+   if (result == null) {
+      return null;
+   }
+
+   if (result.length === 0) {
+      return null;
+   }
+
+   return result;
+}

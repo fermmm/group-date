@@ -5,10 +5,15 @@ import { removePrivacySensitiveUserProps } from '../../common-tools/security-too
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retreiveCompleteUser } from '../common/models';
-import { getRecommendations } from './queries';
+import { getDislikedUsers, getRecommendations } from './queries';
 
 export async function recommendationsGet(params: TokenParameter, ctx: Koa.BaseContext): Promise<User[]> {
    const user: User = await retreiveCompleteUser(params.token, ctx);
    const queryResult = await getRecommendations(user);
+   return queryResult.map(userFromQuery => removePrivacySensitiveUserProps(asUser(userFromQuery as UserFromDatabase)));
+}
+
+export async function dislikedUsersGet(params: TokenParameter): Promise<User[]> {
+   const queryResult = await getDislikedUsers(params.token);
    return queryResult.map(userFromQuery => removePrivacySensitiveUserProps(asUser(userFromQuery as UserFromDatabase)));
 }
