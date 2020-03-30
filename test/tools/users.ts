@@ -13,6 +13,7 @@ import {
    UserPostParams,
 } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
+import { fakeCtx } from './replacements';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
@@ -36,7 +37,7 @@ export async function createFakeUser(customParams: Partial<UserPostParams> = nul
    const chance = new Chance(seed || fakeUsersCount);
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
-   const token: string = chance.apple_token();
+   const token: string = customParams?.token || chance.apple_token();
 
    const props: ExposedUserProps = {
       name: chance.first({ nationality: 'it' }),
@@ -71,17 +72,17 @@ export async function createFakeUser(customParams: Partial<UserPostParams> = nul
       };
    });
 
-   await createUser(customParams?.token || token, chance.email());
+   await createUser(token, chance.email());
    await userPost(
       {
-         token: customParams?.token || token,
+         token,
          props: { ...props, ...customParams?.props },
          questions: [...questionResponses, ...(customParams?.questions || [])],
       },
-      null,
+      fakeCtx,
    );
-   await profileStatusGet({ token }, null);
-   const user: Partial<User> = await retreiveUser(token, null);
+   await profileStatusGet({ token }, fakeCtx);
+   const user: Partial<User> = await retreiveUser(token, fakeCtx);
 
    fakeUsersCount++;
    spinner.text = `Created ${fakeUsersCount} fake users...`;
@@ -96,7 +97,7 @@ export async function setFakeAttraction(from: User, to: User[], attractionType: 
          token: from.token,
          attractions,
       },
-      null,
+      fakeCtx,
    );
 }
 

@@ -4,7 +4,7 @@ import { Gender, UserPropsValueTypes } from '../endpoints-interfaces/user';
 const v = new ((Validator as unknown) as typeof Validator.default)();
 
 export const editableUserPropsSchema = {
-   name: { type: 'string', min: 2, max: 22, optional: true },
+   name: { type: 'string', min: 2, max: 32, optional: true },
    age: { type: 'number', min: 18, max: 120, optional: true },
    targetAgeMin: { type: 'number', min: 18, max: 120, optional: true },
    targetAgeMax: { type: 'number', min: 18, max: 120, optional: true },

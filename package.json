@@ -72,7 +72,9 @@
       "testEnvironment": "node",
       "testMatch": [
          "**/test/**/*.test.ts"
-      ]
+      ],
+      "testTimeout": 3600000,
+      "globalSetup": "./test/tools/initializer.ts"
    },
    "husky": {
       "hooks": {

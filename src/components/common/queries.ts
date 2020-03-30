@@ -1,4 +1,5 @@
 import * as gremlin from 'gremlin';
+import { process } from 'gremlin';
 import { v1 as uuidv1 } from 'uuid';
 import { asUser, serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
@@ -118,4 +119,24 @@ export async function updateUserProps(
    });
 
    return Promise.resolve();
+}
+
+/**
+ * Only used in tests
+ */
+export async function removeUsers(users: Array<Partial<User>>): Promise<void> {
+   let query: process.GraphTraversal | process.GraphTraversalSource = g;
+
+   for (const user of users) {
+      query = query
+         .V()
+         .has('user', 'userId', user.userId)
+         .aggregate('x')
+         .cap('x');
+   }
+
+   return (query as process.GraphTraversal)
+      .unfold()
+      .drop()
+      .iterate();
 }

@@ -16,7 +16,6 @@ import { testingRoutes } from './components/testing/routes';
 import { questions } from './components/user/questions/models';
 import { createQuestions } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
-import { databaseExperiments } from './experiments/database';
 
 (async () => {
    // Koa initialization:
@@ -36,9 +35,6 @@ import { databaseExperiments } from './experiments/database';
    userRoutes(router);
    cardsGameRoutes(router);
    testingRoutes(router);
-
-   // Other:
-   // databaseExperiments();
 
    // App uses:
    app.use(ratelimit(rateLimitterConfig))
