@@ -3,19 +3,21 @@ import { dislikedUsersGet, recommendationsGet } from '../src/components/cards-ga
 import { removeUsers } from '../src/components/common/queries';
 import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
+import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
 import { createFakeUser, setFakeAttraction } from './tools/users';
 
 describe('Cards game', () => {
-   let fakeUsers: User[];
+   let fakeData: Array<Partial<UserPostParams>>;
+   const fakeUsers: User[] = [];
    let searcherUser: User;
    let compatibleUser: User;
    let compatibleUser2: User;
    let recommendations: User[];
 
-   beforeAll(async done => {
+   beforeAll(async () => {
       const searcherParams: Partial<UserPostParams> = {
          props: {
-            name: 'Fernando',
+            name: 'searcherParams',
             profileDescription: '',
             gender: Gender.Man,
             age: 32,
@@ -265,38 +267,31 @@ describe('Cards game', () => {
          ],
       };
 
-      searcherUser = await createFakeUser(searcherParams);
-      compatibleUser = await createFakeUser(compatibleParams);
-      compatibleUser2 = await createFakeUser(compatibleParams2);
-
-      fakeUsers = [
-         searcherUser,
-         compatibleUser,
-         compatibleUser2,
-         await createFakeUser(distanceIncompatibleParams),
-         await createFakeUser(sexIncompatibleParams),
-         await createFakeUser(sexIncompatibleParams2),
-         await createFakeUser(ageIncompatibleParams),
-         await createFakeUser(ageIncompatibleParams2),
-         await createFakeUser(ageIncompatibleParams3),
-         await createFakeUser(questionsIncompatibleParams),
-         await createFakeUser(questionsIncompatibleParams2),
+      fakeData = [
+         searcherParams,
+         compatibleParams,
+         compatibleParams2,
+         distanceIncompatibleParams,
+         sexIncompatibleParams,
+         sexIncompatibleParams2,
+         ageIncompatibleParams,
+         ageIncompatibleParams2,
+         ageIncompatibleParams3,
+         questionsIncompatibleParams,
+         questionsIncompatibleParams2,
       ];
 
-      done();
+      for (const data of fakeData) {
+         fakeUsers.push(await createFakeUser(data));
+      }
+
+      searcherUser = fakeUsers[0];
+      compatibleUser = fakeUsers[1];
+      compatibleUser2 = fakeUsers[2];
    });
 
-   test('Test was prepared correctly', () => {
-      expect(fakeUsers).toHaveLength(11);
-
-      let allProfilesCompleted: boolean = true;
-      fakeUsers.forEach(user => {
-         if (!user.profileCompleted) {
-            allProfilesCompleted = false;
-         }
-      });
-
-      expect(allProfilesCompleted).toBe(true);
+   test('Test will be done correctly', () => {
+      fakeUsersMatchesFakeData(fakeUsers, fakeData);
    });
 
    test('Recommendations filters correctly', async () => {

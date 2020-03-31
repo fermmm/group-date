@@ -13,10 +13,9 @@
       "start": "node --inspect=localhost:5858 --nolazy -r ts-node/register src/index.ts",
       "dev": "gremlin-server.sh restart && nodemon --watch",
       "dev-win": "gremlin-server.bat restart && nodemon --watch",
-      "test": "gremlin-server.sh restart && jest",
+      "test": "gremlin-server.sh restart && jest --verbose --runInBand",
       "test:coverage": "gremlin-server.sh restart && jest --coverage",
-      "test:watch": "gremlin-server.sh restart && jest --watch",
-      "hola": "gremlin-server.sh restart && jest --detectOpenHandles",
+      "test:watch": "gremlin-server.sh restart && jest --watch --runInBand",
       "prettier": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
       "style": "prettier --list-different \"src/**/*.ts\" \"test/**/*.ts\"",
       "lint": "tslint \"src/**/*.ts\"",
@@ -73,7 +72,7 @@
       "testMatch": [
          "**/test/**/*.test.ts"
       ],
-      "testTimeout": 3600000,
+      "testTimeout": 60000,
       "globalSetup": "./test/tools/initializer.ts"
    },
    "husky": {

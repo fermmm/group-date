@@ -24,6 +24,7 @@ export async function createFakeUsers(ammount: number, seed?: number): Promise<U
 
    for (let i = 0; i < ammount; i++) {
       users.push(await createFakeUser(null, seed));
+      spinner.text = `Created ${fakeUsersCount} fake users...`;
    }
 
    spinner.succeed(`Created ${users.length} fake users.`);
@@ -48,7 +49,6 @@ export async function createFakeUser(customParams: Partial<UserPostParams> = nul
       pictures: [
          'https://data.whicdn.com/images/75413003/large.jpg',
          'https://i.pinimg.com/originals/f9/dc/16/f9dc1608b6b94b29ed9070ac54b9e3b8.jpg',
-         'https://files.lafm.com.co/assets/public/styles/image_631x369/public/2018-06/johnny_depp_0.jpg?itok=huih3ntS',
       ],
       dateIdeaName: chance.sentence({ words: 5 }),
       dateIdeaAddress: chance.address(),
@@ -85,7 +85,6 @@ export async function createFakeUser(customParams: Partial<UserPostParams> = nul
    const user: Partial<User> = await retreiveUser(token, fakeCtx);
 
    fakeUsersCount++;
-   spinner.text = `Created ${fakeUsersCount} fake users...`;
 
    return user as User;
 }
