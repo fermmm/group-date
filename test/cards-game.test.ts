@@ -2,6 +2,7 @@ import 'jest';
 import { dislikedUsersGet, recommendationsGet } from '../src/components/cards-game/models';
 import { removeUsers } from '../src/components/common/queries';
 import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tools/endpoints-interfaces/user';
+import { ammountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
 import { createFakeUser, setFakeAttraction } from './tools/users';
@@ -129,6 +130,7 @@ describe('Cards game', () => {
             locationLon: -58.502031,
             likesWoman: true,
          },
+         questions: searcherParams.questions,
       };
 
       const distanceIncompatibleParams: Partial<UserPostParams> = {
@@ -294,33 +296,46 @@ describe('Cards game', () => {
       fakeUsersMatchesFakeData(fakeUsers, fakeData);
    });
 
-   test('Recommendations filters correctly', async () => {
+   test('Recommendations returns correct users in correct order', async () => {
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
 
+      // Check ammount
       expect(recommendations).toHaveLength(2);
 
+      // Check for duplication
       expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
 
+      // Check order
+      expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
+      expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
+
+      // Check ammount of matching responses
       expect(
-         recommendations[0].userId === compatibleUser.userId || recommendations[0].userId === compatibleUser2.userId,
+         ammountOfMatchingResponses(searcherUser, recommendations[0]) >=
+            ammountOfMatchingResponses(searcherUser, recommendations[1]),
       ).toBe(true);
 
-      expect(
-         recommendations[1].userId === compatibleUser.userId || recommendations[1].userId === compatibleUser2.userId,
-      ).toBe(true);
-
+      // Send profile evaluation to search results and try again to make sure evaluated users are not returned
       await setFakeAttraction(searcherUser, [compatibleUser, compatibleUser2], AttractionType.Dislike);
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
       expect(recommendations).toHaveLength(0);
    });
 
    test('Disliked users returns the correct data', async () => {
-      recommendations = await dislikedUsersGet({ token: searcherUser.token });
+      recommendations = await dislikedUsersGet({ token: searcherUser.token }, fakeCtx);
+
+      // Check ammount
       expect(recommendations).toHaveLength(2);
+
+      // Check for duplication
+      expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
+
+      // Check order
+      expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
+      expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
    });
 
-   afterAll(async done => {
+   afterAll(async () => {
       await removeUsers(fakeUsers);
-      done();
    });
 });

@@ -23,7 +23,7 @@ export async function createFakeUsers(ammount: number, seed?: number): Promise<U
    spinner.start();
 
    for (let i = 0; i < ammount; i++) {
-      users.push(await createFakeUser(null, seed));
+      users.push(await createFakeUser(null, seed + i));
       spinner.text = `Created ${fakeUsersCount} fake users...`;
    }
 

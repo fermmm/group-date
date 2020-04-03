@@ -3,7 +3,11 @@ import { process } from 'gremlin';
 import { v1 as uuidv1 } from 'uuid';
 import { asUser, serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
-import { GraphTraversal, Traversal, UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
+import {
+   GraphTraversal,
+   Traversal,
+   UserFromDatabase,
+} from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
 
 export async function createUser(token: string, email: string): Promise<Partial<User>> {
@@ -30,7 +34,8 @@ export async function createUser(token: string, email: string): Promise<Partial<
 export async function getUserByToken(token: string): Promise<Partial<User>> {
    return Promise.resolve(
       asUser(
-         (await retryOnError(() => addQuestionsResponded(getUserTraversalByToken(token)).next())).value as UserFromDatabase,
+         (await retryOnError(() => addQuestionsResponded(getUserTraversalByToken(token)).next()))
+            .value as UserFromDatabase,
       ),
    );
 }
@@ -38,7 +43,8 @@ export async function getUserByToken(token: string): Promise<Partial<User>> {
 export async function getUserByEmail(email: string): Promise<Partial<User>> {
    return Promise.resolve(
       asUser(
-         (await retryOnError(() => addQuestionsResponded(getUserTraversalByEmail(email)).next())).value as UserFromDatabase,
+         (await retryOnError(() => addQuestionsResponded(getUserTraversalByEmail(email)).next()))
+            .value as UserFromDatabase,
       ),
    );
 }
@@ -46,7 +52,8 @@ export async function getUserByEmail(email: string): Promise<Partial<User>> {
 export async function getUserById(userId: string): Promise<Partial<User>> {
    return Promise.resolve(
       asUser(
-         (await retryOnError(() => addQuestionsResponded(getUserTraversalById(userId)).next())).value as UserFromDatabase,
+         (await retryOnError(() => addQuestionsResponded(getUserTraversalById(userId)).next()))
+            .value as UserFromDatabase,
       ),
    );
 }
@@ -64,7 +71,10 @@ export function addQuestionsResponded(traversal: gremlin.process.GraphTraversal)
       );
 }
 
-export function getUserTraversalByToken(token: string, currentTraversal?: Traversal): gremlin.process.GraphTraversal {
+export function getUserTraversalByToken(
+   token: string,
+   currentTraversal?: Traversal,
+): gremlin.process.GraphTraversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -72,7 +82,10 @@ export function getUserTraversalByToken(token: string, currentTraversal?: Traver
    return currentTraversal.V().has('user', 'token', String(token));
 }
 
-export function getUserTraversalByEmail(email: string, currentTraversal?: Traversal): gremlin.process.GraphTraversal {
+export function getUserTraversalByEmail(
+   email: string,
+   currentTraversal?: Traversal,
+): gremlin.process.GraphTraversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -80,7 +93,10 @@ export function getUserTraversalByEmail(email: string, currentTraversal?: Traver
    return currentTraversal.V().has('user', 'email', String(email));
 }
 
-export function getUserTraversalById(userId: string, currentTraversal?: Traversal): gremlin.process.GraphTraversal {
+export function getUserTraversalById(
+   userId: string,
+   currentTraversal?: Traversal,
+): gremlin.process.GraphTraversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -88,7 +104,9 @@ export function getUserTraversalById(userId: string, currentTraversal?: Traversa
    return currentTraversal.V().has('user', 'userId', String(userId));
 }
 
-export function hasProfileCompleted(currentTraversal?: gremlin.process.GraphTraversal): gremlin.process.GraphTraversal {
+export function hasProfileCompleted(
+   currentTraversal?: gremlin.process.GraphTraversal,
+): gremlin.process.GraphTraversal {
    return currentTraversal.has('user', 'profileCompleted', true);
 }
 

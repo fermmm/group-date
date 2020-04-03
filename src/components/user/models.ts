@@ -25,7 +25,10 @@ import { setAttraction, setUserProps } from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
 
-export async function profileStatusGet(params: TokenParameter, ctx: Koa.BaseContext): Promise<ProfileStatusServerResponse> {
+export async function profileStatusGet(
+   params: TokenParameter,
+   ctx: Koa.BaseContext,
+): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
 
    const result: ProfileStatusServerResponse = {

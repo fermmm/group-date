@@ -28,6 +28,8 @@ export type ExposedUserPropKey = keyof typeof editableUserPropsSchema;
 
 export type ExposedUserProps = Partial<Record<ExposedUserPropKey, UserPropsValueTypes>>;
 
-export const editableUserPropsList: ExposedUserPropKey[] = Object.keys(editableUserPropsSchema) as ExposedUserPropKey[];
+export const editableUserPropsList: ExposedUserPropKey[] = Object.keys(
+   editableUserPropsSchema,
+) as ExposedUserPropKey[];
 
 export const validateUserProps = v.compile(editableUserPropsSchema);

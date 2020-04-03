@@ -72,7 +72,10 @@ export async function respondQuestions(token: string, questions: QestionResponse
          .property('questionId', Number(question.questionId))
          .property('answerId', Number(question.answerId))
          .property('useAsFilter', Boolean(question.useAsFilter))
-         .property('incompatibleAnswers', `[${getIncompatibleAnswers(question.questionId, question.answerId) || ''}]`);
+         .property(
+            'incompatibleAnswers',
+            `[${getIncompatibleAnswers(question.questionId, question.answerId) || ''}]`,
+         );
    }
 
    return retryOnError(() => query.iterate());
