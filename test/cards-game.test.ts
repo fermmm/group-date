@@ -1,15 +1,17 @@
 import 'jest';
+import { queryToUserList } from '../src/common-tools/database-tools/data-convertion-tools';
 import { dislikedUsersGet, recommendationsGet } from '../src/components/cards-game/models';
-import { removeUsers } from '../src/components/common/queries';
+import { orderResultsByMatchingQuestionAnswers } from '../src/components/cards-game/queries';
+import { getAllCompleteUsers, removeUsers } from '../src/components/common/queries';
 import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tools/endpoints-interfaces/user';
 import { ammountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
-import { createFakeUser, setFakeAttraction } from './tools/users';
+import { createFakeUser, createFakeUsers, setFakeAttraction } from './tools/users';
 
 describe('Cards game', () => {
    let fakeData: Array<Partial<UserPostParams>>;
-   const fakeUsers: User[] = [];
+   let fakeUsers: User[] = [];
    let searcherUser: User;
    let compatibleUser: User;
    let compatibleUser2: User;
@@ -333,6 +335,41 @@ describe('Cards game', () => {
       // Check order
       expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
       expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
+
+      await removeUsers(fakeUsers);
+   });
+
+   test('Order of cards deep query testing is correct', async () => {
+      fakeUsers = await createFakeUsers(50);
+      searcherUser = fakeUsers[0];
+
+      let query = getAllCompleteUsers();
+      query = orderResultsByMatchingQuestionAnswers(query, searcherUser);
+
+      let orderIsCorrect: boolean = true;
+      const orderedUsers = await queryToUserList(query);
+
+      expect(orderedUsers.length === fakeUsers.length).toBe(true);
+
+      for (let i = 0; i < orderedUsers.length; i++) {
+         const nextIndex = i < orderedUsers.length - 1 ? i + 1 : null;
+         if (nextIndex == null) {
+            continue;
+         }
+
+         const user: User = orderedUsers[i];
+         const followingUser: User = orderedUsers[nextIndex];
+
+         const userMatches: number = ammountOfMatchingResponses(user, searcherUser);
+         const nextUserMatches: number = ammountOfMatchingResponses(followingUser, searcherUser);
+
+         if (userMatches < nextUserMatches) {
+            orderIsCorrect = false;
+         }
+      }
+
+      expect(orderIsCorrect).toBe(true);
+      await removeUsers(fakeUsers);
    });
 
    afterAll(async () => {

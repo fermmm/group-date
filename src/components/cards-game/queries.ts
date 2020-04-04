@@ -1,7 +1,6 @@
 import { process } from 'gremlin';
 import * as moment from 'moment';
-import { __, column, g, order, P, retryOnError, TextP } from '../../common-tools/database-tools/database-manager';
-import { UserFromDatabase } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
 import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/math-tools';
 import {
    allAtractionTypes,
@@ -10,16 +9,13 @@ import {
    QuestionResponse,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { addQuestionsResponded, getUserTraversalByToken } from '../common/queries';
+import { getAllCompleteUsers, getUserTraversalByToken } from '../common/queries';
 import { questions } from '../user/questions/models';
 
 const RESULTS_LIMIT: number = 40;
 
-export async function getRecommendations(searcherUser: User): Promise<UserFromDatabase[]> {
-   let query: process.GraphTraversal = g
-      .V()
-      .hasLabel('user')
-      .has('profileCompleted', true);
+export function getRecommendations(searcherUser: User): process.GraphTraversal {
+   let query: process.GraphTraversal = getAllCompleteUsers();
 
    /**
     * It's another user (not self)
@@ -153,10 +149,10 @@ export async function getRecommendations(searcherUser: User): Promise<UserFromDa
     */
    query = query.limit(RESULTS_LIMIT);
 
-   return (await retryOnError(() => addQuestionsResponded(query).toList())) as UserFromDatabase[];
+   return query;
 }
 
-export async function getDislikedUsers(token: string, searcherUser: User): Promise<UserFromDatabase[]> {
+export function getDislikedUsers(token: string, searcherUser: User): process.GraphTraversal {
    let query: process.GraphTraversal = getUserTraversalByToken(token).out(AttractionType.Dislike);
 
    /**
@@ -174,26 +170,28 @@ export async function getDislikedUsers(token: string, searcherUser: User): Promi
     */
    query = query.limit(RESULTS_LIMIT);
 
-   return (await retryOnError(() => addQuestionsResponded(query).toList())) as UserFromDatabase[];
+   return query;
 }
 
-function orderResultsByMatchingQuestionAnswers(
+export function orderResultsByMatchingQuestionAnswers(
    query: process.GraphTraversal,
    searcherUser: User,
 ): process.GraphTraversal {
-   query = query.outE('response');
+   query = query.project('userVertex', 'count').by();
+
    const sameResponsesFilter = searcherUser.questions.map(searcherQuestion =>
       __.has('questionId', searcherQuestion.questionId).has('answerId', searcherQuestion.answerId),
    );
-   // Without this hack the users with 0 matches are removed from the results. I want them on the bottom not removed:
-   sameResponsesFilter.push(__.has('questionId', searcherUser.questions[0].questionId));
 
-   return query
-      .or(...sameResponsesFilter)
-      .groupCount()
-      .by(__.outV())
-      .unfold()
+   query = query
+      .by(
+         __.outE('response')
+            .or(...sameResponsesFilter)
+            .count(),
+      )
       .order()
-      .by(column.values, order.desc)
-      .select(column.keys);
+      .by(__.select('count'), order.desc)
+      .select('userVertex');
+
+   return query;
 }

@@ -1,8 +1,15 @@
 import * as Koa from 'koa';
+import { queryToUser } from '../../common-tools/database-tools/data-convertion-tools';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { createUser, getUserByEmail, getUserByToken, updateUserToken } from './queries';
+import {
+   createUser,
+   getUserTraversalByEmail,
+   getUserTraversalById,
+   getUserTraversalByToken,
+   updateUserToken,
+} from './queries';
 
 /**
  * Tries to get the user using the Facebook token and if the user does not exist it creates it.
@@ -62,6 +69,18 @@ export async function retreiveCompleteUser(token: string, ctx: Koa.BaseContext):
    }
 
    return user as User;
+}
+
+export async function getUserByToken(token: string): Promise<User> {
+   return queryToUser(getUserTraversalByToken(token));
+}
+
+export async function getUserByEmail(email: string): Promise<User> {
+   return queryToUser(getUserTraversalByEmail(email));
+}
+
+export async function getUserById(userId: string): Promise<User> {
+   return queryToUser(getUserTraversalById(userId));
 }
 
 export interface FacebookResponse {
