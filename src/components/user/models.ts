@@ -18,7 +18,11 @@ import {
    User,
    UserPostParams,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { editableUserPropsList, ExposedUserPropKey, validateUserProps } from '../../shared-tools/validators/user';
+import {
+   editableUserPropsList,
+   ExposedUserPropKey,
+   validateUserProps,
+} from '../../shared-tools/validators/user';
 import { retreiveUser } from '../common/models';
 import { updateUserProps } from '../common/queries';
 import { setAttraction, setUserProps } from './queries';
@@ -147,7 +151,11 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
       ctx.throw(400, 'File format not supported');
    }
 
-   if (originalFileExtension !== '.jpg' && originalFileExtension !== '.jpeg' && originalFileExtension !== '.png') {
+   if (
+      originalFileExtension !== '.jpg' &&
+      originalFileExtension !== '.jpeg' &&
+      originalFileExtension !== '.png'
+   ) {
       fs.unlinkSync(file.path);
       ctx.throw(400, 'Attempted to upload a file with wrong extension');
    }

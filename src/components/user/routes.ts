@@ -8,7 +8,10 @@ export function userRoutes(router: Router): void {
    router.get('/user', async ctx => (ctx.body = await userGet(ctx.request.body, ctx)));
    router.post('/user', async ctx => (ctx.body = await userPost(ctx.request.body, ctx)));
    router.get('/user/profile-status', async ctx => (ctx.body = await profileStatusGet(ctx.request.body, ctx)));
-   router.post('/user/set-attraction', async ctx => (ctx.body = await setAttractionPost(ctx.request.body, ctx)));
+   router.post(
+      '/user/set-attraction',
+      async ctx => (ctx.body = await setAttractionPost(ctx.request.body, ctx)),
+   );
    router.post(
       '/user/upload-picture',
       onFileReceived,

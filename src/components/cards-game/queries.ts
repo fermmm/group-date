@@ -10,7 +10,7 @@ import {
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { getAllCompleteUsers, getUserTraversalByToken } from '../common/queries';
-import { questions } from '../user/questions/models';
+import { getQuestionDataById, questions } from '../user/questions/models';
 
 const RESULTS_LIMIT: number = 40;
 
@@ -130,7 +130,9 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
     * The user passes the filter questions
     */
    for (const question of questions) {
-      const userAnswer: QuestionResponse = searcherUser.questions.find(q => q.questionId === question.questionId);
+      const userAnswer: QuestionResponse = searcherUser.questions.find(
+         q => q.questionId === question.questionId,
+      );
       query = query.not(
          __.outE('response')
             .has('questionId', question.questionId)
@@ -179,9 +181,15 @@ export function orderResultsByMatchingQuestionAnswers(
 ): process.GraphTraversal {
    query = query.project('userVertex', 'count').by();
 
-   const sameResponsesFilter = searcherUser.questions.map(searcherQuestion =>
-      __.has('questionId', searcherQuestion.questionId).has('answerId', searcherQuestion.answerId),
-   );
+   const sameResponsesFilter = [];
+   for (const searcherQuestion of searcherUser.questions) {
+      if (!getQuestionDataById(searcherQuestion.questionId).affectsCardsGameOrdering) {
+         continue;
+      }
+      sameResponsesFilter.push(
+         __.has('questionId', searcherQuestion.questionId).has('answerId', searcherQuestion.answerId),
+      );
+   }
 
    query = query
       .by(

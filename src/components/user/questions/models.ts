@@ -6,6 +6,7 @@ export function questionsGet(): QuestionData[] {
 
 const companyQuestion: QuestionData = {
    questionId: 0,
+   affectsCardsGameOrdering: false,
    text: '¿Irías acompañade a las citas grupales de esta app?',
    shortVersion: 'Iría a la cita con',
    answers: [
@@ -22,6 +23,7 @@ const companyQuestion: QuestionData = {
 
 const sexIntentionsQuestion: QuestionData = {
    questionId: 1,
+   affectsCardsGameOrdering: true,
    text: '¿Estás abierte a relacionarte sexualmente?',
    shortVersion: 'Abierte a relacionarse sexualmente',
    answers: [
@@ -42,6 +44,7 @@ const sexIntentionsQuestion: QuestionData = {
 
 const feminismQuestion: QuestionData = {
    questionId: 2,
+   affectsCardsGameOrdering: true,
    text: '¿Estás de acuerdo con el feminismo en general?',
    extraText: 'O con algún movimiento feminista',
    shortVersion: 'Está de acuerdo con algún feminismo',
@@ -78,6 +81,7 @@ const feminismQuestion: QuestionData = {
 
 const groupSexQuestion: QuestionData = {
    questionId: 3,
+   affectsCardsGameOrdering: true,
    text: '¿Qué pensas del sexo grupal?',
    shortVersion: 'Su opinión sobre el sexo grupal',
    answers: [
@@ -107,6 +111,7 @@ const groupSexQuestion: QuestionData = {
 
 const smokeQuestion: QuestionData = {
    questionId: 4,
+   affectsCardsGameOrdering: true,
    text: '¿Fumas? (tabaco)',
    shortVersion: 'Fuma',
    answers: [
@@ -127,10 +132,10 @@ const smokeQuestion: QuestionData = {
 
 const politicsQuestion: QuestionData = {
    questionId: 5,
+   affectsCardsGameOrdering: true,
    text: '¿Cuál es tu postura política?',
    extraText: 'Puede ser incómoda la pregunta pero es importante para la mayoría de personas consultadas',
    shortVersion: 'Su postura política',
-   itsImportantSelectedByDefault: true,
    answers: [
       {
          answerId: 0,
@@ -165,9 +170,14 @@ export const questions: QuestionData[] = [
    smokeQuestion,
    politicsQuestion,
 ];
+const questionsById: QuestionData[] = createQuestionsByIdArray();
+
+export function getQuestionDataById(id: number): QuestionData {
+   return questionsById[id];
+}
 
 export function getIncompatibleAnswers(questionId: number, responseId: number): number[] | null {
-   const question: QuestionData = questions.find(q => q.questionId === questionId);
+   const question: QuestionData = getQuestionDataById(questionId);
 
    if (question.incompatibilitiesBetweenAnswers == null) {
       return null;
@@ -183,5 +193,11 @@ export function getIncompatibleAnswers(questionId: number, responseId: number): 
       return null;
    }
 
+   return result;
+}
+
+function createQuestionsByIdArray(): QuestionData[] {
+   const result: QuestionData[] = [];
+   questions.forEach(question => (result[question.questionId] = question));
    return result;
 }

@@ -57,9 +57,9 @@ export interface UserPostParams {
 export interface QuestionData {
    questionId: number;
    text: string;
+   affectsCardsGameOrdering: boolean;
    extraText?: string;
    shortVersion?: string;
-   itsImportantSelectedByDefault?: boolean;
    answers: QuestionAnswerData[];
    incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
 }

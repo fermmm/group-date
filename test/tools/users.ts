@@ -34,7 +34,10 @@ export async function createFakeUsers(ammount: number, seed?: number): Promise<U
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(customParams: Partial<UserPostParams> = null, seed?: number): Promise<User> {
+export async function createFakeUser(
+   customParams: Partial<UserPostParams> = null,
+   seed?: number,
+): Promise<User> {
    const chance = new Chance(seed || fakeUsersCount);
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
