@@ -3,7 +3,7 @@ import { ValidationError } from 'fastest-validator';
 import { File } from 'formidable';
 import * as fs from 'fs';
 import * as Koa from 'koa';
-import { ParameterizedContext } from 'koa';
+import { BaseContext, ParameterizedContext } from 'koa';
 import * as koaBody from 'koa-body';
 import * as moment from 'moment';
 import * as path from 'path';
@@ -31,7 +31,7 @@ import { respondQuestions } from './questions/queries';
 
 export async function profileStatusGet(
    params: TokenParameter,
-   ctx: Koa.BaseContext,
+   ctx: BaseContext,
 ): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retreiveUser(params.token, ctx);
 
@@ -88,11 +88,11 @@ function getMissingQuestions(user: Partial<User>): number[] {
    return result;
 }
 
-export async function userGet(params: TokenParameter, ctx: Koa.BaseContext): Promise<Partial<User>> {
+export async function userGet(params: TokenParameter, ctx: BaseContext): Promise<Partial<User>> {
    return removePrivacySensitiveUserProps(await retreiveUser(params.token, ctx));
 }
 
-export async function userPost(params: UserPostParams, ctx: Koa.BaseContext): Promise<void> {
+export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
    if (params.props != null) {
       const validationResult: true | ValidationError[] = validateUserProps(params.props);
       if (validationResult !== true) {
@@ -129,7 +129,7 @@ export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Ko
    return imageSaver(ctx, next);
 }
 
-export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext): Promise<FileUploadResponse> {
+export async function onFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {
    if (file == null || file.size === 0) {
       if (file) {
          fs.unlinkSync(file.path);
@@ -179,6 +179,6 @@ export async function onFileSaved(file: File | undefined, ctx: Koa.BaseContext):
    return { fileNameSmall, fileNameBig };
 }
 
-export async function setAttractionPost(params: SetAttractionParams, ctx: Koa.BaseContext): Promise<void> {
+export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
    return setAttraction(params);
 }

@@ -1,4 +1,4 @@
-import * as Koa from 'koa';
+import { BaseContext } from 'koa';
 import { queryToUser } from '../../common-tools/database-tools/data-convertion-tools';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
@@ -24,7 +24,7 @@ import {
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveUser(token: string, ctx: Koa.BaseContext): Promise<Partial<User>> {
+export async function retreiveUser(token: string, ctx: BaseContext): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
    user = await getUserByToken(token);
@@ -61,7 +61,7 @@ export async function retreiveUser(token: string, ctx: Koa.BaseContext): Promise
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveCompleteUser(token: string, ctx: Koa.BaseContext): Promise<User> {
+export async function retreiveCompleteUser(token: string, ctx: BaseContext): Promise<User> {
    const user = await retreiveUser(token, ctx);
 
    if (!user.profileCompleted) {

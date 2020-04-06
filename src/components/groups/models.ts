@@ -1,12 +1,14 @@
-export async function acceptPost(): Promise<void> {
+import { BaseContext } from 'koa';
+
+export async function acceptPost(params: unknown, ctx: BaseContext): Promise<void> {
    throw Error('Not implemented');
 }
-export async function votePost(): Promise<void> {
+export async function votePost(params: unknown, ctx: BaseContext): Promise<void> {
    throw Error('Not implemented');
 }
-export async function chatGet(): Promise<void> {
+export async function chatGet(params: unknown, ctx: BaseContext): Promise<void> {
    throw Error('Not implemented');
 }
-export async function chatPost(): Promise<void> {
+export async function chatPost(params: unknown, ctx: BaseContext): Promise<void> {
    throw Error('Not implemented');
 }
