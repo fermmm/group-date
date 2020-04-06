@@ -18,9 +18,31 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
    let query: process.GraphTraversal = getAllCompleteUsers();
 
    /**
-    * It's another user (not self)
+    * Is inside the distance range the user wants
     */
-   query = query.not(__.has('userId', searcherUser.userId));
+   query = query.not(
+      __.has(
+         'locationLat',
+         P.outside(
+            searcherUser.locationLat - searcherUser.targetDistance * KM_IN_GPS_FORMAT,
+            searcherUser.locationLat + searcherUser.targetDistance * KM_IN_GPS_FORMAT,
+         ),
+      ),
+   );
+   query = query.not(
+      __.has(
+         'locationLon',
+         P.outside(
+            searcherUser.locationLon - searcherUser.targetDistance * KM_IN_GPS_FORMAT,
+            searcherUser.locationLon + searcherUser.targetDistance * KM_IN_GPS_FORMAT,
+         ),
+      ),
+   );
+
+   /**
+    * Dont show inactive accounts
+    */
+   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
 
    /**
     * Was not already reviewed by the user
@@ -30,9 +52,9 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
    }
 
    /**
-    * Dont show inactive accounts
+    * It's another user (not self)
     */
-   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
+   query = query.not(__.has('userId', searcherUser.userId));
 
    /**
     * User likes the gender
@@ -82,28 +104,6 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
     */
    query = query.not(__.has('targetAgeMin', P.gte(searcherUser.age)));
    query = query.not(__.has('targetAgeMax', P.lte(searcherUser.age)));
-
-   /**
-    * Is inside the distance range the user wants
-    */
-   query = query.not(
-      __.has(
-         'locationLat',
-         P.outside(
-            searcherUser.locationLat - searcherUser.targetDistance * KM_IN_GPS_FORMAT,
-            searcherUser.locationLat + searcherUser.targetDistance * KM_IN_GPS_FORMAT,
-         ),
-      ),
-   );
-   query = query.not(
-      __.has(
-         'locationLon',
-         P.outside(
-            searcherUser.locationLon - searcherUser.targetDistance * KM_IN_GPS_FORMAT,
-            searcherUser.locationLon + searcherUser.targetDistance * KM_IN_GPS_FORMAT,
-         ),
-      ),
-   );
 
    /**
     * Passes the filter questions of the user
