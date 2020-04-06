@@ -2,14 +2,10 @@ import { BaseContext } from 'koa';
 import { queryToUser } from '../../common-tools/database-tools/data-convertion-tools';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
+import { FacebookResponse } from '../../shared-tools/endpoints-interfaces/common';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import {
-   createUser,
-   getUserTraversalByEmail,
-   getUserTraversalById,
-   getUserTraversalByToken,
-   updateUserToken,
-} from './queries';
+import { queryToCreateUser } from '../user/queries';
+import { getUserTraversalByEmail, getUserTraversalByToken, updateUserToken } from './queries';
 
 /**
  * Tries to get the user using the Facebook token and if the user does not exist it creates it.
@@ -27,7 +23,7 @@ import {
 export async function retreiveUser(token: string, ctx: BaseContext): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
-   user = await getUserByToken(token);
+   user = await queryToUser(getUserTraversalByToken(token));
 
    if (user != null) {
       return user;
@@ -45,14 +41,14 @@ export async function retreiveUser(token: string, ctx: BaseContext): Promise<Par
       ctx.throw(400, 'Facebook error 01');
    }
 
-   user = await getUserByEmail(userDataFromFacebook.content.email);
+   user = await queryToUser(getUserTraversalByEmail(userDataFromFacebook.content.email));
 
    if (user != null) {
       await updateUserToken(userDataFromFacebook.content.email, token);
       return user;
    }
 
-   return createUser(token, userDataFromFacebook.content.email);
+   return queryToUser(queryToCreateUser(token, userDataFromFacebook.content.email));
 }
 
 /**
@@ -69,21 +65,4 @@ export async function retreiveCompleteUser(token: string, ctx: BaseContext): Pro
    }
 
    return user as User;
-}
-
-export async function getUserByToken(token: string): Promise<User> {
-   return queryToUser(getUserTraversalByToken(token));
-}
-
-export async function getUserByEmail(email: string): Promise<User> {
-   return queryToUser(getUserTraversalByEmail(email));
-}
-
-export async function getUserById(userId: string): Promise<User> {
-   return queryToUser(getUserTraversalById(userId));
-}
-
-export interface FacebookResponse {
-   id: string;
-   email: string;
 }

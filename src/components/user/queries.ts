@@ -1,9 +1,23 @@
 import { process } from 'gremlin';
+import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, retryOnError } from '../../common-tools/database-tools/database-manager';
 import { allAtractionTypes, SetAttractionParams } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
 import { getUserTraversalByToken, hasProfileCompleted } from '../common/queries';
+
+export function queryToCreateUser(token: string, email: string): process.GraphTraversal {
+   return getUserTraversalByToken(token)
+      .fold()
+      .coalesce(
+         __.unfold(),
+         __.addV('user')
+            .property('email', email)
+            .property('token', token)
+            .property('userId', uuidv1())
+            .property('profileCompleted', false),
+      );
+}
 
 export async function setUserProps(token: string, userProps: ExposedUserProps): Promise<void> {
    let query: process.GraphTraversal = getUserTraversalByToken(token);

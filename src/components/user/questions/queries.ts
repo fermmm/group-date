@@ -1,6 +1,6 @@
 import * as gremlin from 'gremlin';
 import { __, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
-import { VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
+import { GraphTraversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QestionResponseParams, QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
 import { getIncompatibleAnswers } from './models';
@@ -79,4 +79,17 @@ export async function respondQuestions(token: string, questions: QestionResponse
    }
 
    return retryOnError(() => query.iterate());
+}
+
+export function addQuestionsRespondedToUserQuery(traversal: gremlin.process.GraphTraversal): GraphTraversal {
+   return traversal
+      .project('profile', 'questions')
+      .by(__.valueMap().by(__.unfold()))
+      .by(
+         __.outE('response')
+            .as('response')
+            .select('response')
+            .by(__.valueMap().by(__.unfold()))
+            .fold(),
+      );
 }

@@ -1,5 +1,5 @@
 import { process } from 'gremlin';
-import { addQuestionsResponded } from '../../components/common/queries';
+import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
 import { removePrivacySensitiveUserProps } from '../security-tools/security-tools';
 import { retryOnError } from './database-manager';
@@ -9,7 +9,9 @@ import { GremlinValueType, SuportedGremlinTypes, UserFromDatabase } from './grem
  * Converts into a User object a gremlin query that should return a single user vertex.
  */
 export async function queryToUser(queryOfUser: process.GraphTraversal): Promise<User> {
-   return gremlinMapToUser((await retryOnError(() => addQuestionsResponded(queryOfUser).next())).value);
+   return gremlinMapToUser(
+      (await retryOnError(() => addQuestionsRespondedToUserQuery(queryOfUser).next())).value,
+   );
 }
 
 /**
@@ -19,7 +21,7 @@ export async function queryToUserList(
    queryOfUsers: process.GraphTraversal,
    protectPrivacy: boolean = true,
 ): Promise<User[]> {
-   queryOfUsers = addQuestionsResponded(queryOfUsers);
+   queryOfUsers = addQuestionsRespondedToUserQuery(queryOfUsers);
    const resultGremlinOutput = (await retryOnError(() => queryOfUsers.toList())) as UserFromDatabase[];
    return resultGremlinOutput.map(userFromQuery => {
       if (protectPrivacy) {

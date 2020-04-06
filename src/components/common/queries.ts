@@ -1,38 +1,9 @@
 import * as gremlin from 'gremlin';
 import { process } from 'gremlin';
-import { v1 as uuidv1 } from 'uuid';
-import { queryToUser, serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
+import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
-import { GraphTraversal, Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
-
-export async function createUser(token: string, email: string): Promise<Partial<User>> {
-   return queryToUser(
-      getUserTraversalByToken(token)
-         .fold()
-         .coalesce(
-            __.unfold(),
-            __.addV('user')
-               .property('email', email)
-               .property('token', token)
-               .property('userId', uuidv1())
-               .property('profileCompleted', false),
-         ),
-   );
-}
-
-export function addQuestionsResponded(traversal: gremlin.process.GraphTraversal): GraphTraversal {
-   return traversal
-      .project('profile', 'questions')
-      .by(__.valueMap().by(__.unfold()))
-      .by(
-         __.outE('response')
-            .as('response')
-            .select('response')
-            .by(__.valueMap().by(__.unfold()))
-            .fold(),
-      );
-}
 
 export function getUserTraversalByToken(
    token: string,

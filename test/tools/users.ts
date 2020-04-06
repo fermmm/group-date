@@ -1,8 +1,8 @@
 import * as Chance from 'chance';
 import ora = require('ora');
 import { retreiveUser } from '../../src/components/common/models';
-import { createUser } from '../../src/components/common/queries';
 import { profileStatusGet, setAttractionPost, userPost } from '../../src/components/user/models';
+import { queryToCreateUser } from '../../src/components/user/queries';
 import { questions } from '../../src/components/user/questions/models';
 import {
    Attraction,
@@ -14,6 +14,7 @@ import {
 } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 import { fakeCtx } from './replacements';
+import { queryToUser } from '../../src/common-tools/database-tools/data-convertion-tools';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
@@ -75,7 +76,7 @@ export async function createFakeUser(
       };
    });
 
-   await createUser(token, chance.email());
+   await queryToUser(queryToCreateUser(token, chance.email()));
    await userPost(
       {
          token,
