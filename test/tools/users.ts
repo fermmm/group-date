@@ -1,5 +1,6 @@
 import * as Chance from 'chance';
 import ora = require('ora');
+import { queryToUser } from '../../src/common-tools/database-tools/data-convertion-tools';
 import { retreiveUser } from '../../src/components/common/models';
 import { profileStatusGet, setAttractionPost, userPost } from '../../src/components/user/models';
 import { queryToCreateUser } from '../../src/components/user/queries';
@@ -14,7 +15,6 @@ import {
 } from '../../src/shared-tools/endpoints-interfaces/user';
 import { ExposedUserProps } from '../../src/shared-tools/validators/user';
 import { fakeCtx } from './replacements';
-import { queryToUser } from '../../src/common-tools/database-tools/data-convertion-tools';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
@@ -76,7 +76,7 @@ export async function createFakeUser(
       };
    });
 
-   await queryToUser(queryToCreateUser(token, chance.email()));
+   await queryToUser(queryToCreateUser(token, chance.email()), true);
    await userPost(
       {
          token,
@@ -86,7 +86,7 @@ export async function createFakeUser(
       fakeCtx,
    );
    await profileStatusGet({ token }, fakeCtx);
-   const user: Partial<User> = await retreiveUser(token, fakeCtx);
+   const user: Partial<User> = await retreiveUser(token, true, fakeCtx);
 
    fakeUsersCount++;
 

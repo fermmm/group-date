@@ -25,7 +25,4 @@ export type GremlinValueType =
 export type GraphTraversalSource = gremlin.process.GraphTraversalSource;
 export type GraphTraversal = gremlin.process.GraphTraversal;
 export type Traversal = GraphTraversalSource | GraphTraversal;
-
-export type UserFromDatabase = Map<'profile' | 'questions', Map<any, GremlinValueType>>;
-
 export type SuportedGremlinTypes = number | string | boolean;

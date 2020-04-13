@@ -13,11 +13,12 @@ export interface FacebookResponse {
 
 export interface Chat {
    usersTyping: string[];
-   usersReadLastMessage: string[];
+   usersDownloadedLastMessage: string[];
    messages: ChatMessage[];
 }
 
 export interface ChatMessage {
+   chatMessageId: string;
    message: string;
    time: number;
    authorUserId: string;

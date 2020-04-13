@@ -20,10 +20,14 @@ import { getUserTraversalByEmail, getUserTraversalByToken, updateUserToken } fro
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveUser(token: string, ctx: BaseContext): Promise<Partial<User>> {
+export async function retreiveUser(
+   token: string,
+   includeQuestionsData: boolean,
+   ctx: BaseContext,
+): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
-   user = await queryToUser(getUserTraversalByToken(token));
+   user = await queryToUser(getUserTraversalByToken(token), includeQuestionsData);
 
    if (user != null) {
       return user;
@@ -41,14 +45,14 @@ export async function retreiveUser(token: string, ctx: BaseContext): Promise<Par
       ctx.throw(400, 'Facebook error 01');
    }
 
-   user = await queryToUser(getUserTraversalByEmail(userDataFromFacebook.content.email));
+   user = await queryToUser(getUserTraversalByEmail(userDataFromFacebook.content.email), includeQuestionsData);
 
    if (user != null) {
       await updateUserToken(userDataFromFacebook.content.email, token);
       return user;
    }
 
-   return queryToUser(queryToCreateUser(token, userDataFromFacebook.content.email));
+   return queryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeQuestionsData);
 }
 
 /**
@@ -57,8 +61,12 @@ export async function retreiveUser(token: string, ctx: BaseContext): Promise<Par
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveCompleteUser(token: string, ctx: BaseContext): Promise<User> {
-   const user = await retreiveUser(token, ctx);
+export async function retreiveCompleteUser(
+   token: string,
+   includeQuestionsData: boolean,
+   ctx: BaseContext,
+): Promise<User> {
+   const user = await retreiveUser(token, includeQuestionsData, ctx);
 
    if (!user.profileCompleted) {
       ctx.throw(400, 'Incomplete profiles not allowed in this endpoint');

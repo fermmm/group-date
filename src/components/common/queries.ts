@@ -38,6 +38,19 @@ export function getUserTraversalById(
    return currentTraversal.V().has('user', 'userId', String(userId));
 }
 
+export function getUsersListTraversalFromIds(
+   usersIds: string[],
+   currentTraversal?: Traversal,
+): gremlin.process.GraphTraversal {
+   if (currentTraversal == null) {
+      currentTraversal = g;
+   }
+   currentTraversal = currentTraversal.V().hasLabel('user');
+
+   const search = usersIds.map(userId => __.has('userId', userId));
+   return currentTraversal.or(...search);
+}
+
 export function hasProfileCompleted(
    currentTraversal?: gremlin.process.GraphTraversal,
 ): gremlin.process.GraphTraversal {

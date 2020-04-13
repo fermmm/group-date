@@ -1,5 +1,5 @@
 import * as gremlin from 'gremlin';
-import { __, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
+import { __, column, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
 import { GraphTraversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QestionResponseParams, QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
@@ -82,14 +82,19 @@ export async function respondQuestions(token: string, questions: QestionResponse
 }
 
 export function addQuestionsRespondedToUserQuery(traversal: gremlin.process.GraphTraversal): GraphTraversal {
-   return traversal
-      .project('profile', 'questions')
-      .by(__.valueMap().by(__.unfold()))
-      .by(
-         __.outE('response')
-            .as('response')
-            .select('response')
-            .by(__.valueMap().by(__.unfold()))
-            .fold(),
-      );
+   return traversal.map(
+      __.union(
+         __.valueMap().by(__.unfold()),
+         __.project('questions').by(
+            __.outE('response')
+               .valueMap()
+               .by(__.unfold())
+               .fold(),
+         ),
+      )
+         .unfold()
+         .group()
+         .by(__.select(column.keys))
+         .by(__.select(column.values)),
+   );
 }

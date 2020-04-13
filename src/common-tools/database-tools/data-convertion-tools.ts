@@ -4,15 +4,21 @@ import { Group } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { removePrivacySensitiveUserProps } from '../security-tools/security-tools';
 import { __, retryOnError } from './database-manager';
-import { GremlinValueType, SuportedGremlinTypes, UserFromDatabase } from './gremlin-typing-tools';
+import { GremlinValueType, SuportedGremlinTypes } from './gremlin-typing-tools';
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
  */
-export async function queryToUser(queryOfUser: process.GraphTraversal): Promise<User> {
-   return gremlinMapToUser(
-      (await retryOnError(() => addQuestionsRespondedToUserQuery(queryOfUser).next())).value,
-   );
+export async function queryToUser(
+   queryOfUser: process.GraphTraversal,
+   includeQuestions: boolean,
+): Promise<User> {
+   if (includeQuestions) {
+      queryOfUser = addQuestionsRespondedToUserQuery(queryOfUser);
+   } else {
+      queryOfUser = valueMap(queryOfUser);
+   }
+   return gremlinMapToUser((await retryOnError(() => queryOfUser.next())).value);
 }
 
 /**
@@ -23,7 +29,9 @@ export async function queryToUserList(
    protectPrivacy: boolean = true,
 ): Promise<User[]> {
    queryOfUsers = addQuestionsRespondedToUserQuery(queryOfUsers);
-   const resultGremlinOutput = (await retryOnError(() => queryOfUsers.toList())) as UserFromDatabase[];
+   const resultGremlinOutput = (await retryOnError(() => queryOfUsers.toList())) as Array<
+      Map<string, GremlinValueType>
+   >;
    return resultGremlinOutput.map(userFromQuery => {
       if (protectPrivacy) {
          return removePrivacySensitiveUserProps(gremlinMapToUser(userFromQuery));
@@ -36,93 +44,51 @@ export async function queryToUserList(
  * Converts into a Group object a gremlin query that should return a single group vertex.
  */
 export async function queryToGroup(queryOfGroup: process.GraphTraversal): Promise<Group> {
-   return gremlinMapToGroup(
-      (
-         await retryOnError(() =>
-            queryOfGroup
-               .valueMap()
-               .by(__.unfold())
-               .next(),
-         )
-      ).value,
-   );
-}
-
-export function serializeIfNeeded<T>(value: T): SuportedGremlinTypes {
-   const type: string = typeof value;
-
-   if (type !== 'string' && type !== 'boolean' && type !== 'number') {
-      return JSON.stringify(value);
-   }
-
-   return (value as unknown) as SuportedGremlinTypes;
+   return gremlinMapToObject((await retryOnError(() => queryOfGroup.next())).value, [
+      'chat',
+      'dateIdeas',
+      'usersThatAccepted',
+      'feedback',
+   ]);
 }
 
 /**
  * Converts the format of the Gremlin Map output into a User object
  */
-function gremlinMapToUser(userFromDatabase: UserFromDatabase): User {
+function gremlinMapToUser(userFromDatabase: Map<string, GremlinValueType>): User {
    if (userFromDatabase == null) {
       return null;
    }
 
-   // Add general props
-   const result: Record<string, GremlinValueType> = {
-      ...mapToObject(userFromDatabase.get('profile')),
-   };
+   const result = gremlinMapToObject<User>(userFromDatabase, ['pictures']);
 
-   // Add questions:
-   const questions = mapToObjectDeep(userFromDatabase.get('questions'));
-   if (questions?.length > 0) {
-      result.questions = questions;
-   }
-
-   // Deserialize serialized values:
-   if (result.pictures != null) {
-      result.pictures = JSON.parse((result.pictures as unknown) as string);
-   }
    if (result.questions != null) {
-      for (const question of ((result as unknown) as User).questions) {
+      for (const question of result.questions) {
          question.incompatibleAnswers = JSON.parse((question.incompatibleAnswers as unknown) as string);
       }
    }
 
-   return (result as unknown) as User;
+   return result;
 }
 
 /**
- * Converts the format of the Gremlin Map output into a Group object
+ * Converts the format of the Gremlin Map output into JS object
  */
-function gremlinMapToGroup<T extends Map<string, GremlinValueType>>(gremlinMap: T): Group {
+function gremlinMapToObject<T>(gremlinMap: Map<string, GremlinValueType>, propsToParse: string[] = []): T {
    if (gremlinMap == null) {
       return null;
    }
 
    // Add general props
-   const result: Record<string, GremlinValueType> = {
-      ...mapToObject(gremlinMap),
-   };
+   const result: Record<string, GremlinValueType> = mapToObjectDeep(gremlinMap);
 
-   // Deserialize serialized values:
-   result.chat = JSON.parse((result.chat as unknown) as string);
-   result.dateIdeas = JSON.parse((result.dateIdeas as unknown) as string);
-   result.usersThatAccepted = JSON.parse((result.usersThatAccepted as unknown) as string);
-   result.feedback = JSON.parse((result.feedback as unknown) as string);
-
-   return (result as unknown) as Group;
-}
-
-function mapToObject<T>(map: Map<string, T>): Record<string, T> {
-   if (map == null) {
-      return null;
+   for (const propName of propsToParse) {
+      if (result[propName] != null) {
+         result[propName] = JSON.parse(result[propName] as string);
+      }
    }
 
-   const result: Record<string, T> = {};
-   map.forEach((v, k) => {
-      result[k] = v;
-   });
-
-   return result;
+   return (result as unknown) as T;
 }
 
 function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
@@ -140,4 +106,18 @@ function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
    });
 
    return result;
+}
+
+export function serializeIfNeeded<T>(value: T): SuportedGremlinTypes {
+   const type: string = typeof value;
+
+   if (type !== 'string' && type !== 'boolean' && type !== 'number') {
+      return JSON.stringify(value);
+   }
+
+   return (value as unknown) as SuportedGremlinTypes;
+}
+
+export function valueMap(traversal: process.GraphTraversal): process.GraphTraversal {
+   return traversal.valueMap().by(__.unfold());
 }
