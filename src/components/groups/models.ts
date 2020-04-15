@@ -107,16 +107,20 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
    }
 }
 
-export async function createGroup(): Promise<Group> {
-   return queryToGroup(finishGroupTraversal(queryToCreateGroup()));
+export async function createGroup(protectPrivacy: boolean = true): Promise<Group> {
+   return queryToGroup(finishGroupTraversal(queryToCreateGroup()), protectPrivacy);
 }
 
-export async function getGroupById(groupId: string, includeMembersData: boolean): Promise<Group> {
+export async function getGroupById(
+   groupId: string,
+   includeMembersData: boolean,
+   protectPrivacy: boolean = true,
+): Promise<Group> {
    if (includeMembersData) {
-      return queryToGroup(addMembersToGroupTraversal(getGroupTraversalById(groupId)));
+      return queryToGroup(addMembersToGroupTraversal(getGroupTraversalById(groupId)), protectPrivacy);
    }
 
-   return queryToGroup(valueMap(getGroupTraversalById(groupId)));
+   return queryToGroup(valueMap(getGroupTraversalById(groupId)), protectPrivacy);
 }
 
 export async function addUsersToGroup(users: User[], group: Group): Promise<void> {
