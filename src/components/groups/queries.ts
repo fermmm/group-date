@@ -77,7 +77,3 @@ export async function addUserToGroup(user: User, group: Group): Promise<void> {
 export async function addDateIdeaToGroup(group: Group, dateIdea: DateIdea): Promise<void> {
    return updateGroup({ groupId: group.groupId, dateIdeas: [...group.dateIdeas, dateIdea] });
 }
-
-export function finishGroupTraversal(traversal: process.GraphTraversal): process.GraphTraversal {
-   return traversal.valueMap().by(__.unfold());
-}

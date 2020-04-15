@@ -6,6 +6,7 @@ import {
    removePrivacySensitiveGroupProps,
    removePrivacySensitiveUserProps,
 } from '../security-tools/security-tools';
+import { valueMap } from './common-queries';
 import { __, retryOnError } from './database-manager';
 import { GremlinValueType, SuportedGremlinTypes } from './gremlin-typing-tools';
 
@@ -87,6 +88,9 @@ function gremlinMapToUser(userFromDatabase: Map<string, GremlinValueType>): User
    return result;
 }
 
+/**
+ * Converts the format of the Gremlin Map output into a Group object
+ */
 function gremlinMapToGroup(
    groupFromDatabase: Map<string, GremlinValueType>,
    protectPrivacy: boolean = true,
@@ -104,6 +108,7 @@ function gremlinMapToGroup(
       return group;
    }
 }
+
 /**
  * Converts the format of the Gremlin Map output into JS object
  */
@@ -149,8 +154,4 @@ export function serializeIfNeeded<T>(value: T): SuportedGremlinTypes {
    }
 
    return (value as unknown) as SuportedGremlinTypes;
-}
-
-export function valueMap(traversal: process.GraphTraversal): process.GraphTraversal {
-   return traversal.valueMap().by(__.unfold());
 }
