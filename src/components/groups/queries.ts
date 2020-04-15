@@ -53,6 +53,10 @@ export function getGroupTraversalById(groupId: string): process.GraphTraversal {
    return g.V().has('group', 'groupId', groupId);
 }
 
+export function getGroupsOfUserById(userId: string): process.GraphTraversal {
+   return getUserTraversalById(userId).out('member');
+}
+
 export function updateGroup(group: MarkRequired<Partial<Group>, 'groupId'>): Promise<void> {
    let traversal = getGroupTraversalById(group.groupId);
 

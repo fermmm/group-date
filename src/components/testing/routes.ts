@@ -5,16 +5,15 @@ import { acceptPost, addUsersToGroup, createGroup, getGroupById, votePost } from
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      let group = await createGroup();
+      const group = await createGroup();
       const fakeUsers = await createFakeUsers(10);
       const mainUser = fakeUsers[0];
       const mainUser2 = fakeUsers[1];
       await addUsersToGroup(fakeUsers, group);
 
       /**
-       * TODO: Reparar esto con los nuevos cambios en la funcion que retorna el grupo que pide un nuevo parametro
-       * TODO: Agregar testeos para: chatPost, groupGet, feedbackPost
-       * TODO: Agregar testeos para el endpoint de usuario que devuelve todos los grupos
+       * TODO: Reparar esto que seguro se rompio con los nuevos cambios en la funcion que retorna el grupo que pide un nuevo parametro
+       * TODO: Agregar testeos para: chatPost, groupGet, feedbackPost y userGroupsGet
        */
 
       // group = await getGroupWithMembersById(group.groupId);

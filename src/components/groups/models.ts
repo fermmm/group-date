@@ -1,7 +1,12 @@
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { v1 as uuidv1 } from 'uuid';
-import { queryToGroup, valueMap } from '../../common-tools/database-tools/data-convertion-tools';
+import {
+   queryToGroup,
+   queryToGroupList,
+   valueMap,
+} from '../../common-tools/database-tools/data-convertion-tools';
+import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    BasicGroupParams,
    ChatPostParams,
@@ -16,17 +21,13 @@ import {
    addMembersToGroupTraversal,
    addUserToGroup,
    finishGroupTraversal,
+   getGroupsOfUserById,
    getGroupTraversalById,
    queryToCreateGroup,
    updateGroup,
 } from './queries';
 
 const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
-/**
- * TODO: Crear un endpoint en user que devuelve todos los grupos de un usuario
- * TODO: Hacer un filtro de props de privacidad sensible para las props de los
- * usuarios del group y para el feedback del group
- */
 
 /**
  * This endpoint is also uses to download the chat meesages so also interacts with the
@@ -35,29 +36,16 @@ const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Promise<Group> {
    const user: User = await retreiveCompleteUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, true);
-   let updateChanges: boolean = false;
 
-   // Add user in the list of users that downloaded the last message:
-   if (group.chat.usersDownloadedLastMessage.indexOf(user.userId) === -1) {
-      group.chat.usersDownloadedLastMessage.push(user.userId);
-      updateChanges = true;
-   }
-
-   // If all users downloaded the last message and there are many chat messages
-   if (
-      group.chat.usersDownloadedLastMessage.length === group.members.length &&
-      group.chat.messages.length > MAX_CHAT_MESSAGES_STORED_ON_SERVER
-   ) {
-      // Remove all chat messages except for the last ones to optimize data transfer next time
-      group.chat.messages = group.chat.messages.slice(-1 * MAX_CHAT_MESSAGES_STORED_ON_SERVER);
-      updateChanges = true;
-   }
-
-   if (updateChanges) {
-      await updateGroup({ groupId: group.groupId, chat: group.chat });
-   }
+   await updateAndCleanChat(user, group);
 
    return group;
+}
+
+export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
+   const user: User = await retreiveCompleteUser(params.token, false, ctx);
+
+   return queryToGroupList(addMembersToGroupTraversal(getGroupsOfUserById(user.userId)));
 }
 
 export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Promise<void> {
@@ -143,5 +131,29 @@ export async function addUsersToGroup(users: User[], group: Group): Promise<void
 
       // Update the group data to be able to manipulate arrays again
       group = await getGroupById(group.groupId, false);
+   }
+}
+
+async function updateAndCleanChat(user: User, group: Group): Promise<void> {
+   let updateChanges: boolean = false;
+
+   // Add user in the list of users that downloaded the last message:
+   if (group.chat.usersDownloadedLastMessage.indexOf(user.userId) === -1) {
+      group.chat.usersDownloadedLastMessage.push(user.userId);
+      updateChanges = true;
+   }
+
+   // If all users downloaded the last message and there are many chat messages
+   if (
+      group.chat.usersDownloadedLastMessage.length === group.members.length &&
+      group.chat.messages.length > MAX_CHAT_MESSAGES_STORED_ON_SERVER
+   ) {
+      // Remove all chat messages except for the last ones to optimize data transfer next time
+      group.chat.messages = group.chat.messages.slice(-1 * MAX_CHAT_MESSAGES_STORED_ON_SERVER);
+      updateChanges = true;
+   }
+
+   if (updateChanges) {
+      await updateGroup({ groupId: group.groupId, chat: group.chat });
    }
 }

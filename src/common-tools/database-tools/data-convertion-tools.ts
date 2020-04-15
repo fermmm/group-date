@@ -2,7 +2,10 @@ import { process } from 'gremlin';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { removePrivacySensitiveUserProps } from '../security-tools/security-tools';
+import {
+   removePrivacySensitiveGroupProps,
+   removePrivacySensitiveUserProps,
+} from '../security-tools/security-tools';
 import { __, retryOnError } from './database-manager';
 import { GremlinValueType, SuportedGremlinTypes } from './gremlin-typing-tools';
 
@@ -43,13 +46,26 @@ export async function queryToUserList(
 /**
  * Converts into a Group object a gremlin query that should return a single group vertex.
  */
-export async function queryToGroup(queryOfGroup: process.GraphTraversal): Promise<Group> {
-   return gremlinMapToObject((await retryOnError(() => queryOfGroup.next())).value, [
-      'chat',
-      'dateIdeas',
-      'usersThatAccepted',
-      'feedback',
-   ]);
+export async function queryToGroup(
+   queryOfGroup: process.GraphTraversal,
+   protectPrivacy: boolean = true,
+): Promise<Group> {
+   return gremlinMapToGroup((await retryOnError(() => queryOfGroup.next())).value, protectPrivacy);
+}
+
+/**
+ * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
+ */
+export async function queryToGroupList(
+   queryOfGroups: process.GraphTraversal,
+   protectPrivacy: boolean = true,
+): Promise<Group[]> {
+   const resultGremlinOutput = (await retryOnError(() => queryOfGroups.toList())) as Array<
+      Map<string, GremlinValueType>
+   >;
+   return resultGremlinOutput.map(groupFromQuery => {
+      return gremlinMapToGroup(groupFromQuery, protectPrivacy);
+   });
 }
 
 /**
@@ -71,6 +87,23 @@ function gremlinMapToUser(userFromDatabase: Map<string, GremlinValueType>): User
    return result;
 }
 
+function gremlinMapToGroup(
+   groupFromDatabase: Map<string, GremlinValueType>,
+   protectPrivacy: boolean = true,
+): Group {
+   const group = gremlinMapToObject<Group>(groupFromDatabase, [
+      'chat',
+      'dateIdeas',
+      'usersThatAccepted',
+      'feedback',
+   ]);
+
+   if (protectPrivacy) {
+      return removePrivacySensitiveGroupProps(group);
+   } else {
+      return group;
+   }
+}
 /**
  * Converts the format of the Gremlin Map output into JS object
  */
