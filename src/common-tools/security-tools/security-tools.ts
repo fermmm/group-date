@@ -35,8 +35,6 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
  */
 export function removePrivacySensitiveGroupProps(group: Group): Group {
    delete group.feedback;
-   if (group.members) {
-      group.members = group.members.map(user => removePrivacySensitiveUserProps(user));
-   }
+
    return group;
 }

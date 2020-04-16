@@ -95,12 +95,25 @@ function gremlinMapToGroup(
    groupFromDatabase: Map<string, GremlinValueType>,
    protectPrivacy: boolean = true,
 ): Group {
+   // List of members is a list of users so we use the corresponding user converters for that part
+   const members = groupFromDatabase.get('members') as Array<Map<string, GremlinValueType>>;
+   const membersConverted = members?.map(userFromQuery => {
+      if (protectPrivacy) {
+         return removePrivacySensitiveUserProps(gremlinMapToUser(userFromQuery));
+      }
+      return gremlinMapToUser(userFromQuery);
+   });
+   groupFromDatabase.delete('members');
+
+   // Now the rest of the group properties can be converted
    const group = gremlinMapToObject<Group>(groupFromDatabase, [
       'chat',
       'dateIdeas',
       'usersThatAccepted',
       'feedback',
    ]);
+
+   group.members = membersConverted;
 
    if (protectPrivacy) {
       return removePrivacySensitiveGroupProps(group);
@@ -112,7 +125,7 @@ function gremlinMapToGroup(
 /**
  * Converts the format of the Gremlin Map output into JS object
  */
-function gremlinMapToObject<T>(gremlinMap: Map<string, GremlinValueType>, propsToParse: string[] = []): T {
+function gremlinMapToObject<T>(gremlinMap: Map<string, GremlinValueType>, propsToParse?: string[]): T {
    if (gremlinMap == null) {
       return null;
    }
@@ -120,11 +133,11 @@ function gremlinMapToObject<T>(gremlinMap: Map<string, GremlinValueType>, propsT
    // Add general props
    const result: Record<string, GremlinValueType> = mapToObjectDeep(gremlinMap);
 
-   for (const propName of propsToParse) {
+   propsToParse?.forEach(propName => {
       if (result[propName] != null) {
          result[propName] = JSON.parse(result[propName] as string);
       }
-   }
+   });
 
    return (result as unknown) as T;
 }

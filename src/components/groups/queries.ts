@@ -23,7 +23,6 @@ export function queryToCreateGroup(): process.GraphTraversal {
             messages: [],
          }),
       )
-      .property('members', serializeIfNeeded([]))
       .property('dateIdeas', serializeIfNeeded([]))
       .property('usersThatAccepted', serializeIfNeeded([]))
       .property('feedback', serializeIfNeeded([]));
