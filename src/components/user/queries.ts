@@ -2,11 +2,15 @@ import { process } from 'gremlin';
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, retryOnError } from '../../common-tools/database-tools/database-manager';
-import { allAtractionTypes, SetAttractionParams } from '../../shared-tools/endpoints-interfaces/user';
+import { allAttractionTypes, SetAttractionParams } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
 import { getUserTraversalByToken, hasProfileCompleted } from '../common/queries';
 
-export function queryToCreateUser(token: string, email: string): process.GraphTraversal {
+export function queryToCreateUser(
+   token: string,
+   email: string,
+   setProfileCompletedForTesting = false,
+): process.GraphTraversal {
    return getUserTraversalByToken(token)
       .fold()
       .coalesce(
@@ -15,7 +19,7 @@ export function queryToCreateUser(token: string, email: string): process.GraphTr
             .property('email', email)
             .property('token', token)
             .property('userId', uuidv1())
-            .property('profileCompleted', false),
+            .property('profileCompleted', setProfileCompletedForTesting),
       );
 }
 
@@ -42,7 +46,7 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
 
       let action: process.GraphTraversal = search;
       // Removes all edges pointing to the target user that are labeled as any attraction type
-      for (const attractionType of allAtractionTypes) {
+      for (const attractionType of allAttractionTypes) {
          action = action.sideEffect(
             __.inE(attractionType)
                .where(__.outV().as('user'))

@@ -1,15 +1,18 @@
 import * as Chance from 'chance';
+import * as moment from 'moment';
 import ora = require('ora');
 import { queryToUser } from '../../src/common-tools/database-tools/data-convertion-tools';
 import { retrieveUser } from '../../src/components/common/models';
 import { profileStatusGet, setAttractionPost, userPost } from '../../src/components/user/models';
 import { queryToCreateUser } from '../../src/components/user/queries';
-import { questions } from '../../src/components/user/questions/models';
+import { getIncompatibleAnswers, questions as questionsData } from '../../src/components/user/questions/models';
 import {
    Attraction,
    AttractionType,
    Gender,
-   QestionResponseParams,
+   QuestionAnswerData,
+   QuestionResponse,
+   QuestionResponseParams,
    User,
    UserPostParams,
 } from '../../src/shared-tools/endpoints-interfaces/user';
@@ -18,12 +21,12 @@ import { fakeCtx } from './replacements';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
-export async function createFakeUsers(ammount: number, seed?: number): Promise<User[]> {
+export async function createFakeUsers(amount: number, seed?: number): Promise<User[]> {
    const users: User[] = [];
 
    spinner.start();
 
-   for (let i = 0; i < ammount; i++) {
+   for (let i = 0; i < amount; i++) {
       users.push(await createFakeUser(null, seed + i));
       spinner.text = `Created ${fakeUsersCount} fake users...`;
    }
@@ -44,7 +47,7 @@ export async function createFakeUser(
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const token: string = customParams?.token || chance.apple_token();
 
-   const props: ExposedUserProps = {
+   const randomProps: ExposedUserProps = {
       name: chance.first({ nationality: 'it' }),
       age: chance.integer({ min: 18, max: 55 }),
       targetAgeMin: chance.integer({ min: 18, max: 20 }),
@@ -68,25 +71,45 @@ export async function createFakeUser(
       height: chance.integer({ min: 100, max: 300 }),
    };
 
-   const questionResponses: QestionResponseParams[] = questions.map(question => {
+   let customParamsQuestions: QuestionResponse[] = [];
+   if (customParams?.questions != null) {
+      customParamsQuestions = customParams.questions.map(q => ({
+         ...q,
+         incompatibleAnswers: getIncompatibleAnswers(q.questionId, q.answerId) ?? [],
+      }));
+   }
+
+   const props = { ...randomProps, ...customParams?.props };
+   const questions: QuestionResponse[] = questionsData.map(question => {
+      const questionFoundOnParams = customParamsQuestions.find(q => q.questionId === question.questionId);
+      if (questionFoundOnParams) {
+         return questionFoundOnParams;
+      }
+
+      const answer = chance.pickone(question.answers).answerId;
+
       return {
          questionId: question.questionId,
-         answerId: chance.pickone(question.answers).answerId,
+         answerId: answer,
          useAsFilter: chance.bool(),
+         incompatibleAnswers: getIncompatibleAnswers(question.questionId, answer) ?? [],
       };
    });
 
-   await queryToUser(queryToCreateUser(token, chance.email()), true);
+   let user: Partial<User> = await queryToUser(queryToCreateUser(token, chance.email(), true), true);
    await userPost(
       {
          token,
-         props: { ...props, ...customParams?.props },
-         questions: [...questionResponses, ...(customParams?.questions || [])],
+         props,
+         questions,
       },
       fakeCtx,
    );
-   await profileStatusGet({ token }, fakeCtx);
-   const user: Partial<User> = await retrieveUser(token, true, fakeCtx);
+
+   // await profileStatusGet({ token }, fakeCtx);
+   // user = await retrieveUser(token, true, fakeCtx);
+   // This replaces profileStatusGet and retrieveUser. It's faster but if there is any problem can be replaced by the commented lines on top
+   user = { ...(props as User), ...user, questions, profileCompleted: true, lastLoginDate: moment().unix() };
 
    fakeUsersCount++;
 

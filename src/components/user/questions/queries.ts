@@ -1,7 +1,7 @@
 import * as gremlin from 'gremlin';
 import { __, column, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
 import { GraphTraversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { QestionResponseParams, QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
+import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
 import { getIncompatibleAnswers } from './models';
 
@@ -54,7 +54,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
    return Promise.resolve();
 }
 
-export async function respondQuestions(token: string, questions: QestionResponseParams[]): Promise<void> {
+export async function respondQuestions(token: string, questions: QuestionResponseParams[]): Promise<void> {
    let query: gremlin.process.GraphTraversal = getUserTraversalByToken(token).as('user');
 
    for (const question of questions) {

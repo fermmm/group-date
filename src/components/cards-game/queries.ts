@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
 import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/math-tools';
 import {
-   allAtractionTypes,
+   allAttractionTypes,
    AttractionType,
    Gender,
    QuestionResponse,
@@ -47,7 +47,7 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
    /**
     * Was not already reviewed by the user
     */
-   for (const attractionType of allAtractionTypes) {
+   for (const attractionType of allAttractionTypes) {
       query = query.not(__.inE(attractionType).where(__.outV().has('token', searcherUser.token)));
    }
 

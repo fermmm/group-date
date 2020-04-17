@@ -42,7 +42,7 @@ export interface ProfileStatusServerResponse {
    missingQuestionsId: number[];
 }
 
-export interface QestionResponseParams {
+export interface QuestionResponseParams {
    questionId: number;
    answerId: number;
    useAsFilter?: boolean;
@@ -51,7 +51,7 @@ export interface QestionResponseParams {
 export interface UserPostParams {
    token: string;
    props?: ExposedUserProps;
-   questions?: QestionResponseParams[];
+   questions?: QuestionResponseParams[];
 }
 
 export interface QuestionData {
@@ -74,7 +74,7 @@ export interface QuestionAnswerData {
 export interface QuestionResponse {
    questionId: number;
    answerId: number;
-   useAsFilter: boolean;
+   useAsFilter?: boolean;
    incompatibleAnswers: number[];
 }
 
@@ -102,4 +102,4 @@ export enum AttractionType {
    Dislike = 'Dislike',
 }
 
-export const allAtractionTypes: AttractionType[] = Object.values(AttractionType);
+export const allAttractionTypes: AttractionType[] = Object.values(AttractionType);
