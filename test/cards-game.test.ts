@@ -298,6 +298,11 @@ describe('Cards game', () => {
       fakeUsersMatchesFakeData(fakeUsers, fakeData);
    });
 
+   test('Recommendations works', async () => {
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
    test('Recommendations returns correct users in correct order', async () => {
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
 

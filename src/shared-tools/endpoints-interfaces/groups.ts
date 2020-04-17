@@ -47,5 +47,5 @@ export interface ChatPostParams extends BasicGroupParams {
 }
 
 export interface FeedbackPostParams extends BasicGroupParams {
-   feedback: Exclude<ExperienceFeedback, 'userId'>;
+   feedback: Omit<ExperienceFeedback, 'userId'>;
 }

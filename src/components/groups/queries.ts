@@ -18,7 +18,6 @@ export function queryToCreateGroup(): process.GraphTraversal {
       .property(
          'chat',
          serializeIfNeeded<Chat>({
-            usersTyping: [],
             usersDownloadedLastMessage: [],
             messages: [],
          }),
@@ -48,16 +47,28 @@ export function addMembersToGroupTraversal(traversal: process.GraphTraversal): p
    return traversal;
 }
 
-export function getGroupTraversalById(groupId: string): process.GraphTraversal {
-   return g.V().has('group', 'groupId', groupId);
+export function getGroupTraversalById(
+   groupId: string,
+   onlyIfAMemberHasUserId?: string,
+): process.GraphTraversal {
+   let traversal = g.V().has('group', 'groupId', groupId);
+
+   if (onlyIfAMemberHasUserId != null) {
+      traversal = traversal.where(__.in_('member').has('userId', onlyIfAMemberHasUserId));
+   }
+
+   return traversal;
 }
 
 export function getGroupsOfUserById(userId: string): process.GraphTraversal {
    return getUserTraversalById(userId).out('member');
 }
 
-export function updateGroup(group: MarkRequired<Partial<Group>, 'groupId'>): Promise<void> {
-   let traversal = getGroupTraversalById(group.groupId);
+export function updateGroup(
+   group: MarkRequired<Partial<Group>, 'groupId'>,
+   onlyIfAMemberHasUserId?: string,
+): Promise<void> {
+   let traversal = getGroupTraversalById(group.groupId, onlyIfAMemberHasUserId);
 
    for (const key of Object.keys(group)) {
       traversal = traversal.property(key, serializeIfNeeded(group[key]));

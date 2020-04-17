@@ -95,6 +95,10 @@ function gremlinMapToGroup(
    groupFromDatabase: Map<string, GremlinValueType>,
    protectPrivacy: boolean = true,
 ): Group {
+   if (groupFromDatabase == null) {
+      return null;
+   }
+
    // List of members is a list of users so we use the corresponding user converters for that part
    const members = groupFromDatabase.get('members') as Array<Map<string, GremlinValueType>>;
    const membersConverted = members?.map(userFromQuery => {

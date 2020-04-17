@@ -12,7 +12,7 @@ import {
    VotePostParams,
 } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { retreiveCompleteUser } from '../common/models';
+import { retrieveFullyRegisteredUser } from '../common/models';
 import {
    addDateIdeaToGroup,
    addMembersToGroupTraversal,
@@ -26,12 +26,16 @@ import {
 const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 
 /**
- * This endpoint is also uses to download the chat meesages so also interacts with the
- * message readed functionality.
+ * This endpoint is also used to download the chat messages so also interacts with the
+ * message read functionality.
  */
 export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Promise<Group> {
-   const user: User = await retreiveCompleteUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, true);
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, {
+      onlyIfAMemberHasUserId: user.userId,
+      includeMembersList: true,
+      ctx,
+   });
 
    await updateAndCleanChat(user, group);
 
@@ -39,14 +43,15 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
 }
 
 export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
-   const user: User = await retreiveCompleteUser(params.token, false, ctx);
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
    return queryToGroupList(addMembersToGroupTraversal(getGroupsOfUserById(user.userId)));
 }
 
 export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Promise<void> {
-   const user: User = await retreiveCompleteUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, false);
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
+
    if (group.usersThatAccepted.indexOf(user.userId) === -1) {
       group.usersThatAccepted.push(user.userId);
    }
@@ -54,8 +59,9 @@ export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Pr
 }
 
 export async function votePost(params: VotePostParams, ctx: BaseContext): Promise<void> {
-   const user: User = await retreiveCompleteUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, false);
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
+
    for (const dateIdea of group.dateIdeas) {
       const userIdPosOnVotes = dateIdea.votersUserId.indexOf(user.userId);
       // If the date idea of the group is one of the user votes from params:
@@ -76,8 +82,13 @@ export async function votePost(params: VotePostParams, ctx: BaseContext): Promis
 }
 
 export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promise<void> {
-   const user: User = await retreiveCompleteUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, false);
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, {
+      onlyIfAMemberHasUserId: user.userId,
+      includeMembersList: true,
+      ctx,
+   });
+
    group.chat.messages.push({
       chatMessageId: uuidv1(),
       message: params.message,
@@ -90,8 +101,13 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
 }
 
 export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext): Promise<void> {
-   const user: User = await retreiveCompleteUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, false);
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, {
+      onlyIfAMemberHasUserId: user.userId,
+      protectPrivacy: false,
+      ctx,
+   });
+
    if (group.feedback.find(f => f.userId === user.userId) == null) {
       group.feedback.push({
          userId: user.userId,
@@ -109,14 +125,23 @@ export async function createGroup(protectPrivacy: boolean = true): Promise<Group
 
 export async function getGroupById(
    groupId: string,
-   includeMembersData: boolean,
-   protectPrivacy: boolean = true,
+   { includeMembersList = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
 ): Promise<Group> {
-   if (includeMembersData) {
-      return queryToGroup(addMembersToGroupTraversal(getGroupTraversalById(groupId)), protectPrivacy);
+   let traversal = getGroupTraversalById(groupId, onlyIfAMemberHasUserId);
+
+   if (includeMembersList) {
+      traversal = addMembersToGroupTraversal(traversal);
+   } else {
+      traversal = valueMap(traversal);
    }
 
-   return queryToGroup(valueMap(getGroupTraversalById(groupId)), protectPrivacy);
+   const result: Group = await queryToGroup(traversal, protectPrivacy);
+
+   if (result == null && ctx != null) {
+      ctx.throw(400, 'Group not found');
+   }
+
+   return result;
 }
 
 export async function addUsersToGroup(users: User[], group: Group): Promise<void> {
@@ -129,8 +154,8 @@ export async function addUsersToGroup(users: User[], group: Group): Promise<void
          votersUserId: [],
       });
 
-      // Update the group data to be able to manipulate arrays again
-      group = await getGroupById(group.groupId, false);
+      // Update the group data to be able to manipulate arrays in the next for loop iteration
+      group = await getGroupById(group.groupId);
    }
 }
 
@@ -156,4 +181,11 @@ async function updateAndCleanChat(user: User, group: Group): Promise<void> {
    if (updateChanges) {
       await updateGroup({ groupId: group.groupId, chat: group.chat });
    }
+}
+
+interface GetGroupByIdOptions {
+   includeMembersList?: boolean;
+   onlyIfAMemberHasUserId?: string;
+   protectPrivacy?: boolean;
+   ctx?: BaseContext;
 }

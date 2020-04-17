@@ -1,7 +1,7 @@
 import * as Chance from 'chance';
 import ora = require('ora');
 import { queryToUser } from '../../src/common-tools/database-tools/data-convertion-tools';
-import { retreiveUser } from '../../src/components/common/models';
+import { retrieveUser } from '../../src/components/common/models';
 import { profileStatusGet, setAttractionPost, userPost } from '../../src/components/user/models';
 import { queryToCreateUser } from '../../src/components/user/queries';
 import { questions } from '../../src/components/user/questions/models';
@@ -86,7 +86,7 @@ export async function createFakeUser(
       fakeCtx,
    );
    await profileStatusGet({ token }, fakeCtx);
-   const user: Partial<User> = await retreiveUser(token, true, fakeCtx);
+   const user: Partial<User> = await retrieveUser(token, true, fakeCtx);
 
    fakeUsersCount++;
 

@@ -20,7 +20,7 @@ import { getUserTraversalByEmail, getUserTraversalByToken, updateUserToken } fro
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveUser(
+export async function retrieveUser(
    token: string,
    includeQuestionsData: boolean,
    ctx: BaseContext,
@@ -56,17 +56,17 @@ export async function retreiveUser(
 }
 
 /**
- * Calls retreiveUser and returns the same thing, but if profileCompleted is not true throws error
+ * Calls retrieveUser and returns the same thing, but if profileCompleted is not true throws error
  *
  * @param token Token from the Facebook login in the client application
  * @param ctx
  */
-export async function retreiveCompleteUser(
+export async function retrieveFullyRegisteredUser(
    token: string,
    includeQuestionsData: boolean,
    ctx: BaseContext,
 ): Promise<User> {
-   const user = await retreiveUser(token, includeQuestionsData, ctx);
+   const user = await retrieveUser(token, includeQuestionsData, ctx);
 
    if (!user.profileCompleted) {
       ctx.throw(400, 'Incomplete profiles not allowed in this endpoint');

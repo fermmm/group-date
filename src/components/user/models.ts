@@ -23,7 +23,7 @@ import {
    ExposedUserPropKey,
    validateUserProps,
 } from '../../shared-tools/validators/user';
-import { retreiveUser } from '../common/models';
+import { retrieveUser } from '../common/models';
 import { updateUserProps } from '../common/queries';
 import { setAttraction, setUserProps } from './queries';
 import { questions } from './questions/models';
@@ -33,7 +33,7 @@ export async function profileStatusGet(
    params: TokenParameter,
    ctx: BaseContext,
 ): Promise<ProfileStatusServerResponse> {
-   const user: Partial<User> = await retreiveUser(params.token, true, ctx);
+   const user: Partial<User> = await retrieveUser(params.token, true, ctx);
 
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
@@ -89,7 +89,7 @@ function getMissingQuestions(user: Partial<User>): number[] {
 }
 
 export async function userGet(params: TokenParameter, ctx: BaseContext): Promise<Partial<User>> {
-   return removePrivacySensitiveUserProps(await retreiveUser(params.token, true, ctx));
+   return removePrivacySensitiveUserProps(await retrieveUser(params.token, true, ctx));
 }
 
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
@@ -121,7 +121,7 @@ const imageSaver = koaBody({
 
 export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
    // Only valid users can upload pictures
-   const user: Partial<User> = await retreiveUser(ctx.request.query.token, false, ctx);
+   const user: Partial<User> = await retrieveUser(ctx.request.query.token, false, ctx);
    if (user == null) {
       return;
    }

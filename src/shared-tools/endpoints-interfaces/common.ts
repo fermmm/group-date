@@ -12,7 +12,6 @@ export interface FacebookResponse {
 }
 
 export interface Chat {
-   usersTyping: string[];
    usersDownloadedLastMessage: string[];
    messages: ChatMessage[];
 }
