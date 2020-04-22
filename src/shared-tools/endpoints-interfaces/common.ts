@@ -11,14 +11,9 @@ export interface FacebookResponse {
    email: string;
 }
 
-export interface Chat {
-   usersDownloadedLastMessage: string[];
-   messages: ChatMessage[];
-}
-
 export interface ChatMessage {
    chatMessageId: string;
-   message: string;
+   messageText: string;
    time: number;
    authorUserId: string;
 }

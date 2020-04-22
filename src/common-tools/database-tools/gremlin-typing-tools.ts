@@ -25,4 +25,4 @@ export type GremlinValueType =
 export type GraphTraversalSource = gremlin.process.GraphTraversalSource;
 export type GraphTraversal = gremlin.process.GraphTraversal;
 export type Traversal = GraphTraversalSource | GraphTraversal;
-export type SuportedGremlinTypes = number | string | boolean;
+export type SupportedGremlinTypes = number | string | boolean;

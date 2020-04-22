@@ -26,6 +26,7 @@ export interface User {
    dateIdeaAddress: string;
    profileDescription: string;
    profileCompleted: boolean;
+   isAdmin?: boolean;
    questions?: QuestionResponse[];
 }
 

@@ -4,7 +4,7 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 
 const db = new Map();
 
-export const rateLimitterConfig: ratelimit.MiddlewareOptions = {
+export const rateLimiterConfig: ratelimit.MiddlewareOptions = {
    driver: 'memory',
    db,
    duration: 2 * 1000,
@@ -27,6 +27,7 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
    delete user.email;
    delete user.locationLat;
    delete user.locationLon;
+   delete user.isAdmin;
    return user;
 }
 

@@ -91,7 +91,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
 
    group.chat.messages.push({
       chatMessageId: uuidv1(),
-      message: params.message,
+      messageText: params.message,
       time: moment().unix(),
       authorUserId: user.userId,
    });

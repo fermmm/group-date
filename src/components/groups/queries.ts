@@ -3,8 +3,7 @@ import { MarkRequired } from 'ts-essentials';
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
-import { Chat } from '../../shared-tools/endpoints-interfaces/common';
-import { DateIdea, Group } from '../../shared-tools/endpoints-interfaces/groups';
+import { DateIdea, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalById } from '../common/queries';
 
@@ -17,7 +16,7 @@ export function queryToCreateGroup(): process.GraphTraversal {
       .property('groupId', uuidv1())
       .property(
          'chat',
-         serializeIfNeeded<Chat>({
+         serializeIfNeeded<GroupChat>({
             usersDownloadedLastMessage: [],
             messages: [],
          }),

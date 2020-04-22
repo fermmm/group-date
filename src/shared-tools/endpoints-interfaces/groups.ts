@@ -1,13 +1,18 @@
-import { Chat } from './common';
+import { ChatMessage } from './common';
 import { User } from './user';
 
 export interface Group {
    groupId: string;
    members: User[];
-   chat: Chat;
+   chat: GroupChat;
    dateIdeas: DateIdea[];
    usersThatAccepted: string[];
    feedback: ExperienceFeedback[];
+}
+
+export interface GroupChat {
+   usersDownloadedLastMessage: string[];
+   messages: ChatMessage[];
 }
 
 export interface DateIdea {

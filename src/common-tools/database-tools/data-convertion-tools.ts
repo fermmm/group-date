@@ -1,5 +1,6 @@
 import { process } from 'gremlin';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
+import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import {
@@ -8,7 +9,7 @@ import {
 } from '../security-tools/security-tools';
 import { valueMap } from './common-queries';
 import { __, retryOnError } from './database-manager';
-import { GremlinValueType, SuportedGremlinTypes } from './gremlin-typing-tools';
+import { GremlinValueType, SupportedGremlinTypes } from './gremlin-typing-tools';
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
@@ -34,7 +35,7 @@ export async function queryToUserList(
 ): Promise<User[]> {
    queryOfUsers = addQuestionsRespondedToUserQuery(queryOfUsers);
    const resultGremlinOutput = (await retryOnError(() => queryOfUsers.toList())) as Array<
-      Map<string, GremlinValueType>
+      Map<keyof User, GremlinValueType>
    >;
    return resultGremlinOutput.map(userFromQuery => {
       if (protectPrivacy) {
@@ -62,7 +63,7 @@ export async function queryToGroupList(
    protectPrivacy: boolean = true,
 ): Promise<Group[]> {
    const resultGremlinOutput = (await retryOnError(() => queryOfGroups.toList())) as Array<
-      Map<string, GremlinValueType>
+      Map<keyof Group, GremlinValueType>
    >;
    return resultGremlinOutput.map(groupFromQuery => {
       return gremlinMapToGroup(groupFromQuery, protectPrivacy);
@@ -70,9 +71,34 @@ export async function queryToGroupList(
 }
 
 /**
+ * Converts into a Group object a gremlin query that should return a single group vertex.
+ */
+export async function queryToChatWithAdmins(
+   query: process.GraphTraversal,
+   protectPrivacy: boolean = true,
+): Promise<ChatWithAdmins> {
+   return gremlinMapToChatWithAdmins((await retryOnError(() => query.next())).value, protectPrivacy);
+}
+
+/**
+ * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
+ */
+export async function queryToChatWithAdminsList(
+   query: process.GraphTraversal,
+   protectPrivacy: boolean = true,
+): Promise<ChatWithAdmins[]> {
+   const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
+      Map<keyof ChatWithAdmins, GremlinValueType>
+   >;
+   return resultGremlinOutput.map(queryElement => {
+      return gremlinMapToChatWithAdmins(queryElement, protectPrivacy);
+   });
+}
+
+/**
  * Converts the format of the Gremlin Map output into a User object
  */
-function gremlinMapToUser(userFromDatabase: Map<string, GremlinValueType>): User {
+function gremlinMapToUser(userFromDatabase: Map<keyof User, GremlinValueType>): User {
    if (userFromDatabase == null) {
       return null;
    }
@@ -92,7 +118,7 @@ function gremlinMapToUser(userFromDatabase: Map<string, GremlinValueType>): User
  * Converts the format of the Gremlin Map output into a Group object
  */
 function gremlinMapToGroup(
-   groupFromDatabase: Map<string, GremlinValueType>,
+   groupFromDatabase: Map<keyof Group, GremlinValueType>,
    protectPrivacy: boolean = true,
 ): Group {
    if (groupFromDatabase == null) {
@@ -100,7 +126,7 @@ function gremlinMapToGroup(
    }
 
    // List of members is a list of users so we use the corresponding user converters for that part
-   const members = groupFromDatabase.get('members') as Array<Map<string, GremlinValueType>>;
+   const members = groupFromDatabase.get('members') as Array<Map<keyof User, GremlinValueType>>;
    const membersConverted = members?.map(userFromQuery => {
       if (protectPrivacy) {
          return removePrivacySensitiveUserProps(gremlinMapToUser(userFromQuery));
@@ -127,15 +153,40 @@ function gremlinMapToGroup(
 }
 
 /**
+ * Converts the format of the Gremlin Map output into a ChatWithAdmins object
+ */
+function gremlinMapToChatWithAdmins(
+   chatWithAdmins: Map<keyof ChatWithAdmins, GremlinValueType>,
+   protectPrivacy: boolean = true,
+): ChatWithAdmins {
+   if (chatWithAdmins == null) {
+      return null;
+   }
+
+   // Convert user prop with the corresponding converter for the users
+   let nonAdminUser = gremlinMapToUser(chatWithAdmins.get('nonAdminUser') as Map<keyof User, GremlinValueType>);
+   chatWithAdmins.delete('nonAdminUser');
+   if (nonAdminUser != null && protectPrivacy) {
+      nonAdminUser = removePrivacySensitiveUserProps(nonAdminUser);
+   }
+
+   // Now the rest of the properties can be converted
+   const result = gremlinMapToObject<ChatWithAdmins>(chatWithAdmins, ['messages']);
+   result.nonAdminUser = nonAdminUser;
+
+   return result;
+}
+
+/**
  * Converts the format of the Gremlin Map output into JS object
  */
-function gremlinMapToObject<T>(gremlinMap: Map<string, GremlinValueType>, propsToParse?: string[]): T {
+function gremlinMapToObject<T>(gremlinMap: Map<keyof T, GremlinValueType>, propsToParse?: Array<keyof T>): T {
    if (gremlinMap == null) {
       return null;
    }
 
    // Add general props
-   const result: Record<string, GremlinValueType> = mapToObjectDeep(gremlinMap);
+   const result: Record<keyof T, GremlinValueType> = mapToObjectDeep(gremlinMap);
 
    propsToParse?.forEach(propName => {
       if (result[propName] != null) {
@@ -163,12 +214,12 @@ function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
    return result;
 }
 
-export function serializeIfNeeded<T>(value: T): SuportedGremlinTypes {
+export function serializeIfNeeded<T>(value: T): SupportedGremlinTypes {
    const type: string = typeof value;
 
    if (type !== 'string' && type !== 'boolean' && type !== 'number') {
       return JSON.stringify(value);
    }
 
-   return (value as unknown) as SuportedGremlinTypes;
+   return (value as unknown) as SupportedGremlinTypes;
 }

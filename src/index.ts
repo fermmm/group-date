@@ -9,7 +9,8 @@ import * as serve from 'koa-static';
 import * as ora from 'ora';
 import { waitForDatabase } from './common-tools/database-tools/database-manager';
 import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
-import { rateLimitterConfig } from './common-tools/security-tools/security-tools';
+import { rateLimiterConfig } from './common-tools/security-tools/security-tools';
+import { adminRoutes } from './components/admin/routes';
 import { cardsGameRoutes } from './components/cards-game/routes';
 import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
@@ -36,10 +37,11 @@ import { userRoutes } from './components/user/routes';
    userRoutes(router);
    cardsGameRoutes(router);
    groupsRoutes(router);
+   adminRoutes(router);
    testingRoutes(router);
 
    // App uses:
-   app.use(ratelimit(rateLimitterConfig))
+   app.use(ratelimit(rateLimiterConfig))
       .use(koaBody({ parsedMethods: ['GET', 'POST'] }))
       .use(router.routes())
       .use(router.allowedMethods())

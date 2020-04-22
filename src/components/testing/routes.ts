@@ -1,43 +1,37 @@
 import * as Router from '@koa/router';
-import { fakeCtx } from '../../../test/tools/replacements';
 import { createFakeUsers } from '../../../test/tools/users';
-import { ExperienceFeedbackType, Group } from '../../shared-tools/endpoints-interfaces/groups';
-import { recommendationsGet } from '../cards-game/models';
+import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
+import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
+import { adminChatPost, allChatsWithAdminsGet, convertToAdmin } from '../admin/models';
 import { removeUsers } from '../common/queries';
-import {
-   acceptPost,
-   addUsersToGroup,
-   chatPost,
-   createGroup,
-   feedbackPost,
-   getGroupById,
-   groupGet,
-   userGroupsGet,
-   votePost,
-} from '../groups/models';
-import { userGet } from '../user/models';
 
+// TODO: Hacer los tests
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      // let group = await createGroup();
-      // let group2 = await createGroup();
-      const fakeUsers = await createFakeUsers(200);
+      const fakeUsers = await createFakeUsers(3);
       const mainUser = fakeUsers[0];
-      // const mainUser2 = fakeUsers[1];
-      // await addUsersToGroup(fakeUsers, group);
-      // await addUsersToGroup([mainUser2], group2);
+      const mainUser2 = fakeUsers[1];
+      const adminUser = fakeUsers[2];
 
-      for (let i = 0; i < 30; i++) {
-         console.time('Recommendations query time ' + i);
-         console.log((await recommendationsGet({ token: mainUser.token }, fakeCtx)).length);
-         console.timeEnd('Recommendations query time ' + i);
-      }
+      await convertToAdmin(adminUser.token);
 
-      for (let i = 0; i < 4; i++) {
-         console.time('Recommendations query time ' + i);
-         console.log((await userGet({ token: mainUser.token }, fakeCtx)).name);
-         console.timeEnd('Recommendations query time ' + i);
-      }
+      await adminChatPost({ token: mainUser.token, messageText: 'hola que tal' }, null);
+      await adminChatPost({ token: mainUser.token, messageText: 'una pregunta' }, null);
+
+      await setTimeoutAsync(1500);
+
+      await adminChatPost({ token: mainUser2.token, messageText: 'holis' }, null);
+      await adminChatPost(
+         { token: adminUser.token, targetUserId: mainUser2.userId, messageText: 'hola que queres' },
+         null,
+      );
+
+      const chats: ChatWithAdmins[] = await allChatsWithAdminsGet(
+         { token: adminUser.token, excludeRespondedByAdmin: false },
+         null,
+      );
+
+      chats?.forEach(c => console.log(c.messages));
 
       await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;
