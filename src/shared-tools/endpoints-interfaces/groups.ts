@@ -6,6 +6,7 @@ export interface Group {
    members: User[];
    chat: GroupChat;
    dateIdeas: DateIdea[];
+   timeOptions: TimeOption[];
    usersThatAccepted: string[];
    feedback: ExperienceFeedback[];
 }
@@ -19,6 +20,11 @@ export interface DateIdea {
    description: string;
    address: string;
    authorUserId: string;
+   votersUserId: string[];
+}
+
+export interface TimeOption {
+   date: number;
    votersUserId: string[];
 }
 
