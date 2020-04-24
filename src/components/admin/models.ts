@@ -58,7 +58,7 @@ export async function allChatsWithAdminsGet(
 export async function convertToAdminPost(params: AdminConvertPostParams, ctx: BaseContext): Promise<void> {
    const userRequesting: Partial<User> = await retrieveUser(params.token, false, ctx);
    if (!userRequesting.isAdmin) {
-      return ctx.throw(400, 'WTF unauthorized!');
+      return;
    }
    const targetUser: Partial<User> = await retrieveUser(params.targetUserToken, false, ctx);
    return convertToAdmin(targetUser.token);

@@ -42,13 +42,13 @@ describe('Cards game', () => {
          questions: [
             {
                questionId: 0,
-               answerId: 1,
+               answerId: 0,
                useAsFilter: false,
             },
             {
                questionId: 1,
-               answerId: 0,
-               useAsFilter: true,
+               answerId: 1,
+               useAsFilter: false,
             },
             {
                questionId: 2,
@@ -57,16 +57,6 @@ describe('Cards game', () => {
             },
             {
                questionId: 3,
-               answerId: 2,
-               useAsFilter: false,
-            },
-            {
-               questionId: 4,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 5,
                answerId: 2,
                useAsFilter: true,
             },
@@ -92,32 +82,22 @@ describe('Cards game', () => {
          questions: [
             {
                questionId: 0,
-               answerId: 0,
+               answerId: 1,
                useAsFilter: false,
             },
             {
                questionId: 1,
                answerId: 0,
-               useAsFilter: true,
+               useAsFilter: false,
             },
             {
                questionId: 2,
-               answerId: 0,
+               answerId: 1,
                useAsFilter: false,
             },
             {
                questionId: 3,
-               answerId: 1,
-               useAsFilter: true,
-            },
-            {
-               questionId: 4,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 5,
-               answerId: 2,
+               answerId: 3,
                useAsFilter: false,
             },
          ],
@@ -205,26 +185,16 @@ describe('Cards game', () => {
             },
             {
                questionId: 1,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 2,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 3,
                answerId: 1,
                useAsFilter: false,
             },
             {
-               questionId: 4,
-               answerId: 0,
+               questionId: 2,
+               answerId: 1,
                useAsFilter: false,
             },
             {
-               questionId: 5,
+               questionId: 3,
                answerId: 1, // This makes it incompatible
                useAsFilter: false,
             },
@@ -245,28 +215,18 @@ describe('Cards game', () => {
             },
             {
                questionId: 1,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 2,
-               answerId: 0, // This makes it incompatible
-               useAsFilter: true,
-            },
-            {
-               questionId: 3,
                answerId: 1,
                useAsFilter: false,
             },
             {
-               questionId: 4,
-               answerId: 0,
-               useAsFilter: false,
+               questionId: 2,
+               answerId: 2, // This makes it incompatible
+               useAsFilter: true,
             },
             {
-               questionId: 5,
+               questionId: 3,
                answerId: 2,
-               useAsFilter: false,
+               useAsFilter: true,
             },
          ],
       };
