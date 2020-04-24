@@ -7,80 +7,51 @@ export function questionsGet(): QuestionData[] {
 const companyQuestion: QuestionData = {
    questionId: 0,
    affectsCardsGameOrdering: false,
-   text: '¿Irías acompañade a las citas grupales de esta app?',
+   text: '¿Pensas ir acompañadx a las citas grupales de esta app?',
    shortVersion: 'Iría a la cita con',
    answers: [
       {
          answerId: 0,
-         text: 'Iría sole',
+         text: 'Iría solx',
       },
       {
          answerId: 1,
-         text: 'Iría en pareja',
+         text: 'Iría con mi pareja',
       },
    ],
-};
-
-const sexIntentionsQuestion: QuestionData = {
-   questionId: 1,
-   affectsCardsGameOrdering: true,
-   text: '¿Estás abierte a relacionarte sexualmente?',
-   shortVersion: 'Abierte a relacionarse sexualmente',
-   answers: [
-      {
-         answerId: 0,
-         text: 'Si',
-      },
-      {
-         answerId: 1,
-         text: 'No, no quiero relacionarme sexualmente',
-      },
-   ],
-   incompatibilitiesBetweenAnswers: {
-      0: [1],
-      1: [0],
-   },
 };
 
 const feminismQuestion: QuestionData = {
-   questionId: 2,
+   questionId: 1,
    affectsCardsGameOrdering: true,
    text: '¿Estás de acuerdo con el feminismo en general?',
-   extraText: 'O con algún movimiento feminista',
-   shortVersion: 'Está de acuerdo con algún feminismo',
+   shortVersion: 'Está de acuerdo con el feminismo en general',
    answers: [
       {
          answerId: 0,
-         text: 'Si, muy de acuerdo',
-      },
-      {
-         answerId: 1,
-         text: 'Podría ser en alguna cosa, pero en general no',
-      },
-      {
-         answerId: 2,
          text: 'No sé nada sobre el tema',
       },
       {
-         answerId: 3,
-         text: 'No me interesa / No me parece importante',
+         answerId: 1,
+         text: 'Si, muy de acuerdo / En casi todo',
       },
       {
-         answerId: 4,
-         text: 'No estoy de acuerdo con el feminismo para nada',
+         answerId: 2,
+         text: 'Algo de acuerdo',
+      },
+      {
+         answerId: 3,
+         text: 'No, nada de acuerdo',
       },
    ],
    incompatibilitiesBetweenAnswers: {
-      0: [1, 2, 3, 4],
-      1: [0],
-      2: [0],
-      3: [0],
-      4: [0],
+      1: [0, 2, 3],
+      3: [1],
    },
 };
 
 const groupSexQuestion: QuestionData = {
-   questionId: 3,
+   questionId: 2,
    affectsCardsGameOrdering: true,
    text: '¿Qué pensas del sexo grupal?',
    shortVersion: 'Su opinión sobre el sexo grupal',
@@ -91,51 +62,25 @@ const groupSexQuestion: QuestionData = {
       },
       {
          answerId: 1,
-         text: 'No me molesta la idea / Me gustaría probar',
+         text: 'Me interesa',
       },
       {
          answerId: 2,
-         text: 'Me gustó, lo haría de nuevo',
-      },
-      {
-         answerId: 3,
          text: 'No tengo interés',
       },
    ],
    incompatibilitiesBetweenAnswers: {
-      1: [3],
-      2: [3],
-      3: [1, 2],
+      1: [0, 2],
+      2: [1],
    },
 };
 
-const smokeQuestion: QuestionData = {
-   questionId: 4,
-   affectsCardsGameOrdering: true,
-   text: '¿Fumas? (tabaco)',
-   shortVersion: 'Fuma',
-   answers: [
-      {
-         answerId: 0,
-         text: 'No',
-      },
-      {
-         answerId: 1,
-         text: 'Muy poco',
-      },
-      {
-         answerId: 2,
-         text: 'Si',
-      },
-   ],
-};
-
 const politicsQuestion: QuestionData = {
-   questionId: 5,
-   affectsCardsGameOrdering: true,
-   text: '¿Cuál es tu postura política?',
-   extraText: 'Puede ser incómoda la pregunta pero es importante para la mayoría de personas consultadas',
-   shortVersion: 'Su postura política',
+   questionId: 3,
+   affectsCardsGameOrdering: false,
+   text: '¿Qué posturas politicas preferis?',
+   extraText: 'Puede ser extraña la pregunta pero es importante para la mayoría de personas consultadas',
+   shortVersion: 'Posturas políticas preferidas',
    answers: [
       {
          answerId: 0,
@@ -143,12 +88,12 @@ const politicsQuestion: QuestionData = {
       },
       {
          answerId: 1,
-         text: 'Libre mercado / Centro-derecha / Derecha / Otras cercanas',
+         text: 'Libre mercado / Derecha / Otras cercanas',
          shortVersion: 'Libre mercado / Derecha / Otras',
       },
       {
          answerId: 2,
-         text: 'Socialismo / Centro-izquierda / Izquierda / Anarquismo / Otras cercanas',
+         text: 'Socialismo / Izquierda / Anarquismo / Otras cercanas',
          shortVersion: 'Izquierda / Otras',
       },
       {
@@ -164,10 +109,8 @@ const politicsQuestion: QuestionData = {
 
 export const questions: QuestionData[] = [
    companyQuestion,
-   sexIntentionsQuestion,
    feminismQuestion,
    groupSexQuestion,
-   smokeQuestion,
    politicsQuestion,
 ];
 const questionsById: QuestionData[] = createQuestionsByIdArray();
