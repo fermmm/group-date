@@ -3,14 +3,14 @@ import { MarkRequired } from 'ts-essentials';
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
-import { DateIdea, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
+import { DateIdea, DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalById } from '../common/queries';
 
 /**
  * Creates an empty group and returns it as a traversal query
  */
-export function queryToCreateGroup(): process.GraphTraversal {
+export function queryToCreateGroup(dayOptions: DayOption[]): process.GraphTraversal {
    return g
       .addV('group')
       .property('groupId', uuidv1())
@@ -22,6 +22,7 @@ export function queryToCreateGroup(): process.GraphTraversal {
          }),
       )
       .property('dateIdeas', serializeIfNeeded([]))
+      .property('dayOptions', serializeIfNeeded(dayOptions))
       .property('usersThatAccepted', serializeIfNeeded([]))
       .property('feedback', serializeIfNeeded([]));
 }

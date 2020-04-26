@@ -7,7 +7,7 @@ export function questionsGet(): QuestionData[] {
 const companyQuestion: QuestionData = {
    questionId: 0,
    affectsCardsGameOrdering: false,
-   text: '¿Pensas ir acompañadx a las citas grupales de esta app?',
+   text: '¿Pensás ir acompañadx a las citas grupales de esta app?',
    shortVersion: 'Iría a la cita con',
    answers: [
       {
@@ -53,7 +53,7 @@ const feminismQuestion: QuestionData = {
 const groupSexQuestion: QuestionData = {
    questionId: 2,
    affectsCardsGameOrdering: true,
-   text: '¿Qué pensas del sexo grupal?',
+   text: '¿Qué pensás del sexo grupal?',
    shortVersion: 'Su opinión sobre el sexo grupal',
    answers: [
       {
@@ -78,7 +78,7 @@ const groupSexQuestion: QuestionData = {
 const politicsQuestion: QuestionData = {
    questionId: 3,
    affectsCardsGameOrdering: false,
-   text: '¿Qué posturas politicas preferis?',
+   text: '¿Qué posturas políticas preferís?',
    extraText: 'Puede ser extraña la pregunta pero es importante para la mayoría de personas consultadas',
    shortVersion: 'Posturas políticas preferidas',
    answers: [

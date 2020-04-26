@@ -6,7 +6,7 @@ export interface Group {
    members: User[];
    chat: GroupChat;
    dateIdeas: DateIdea[];
-   timeOptions: TimeOption[];
+   dayOptions: DayOption[];
    usersThatAccepted: string[];
    feedback: ExperienceFeedback[];
 }
@@ -23,7 +23,7 @@ export interface DateIdea {
    votersUserId: string[];
 }
 
-export interface TimeOption {
+export interface DayOption {
    date: number;
    votersUserId: string[];
 }
@@ -49,8 +49,12 @@ export interface BasicGroupParams {
    groupId: string;
 }
 
-export interface VotePostParams extends BasicGroupParams {
-   votedIdeasAuthorsIds: string[];
+export interface DateIdeaVotePostParams extends BasicGroupParams {
+   ideasToVoteAuthorsIds: string[];
+}
+
+export interface DayOptionsVotePostParams extends BasicGroupParams {
+   daysToVote: number[];
 }
 
 export interface ChatPostParams extends BasicGroupParams {

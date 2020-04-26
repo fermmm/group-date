@@ -7,9 +7,11 @@ import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    BasicGroupParams,
    ChatPostParams,
+   DateIdeaVotePostParams,
+   DayOption,
+   DayOptionsVotePostParams,
    FeedbackPostParams,
    Group,
-   VotePostParams,
 } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
@@ -24,6 +26,7 @@ import {
 } from './queries';
 
 const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
+const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
 
 /**
  * This endpoint is also used to download the chat messages so also interacts with the
@@ -58,27 +61,63 @@ export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Pr
    await updateGroup({ groupId: group.groupId, usersThatAccepted: group.usersThatAccepted });
 }
 
-export async function votePost(params: VotePostParams, ctx: BaseContext): Promise<void> {
+/**
+ * In this endpoint the user sends an array with the options he/she wants to vote. Votes saved
+ * from this user on a previous api call will be removed if the votes are not present in this
+ * new call, this is the way to remove a vote.
+ */
+export async function dateIdeaVotePost(params: DateIdeaVotePostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
 
    for (const dateIdea of group.dateIdeas) {
-      const userIdPosOnVotes = dateIdea.votersUserId.indexOf(user.userId);
-      // If the date idea of the group is one of the user votes from params:
-      if (params.votedIdeasAuthorsIds.indexOf(dateIdea.authorUserId) !== -1) {
-         // Add the user vote to the list if it's not there already
-         if (userIdPosOnVotes === -1) {
+      const userIsVotingThisOption: boolean =
+         params.ideasToVoteAuthorsIds.indexOf(dateIdea.authorUserId) !== -1;
+      const userIdPosOnVotes: number = dateIdea.votersUserId.indexOf(user.userId);
+      const optionAlreadyVoted: boolean = userIdPosOnVotes !== -1;
+
+      if (userIsVotingThisOption) {
+         if (!optionAlreadyVoted) {
             dateIdea.votersUserId.push(user.userId);
          }
       } else {
-         // Else remove the user vote if it is there
-         if (userIdPosOnVotes !== -1) {
+         // Remove the user vote if it is there from a previous api call
+         if (optionAlreadyVoted) {
             dateIdea.votersUserId.splice(userIdPosOnVotes, 1);
          }
       }
    }
 
    await updateGroup({ groupId: group.groupId, dateIdeas: group.dateIdeas });
+}
+
+/**
+ * In this endpoint the user sends an array with the options he/she wants to vote. Votes saved
+ * from this user on a previous api call will be removed if the votes are not present in this
+ * new call, this is the way to remove a vote.
+ */
+export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: BaseContext): Promise<void> {
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
+
+   for (const groupDayOption of group.dayOptions) {
+      const userIsVotingThisOption: boolean = params.daysToVote.indexOf(groupDayOption.date) !== -1;
+      const userIdPosOnVotes: number = groupDayOption.votersUserId.indexOf(user.userId);
+      const optionAlreadyVoted: boolean = userIdPosOnVotes !== -1;
+
+      if (userIsVotingThisOption) {
+         if (!optionAlreadyVoted) {
+            groupDayOption.votersUserId.push(user.userId);
+         }
+      } else {
+         // Remove the user vote if it is there from a previous api call
+         if (optionAlreadyVoted) {
+            groupDayOption.votersUserId.splice(userIdPosOnVotes, 1);
+         }
+      }
+   }
+
+   await updateGroup({ groupId: group.groupId, dayOptions: group.dayOptions });
 }
 
 export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promise<void> {
@@ -120,7 +159,11 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
 }
 
 export async function createGroup(protectPrivacy: boolean = true): Promise<Group> {
-   return queryToGroup(valueMap(queryToCreateGroup()), protectPrivacy);
+   const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS ?? 12).map(date => ({
+      date,
+      votersUserId: [],
+   }));
+   return queryToGroup(valueMap(queryToCreateGroup(dayOptions)), protectPrivacy);
 }
 
 export async function getGroupById(
@@ -181,6 +224,22 @@ async function updateAndCleanChat(user: User, group: Group): Promise<void> {
    if (updateChanges) {
       await updateGroup({ groupId: group.groupId, chat: group.chat });
    }
+}
+
+function getComingWeekendDays(limitAmount: number): number[] {
+   const result: number[] = [];
+   let i: number = 1;
+
+   while (result.length < limitAmount) {
+      const dayToCheck: moment.Moment = moment().add(i, 'day');
+      const weekDay: number = dayToCheck.weekday();
+      if (weekDay === 5 || weekDay === 6 || weekDay === 0) {
+         result.push(dayToCheck.unix());
+      }
+      i++;
+   }
+
+   return result;
 }
 
 interface GetGroupByIdOptions {

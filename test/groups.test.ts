@@ -5,11 +5,12 @@ import {
    addUsersToGroup,
    chatPost,
    createGroup,
+   dateDayVotePost,
+   dateIdeaVotePost,
    feedbackPost,
    getGroupById,
    groupGet,
    userGroupsGet,
-   votePost,
 } from '../src/components/groups/models';
 import { ExperienceFeedbackType, Group } from '../src/shared-tools/endpoints-interfaces/groups';
 import { User } from '../src/shared-tools/endpoints-interfaces/user';
@@ -47,54 +48,107 @@ describe('Groups', () => {
    });
 
    test('Voting dating ideas works correctly and not cheating is allowed', async () => {
-      await votePost(
+      // Main user votes for some ideas
+      await dateIdeaVotePost(
          {
             token: mainUser.token,
             groupId: group.groupId,
-            votedIdeasAuthorsIds: [fakeUsers[3].userId, fakeUsers[4].userId],
+            ideasToVoteAuthorsIds: [fakeUsers[3].userId, fakeUsers[4].userId],
          },
          fakeCtx,
       );
 
-      // Main user 2 votes for 2 ideas
-      await votePost(
+      // Main user 2 votes for the same ideas
+      await dateIdeaVotePost(
          {
             token: mainUser2.token,
             groupId: group.groupId,
-            votedIdeasAuthorsIds: [fakeUsers[3].userId, fakeUsers[4].userId],
+            ideasToVoteAuthorsIds: [fakeUsers[3].userId, fakeUsers[4].userId],
          },
          fakeCtx,
       );
 
       // Main user 2 removed one vote
-      await votePost(
+      await dateIdeaVotePost(
          {
             token: mainUser2.token,
             groupId: group.groupId,
-            votedIdeasAuthorsIds: [fakeUsers[4].userId],
+            ideasToVoteAuthorsIds: [fakeUsers[4].userId],
          },
          fakeCtx,
       );
 
       // Main user 2 votes the same thing 2 times (should have no effect)
-      await votePost(
+      await dateIdeaVotePost(
          {
             token: mainUser2.token,
             groupId: group.groupId,
-            votedIdeasAuthorsIds: [fakeUsers[4].userId],
+            ideasToVoteAuthorsIds: [fakeUsers[4].userId],
          },
          fakeCtx,
       );
 
       group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
-      // The idea with index 4 should be voted by mainUser and mainUser2. The idea 3 only by mainUser
-      expect(
-         group.dateIdeas[4].votersUserId.indexOf(mainUser.userId) !== -1 &&
-            group.dateIdeas[4].votersUserId.indexOf(mainUser2.userId) !== -1 &&
-            group.dateIdeas[3].votersUserId.indexOf(mainUser.userId) !== -1 &&
-            group.dateIdeas[3].votersUserId.length === 1,
-      ).toBe(true);
+      // The idea with index 4 should be voted by mainUser and mainUser2.
+      expect(group.dateIdeas[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
+      expect(group.dateIdeas[4].votersUserId.indexOf(mainUser2.userId) !== -1).toBe(true);
+      // The idea 3 only by mainUser
+      expect(group.dateIdeas[3].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
+      // There should be the correct amount of votes
+      expect(group.dateIdeas[3].votersUserId.length === 1).toBe(true);
+   });
+
+   test('Voting day option works correctly and not cheating is allowed', async () => {
+      // Main user votes for some ideas
+      await dateDayVotePost(
+         {
+            token: mainUser.token,
+            groupId: group.groupId,
+            daysToVote: [group.dayOptions[3].date, group.dayOptions[4].date],
+         },
+         fakeCtx,
+      );
+
+      // Main user 2 votes for the same ideas
+      await dateDayVotePost(
+         {
+            token: mainUser2.token,
+            groupId: group.groupId,
+            daysToVote: [group.dayOptions[3].date, group.dayOptions[4].date],
+         },
+         fakeCtx,
+      );
+
+      // Main user 2 removed one vote
+      await dateDayVotePost(
+         {
+            token: mainUser2.token,
+            groupId: group.groupId,
+            daysToVote: [group.dayOptions[4].date],
+         },
+         fakeCtx,
+      );
+
+      // Main user 2 votes the same thing 2 times (should have no effect)
+      await dateDayVotePost(
+         {
+            token: mainUser2.token,
+            groupId: group.groupId,
+            daysToVote: [group.dayOptions[4].date],
+         },
+         fakeCtx,
+      );
+
+      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+
+      // The idea with index 4 should be voted by mainUser and mainUser2.
+      expect(group.dayOptions[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
+      expect(group.dayOptions[4].votersUserId.indexOf(mainUser2.userId) !== -1).toBe(true);
+      // The idea 3 only by mainUser
+      expect(group.dayOptions[3].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
+      // There should be the correct amount of votes
+      expect(group.dayOptions[3].votersUserId.length === 1).toBe(true);
    });
 
    test('Chat messages are saved correctly', async () => {

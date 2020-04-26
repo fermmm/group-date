@@ -139,6 +139,7 @@ function gremlinMapToGroup(
    const group = gremlinMapToObject<Group>(groupFromDatabase, [
       'chat',
       'dateIdeas',
+      'dayOptions',
       'usersThatAccepted',
       'feedback',
    ]);
