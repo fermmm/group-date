@@ -30,8 +30,8 @@ describe('Groups', () => {
       fakeUsers = await createFakeUsers(10);
       mainUser = fakeUsers[0];
       mainUser2 = fakeUsers[1];
-      await addUsersToGroup(fakeUsers, group);
-      await addUsersToGroup([mainUser2], group2);
+      await addUsersToGroup(fakeUsers, group.groupId);
+      await addUsersToGroup([mainUser2], group2.groupId);
    });
 
    test('Ideas list gets populated with the ideas from users added to the group', async () => {
