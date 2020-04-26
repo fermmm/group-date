@@ -187,7 +187,9 @@ export async function getGroupById(
    return result;
 }
 
-export async function addUsersToGroup(users: User[], group: Group): Promise<void> {
+export async function addUsersToGroup(users: User[], groupId: string): Promise<void> {
+   let group = await getGroupById(groupId);
+
    for (const user of users) {
       await addUserToGroup(user, group);
       await addDateIdeaToGroup(group, {
@@ -198,7 +200,7 @@ export async function addUsersToGroup(users: User[], group: Group): Promise<void
       });
 
       // Update the group data to be able to manipulate arrays in the next for loop iteration
-      group = await getGroupById(group.groupId);
+      group = await getGroupById(groupId);
    }
 }
 
