@@ -1,9 +1,10 @@
 import * as gremlin from 'gremlin';
 import { process } from 'gremlin';
+import { ValueOf } from 'ts-essentials';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
 import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { User, UserPropsValueTypes } from '../../shared-tools/endpoints-interfaces/user';
+import { User } from '../../shared-tools/endpoints-interfaces/user';
 
 export function getUserTraversalByToken(
    token: string,
@@ -71,7 +72,7 @@ export async function updateUserToken(userEmail: string, newToken: string): Prom
 
 export async function updateUserProps(
    token: string,
-   props: Array<{ key: keyof User; value: UserPropsValueTypes }>,
+   props: Array<{ key: keyof User; value: ValueOf<User> }>,
 ): Promise<void> {
    await retryOnError(() => {
       let query = getUserTraversalByToken(token);

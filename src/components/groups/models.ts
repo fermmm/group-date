@@ -29,6 +29,7 @@ const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
 
 /**
+ * Endpoints to get a specific group that the user is part of.
  * This endpoint is also used to download the chat messages so also interacts with the
  * message read functionality.
  */
@@ -45,12 +46,18 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
    return group;
 }
 
+/**
+ * Endpoint to get all the groups the user is part of.
+ */
 export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
    return queryToGroupList(addMembersToGroupTraversal(getGroupsOfUserById(user.userId)));
 }
 
+/**
+ * Endpoint to accept being part of a group. Currently this has no much effect other than showing that to others.
+ */
 export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
@@ -120,6 +127,9 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
    await updateGroup({ groupId: group.groupId, dayOptions: group.dayOptions });
 }
 
+/**
+ * Endpoint to send a chat message to a group
+ */
 export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
@@ -139,6 +149,9 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    await updateGroup({ groupId: group.groupId, chat: group.chat });
 }
 
+/**
+ * Endpoint to send feedback about a group experience
+ */
 export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
@@ -158,6 +171,9 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
    }
 }
 
+/**
+ * Internal function to create a group (this is not an endpoint)
+ */
 export async function createGroup(protectPrivacy: boolean = true): Promise<Group> {
    const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS ?? 12).map(date => ({
       date,
@@ -166,6 +182,9 @@ export async function createGroup(protectPrivacy: boolean = true): Promise<Group
    return queryToGroup(valueMap(queryToCreateGroup(dayOptions)), protectPrivacy);
 }
 
+/**
+ * Internal function to get a group by Id
+ */
 export async function getGroupById(
    groupId: string,
    { includeMembersList = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
@@ -187,6 +206,9 @@ export async function getGroupById(
    return result;
 }
 
+/**
+ * Internal function to add a user to a group
+ */
 export async function addUsersToGroup(users: User[], groupId: string): Promise<void> {
    let group = await getGroupById(groupId);
 
@@ -204,6 +226,10 @@ export async function addUsersToGroup(users: User[], groupId: string): Promise<v
    }
 }
 
+/**
+ * Internal function that adds the user to the read list and removes last messages
+ * that should be already catched by the client.
+ */
 async function updateAndCleanChat(user: User, group: Group): Promise<void> {
    let updateChanges: boolean = false;
 

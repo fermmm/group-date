@@ -28,6 +28,7 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
    delete user.locationLat;
    delete user.locationLon;
    delete user.isAdmin;
+   delete user.notifications;
    return user;
 }
 

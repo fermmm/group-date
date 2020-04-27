@@ -4,11 +4,6 @@ import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { removeUsers } from '../common/queries';
 
 /**
- * TODO: Notificaciones:
- *    1. Agregar las notificaciones al objeto del usuario
- *    2. Hacer una función interna que agrega una notificación
- *    3. Hacer que haya notificaciones al levantar el usuario
- *
  * TODO: Aviso de nuevos usuarios:
  *    1. Hacer una prop en el usuario de aviso de usuarios con la cantidad de usuarios a avisar 0 = desactivado
  *    2. Esa prop se setea con un endpoint, que el cliente va a llamar cuando no quedan mas usuarios

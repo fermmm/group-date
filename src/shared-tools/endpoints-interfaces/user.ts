@@ -6,6 +6,7 @@ export interface User {
    userId: string;
    token: string;
    email: string;
+   notifications: Notification[];
    lastLoginDate: number;
    locationLat: number;
    locationLon: number;
@@ -101,6 +102,24 @@ export interface Attraction {
 export enum AttractionType {
    Like = 'Like',
    Dislike = 'Dislike',
+}
+
+export interface Notification {
+   notificationId: string;
+   date: number;
+   type: NotificationType;
+   title: string;
+   text: string;
+   targetId?: string;
+}
+
+export enum NotificationType {
+   TextOnly,
+   Group,
+   Chat,
+   ContactChat,
+   FacebookEvent,
+   About,
 }
 
 export const allAttractionTypes: AttractionType[] = Object.values(AttractionType);

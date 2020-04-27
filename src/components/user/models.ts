@@ -8,10 +8,11 @@ import * as koaBody from 'koa-body';
 import * as moment from 'moment';
 import * as path from 'path';
 import * as sharp from 'sharp';
-import { removePrivacySensitiveUserProps } from '../../common-tools/security-tools/security-tools';
+import { v1 as uuidv1 } from 'uuid';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    FileUploadResponse,
+   Notification,
    ProfileStatusServerResponse,
    QuestionResponse,
    SetAttractionParams,
@@ -25,10 +26,15 @@ import {
 } from '../../shared-tools/validators/user';
 import { retrieveUser } from '../common/models';
 import { updateUserProps } from '../common/queries';
-import { setAttraction, setUserProps } from './queries';
+import { setAttraction, setUserEditableProps } from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
 
+/**
+ * This endpoint returns all user props that are missing, only when this endpoint returns empty arrays
+ * the user can proceed with the endpoints not related with registration.
+ * If the user does not exist this endpoint creates it and it should be used also for the user creation.
+ */
 export async function profileStatusGet(
    params: TokenParameter,
    ctx: BaseContext,
@@ -88,10 +94,17 @@ function getMissingQuestions(user: Partial<User>): number[] {
    return result;
 }
 
+/**
+ * This endpoint retrieves the user info and is meant to be called only by the person corresponding
+ * to the user (token only) because it returns private information.
+ */
 export async function userGet(params: TokenParameter, ctx: BaseContext): Promise<Partial<User>> {
-   return removePrivacySensitiveUserProps(await retrieveUser(params.token, true, ctx));
+   return await retrieveUser(params.token, true, ctx);
 }
 
+/**
+ * This endpoint should be used to send the user props and questions.
+ */
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
    if (params.props != null) {
       const validationResult: true | ValidationError[] = validateUserProps(params.props);
@@ -99,12 +112,42 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
          ctx.throw(400, JSON.stringify(validationResult));
       }
 
-      await setUserProps(params.token, params.props);
+      await setUserEditableProps(params.token, params.props);
    }
 
    if (params.questions != null) {
       await respondQuestions(params.token, params.questions);
    }
+}
+
+/**
+ * Internal function to add a notification to the user object.
+ */
+export async function addNotificationToUser(
+   token: string,
+   notification: Omit<Notification, 'notificationId' | 'date'>,
+) {
+   const user: Partial<User> = await retrieveUser(token, false, null);
+
+   user.notifications.push({
+      ...notification,
+      notificationId: uuidv1(),
+      date: moment().unix(),
+   });
+
+   await updateUserProps(token, [
+      {
+         key: 'notifications',
+         value: user.notifications,
+      },
+   ]);
+}
+
+/**
+ * Endpoint to set attraction (like or dislike a user)
+ */
+export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
+   return setAttraction(params);
 }
 
 const imageSaver = koaBody({
@@ -177,8 +220,4 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
    fs.unlinkSync(file.path);
 
    return { fileNameSmall, fileNameBig };
-}
-
-export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
-   return setAttraction(params);
 }

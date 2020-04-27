@@ -103,7 +103,7 @@ function gremlinMapToUser(userFromDatabase: Map<keyof User, GremlinValueType>): 
       return null;
    }
 
-   const result = gremlinMapToObject<User>(userFromDatabase, ['pictures']);
+   const result = gremlinMapToObject<User>(userFromDatabase, ['pictures', 'notifications']);
 
    if (result.questions != null) {
       for (const question of result.questions) {

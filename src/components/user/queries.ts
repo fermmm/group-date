@@ -16,14 +16,15 @@ export function queryToCreateUser(
       .coalesce(
          __.unfold(),
          __.addV('user')
-            .property('email', email)
             .property('token', token)
             .property('userId', uuidv1())
-            .property('profileCompleted', setProfileCompletedForTesting),
+            .property('email', email)
+            .property('profileCompleted', setProfileCompletedForTesting)
+            .property('notifications', '[]'),
       );
 }
 
-export async function setUserProps(token: string, userProps: ExposedUserProps): Promise<void> {
+export async function setUserEditableProps(token: string, userProps: ExposedUserProps): Promise<void> {
    let query: process.GraphTraversal = getUserTraversalByToken(token);
 
    editableUserPropsList.forEach(editableUserProp => {
