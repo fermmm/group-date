@@ -84,7 +84,7 @@ const politicsQuestion: QuestionData = {
    answers: [
       {
          answerId: 0,
-         text: 'No es un tema para hablar en una cita',
+         text: 'No es un tema para hablar en una cita / Prefiero no decir',
       },
       {
          answerId: 1,
@@ -94,7 +94,7 @@ const politicsQuestion: QuestionData = {
       {
          answerId: 2,
          text: 'Socialismo / Izquierda / Anarquismo / Otras cercanas',
-         shortVersion: 'Izquierda / Otras',
+         shortVersion: 'Izquierda / Anarquismo / Otras',
       },
       {
          answerId: 3,
@@ -108,10 +108,10 @@ const politicsQuestion: QuestionData = {
 };
 
 export const questions: QuestionData[] = [
-   companyQuestion,
    feminismQuestion,
-   groupSexQuestion,
    politicsQuestion,
+   groupSexQuestion,
+   companyQuestion,
 ];
 const questionsById: QuestionData[] = createQuestionsByIdArray();
 
