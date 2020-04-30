@@ -2,11 +2,11 @@ import { getQuestionDataById } from '../../components/user/questions/models';
 import { User } from '../endpoints-interfaces/user';
 
 /**
- * Returns the ammount of questions responded exactly in the same way by 2 users.
+ * Returns the amount of questions responded exactly in the same way by 2 users.
  *
  * @param onlyCardOrderingQuestions Only count questions that has affectsCardsGameOrdering = true
  */
-export function ammountOfMatchingResponses(
+export function amountOfMatchingResponses(
    user1: User,
    user2: User,
    onlyCardOrderingQuestions: boolean = true,

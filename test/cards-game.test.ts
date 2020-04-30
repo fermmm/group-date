@@ -1,13 +1,18 @@
 import 'jest';
 import { queryToUserList } from '../src/common-tools/database-tools/data-convertion-tools';
-import { dislikedUsersGet, recommendationsGet } from '../src/components/cards-game/models';
+import {
+   dislikedUsersGet,
+   notifyAllUsersAboutNewCards,
+   recommendationsGet,
+} from '../src/components/cards-game/models';
 import { orderResultsByMatchingQuestionAnswers } from '../src/components/cards-game/queries';
 import { getAllCompleteUsers, removeUsers } from '../src/components/common/queries';
+import { userGet, userPost } from '../src/components/user/models';
 import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tools/endpoints-interfaces/user';
-import { ammountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
+import { amountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
-import { createFakeUser, createFakeUsers, setFakeAttraction } from './tools/users';
+import { createFakeCompatibleUsers, createFakeUser, createFakeUsers, setFakeAttraction } from './tools/users';
 
 describe('Cards game', () => {
    let fakeData: Array<Partial<UserPostParams>>;
@@ -278,8 +283,8 @@ describe('Cards game', () => {
 
       // Check ammount of matching responses
       expect(
-         ammountOfMatchingResponses(searcherUser, recommendations[0]) >=
-            ammountOfMatchingResponses(searcherUser, recommendations[1]),
+         amountOfMatchingResponses(searcherUser, recommendations[0]) >=
+            amountOfMatchingResponses(searcherUser, recommendations[1]),
       ).toBe(true);
 
       // Send profile evaluation to search results and try again to make sure evaluated users are not returned
@@ -325,8 +330,8 @@ describe('Cards game', () => {
          const user: User = orderedUsers[i];
          const followingUser: User = orderedUsers[nextIndex];
 
-         const userMatches: number = ammountOfMatchingResponses(user, searcherUser);
-         const nextUserMatches: number = ammountOfMatchingResponses(followingUser, searcherUser);
+         const userMatches: number = amountOfMatchingResponses(user, searcherUser);
+         const nextUserMatches: number = amountOfMatchingResponses(followingUser, searcherUser);
 
          if (userMatches < nextUserMatches) {
             orderIsCorrect = false;
@@ -335,6 +340,29 @@ describe('Cards game', () => {
 
       expect(orderIsCorrect).toBe(true);
       await removeUsers(fakeUsers);
+   });
+
+   test('Users gets notified of new cards when they request for it', async () => {
+      const mainUser = await createFakeUser();
+      const fakeCompatibleUsers = await createFakeCompatibleUsers(mainUser, 10);
+
+      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(0);
+
+      await notifyAllUsersAboutNewCards();
+      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(0);
+
+      // Here user requests for notifications
+      await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, null);
+
+      await notifyAllUsersAboutNewCards();
+      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(1);
+
+      // Repetition should not add more notifications
+      await notifyAllUsersAboutNewCards();
+      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(1);
+
+      await removeUsers([mainUser]);
+      await removeUsers(fakeCompatibleUsers);
    });
 
    afterAll(async () => {

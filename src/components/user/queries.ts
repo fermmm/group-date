@@ -20,6 +20,7 @@ export function queryToCreateUser(
             .property('userId', uuidv1())
             .property('email', email)
             .property('profileCompleted', setProfileCompletedForTesting)
+            .property('sendNewUsersNotification', 0)
             .property('notifications', '[]'),
       );
 }

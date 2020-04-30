@@ -28,6 +28,7 @@ export interface User {
    profileDescription: string;
    profileCompleted: boolean;
    isAdmin?: boolean;
+   sendNewUsersNotification: number;
    questions?: QuestionResponse[];
 }
 
@@ -119,6 +120,7 @@ export enum NotificationType {
    Chat,
    ContactChat,
    FacebookEvent,
+   CardsGame,
    About,
 }
 

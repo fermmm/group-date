@@ -205,5 +205,5 @@ export function orderResultsByMatchingQuestionAnswers(
 }
 
 export function getAllUsersWantingNewCardsNotification(): process.GraphTraversal {
-   return getAllCompleteUsers().has("sendNewUsersNotification", P.gt(0));
+   return getAllCompleteUsers().has('sendNewUsersNotification', P.gt(0));
 }

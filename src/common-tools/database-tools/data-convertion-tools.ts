@@ -32,8 +32,13 @@ export async function queryToUser(
 export async function queryToUserList(
    queryOfUsers: process.GraphTraversal,
    protectPrivacy: boolean = true,
+   includeQuestionsData: boolean = true,
 ): Promise<User[]> {
-   queryOfUsers = addQuestionsRespondedToUserQuery(queryOfUsers);
+   if (includeQuestionsData) {
+      queryOfUsers = addQuestionsRespondedToUserQuery(queryOfUsers);
+   } else {
+      queryOfUsers = valueMap(queryOfUsers);
+   }
    const resultGremlinOutput = (await retryOnError(() => queryOfUsers.toList())) as Array<
       Map<keyof User, GremlinValueType>
    >;

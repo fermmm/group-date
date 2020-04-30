@@ -22,6 +22,7 @@ export const editableUserPropsSchema = {
    likesOtherGenders: { type: 'boolean', optional: true },
    gender: { type: 'enum', values: Object.values(Gender), optional: true },
    height: { type: 'number', min: 100, max: 300, optional: true },
+   sendNewUsersNotification: { type: 'number', min: 0, max: 50, optional: true },
 };
 
 export type ExposedUserPropKey = keyof typeof editableUserPropsSchema;

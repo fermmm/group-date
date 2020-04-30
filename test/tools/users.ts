@@ -2,8 +2,7 @@ import * as Chance from 'chance';
 import * as moment from 'moment';
 import ora = require('ora');
 import { queryToUser } from '../../src/common-tools/database-tools/data-convertion-tools';
-import { retrieveUser } from '../../src/components/common/models';
-import { profileStatusGet, setAttractionPost, userPost } from '../../src/components/user/models';
+import { setAttractionPost, userPost } from '../../src/components/user/models';
 import { queryToCreateUser } from '../../src/components/user/queries';
 import { getIncompatibleAnswers, questions as questionsData } from '../../src/components/user/questions/models';
 import {
@@ -21,13 +20,17 @@ import { fakeCtx } from './replacements';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
 
-export async function createFakeUsers(amount: number, seed?: number): Promise<User[]> {
+export async function createFakeUsers(
+   amount: number,
+   customParams?: Partial<UserPostParams>,
+   seed?: number,
+): Promise<User[]> {
    const users: User[] = [];
 
    spinner.start();
 
    for (let i = 0; i < amount; i++) {
-      users.push(await createFakeUser(null, seed + i));
+      users.push(await createFakeUser(customParams, seed + i));
       spinner.text = `Created ${fakeUsersCount} fake users...`;
    }
 
@@ -38,10 +41,7 @@ export async function createFakeUsers(amount: number, seed?: number): Promise<Us
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(
-   customParams: Partial<UserPostParams> = null,
-   seed?: number,
-): Promise<User> {
+export async function createFakeUser(customParams?: Partial<UserPostParams>, seed?: number): Promise<User> {
    const chance = new Chance(seed || fakeUsersCount);
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
@@ -69,6 +69,7 @@ export async function createFakeUser(
       likesOtherGenders: genderLikes[4],
       gender: chance.pickone(Object.values(Gender)),
       height: chance.integer({ min: 100, max: 300 }),
+      sendNewUsersNotification: chance.pickone([0, 5]),
    };
 
    let customParamsQuestions: QuestionResponse[] = [];
@@ -97,19 +98,12 @@ export async function createFakeUser(
    });
 
    let user: Partial<User> = await queryToUser(queryToCreateUser(token, chance.email(), true), true);
-   await userPost(
-      {
-         token,
-         props,
-         questions,
-      },
-      fakeCtx,
-   );
+   await userPost({ token, props, questions }, fakeCtx);
 
    // await profileStatusGet({ token }, fakeCtx);
    // user = await retrieveUser(token, true, fakeCtx);
    // This replaces profileStatusGet and retrieveUser. It's faster but if there is any problem can be replaced by the commented lines on top
-   user = { ...(props as User), ...user, questions, profileCompleted: true, lastLoginDate: moment().unix() };
+   user = { ...user, ...(props as User), questions, profileCompleted: true, lastLoginDate: moment().unix() };
 
    fakeUsersCount++;
 
@@ -131,4 +125,50 @@ export async function setFakeAttractionMatch(users: User[]): Promise<void> {
    for (const user of users) {
       await setFakeAttraction(user, users, AttractionType.Like);
    }
+}
+
+export async function createFakeCompatibleUsers(user: User, amount: number, seed?: number): Promise<User[]> {
+   const chance = new Chance(seed || fakeUsersCount);
+
+   const compatibleRandomProps: Partial<UserPostParams> = {
+      props: {
+         age: chance.integer({ min: user.targetAgeMin, max: user.targetAgeMax }),
+         targetAgeMin: chance.integer({ min: user.age - 5, max: user.age }),
+         targetAgeMax: chance.integer({ min: user.age, max: user.age + 5 }),
+         targetDistance: 25,
+         locationLat: user.locationLat,
+         locationLon: user.locationLon,
+         likesWoman: true,
+         likesMan: true,
+         likesWomanTrans: true,
+         likesManTrans: true,
+         likesOtherGenders: true,
+         gender: getGendersLikedByUser(user)[0],
+      },
+      questions: user.questions,
+   };
+
+   return createFakeUsers(amount, compatibleRandomProps, seed);
+}
+
+function getGendersLikedByUser(user: User): Gender[] {
+   const result: Gender[] = [];
+
+   if (user.likesWoman) {
+      result.push(Gender.Woman);
+   }
+   if (user.likesMan) {
+      result.push(Gender.Man);
+   }
+   if (user.likesWomanTrans) {
+      result.push(Gender.TransgenderWoman);
+   }
+   if (user.likesManTrans) {
+      result.push(Gender.TransgenderMan);
+   }
+   if (user.likesOtherGenders) {
+      result.push(Gender.Other);
+   }
+
+   return result;
 }

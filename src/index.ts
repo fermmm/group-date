@@ -11,6 +11,7 @@ import { waitForDatabase } from './common-tools/database-tools/database-manager'
 import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
 import { rateLimiterConfig } from './common-tools/security-tools/security-tools';
 import { adminRoutes } from './components/admin/routes';
+import { scheduledTasksCardGame } from './components/cards-game/models';
 import { cardsGameRoutes } from './components/cards-game/routes';
 import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
@@ -39,6 +40,9 @@ import { userRoutes } from './components/user/routes';
    groupsRoutes(router);
    adminRoutes(router);
    testingRoutes(router);
+
+   // Scheduled Tasks
+   scheduledTasksCardGame();
 
    // App uses:
    app.use(ratelimit(rateLimiterConfig))
