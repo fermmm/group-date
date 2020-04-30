@@ -9,9 +9,7 @@ import {
    Attraction,
    AttractionType,
    Gender,
-   QuestionAnswerData,
    QuestionResponse,
-   QuestionResponseParams,
    User,
    UserPostParams,
 } from '../../src/shared-tools/endpoints-interfaces/user';
@@ -60,6 +58,7 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
       dateIdeaName: chance.sentence({ words: 5 }),
       dateIdeaAddress: chance.address(),
       profileDescription: chance.paragraph(),
+      locationName: chance.city(),
       locationLat: chance.latitude({ min: -38.88147, max: -32.990726 }),
       locationLon: chance.longitude({ min: -63.346051, max: -56.729749 }),
       likesWoman: genderLikes[0],
@@ -69,7 +68,7 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
       likesOtherGenders: genderLikes[4],
       gender: chance.pickone(Object.values(Gender)),
       height: chance.integer({ min: 100, max: 300 }),
-      sendNewUsersNotification: chance.pickone([0, 5]),
+      sendNewUsersNotification: 0,
    };
 
    let customParamsQuestions: QuestionResponse[] = [];

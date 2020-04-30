@@ -15,6 +15,7 @@ export const editableUserPropsSchema = {
    profileDescription: { type: 'string', max: 4000, optional: true },
    locationLat: { type: 'number', optional: true },
    locationLon: { type: 'number', optional: true },
+   locationName: { type: 'string', min: 2, max: 35, optional: true },
    likesWoman: { type: 'boolean', optional: true },
    likesMan: { type: 'boolean', optional: true },
    likesWomanTrans: { type: 'boolean', optional: true },

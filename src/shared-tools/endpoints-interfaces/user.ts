@@ -8,6 +8,7 @@ export interface User {
    email: string;
    notifications: Notification[];
    lastLoginDate: number;
+   locationName: string;
    locationLat: number;
    locationLon: number;
    name: string;
