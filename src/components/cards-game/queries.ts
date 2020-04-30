@@ -12,7 +12,7 @@ import {
 import { getAllCompleteUsers, getUserTraversalByToken } from '../common/queries';
 import { getQuestionDataById, questions } from '../user/questions/models';
 
-const RESULTS_LIMIT: number = 40;
+const RESULTS_LIMIT: number = 70;
 
 export function getRecommendations(searcherUser: User): process.GraphTraversal {
    let query: process.GraphTraversal = getAllCompleteUsers();
@@ -40,7 +40,7 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
    );
 
    /**
-    * Dont show inactive accounts
+    * Don't show inactive accounts
     */
    query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
 
@@ -102,8 +102,8 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
    /**
     * Likes the age of the user
     */
-   query = query.not(__.has('targetAgeMin', P.gte(searcherUser.age)));
-   query = query.not(__.has('targetAgeMax', P.lte(searcherUser.age)));
+   query = query.not(__.has('targetAgeMin', P.gt(searcherUser.age)));
+   query = query.not(__.has('targetAgeMax', P.lt(searcherUser.age)));
 
    /**
     * Passes the filter questions of the user
@@ -202,4 +202,8 @@ export function orderResultsByMatchingQuestionAnswers(
       .select('userVertex');
 
    return query;
+}
+
+export function getAllUsersWantingNewCardsNotification(): process.GraphTraversal {
+   return getAllCompleteUsers().has("sendNewUsersNotification", P.gt(0));
 }
