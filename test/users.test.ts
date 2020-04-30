@@ -1,6 +1,6 @@
 import 'jest';
 import { removeUsers } from '../src/components/common/queries';
-import { addNotificationToUser, userGet } from '../src/components/user/models';
+import { addNotificationToUser, userGet, profileStatusGet } from '../src/components/user/models';
 import { NotificationType, User } from '../src/shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUsers } from './tools/users';
@@ -17,8 +17,10 @@ describe('Users', () => {
       expect(fakeUsers).toHaveLength(FAKE_USERS_AMMOUNT);
    });
 
-   test('Fake users profile is completed', () => {
-      expect(fakeUsers[0].profileCompleted).toBe(true);
+   test('Fake users profile is completed', async () => {
+      await profileStatusGet({ token: fakeUsers[0].token }, fakeCtx);
+      const updatedUser: Partial<User> = await userGet({ token: fakeUsers[0].token }, fakeCtx);
+      expect(updatedUser.profileCompleted).toBe(true);
    });
 
    test('Notifications work', async () => {

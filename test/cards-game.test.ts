@@ -343,23 +343,30 @@ describe('Cards game', () => {
    });
 
    test('Users gets notified of new cards when they request for it', async () => {
-      const mainUser = await createFakeUser();
+      let mainUser = await createFakeUser();
       const fakeCompatibleUsers = await createFakeCompatibleUsers(mainUser, 10);
 
-      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(0);
+      // The test is going to be done correctly
+      mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
+      expect(mainUser.notifications.length).toBe(0);
 
+      // If the user does not request for notifications should be not notified
       await notifyAllUsersAboutNewCards();
-      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(0);
+      mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
+      expect(mainUser.notifications.length).toBe(0);
 
       // Here user requests for notifications
-      await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, null);
+      await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, fakeCtx);
 
+      // Now it should be notified
       await notifyAllUsersAboutNewCards();
-      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(1);
+      mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
+      expect(mainUser.notifications.length).toBe(1);
 
       // Repetition should not add more notifications
       await notifyAllUsersAboutNewCards();
-      expect((await userGet({ token: mainUser.token }, null)).notifications.length).toBe(1);
+      mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
+      expect(mainUser.notifications.length).toBe(1);
 
       await removeUsers([mainUser]);
       await removeUsers(fakeCompatibleUsers);
