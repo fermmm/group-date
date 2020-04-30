@@ -66,7 +66,7 @@ const groupSexQuestion: QuestionData = {
       },
       {
          answerId: 2,
-         text: 'No tengo interés',
+         text: 'No tengo mucho interés / No me interesa',
       },
    ],
    incompatibilitiesBetweenAnswers: {
