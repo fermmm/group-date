@@ -109,7 +109,7 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
    return user as User;
 }
 
-export async function setFakeAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
+export async function setAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
    const attractions: Attraction[] = to.map(user => ({ userId: user.userId, attractionType }));
    await setAttractionPost(
       {
@@ -120,9 +120,16 @@ export async function setFakeAttraction(from: User, to: User[], attractionType: 
    );
 }
 
-export async function setFakeAttractionMatch(users: User[]): Promise<void> {
+export async function setAttractionMatch(user: User, targetUsers: User[]): Promise<void> {
+   for (const targetUser of targetUsers) {
+      await setAttraction(user, [targetUser], AttractionType.Like);
+      await setAttraction(targetUser, [user], AttractionType.Like);
+   }
+}
+
+export async function setAttractionAllWithAll(users: User[]): Promise<void> {
    for (const user of users) {
-      await setFakeAttraction(user, users, AttractionType.Like);
+      await setAttraction(user, users, AttractionType.Like);
    }
 }
 
