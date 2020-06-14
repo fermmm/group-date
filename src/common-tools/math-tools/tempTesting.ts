@@ -2,7 +2,7 @@ import { DeviationAlgorithm, inequalityLevel, InequalitySettings } from './stati
 
 const settings: InequalitySettings = {
    algorithm: DeviationAlgorithm.StandardDeviation,
-   baseAmount: 2
+   baseAmount: 2,
 };
 
 const testList: Array<{ name: string; values: number[] } | string> = [
@@ -12,7 +12,7 @@ const testList: Array<{ name: string; values: number[] } | string> = [
    { name: 'Cuadrado full', values: [3, 3, 3, 3] },
    { name: 'Pentágono full', values: [4, 4, 4, 4, 4] },
    { name: 'Grande full', values: [7, 7, 6, 5, 5, 5, 4, 4, 4, 4] },
-   "",
+   '',
    { name: 'Cuadrado con 1 de mas', values: [2, 2, 2, 3, 3] },
    { name: 'Cuadrado con 2 de mas', values: [4, 3, 3, 2, 2, 2] },
    { name: 'Cuadrado full con 1 de mas', values: [3, 3, 4, 4, 2] },
@@ -31,9 +31,9 @@ export function test() {
    console.log('Base amount: ' + settings.baseAmount);
    console.log('');
    testList.forEach(item => {
-      if(typeof item !== "string") {
+      if (typeof item !== 'string') {
          console.log(`${item.name}: [${item.values}] Result:`, inequalityLevel(item.values, settings));
-      } else{
+      } else {
          console.log(item);
       }
    });

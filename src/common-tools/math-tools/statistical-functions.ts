@@ -1,4 +1,4 @@
-import { setUserEditableProps } from "../../components/user/queries";
+import { setUserEditableProps } from '../../components/user/queries';
 
 /**
  * Given a set of numbers gets the inequality between them using the formula:
@@ -21,11 +21,11 @@ import { setUserEditableProps } from "../../components/user/queries";
 export function inequalityLevel(array: number[], settings?: InequalitySettings): number {
    const algorithm: DeviationAlgorithm = settings?.algorithm ?? DeviationAlgorithm.MeanAbsoluteDeviation;
    const baseAmount: number = settings?.baseAmount ?? 0;
-   
+
    let deviation: number;
    let maximumDeviation: number;
    let result: number;
-   if (baseAmount !== 0) {   
+   if (baseAmount !== 0) {
       array = subtractFromAll(array, baseAmount, false);
    }
 
@@ -72,7 +72,7 @@ function subtractFromAll(array: number[], amountToSubtract: number, allowNegativ
       result[i] = result[i] - amountToSubtract;
       if (!allowNegative && result[i] < 0) {
          result[i] = 0;
-      } 
+      }
    }
    return result;
 }
