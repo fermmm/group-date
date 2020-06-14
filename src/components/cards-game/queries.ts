@@ -1,7 +1,7 @@
 import { process } from 'gremlin';
 import * as moment from 'moment';
 import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
-import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/math-tools';
+import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/constants';
 import {
    allAttractionTypes,
    AttractionType,
