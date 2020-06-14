@@ -1,3 +1,5 @@
+import { setUserEditableProps } from "../../components/user/queries";
+
 /**
  * Given a set of numbers gets the inequality between them using the formula:
  * "All element's distance from the mean" divided by "maximum possible distance"
@@ -10,23 +12,36 @@
  *
  * @param array The set of numbers
  * @param settings With this parameter you can configure:
- *    - The statistical algorithm to use to get mean deviation: Mean Absolute Deviation or Standard Deviation. Default = DeviationAlgorithm.MeanAbsoluteDeviation
- *    - The minimum amount possible: default = 0
- *
+ *    - Statistical algorithm to use to get mean deviation: Mean Absolute Deviation or Standard Deviation. Default = DeviationAlgorithm.MeanAbsoluteDeviation
+ *    - Base amount: This number will be subtracted from every element of the passed array. Default = 0
  *    Example:
  *
- *    ```{ algorithm: DeviationAlgorithm.StandardDeviation, minimum: 2 }```
+ *    ```{ algorithm: DeviationAlgorithm.StandardDeviation, baseAmount: 0}```
  */
 export function inequalityLevel(array: number[], settings?: InequalitySettings): number {
-   const minimum: number = settings?.minimum ?? 0;
    const algorithm: DeviationAlgorithm = settings?.algorithm ?? DeviationAlgorithm.MeanAbsoluteDeviation;
+   const baseAmount: number = settings?.baseAmount ?? 0;
+   
+   let deviation: number;
+   let maximumDeviation: number;
    let result: number;
+   if (baseAmount !== 0) {   
+      array = subtractFromAll(array, baseAmount, false);
+   }
+
    switch (algorithm) {
       case DeviationAlgorithm.MeanAbsoluteDeviation:
-         result = meanAbsoluteDeviation(array) / maximumMeanAbsoluteDeviation(array, minimum);
+         deviation = meanAbsoluteDeviation(array);
+         maximumDeviation = maximumMeanAbsoluteDeviation(array);
+         break;
       case DeviationAlgorithm.StandardDeviation:
-         result = standardDeviation(array) / maximumStandardDeviation(array, minimum);
+         deviation = standardDeviation(array);
+         maximumDeviation = maximumStandardDeviation(array);
+         break;
    }
+
+   result = deviation / maximumDeviation;
+
    if (!Number.isFinite(result)) {
       return 0;
    }
@@ -35,7 +50,7 @@ export function inequalityLevel(array: number[], settings?: InequalitySettings):
 
 export interface InequalitySettings {
    algorithm?: DeviationAlgorithm;
-   minimum?: number;
+   baseAmount?: number;
 }
 
 export enum DeviationAlgorithm {
@@ -49,6 +64,17 @@ function sum(array: number[]): number {
       num += array[i];
    }
    return num;
+}
+
+function subtractFromAll(array: number[], amountToSubtract: number, allowNegative: boolean = true): number[] {
+   const result: number[] = [...array];
+   for (let i = 0; i < array.length; i++) {
+      result[i] = result[i] - amountToSubtract;
+      if (!allowNegative && result[i] < 0) {
+         result[i] = 0;
+      } 
+   }
+   return result;
 }
 
 function mean(array: number[]): number {
@@ -72,9 +98,9 @@ function standardDeviation(array: number[]): number {
    return Math.sqrt(variance(array));
 }
 
-function maximumStandardDeviation(array: number[], minimum: number = 0): number {
+function maximumStandardDeviation(array: number[]): number {
    const total: number = sum(array);
-   const maxDeviationCase: number[] = array.map((num, i) => (i === 0 ? total : minimum));
+   const maxDeviationCase: number[] = array.map((num, i) => (i === 0 ? total : 0));
    return standardDeviation(maxDeviationCase);
 }
 
@@ -87,8 +113,8 @@ function meanAbsoluteDeviation(array: number[]): number {
    );
 }
 
-function maximumMeanAbsoluteDeviation(array: number[], minimum: number = 0): number {
+function maximumMeanAbsoluteDeviation(array: number[]): number {
    const total: number = sum(array);
-   const maxDeviationCase: number[] = array.map((num, i) => (i === 0 ? total : minimum));
+   const maxDeviationCase: number[] = array.map((num, i) => (i === 0 ? total : 0));
    return meanAbsoluteDeviation(maxDeviationCase);
 }
