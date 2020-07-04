@@ -29,24 +29,16 @@ const feminismQuestion: QuestionData = {
    answers: [
       {
          answerId: 0,
-         text: 'No sé nada sobre el tema',
-      },
-      {
-         answerId: 1,
          text: 'Si, muy de acuerdo / En casi todo',
       },
       {
-         answerId: 2,
-         text: 'Algo de acuerdo',
-      },
-      {
-         answerId: 3,
-         text: 'No, nada de acuerdo',
+         answerId: 1,
+         text: 'No tan de acuerdo / Nada de acuerdo',
       },
    ],
    incompatibilitiesBetweenAnswers: {
-      1: [0, 2, 3],
-      3: [1],
+      0: [1],
+      1: [0],
    },
 };
 
@@ -78,13 +70,12 @@ const groupSexQuestion: QuestionData = {
 const politicsQuestion: QuestionData = {
    questionId: 3,
    affectsCardsGameOrdering: false,
-   text: '¿Qué posturas políticas preferís?',
-   extraText: 'Puede ser extraña la pregunta pero es importante para la mayoría de personas consultadas',
+   text: '¿Qué grupo de posturas políticas preferís?',
    shortVersion: 'Posturas políticas preferidas',
    answers: [
       {
          answerId: 0,
-         text: 'No es un tema para hablar en una cita / Prefiero no decir',
+         text: 'Prefiero no decirlo',
       },
       {
          answerId: 1,
