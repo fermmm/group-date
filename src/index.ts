@@ -9,7 +9,7 @@ import * as serve from 'koa-static';
 import * as ora from 'ora';
 import { waitForDatabase } from './common-tools/database-tools/database-manager';
 import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
-import { test } from './common-tools/math-tools/tempTesting';
+import { groupOrderingTest } from './common-tools/math-tools/group-ordering-test';
 import { rateLimiterConfig } from './common-tools/security-tools/security-tools';
 import { adminRoutes } from './components/admin/routes';
 import { scheduledTasksCardGame } from './components/cards-game/models';
@@ -57,5 +57,5 @@ import { userRoutes } from './components/user/routes';
    ora(`Server running on ${process.env.PORT}!`).succeed();
 
    // Temp:
-   test();
+   groupOrderingTest();
 })();

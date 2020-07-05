@@ -7,8 +7,10 @@ import {
    getConnectionsCountInequalityLevel,
    getConnectionsCoverageAverage,
    getConnectionsMetaconnectionsDistance,
+   removeExceedingConnections,
 } from './group-analysis';
-import { addUser, addUsers, createGroup, removeExceedingConnections } from './group-editing';
+import { addAUserAndConnectItWithAll } from './group-editing';
+import { addUser, addUsers, connectAllWithAll, connectAllWithNeighbors, createGroup } from './group-editing';
 
 const square = [
    [1, 3],
@@ -20,9 +22,12 @@ const square = [
 const groupWith2 = createGroup(2);
 const groupWith3 = createGroup(3);
 const groupWith4 = createGroup(4);
+const groupWith5 = createGroup(5);
+const groupWith12 = createGroup(12);
+const circleGroupOf12 = connectAllWithNeighbors(groupWith12, true);
 
-// TODO: Implementar una forma de crear estos grupos con funciones faciles de escribir por que despues permite
-// mejores testeos
+// TODO: Implementar una forma de crear estos grupos con funciones fáciles de leer y escribir por que eso
+// después permite mejores testeos
 
 const testGroups: Array<{ name: string; values: number[][] } | string> = [
    {
@@ -31,13 +36,7 @@ const testGroups: Array<{ name: string; values: number[][] } | string> = [
    },
    {
       name: 'Pentágono',
-      values: [
-         [1, 2, 4, 3],
-         [0, 2, 4, 3],
-         [0, 1, 4, 3],
-         [0, 1, 4, 2],
-         [0, 1, 2, 3],
-      ],
+      values: connectAllWithAll(groupWith5),
    },
    {
       name: 'Grande',
@@ -124,17 +123,14 @@ const testGroups: Array<{ name: string; values: number[][] } | string> = [
       name: '2 para 6',
       values: addUsers(groupWith2, 6, [0, 1]),
    },
+   {
+      name: '2 para 8',
+      values: addUsers(groupWith2, 8, [0, 1]),
+   },
    '',
    {
       name: 'Pentágono con 1 de mas',
-      values: [
-         [1, 2, 3, 4, 5],
-         [0, 2],
-         [0, 1, 3, 4, 5],
-         [2, 4, 5, 0],
-         [0, 2, 3, 5],
-         [0, 2, 3, 4],
-      ],
+      values: addUser(connectAllWithAll(groupWith5), [0, 2]),
    },
    {
       name: 'Grande con 1 de mas',
@@ -175,40 +171,11 @@ const testGroups: Array<{ name: string; values: number[][] } | string> = [
    '',
    {
       name: 'Concentrado Malo',
-      values: [
-         [11, 1, 12],
-         [0, 2, 12],
-         [1, 3, 12],
-         [2, 4, 12],
-         [3, 5, 12],
-         [4, 6, 12],
-         [5, 7, 12],
-         [6, 8, 12],
-         [7, 9, 12],
-         [8, 10, 12],
-         [9, 11, 12],
-         [0, 10, 12],
-         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-      ],
-   },
-   {
-      name: 'Injusto Hetero',
-      values: [
-         [8, 9],
-         [8, 9],
-         [8, 9],
-         [8, 9],
-         [8, 9],
-         [8, 9],
-         [8, 9],
-         [8, 9],
-         [0, 1, 2, 3, 4, 5, 6, 7],
-         [0, 1, 2, 3, 4, 5, 6, 7],
-      ],
+      values: addAUserAndConnectItWithAll(circleGroupOf12),
    },
 ];
 
-export function test() {
+export function groupOrderingTest() {
    console.log('');
    testGroups.forEach(item => {
       if (typeof item !== 'string') {
@@ -232,7 +199,7 @@ export function test() {
 
          console.log(
             `${item.name}:`,
-            'ConCountInequality:',
+            'Inequality:',
             Number(inequality.toFixed(2)),
             'ConCoverage:',
             Number(coverage.toFixed(2)),

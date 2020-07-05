@@ -118,3 +118,29 @@ function getDistance1UsersConnectionsAmount(groupAsConnections: number[][], targ
    const distance1Users: number[] = groupAsConnections[targetUserIndex];
    return distance1Users.map(userDist1 => groupAsConnections[userDist1].length);
 }
+
+/**
+ * In a group as connections removes the exceeding connections of a user when there are more than the
+ * maximum specified.
+ */
+export function removeExceedingConnections(
+   groupAsConnections: number[][],
+   maxConnectionsAllowed: number,
+): number[][] {
+   const result: number[][] = copyGroup(groupAsConnections);
+   result.forEach((userConnections, userIndex) => {
+      if (userConnections.length > maxConnectionsAllowed) {
+         for (let i = userConnections.length - 1; i >= maxConnectionsAllowed; i--) {
+            const otherEndUserConnections: number[] = result[userConnections[i]];
+            otherEndUserConnections.splice(otherEndUserConnections.indexOf(userIndex), 1);
+            userConnections.splice(i, 1);
+         }
+      }
+   });
+
+   return result;
+}
+
+export function copyGroup(groupAsConnections: number[][]): number[][] {
+   return groupAsConnections.map(u => [...u]);
+}
