@@ -12,7 +12,7 @@ import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tool
 import { amountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
-import { createFakeCompatibleUsers, createFakeUser, createFakeUsers, setFakeAttraction } from './tools/users';
+import { createFakeCompatibleUsers, createFakeUser, createFakeUsers, setAttraction } from './tools/users';
 
 describe('Cards game', () => {
    let fakeData: Array<Partial<UserPostParams>>;
@@ -288,7 +288,7 @@ describe('Cards game', () => {
       ).toBe(true);
 
       // Send profile evaluation to search results and try again to make sure evaluated users are not returned
-      await setFakeAttraction(searcherUser, [compatibleUser, compatibleUser2], AttractionType.Dislike);
+      await setAttraction(searcherUser, [compatibleUser, compatibleUser2], AttractionType.Dislike);
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
       expect(recommendations).toHaveLength(0);
    });
