@@ -19,17 +19,17 @@ http://tinkerpop.apache.org/providers.html
 
 ## Installing on your local computer (in case you are going to modify the project)
 
-1. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
+1. Make sure the full path to this repo does not contain any spaces because that breaks gremlin database (the database that runs in local for development).
 
-2. For running the Gremlin database locally make sure you have Java installed, at least version 8 (or 1.8). 
-To verify that Java is installed or which version you have, run the command ```java -version```
-If you do not have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or  [OpenJDK](https://openjdk.java.net/)
+2. Make sure you have Java installed, at least version 8 (or 1.8). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command ``java -version``. If you don't have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or  [OpenJDK](https://openjdk.java.net/)
 
-3. Run: ``npm install``
+3. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
 4. Duplicate the file ``.env.example`` and rename it: ``.env``
 
-5. **Optional**: To install a database visualizer application to use in local development run: ``npm run install-visualizer``
+5. Run: ``npm install``
+
+6. **Optional**: To install a database visualizer application to use in local development run: ``npm run install-visualizer``
 
 That's all. 
 To run the project keep reading.
@@ -48,7 +48,7 @@ Windows: Start a local development server with automatic restart
 npm run dev-win
 ```
 
-**Optional**: Database visualizer application (see installation step 5 if it's not installed):
+**Optional**: Database visualizer application (see installation step 6 if it's not installed):
 
 ```
 npm run visualizer
