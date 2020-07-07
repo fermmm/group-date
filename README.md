@@ -22,10 +22,14 @@ http://tinkerpop.apache.org/providers.html
 1. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
 2. For running the Gremlin database locally make sure you have Java installed, at least version 8 (or 1.8). 
-To verify that Java is installed and the version, run the command ```java -version```
+To verify that Java is installed or which version you have, run the command ```java -version```
 If you do not have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or  [OpenJDK](https://openjdk.java.net/)
 
-3. **Optional**: To install a database visualizer application to use in local development run: ``npm run install-visualizer``
+3. Run: ``npm install``
+
+4. Duplicate the file ``.env.example`` and rename it: ``.env``
+
+5. **Optional**: To install a database visualizer application to use in local development run: ``npm run install-visualizer``
 
 That's all. 
 To run the project keep reading.
@@ -44,7 +48,7 @@ Windows: Start a local development server with automatic restart
 npm run dev-win
 ```
 
-**Optional**: Database visualizer application (see installation step 3 if it's not installed):
+**Optional**: Database visualizer application (see installation step 5 if it's not installed):
 
 ```
 npm run visualizer
