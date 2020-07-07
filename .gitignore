@@ -12,7 +12,7 @@ package-lock.json
 .env
 
 # Gremlin local testing server
-gremlin-local-server/run/gremlin.pid
+gremlin-local-server/run
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
