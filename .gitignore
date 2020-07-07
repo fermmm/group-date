@@ -11,6 +11,9 @@ package-lock.json
 *.log
 .env
 
+# Gremlin local testing server
+gremlin-local-server/run/gremlin.pid
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
