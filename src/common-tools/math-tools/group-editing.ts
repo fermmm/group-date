@@ -129,19 +129,13 @@ export function connectAllWithNeighbors(groupAsConnections: number[][], loop: bo
    return result;
 }
 
-export function addUsersAndConnectRandomly(
-   groupAsConnections: number[][],
-   amountOfUsers: number,
-   minConnectionsPerUser: number,
-   maxConnectionsPerUser: number,
-   seed: number = 0,
-): number[][] {
-   let result: number[][] = copyGroup(groupAsConnections);
-   const chance = new Chance(seed);
-   for (let i = 0; i < amountOfUsers; i++) {
+export function addUsersAndConnectRandomly(params: AddUsersRondomlyParams): number[][] {
+   let result: number[][] = copyGroup(params.groupAsConnections ?? []);
+   const chance = new Chance(params?.seed ?? 0);
+   for (let i = 0; i < params.amountOfUsers; i++) {
       const connections: number[] = getRandomArrayIndexes(
          result.length,
-         chance.integer({ min: minConnectionsPerUser, max: maxConnectionsPerUser }),
+         chance.integer({ min: params.minConnectionsPerUser, max: params.maxConnectionsPerUser }),
          chance,
       );
       result = addUser(result, connections);
@@ -166,4 +160,12 @@ function getRandomArrayIndexes(
    result = result.slice(0, amount);
 
    return result;
+}
+
+export interface AddUsersRondomlyParams {
+   groupAsConnections?: number[][];
+   amountOfUsers: number;
+   minConnectionsPerUser: number;
+   maxConnectionsPerUser: number;
+   seed?: number;
 }

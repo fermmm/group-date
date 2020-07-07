@@ -9,168 +9,129 @@ import {
    getConnectionsMetaconnectionsDistance,
    removeExceedingConnections,
 } from './group-analysis';
-import { addAUserAndConnectItWithAll } from './group-editing';
+import { addAUserAndConnectItWithAll, addUsersAndConnectRandomly } from './group-editing';
 import { addUser, addUsers, connectAllWithAll, connectAllWithNeighbors, createGroup } from './group-editing';
 
-const square = [
-   [1, 3],
-   [0, 2],
-   [1, 3],
-   [0, 2],
-];
-
 const groupWith2 = createGroup(2);
+const square = addUsers(groupWith2, 2, [0, 1]);
 const groupWith3 = createGroup(3);
 const groupWith4 = createGroup(4);
 const groupWith5 = createGroup(5);
 const groupWith12 = createGroup(12);
 const circleGroupOf12 = connectAllWithNeighbors(groupWith12, true);
-
-// TODO: Implementar una forma de crear estos grupos con funciones fáciles de leer y escribir por que eso
-// después permite mejores testeos
+const big = addUsersAndConnectRandomly({
+   amountOfUsers: 12,
+   minConnectionsPerUser: 4,
+   maxConnectionsPerUser: 9,
+});
 
 const testGroups: Array<{ name: string; values: number[][] } | string> = [
    {
-      name: 'Cuadrado',
+      name: 'Square',
       values: square,
    },
    {
-      name: 'Pentágono',
-      values: connectAllWithAll(groupWith5),
-   },
-   {
-      name: 'Grande',
-      values: [
-         [1, 4, 5, 6, 11],
-         [1, 2, 3, 4, 5, 7, 11],
-         [1, 10, 5, 3],
-         [1, 2, 10, 8, 5, 4],
-         [0, 1, 3, 5, 9],
-         [0, 1, 2, 3, 4, 6, 10, 11, 8],
-         [0, 5, 7, 9, 11],
-         [1, 6, 8, 9, 11],
-         [3, 5, 7, 9],
-         [4, 6, 7, 8, 10],
-         [2, 3, 5, 9, 11],
-         [0, 1, 5, 6, 7, 10],
-      ],
-   },
-   '',
-   {
-      name: 'Cuadrado con 1 de mas BI',
+      name: 'Square with 1 extra bisexual',
       values: addUser(square, [1, 0]),
    },
    {
-      name: 'Cuadrado con 1 de mas',
+      name: 'Square with 1 extra',
       values: addUser(square, [1, 3]),
    },
    {
-      name: 'Cuadrado con 2 de mas',
+      name: 'Square with 2 extra',
       values: addUsers(square, 2, [1, 3]),
    },
    {
-      name: 'Cuadrado con 3 de mas',
+      name: 'Square with 3 extra',
       values: addUsers(square, 3, [1, 3]),
    },
    '',
    {
-      name: '3 para 3',
-      values: addUsers(groupWith3, 3, [0, 1, 2]),
-   },
-   {
-      name: '3 para 4',
-      values: addUsers(groupWith3, 4, [0, 1, 2]),
-   },
-   {
-      name: '3 para 5',
-      values: addUsers(groupWith3, 5, [0, 1, 2]),
-   },
-   {
-      name: '3 para 6',
-      values: addUsers(groupWith3, 6, [0, 1, 2]),
-   },
-   {
-      name: '3 para 7',
-      values: addUsers(groupWith3, 7, [0, 1, 2]),
-   },
-   {
-      name: '3 para 8',
-      values: addUsers(groupWith3, 8, [0, 1, 2]),
-   },
-   '',
-   {
-      name: '4 para 5',
-      values: addUsers(groupWith4, 5, [0, 1, 2, 3]),
-   },
-   {
-      name: '4 para 6',
-      values: addUsers(groupWith4, 6, [0, 1, 2, 3]),
-   },
-   {
-      name: '4 para 7',
-      values: addUsers(groupWith4, 7, [0, 1, 2, 3]),
-   },
-   {
-      name: '4 para 8',
-      values: addUsers(groupWith4, 8, [0, 1, 2, 3]),
-   },
-   {
-      name: '4 para 9',
-      values: addUsers(groupWith4, 9, [0, 1, 2, 3]),
-   },
-   '',
-   {
-      name: '2 para 6',
+      name: '2 for 6',
       values: addUsers(groupWith2, 6, [0, 1]),
    },
    {
-      name: '2 para 8',
+      name: '2 for 8',
       values: addUsers(groupWith2, 8, [0, 1]),
    },
    '',
    {
-      name: 'Pentágono con 1 de mas',
-      values: addUser(connectAllWithAll(groupWith5), [0, 2]),
+      name: '3 for 3',
+      values: addUsers(groupWith3, 3, [0, 1, 2]),
    },
    {
-      name: 'Grande con 1 de mas',
-      values: [
-         [1, 4, 5, 6, 11],
-         [1, 2, 3, 4, 5, 7, 11],
-         [1, 10, 5, 3, 12],
-         [1, 2, 10, 8, 5, 4, 12],
-         [0, 1, 3, 5, 9],
-         [0, 1, 2, 3, 4, 6, 10, 11, 8],
-         [0, 5, 7, 9, 11],
-         [1, 6, 8, 9, 11],
-         [3, 5, 7, 9],
-         [4, 6, 7, 8, 10],
-         [2, 3, 5, 9, 11],
-         [0, 1, 5, 6, 7, 10],
-         [2, 3],
-      ],
+      name: '3 for 4',
+      values: addUsers(groupWith3, 4, [0, 1, 2]),
    },
    {
-      name: 'Concentrado Bueno',
-      values: [
-         [1, 2, 11, 12],
-         [0, 11, 12, 3, 2],
-         [0, 1, 12, 5, 3],
-         [1, 2, 12, 5, 4],
-         [5, 6, 12, 3],
-         [6, 7, 8, 12, 2, 3, 4],
-         [7, 12, 4, 5],
-         [6, 5, 12, 11, 8],
-         [9, 11, 12, 5, 7],
-         [8, 12, 10],
-         [9, 7, 12, 11],
-         [10, 8, 12, 0, 1],
-         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-      ],
+      name: '3 for 5',
+      values: addUsers(groupWith3, 5, [0, 1, 2]),
+   },
+   {
+      name: '3 for 6',
+      values: addUsers(groupWith3, 6, [0, 1, 2]),
+   },
+   {
+      name: '3 for 7',
+      values: addUsers(groupWith3, 7, [0, 1, 2]),
+   },
+   {
+      name: '3 for 8',
+      values: addUsers(groupWith3, 8, [0, 1, 2]),
    },
    '',
    {
-      name: 'Concentrado Malo',
+      name: '4 for 5',
+      values: addUsers(groupWith4, 5, [0, 1, 2, 3]),
+   },
+   {
+      name: '4 for 6',
+      values: addUsers(groupWith4, 6, [0, 1, 2, 3]),
+   },
+   {
+      name: '4 for 7',
+      values: addUsers(groupWith4, 7, [0, 1, 2, 3]),
+   },
+   {
+      name: '4 for 8',
+      values: addUsers(groupWith4, 8, [0, 1, 2, 3]),
+   },
+   {
+      name: '4 for 9',
+      values: addUsers(groupWith4, 9, [0, 1, 2, 3]),
+   },
+   '',
+   {
+      name: '5 All with all',
+      values: connectAllWithAll(groupWith5),
+   },
+   {
+      name: '5 All with all + 1 with 2 connections',
+      values: addUser(connectAllWithAll(groupWith5), [0, 2]),
+   },
+   '',
+   {
+      name: '12 users with 4 to 9 connections',
+      values: big,
+   },
+   {
+      name: '12 users with 4 to 9 connections + 1 of 2',
+      values: addUser(big, [0, 1]),
+   },
+   '',
+   {
+      name: '1 user with 12 connections, the rest have from 2 to 6 connections',
+      values: addAUserAndConnectItWithAll(
+         addUsersAndConnectRandomly({
+            amountOfUsers: 12,
+            minConnectionsPerUser: 2,
+            maxConnectionsPerUser: 6,
+         }),
+      ),
+   },
+   {
+      name: '1 user with 12 connections, the rest have 2 other connections',
       values: addAUserAndConnectItWithAll(circleGroupOf12),
    },
 ];
@@ -188,6 +149,7 @@ export function groupOrderingTest() {
          // Este parámetro habla del tamaño del grupo vito desde cada usuario
          const averageConnections: number = getAverageConnectionsAmount(group);
          // Este parámetro habla sobre la diversidad del grupo, si es 1 son grupos lesb/gay con bi sin hetero.
+         // Pero tambien si el valor es menor a 0.45 significa que el grupo esta poco interconectado, poco valor
          const coverage: number = getConnectionsCoverageAverage(group);
          // Este parámetro habla de la calidad del grupo
          const connectionsMetaconnectionsDistance: number = getConnectionsMetaconnectionsDistance(groupTrimmed);
@@ -197,8 +159,9 @@ export function groupOrderingTest() {
          const groupApproved: boolean =
             MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= connectionsMetaconnectionsDistance;
 
+         console.log('');
+         console.log(item.name);
          console.log(
-            `${item.name}:`,
             'Inequality:',
             Number(inequality.toFixed(2)),
             'ConCoverage:',
