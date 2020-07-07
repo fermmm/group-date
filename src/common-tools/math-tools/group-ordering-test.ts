@@ -13,7 +13,7 @@ import { addAUserAndConnectItWithAll, addUsersAndConnectRandomly } from './group
 import { addUser, addUsers, connectAllWithAll, connectAllWithNeighbors, createGroup } from './group-editing';
 
 const groupWith2 = createGroup(2);
-const square = addUsers(groupWith2, 2, [0, 1]);
+const twoForTwo = addUsers(groupWith2, 2, [0, 1]);
 const groupWith3 = createGroup(3);
 const groupWith4 = createGroup(4);
 const groupWith5 = createGroup(5);
@@ -27,26 +27,25 @@ const big = addUsersAndConnectRandomly({
 
 const testGroups: Array<{ name: string; values: number[][] } | string> = [
    {
-      name: 'Square',
-      values: square,
+      name: '2 for 2',
+      values: twoForTwo,
    },
    {
-      name: 'Square with 1 extra bisexual',
-      values: addUser(square, [1, 0]),
+      name: '2 for 2 + 1 extra bisexual',
+      values: addUser(twoForTwo, [1, 0]),
    },
    {
-      name: 'Square with 1 extra',
-      values: addUser(square, [1, 3]),
+      name: '2 for 3',
+      values: addUsers(groupWith2, 3, [0, 1]),
    },
    {
-      name: 'Square with 2 extra',
-      values: addUsers(square, 2, [1, 3]),
+      name: '2 for 4',
+      values: addUsers(groupWith2, 4, [0, 1]),
    },
    {
-      name: 'Square with 3 extra',
-      values: addUsers(square, 3, [1, 3]),
+      name: '2 for 5',
+      values: addUsers(groupWith2, 5, [0, 1]),
    },
-   '',
    {
       name: '2 for 6',
       values: addUsers(groupWith2, 6, [0, 1]),
@@ -112,15 +111,6 @@ const testGroups: Array<{ name: string; values: number[][] } | string> = [
    },
    '',
    {
-      name: '12 users with 4 to 9 connections',
-      values: big,
-   },
-   {
-      name: '12 users with 4 to 9 connections + 1 of 2',
-      values: addUser(big, [0, 1]),
-   },
-   '',
-   {
       name: '1 user with 12 connections, the rest have from 2 to 6 connections',
       values: addAUserAndConnectItWithAll(
          addUsersAndConnectRandomly({
@@ -133,6 +123,15 @@ const testGroups: Array<{ name: string; values: number[][] } | string> = [
    {
       name: '1 user with 12 connections, the rest have 2 other connections',
       values: addAUserAndConnectItWithAll(circleGroupOf12),
+   },
+   '',
+   {
+      name: '12 users with 4 to 9 connections',
+      values: big,
+   },
+   {
+      name: '12 users with 4 to 9 connections + 1 of 2',
+      values: addUser(big, [0, 1]),
    },
 ];
 
