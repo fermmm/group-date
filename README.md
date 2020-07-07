@@ -21,78 +21,14 @@ http://tinkerpop.apache.org/providers.html
 
 1. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
-2. For running the Gremlin database make sure you have Java installed, at least version 8 (or 1.8). 
+2. For running the Gremlin database locally make sure you have Java installed, at least version 8 (or 1.8). 
 To verify that Java is installed and the version, run the command ```java -version```
 If you do not have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or  [OpenJDK](https://openjdk.java.net/)
 
-3. Go to: http://tinkerpop.apache.org/ and download Gremlin Server
+3. **Optional**: To install a database visualizer application to use in local development run: ``npm run install-visualizer``
 
-4. Unzip gremlin server into the permanent location you want like ``/home/(user)/`` in Linux/MacOS or ``C:/Program Files`` in Windows.
-
-5. Notice that there is a ``/bin`` folder in the downloaded gremlin server, we are going to add that folder into the PATH environment variables:
-
-   In Windows you must search on the web "how to add a folder to environment variables" for your version of windows and add (gremlin server folder)/bin to it.
-   If you run gremlin-server.bat in the console and see some text instructions you are done with this step.
-
-   In Ubuntu open ``/home/(user)/.bashrc`` in MacOS open or create ``/home/(user)/.bash_profile``
-   
-   Add the following line at the end of the opened file (replacing the example path to your correct gremlin bin folder path):
-
-   ```export PATH=/home/(user)/gremlin-server/bin/:$PATH```
-   
-   Save and restart the console and if you see some text instructions when running ```gremlin-server.sh``` on the console, then you are done with this step, if not, make sure you are using a code text editor when editing files, don't use editors like MacOS's TextEdit, if that is not the case eather then search on the web how to add environment variables to PATH (for your OS) and add (gremlin server folder)/bin to it.
-
-6. **Optional**: You can install a database visualizer application to use only in local development: ``npm run install-visualizer``
-7. **Optional**: If you want to use the gremlin console download it from http://tinkerpop.apache.org/ and repeat previous step with the gremlin console /bin folder to install it.
-
-8. **Optional** If you want to use Visual Studio Code you can optionally follow this:
-
-      Configure default build and test tasks by pasting this into `.vscode/tasks.json`:
-
-      ```json
-      {
-        "version": "2.0.0",
-        "tasks": [
-          {
-            "label": "Start",
-            "type": "npm",
-            "script": "dev",
-            "group": {
-              "kind": "build",
-              "isDefault": true
-            }
-          },
-          {
-            "label": "Test",
-            "type": "npm",
-            "script": "test:watch",
-            "group": {
-              "kind": "test",
-              "isDefault": true
-            }
-          }
-        ]
-      }
-      ```
-
-      Configure the debugger to attach to a running Node process by pasting this into `.vscode/launch.json`:
-
-      ```json
-      {
-        "version": "0.2.0",
-        "configurations": [
-          {
-            "type": "node",
-            "request": "attach",
-            "name": "Attach to Node",
-            "address": "localhost",
-            "port": 5858,
-            "restart": true,
-            "protocol": "inspector"
-          }
-        ]
-      }
-      ```
+That's all. 
+To run the project keep reading.
 
 ## Running the project in local (in case you are going to modify the project)
 
@@ -108,7 +44,7 @@ Windows: Start a local development server with automatic restart
 npm run dev-win
 ```
 
-**Optional**: Database visualizer application (see installation step 6 if it's not installed):
+**Optional**: Database visualizer application (see installation step 3 if it's not installed):
 
 ```
 npm run visualizer
@@ -123,7 +59,7 @@ Build the project:
 npm run build
 ```
 
-Test the project (optionally with coverage or in watch mode):
+Run the tests (optionally with coverage or in watch mode):
 
 ```
 npm run test
