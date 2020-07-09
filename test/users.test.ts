@@ -1,6 +1,6 @@
 import 'jest';
 import { removeUsers } from '../src/components/common/queries';
-import { addNotificationToUser, userGet, profileStatusGet } from '../src/components/user/models';
+import { addNotificationToUser, profileStatusGet, userGet } from '../src/components/user/models';
 import { NotificationType, User } from '../src/shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUsers } from './tools/users';

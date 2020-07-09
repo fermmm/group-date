@@ -56,9 +56,15 @@ export async function waitForDatabase(silent: boolean = false): Promise<void> {
  *
  * @param query The query wraped into a arrow function like this: () => g.V().toList()
  */
-export async function retryOnError<T>(query: () => Promise<T>): Promise<T> {
+export async function retryOnError<T>(query: () => Promise<T>, logResult: boolean = false): Promise<T> {
    try {
-      return await query();
+      if (logResult) {
+         const profileData = await query();
+         console.dir(profileData, { colors: true, depth: 1000 });
+         return profileData;
+      } else {
+         return await query();
+      }
    } catch (error) {
       try {
          return await query();

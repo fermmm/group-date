@@ -57,5 +57,5 @@ import { userRoutes } from './components/user/routes';
    ora(`Server running on ${process.env.PORT}!`).succeed();
 
    // Temp:
-   groupOrderingTest();
+   // groupOrderingTest();
 })();

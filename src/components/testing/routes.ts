@@ -7,12 +7,15 @@ import { removeUsers } from '../common/queries';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      // const fakeUsers = await createFakeUsers(15);
+      // const fakeUsers = await createFakeUsers(2);
+
+      console.log('hola');
       // const mainUser = fakeUsers[0];
 
       // console.log(getUserListDifferencesProportion(fakeUsers, fakeUsers2))
 
-      const fakeUsers = await createMatchingUsers(20, { connectionsPerUser: { min: 1, max: 2 } });
+      // const fakeUsers = await createMatchingUsers(2, { connectionsPerUser: { min: 1, max: 2 } });
+      const fakeUsers = await createMatchingUsers(2);
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;
