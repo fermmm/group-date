@@ -5,6 +5,7 @@ import { createFakeUsers } from '../../../test/tools/users';
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { removeUsers } from '../common/queries';
+import { matchesGet } from '../user/models';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
@@ -23,9 +24,6 @@ export function testingRoutes(router: Router): void {
       //    ...await createMatchingUsers(20)
       // ];
       // console.timeEnd("s");
-
-      await createMatchingUsers(2);
-      await createMatchingUsers(2);
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;

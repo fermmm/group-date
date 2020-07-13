@@ -73,13 +73,15 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
 
       // Now that we removed all the information pointing to the target user we can add the new one
       if (paramsItem.attractionType === AttractionType.Like) {
-         // If we are going to save a like and the target user also likes the user we remove
-         // the target user's like and replace it by a Match. The direction of the match edge
-         // points to the user that sent the first of the two required likes to form the match.
          traversal = traversal.choose(
             __.outE(AttractionType.Like)
                .where(__.inV().as('user'))
                .store('x'),
+            /**
+             * If we are going to save a like and the target user also likes the user we remove
+             * the target user's like and replace it by a Match. The direction of the match edge
+             * points to the user that sent the first of the two required likes to form the match.
+             */
             __.sideEffect(
                __.select('x')
                   .unfold()
@@ -87,13 +89,15 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
             )
                .addE('Match')
                .from_('user'),
-            // If the target user does not have a like on the user then there is no match, so
-            // we only need to add the Like edge and we are done
+            /**
+             * If the target user does not have a like on the user then there is no match, so
+             * we only need to add the Like edge and we are done
+             */
             __.addE(paramsItem.attractionType).from_('user'),
          );
       } else {
          // If the user are not adding a Like then there is no match, so we only need to add the
-         // attraction edge and we are done
+         // new attraction edge and we are done
          traversal = traversal.addE(paramsItem.attractionType).from_('user');
       }
 
@@ -102,4 +106,18 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
    }
 
    return retryOnError(() => query.iterate());
+}
+
+export function getMatches(token: string): process.GraphTraversal {
+   return getUserTraversalByToken(token).both('Match');
+}
+
+export function getAttractionsSent(token: string, types?: AttractionType[]): process.GraphTraversal {
+   types = types ?? allAttractionTypes;
+   return getUserTraversalByToken(token).out(...types);
+}
+
+export function getAttractionsReceived(token: string, types?: AttractionType[]): process.GraphTraversal {
+   types = types ?? allAttractionTypes;
+   return getUserTraversalByToken(token).in_(...types);
 }

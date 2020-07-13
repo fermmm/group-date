@@ -9,8 +9,10 @@ import * as moment from 'moment';
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { v1 as uuidv1 } from 'uuid';
+import { queryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
+   AttractionType,
    FileUploadResponse,
    Notification,
    ProfileStatusServerResponse,
@@ -26,7 +28,13 @@ import {
 } from '../../shared-tools/validators/user';
 import { retrieveUser } from '../common/models';
 import { updateUserProps } from '../common/queries';
-import { setAttraction, setUserEditableProps } from './queries';
+import {
+   getAttractionsReceived,
+   getAttractionsSent,
+   getMatches,
+   setAttraction,
+   setUserEditableProps,
+} from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
 
@@ -150,9 +158,26 @@ export async function setAttractionPost(params: SetAttractionParams, ctx: BaseCo
    return setAttraction(params);
 }
 
-// export async function getMatches(userId: string): Promise<User[]> {
+/**
+ * This function is not exposed to the server API. It's only for tests.
+ */
+export async function matchesGet(token: string): Promise<User[]> {
+   return queryToUserList(getMatches(token), false, false);
+}
 
-// }
+/**
+ * This function is not exposed to the server API. It's only for tests.
+ */
+export async function attractionsReceivedGet(token: string, types?: AttractionType[]): Promise<User[]> {
+   return queryToUserList(getAttractionsReceived(token, types), false, false);
+}
+
+/**
+ * This function is not exposed to the server API. It's only for tests.
+ */
+export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
+   return queryToUserList(getAttractionsSent(token, types), false, false);
+}
 
 const imageSaver = koaBody({
    multipart: true,

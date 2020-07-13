@@ -1,5 +1,5 @@
 import 'jest';
-import { queryToUserList } from '../src/common-tools/database-tools/data-convertion-tools';
+import { queryToUserList } from '../src/common-tools/database-tools/data-conversion-tools';
 import {
    dislikedUsersGet,
    notifyAllUsersAboutNewCards,
