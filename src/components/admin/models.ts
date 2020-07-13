@@ -4,7 +4,7 @@ import { v1 as uuidv1 } from 'uuid';
 import {
    queryToChatWithAdmins,
    queryToChatWithAdminsList,
-} from '../../common-tools/database-tools/data-convertion-tools';
+} from '../../common-tools/database-tools/data-conversion-tools';
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,

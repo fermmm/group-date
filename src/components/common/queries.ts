@@ -1,7 +1,7 @@
 import * as gremlin from 'gremlin';
 import { process } from 'gremlin';
 import { ValueOf } from 'ts-essentials';
-import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
+import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, g, retryOnError } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';

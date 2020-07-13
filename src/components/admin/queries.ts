@@ -1,6 +1,6 @@
 import { process } from 'gremlin';
 import * as moment from 'moment';
-import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
+import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
 import { getUserTraversalById } from '../common/queries';

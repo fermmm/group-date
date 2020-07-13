@@ -2,7 +2,7 @@ import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { v1 as uuidv1 } from 'uuid';
 import { valueMap } from '../../common-tools/database-tools/common-queries';
-import { queryToGroup, queryToGroupList } from '../../common-tools/database-tools/data-convertion-tools';
+import { queryToGroup, queryToGroupList } from '../../common-tools/database-tools/data-conversion-tools';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    BasicGroupParams,

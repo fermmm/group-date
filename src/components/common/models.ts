@@ -1,5 +1,5 @@
 import { BaseContext } from 'koa';
-import { queryToUser } from '../../common-tools/database-tools/data-convertion-tools';
+import { queryToUser } from '../../common-tools/database-tools/data-conversion-tools';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { FacebookResponse } from '../../shared-tools/endpoints-interfaces/common';

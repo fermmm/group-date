@@ -1,6 +1,6 @@
 import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { queryToUserList } from '../../common-tools/database-tools/data-convertion-tools';
+import { queryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
 import { SEND_NEW_CARDS_NOTIFICATION_FREQUENCY } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';

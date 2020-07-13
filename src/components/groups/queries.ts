@@ -1,7 +1,7 @@
 import { process } from 'gremlin';
 import { MarkRequired } from 'ts-essentials';
 import { v1 as uuidv1 } from 'uuid';
-import { serializeIfNeeded } from '../../common-tools/database-tools/data-convertion-tools';
+import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
 import { DateIdea, DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';

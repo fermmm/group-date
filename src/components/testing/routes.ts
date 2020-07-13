@@ -1,4 +1,5 @@
 import * as Router from '@koa/router';
+import { Console } from 'console';
 import { createMatchingUsers } from '../../../test/tools/groups';
 import { createFakeUsers } from '../../../test/tools/users';
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
@@ -9,13 +10,22 @@ export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
       // const fakeUsers = await createFakeUsers(2);
 
-      console.log('hola');
       // const mainUser = fakeUsers[0];
 
       // console.log(getUserListDifferencesProportion(fakeUsers, fakeUsers2))
 
       // const fakeUsers = await createMatchingUsers(2, { connectionsPerUser: { min: 1, max: 2 } });
-      const fakeUsers = await createMatchingUsers(2);
+
+      // console.time("s");
+      // const fakeUsers = [
+      //    ...await createMatchingUsers(20),
+      //    ...await createMatchingUsers(20),
+      //    ...await createMatchingUsers(20)
+      // ];
+      // console.timeEnd("s");
+
+      await createMatchingUsers(2);
+      await createMatchingUsers(2);
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;
