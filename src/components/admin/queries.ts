@@ -1,14 +1,14 @@
-import { process } from 'gremlin';
 import * as moment from 'moment';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
 import { getUserTraversalById } from '../common/queries';
 
-export function getAdminChatMessages(userId: string, includeUserData: boolean): process.GraphTraversal {
-   const projectWithoutUserData: process.GraphTraversal = __.valueMap().by(__.unfold());
+export function getAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
+   const projectWithoutUserData: Traversal = __.valueMap().by(__.unfold());
 
-   const projectWithUserData: process.GraphTraversal = __.union(
+   const projectWithUserData: Traversal = __.union(
       projectWithoutUserData,
       __.project('nonAdminUser').by(
          __.select('user')
@@ -31,7 +31,7 @@ export function saveAdminChatMessage(
    userId: string,
    updatedMessagesList: ChatMessage[],
    lastMessageIsFromAdmin: boolean,
-): process.GraphTraversal {
+): Traversal {
    return getUserTraversalById(userId)
       .as('user')
       .coalesce(
@@ -47,8 +47,8 @@ export function saveAdminChatMessage(
       .property('lastMessageDate', moment().unix());
 }
 
-export function getAllChatsWithAdmins(excludeRespondedByAdmin: boolean): process.GraphTraversal {
-   const projectWithUserData: process.GraphTraversal = __.union(
+export function getAllChatsWithAdmins(excludeRespondedByAdmin: boolean): Traversal {
+   const projectWithUserData: Traversal = __.union(
       __.valueMap().by(__.unfold()),
       __.project('nonAdminUser').by(
          __.select('user')

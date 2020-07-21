@@ -1,8 +1,8 @@
-import { process } from 'gremlin';
 import { MarkRequired } from 'ts-essentials';
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { DateIdea, DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalById } from '../common/queries';
@@ -10,7 +10,7 @@ import { getUserTraversalById } from '../common/queries';
 /**
  * Creates an empty group and returns it as a traversal query
  */
-export function queryToCreateGroup(dayOptions: DayOption[]): process.GraphTraversal {
+export function queryToCreateGroup(dayOptions: DayOption[]): Traversal {
    return g
       .addV('group')
       .property('groupId', uuidv1())
@@ -27,7 +27,7 @@ export function queryToCreateGroup(dayOptions: DayOption[]): process.GraphTraver
       .property('feedback', serializeIfNeeded([]));
 }
 
-export function addMembersToGroupTraversal(traversal: process.GraphTraversal): process.GraphTraversal {
+export function addMembersToGroupTraversal(traversal: Traversal): Traversal {
    traversal = traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),
@@ -47,10 +47,7 @@ export function addMembersToGroupTraversal(traversal: process.GraphTraversal): p
    return traversal;
 }
 
-export function getGroupTraversalById(
-   groupId: string,
-   onlyIfAMemberHasUserId?: string,
-): process.GraphTraversal {
+export function getGroupTraversalById(groupId: string, onlyIfAMemberHasUserId?: string): Traversal {
    let traversal = g.V().has('group', 'groupId', groupId);
 
    if (onlyIfAMemberHasUserId != null) {
@@ -60,7 +57,7 @@ export function getGroupTraversalById(
    return traversal;
 }
 
-export function getGroupsOfUserById(userId: string): process.GraphTraversal {
+export function getGroupsOfUserById(userId: string): Traversal {
    return getUserTraversalById(userId).out('member');
 }
 

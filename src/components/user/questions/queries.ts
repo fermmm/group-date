@@ -1,12 +1,11 @@
-import * as gremlin from 'gremlin';
 import { __, column, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
-import { GraphTraversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
+import { Traversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
 import { getUserTraversalByToken } from '../../common/queries';
 import { getIncompatibleAnswers } from './models';
 
 export async function createQuestions(questions: QuestionData[]): Promise<void> {
-   let traversal: gremlin.process.GraphTraversal | gremlin.process.GraphTraversalSource = g;
+   let traversal: Traversal = g;
 
    /**
     * Add question to the database from the questions list provided (only when it does not
@@ -20,7 +19,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
          .fold()
          .coalesce(__.unfold(), __.addV('question').property('questionId', Number(question.questionId)));
    }
-   await (traversal as gremlin.process.GraphTraversal).iterate();
+   await (traversal as Traversal).iterate();
 
    /**
     * Remove questions in the database that are not present in the questions list provided
@@ -38,7 +37,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
       return Promise.resolve();
    }
 
-   let traversal2: gremlin.process.GraphTraversal | gremlin.process.GraphTraversalSource = g;
+   let traversal2: Traversal = g;
    for (const question of surplusQuestions) {
       traversal2 = traversal2
          .V()
@@ -46,7 +45,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
          .aggregate('x')
          .cap('x');
    }
-   await (traversal2 as gremlin.process.GraphTraversal)
+   await traversal2
       .unfold()
       .drop()
       .iterate();
@@ -55,7 +54,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
 }
 
 export async function respondQuestions(token: string, questions: QuestionResponseParams[]): Promise<void> {
-   let query: gremlin.process.GraphTraversal = getUserTraversalByToken(token).as('user');
+   let query: Traversal = getUserTraversalByToken(token).as('user');
 
    for (const question of questions) {
       query = query
@@ -81,7 +80,7 @@ export async function respondQuestions(token: string, questions: QuestionRespons
    return retryOnError(() => query.iterate());
 }
 
-export function addQuestionsRespondedToUserQuery(traversal: gremlin.process.GraphTraversal): GraphTraversal {
+export function addQuestionsRespondedToUserQuery(traversal: Traversal): Traversal {
    return traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),

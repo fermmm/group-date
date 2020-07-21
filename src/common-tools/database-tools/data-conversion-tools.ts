@@ -1,4 +1,3 @@
-import { process } from 'gremlin';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
@@ -9,15 +8,12 @@ import {
 } from '../security-tools/security-tools';
 import { valueMap } from './common-queries';
 import { __, retryOnError } from './database-manager';
-import { GremlinValueType, SupportedGremlinTypes } from './gremlin-typing-tools';
+import { GremlinValueType, SupportedGremlinTypes, Traversal } from './gremlin-typing-tools';
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
  */
-export async function queryToUser(
-   queryOfUser: process.GraphTraversal,
-   includeQuestions: boolean,
-): Promise<User> {
+export async function queryToUser(queryOfUser: Traversal, includeQuestions: boolean): Promise<User> {
    if (includeQuestions) {
       queryOfUser = addQuestionsRespondedToUserQuery(queryOfUser);
    } else {
@@ -30,7 +26,7 @@ export async function queryToUser(
  * Converts a gremlin query that should return a list of users' vertexes into a list of Users as object.
  */
 export async function queryToUserList(
-   queryOfUsers: process.GraphTraversal,
+   queryOfUsers: Traversal,
    protectPrivacy: boolean = true,
    includeQuestionsData: boolean = true,
 ): Promise<User[]> {
@@ -53,10 +49,7 @@ export async function queryToUserList(
 /**
  * Converts into a Group object a gremlin query that should return a single group vertex.
  */
-export async function queryToGroup(
-   queryOfGroup: process.GraphTraversal,
-   protectPrivacy: boolean = true,
-): Promise<Group> {
+export async function queryToGroup(queryOfGroup: Traversal, protectPrivacy: boolean = true): Promise<Group> {
    return gremlinMapToGroup((await retryOnError(() => queryOfGroup.next())).value, protectPrivacy);
 }
 
@@ -64,7 +57,7 @@ export async function queryToGroup(
  * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
  */
 export async function queryToGroupList(
-   queryOfGroups: process.GraphTraversal,
+   queryOfGroups: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<Group[]> {
    const resultGremlinOutput = (await retryOnError(() => queryOfGroups.toList())) as Array<
@@ -79,7 +72,7 @@ export async function queryToGroupList(
  * Converts into a Group object a gremlin query that should return a single group vertex.
  */
 export async function queryToChatWithAdmins(
-   query: process.GraphTraversal,
+   query: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<ChatWithAdmins> {
    return gremlinMapToChatWithAdmins((await retryOnError(() => query.next())).value, protectPrivacy);
@@ -89,7 +82,7 @@ export async function queryToChatWithAdmins(
  * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
  */
 export async function queryToChatWithAdminsList(
-   query: process.GraphTraversal,
+   query: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<ChatWithAdmins[]> {
    const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<

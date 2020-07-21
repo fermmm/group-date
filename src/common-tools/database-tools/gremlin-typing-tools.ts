@@ -1,4 +1,4 @@
-import * as gremlin from 'gremlin';
+import { process, structure } from 'gremlin';
 
 export interface GremlinResponse {
    value: any;
@@ -9,7 +9,7 @@ export interface VertexProperty {
    id: number;
    label: string;
    value: any;
-   properties?: gremlin.structure.Property[];
+   properties?: structure.Property[];
 }
 
 export type GremlinValueType =
@@ -22,7 +22,6 @@ export type GremlinValueType =
    | Map<any, GremlinValueType>
    | Array<Map<any, GremlinValueType>>;
 
-export type GraphTraversalSource = gremlin.process.GraphTraversalSource;
-export type GraphTraversal = gremlin.process.GraphTraversal;
-export type Traversal = GraphTraversalSource | GraphTraversal;
+export type Traversal = process.Statics<process.GraphTraversal> & process.Traversal & process.GraphTraversal;
+
 export type SupportedGremlinTypes = number | string | boolean;

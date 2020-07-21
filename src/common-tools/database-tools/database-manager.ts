@@ -1,11 +1,14 @@
 import * as gremlin from 'gremlin';
 import * as ora from 'ora';
+import { Traversal } from './gremlin-typing-tools';
 
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
-export const g = traversal().withRemote(new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL, {}));
-export const __ = gremlin.process.statics;
+export const g = (traversal().withRemote(
+   new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL, {}),
+) as unknown) as Traversal;
+export const __ = (gremlin.process.statics as unknown) as Traversal;
 export const withOptions = gremlin.process.withOptions;
 export const TextP = gremlin.process.TextP;
 export const P = gremlin.process.P;
@@ -60,7 +63,7 @@ export async function retryOnError<T>(query: () => Promise<T>, logResult: boolea
    try {
       if (logResult) {
          const profileData = await query();
-         console.dir(profileData, { colors: true, depth: 1000 });
+         logComplete(profileData);
          return profileData;
       } else {
          return await query();
@@ -73,4 +76,8 @@ export async function retryOnError<T>(query: () => Promise<T>, logResult: boolea
          throw new Error(error);
       }
    }
+}
+
+export function logComplete<T>(obj: T): void {
+   console.dir(obj, { colors: true, depth: 1000 });
 }

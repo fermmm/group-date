@@ -1,7 +1,7 @@
-import { process } from 'gremlin';
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, retryOnError } from '../../common-tools/database-tools/database-manager';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    allAttractionTypes,
    AttractionType,
@@ -14,7 +14,7 @@ export function queryToCreateUser(
    token: string,
    email: string,
    setProfileCompletedForTesting = false,
-): process.GraphTraversal {
+): Traversal {
    return getUserTraversalByToken(token)
       .fold()
       .coalesce(
@@ -30,7 +30,7 @@ export function queryToCreateUser(
 }
 
 export async function setUserEditableProps(token: string, userProps: ExposedUserProps): Promise<void> {
-   let query: process.GraphTraversal = getUserTraversalByToken(token);
+   let query: Traversal = getUserTraversalByToken(token);
 
    editableUserPropsList.forEach(editableUserProp => {
       if (userProps[editableUserProp] != null) {
@@ -42,7 +42,7 @@ export async function setUserEditableProps(token: string, userProps: ExposedUser
 }
 
 export async function setAttraction(params: SetAttractionParams): Promise<void> {
-   let query: process.GraphTraversal = hasProfileCompleted(getUserTraversalByToken(params.token)).as('user');
+   let query: Traversal = hasProfileCompleted(getUserTraversalByToken(params.token)).as('user');
 
    for (const paramsItem of params.attractions) {
       const involvedUsersSearch = __.V()
@@ -50,7 +50,7 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
          .where(__.not(__.has('user', 'token', params.token))) // This prevents self liking
          .store(paramsItem.userId);
 
-      let traversal: process.GraphTraversal = __.select(paramsItem.userId).unfold();
+      let traversal: Traversal = __.select(paramsItem.userId).unfold();
 
       // Removes all edges pointing to the target user that are labeled as any attraction type
       traversal = traversal.sideEffect(
@@ -108,16 +108,16 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
    return retryOnError(() => query.iterate());
 }
 
-export function getMatches(token: string): process.GraphTraversal {
+export function getMatches(token: string): Traversal {
    return getUserTraversalByToken(token).both('Match');
 }
 
-export function getAttractionsSent(token: string, types?: AttractionType[]): process.GraphTraversal {
+export function getAttractionsSent(token: string, types?: AttractionType[]): Traversal {
    types = types ?? allAttractionTypes;
    return getUserTraversalByToken(token).out(...types);
 }
 
-export function getAttractionsReceived(token: string, types?: AttractionType[]): process.GraphTraversal {
+export function getAttractionsReceived(token: string, types?: AttractionType[]): Traversal {
    types = types ?? allAttractionTypes;
    return getUserTraversalByToken(token).in_(...types);
 }

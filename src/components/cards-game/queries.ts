@@ -1,6 +1,6 @@
-import { process } from 'gremlin';
 import * as moment from 'moment';
 import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/constants';
 import {
    allAttractionTypes,
@@ -14,8 +14,8 @@ import { getQuestionDataById, questions } from '../user/questions/models';
 
 const RESULTS_LIMIT: number = 70;
 
-export function getRecommendations(searcherUser: User): process.GraphTraversal {
-   let query: process.GraphTraversal = getAllCompleteUsers();
+export function getRecommendations(searcherUser: User): Traversal {
+   let query: Traversal = getAllCompleteUsers();
 
    /**
     * Is inside the distance range the user wants
@@ -154,8 +154,8 @@ export function getRecommendations(searcherUser: User): process.GraphTraversal {
    return query;
 }
 
-export function getDislikedUsers(token: string, searcherUser: User): process.GraphTraversal {
-   let query: process.GraphTraversal = getUserTraversalByToken(token).out(AttractionType.Dislike);
+export function getDislikedUsers(token: string, searcherUser: User): Traversal {
+   let query: Traversal = getUserTraversalByToken(token).out(AttractionType.Dislike);
 
    /**
     * Filter inactive accounts
@@ -175,10 +175,7 @@ export function getDislikedUsers(token: string, searcherUser: User): process.Gra
    return query;
 }
 
-export function orderResultsByMatchingQuestionAnswers(
-   query: process.GraphTraversal,
-   searcherUser: User,
-): process.GraphTraversal {
+export function orderResultsByMatchingQuestionAnswers(query: Traversal, searcherUser: User): Traversal {
    query = query.project('userVertex', 'count').by();
 
    const sameResponsesFilter = [];
@@ -204,6 +201,6 @@ export function orderResultsByMatchingQuestionAnswers(
    return query;
 }
 
-export function getAllUsersWantingNewCardsNotification(): process.GraphTraversal {
+export function getAllUsersWantingNewCardsNotification(): Traversal {
    return getAllCompleteUsers().has('sendNewUsersNotification', P.gt(0));
 }
