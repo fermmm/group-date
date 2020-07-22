@@ -4,6 +4,7 @@ import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tool
 
 export function getAllPossibleGroups(): Traversal {
    let traversal = getUsersAllowedToBeOnNewGroups();
+   // TODO: Aca ordenar los matches no seria necesario por que los grupos se forman con muchos usuarios y luego se ordenan y luego se limitan
    traversal = gremlinArrayMap(traversal, getMatchesOrderedByConnectionsAmount(__));
    traversal = gremlinArrayMap(traversal, getMatchesSharedWithEachMatch(__));
 
@@ -45,8 +46,6 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
 }
 
 /**
- * TODO: Aca ya tengo que evaluar si cuando se llega al maximo de usuarios se formaron los mejores grupos posibles
- * gracias a haber ordenado los amigos con el la funcion de arriba
  * TODO: Que pasa si no devuelve nada en algun lado? no detendra toda la busqueda?
  */
 export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
@@ -54,7 +53,7 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
    traversal = traversal
       .as('t')
       .select('user')
-      .as('u')
+      .as('appUser')
       .select('t')
       .select('matches')
       .unfold();
@@ -64,30 +63,16 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
    // Search the "matches in common" (matches of the match that are also matches of the user)
    forEachMatch = forEachMatch
       .both('Match')
-      .where(__.bothE('Match').where(__.bothV().as('u')))
-      .as('search');
-
-   forEachMatch = forEachMatch.select('match');
+      .where(P.neq('appUser'))
+      .where(__.both('Match').where(P.eq('appUser')));
 
    // If the matches in common has a minimum amount create a group adding the matches in common and the match
-   forEachMatch = forEachMatch.choose(
-      __.both('Match')
-         .where(__.bothE('Match').where(__.bothV().as('u'))) // TODO: Esto esta 2 veces
-         .count()
-         .is(P.lt(2)),
-      __.select('__nothing__'),
-      __.project('match', 'friendsInCommon')
-         .by(__.fold())
-         .by(__.select('search').fold())
-         .select(column.values)
-         .unfold()
-         .unfold(),
-   );
+   forEachMatch = forEachMatch.union(__.select('match'), __.select('appUser'), __.identity());
 
    forEachMatch = forEachMatch
       .unfold()
       .order()
-      .by('userId'); // TODO: Aca hay que ver que orden le pongo por que despues le voy a poner un limit(Max_group_size) y hay que ver quienes quedan afuera
+      .by('userId'); // TODO: aca hay que ordenar por la cantidad de conexiones que tienen entre si cada miembro del grupo por que despues se viene un limit(), o tambien se podria ordenar por que tanto necesitan estar en un grupo
 
    // For testing:
    forEachMatch = forEachMatch.values('name');
