@@ -34,7 +34,6 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
 */
 
 /**
- * TODO: Que pasa si no devuelve nada en algun lado? no detendra toda la busqueda?
  */
 export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
    return (
@@ -52,7 +51,7 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
                         .where(__.both('Match').where(P.eq('appUser'))),
 
                      // The search above doesn't include the 2 users that are being checked against and they are also part of the group, so we add them in a union
-                     __.select('appUserMatch'),
+                     __.identity(),
                      __.select('appUser'),
                   )
                      // We need to order here because dedup() removes duplicates if the order of the elements in the groups are the same
@@ -62,12 +61,12 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
                      .fold(),
                )
                .select(column.values)
-               .unfold(),
+               .fold(),
          )
          .select(column.values)
-         .unfold()
-
-         // Remove empty arrays  and duplicates from the list
+         .repeat(__.unfold())
+         .times(3)
+         // Remove groups of 2 members and duplicates from the list
          .where(__.count(scope.local).is(P.gt(2)))
          .dedup()
    );
