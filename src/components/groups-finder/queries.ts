@@ -1,9 +1,12 @@
-import { __, column, g, order, P, scope } from '../../common-tools/database-tools/database-manager';
+import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { MIN_GROUP_SIZE } from '../../configurations';
+import { getMatchesSharedWithEachMatchV2 } from './tools/prototypes';
 
-export function getAllPossibleGroups(): Traversal {
+export function getGroupsOfMatchingUsers(): Traversal {
    let traversal = getUsersAllowedToBeOnNewGroups();
-   traversal = getMatchesSharedWithEachMatch(traversal);
+   // traversal = getMatchesSharedWithEachMatch(traversal);
+   traversal = getMatchesSharedWithEachMatchV2(traversal);
    return traversal;
 }
 
@@ -34,6 +37,7 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
 */
 
 /**
+ * Creates groups with matches sharing the same match
  */
 export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
    return (
@@ -57,7 +61,6 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
                      // We need to order here because dedup() removes duplicates if the order of the elements in the groups are the same
                      .order()
                      .by('userId') // TODO: aca hay que ordenar por la cantidad de conexiones que tienen entre si cada miembro del grupo por que despues se viene un limit(), o tambien se podria ordenar por que tanto necesitan estar en un grupo
-                     .values('name')
                      .fold(),
                )
                .select(column.values)
@@ -66,8 +69,16 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
          .select(column.values)
          .repeat(__.unfold())
          .times(3)
-         // Remove groups of 2 members and duplicates from the list
-         .where(__.count(scope.local).is(P.gt(2)))
+
+         // Remove groups smaller than the minimum group size and remove duplicates from the list
+         .where(__.count(scope.local).is(P.gte(MIN_GROUP_SIZE)))
          .dedup()
+
+         // To log the names instead of the vertex object uncomment this:
+         .map(
+            __.unfold()
+               .values('name')
+               .fold(),
+         )
    );
 }

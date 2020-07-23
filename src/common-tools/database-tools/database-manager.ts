@@ -16,6 +16,7 @@ export const order = gremlin.process.order;
 export const column = gremlin.process.column;
 export const id = gremlin.process.t.id;
 export const scope = gremlin.process.scope;
+export const t = gremlin.process.t;
 
 /**
  * The promise of this function resolves only when database starts working
