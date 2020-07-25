@@ -20,6 +20,7 @@ export function getMatchesSharedWithEachMatchV2(traversal: Traversal): Traversal
          // Remove duplicate users inside the triangle:
          .map(
             __.unfold()
+               .limit(3)
                .order()
                .by(t.id)
                .dedup()
