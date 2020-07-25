@@ -4,41 +4,42 @@ import { Traversal } from '../../../common-tools/database-tools/gremlin-typing-t
 /**
  * This is a more efficient way of finding groups of users connected at a distance of 1.
  * Finds triangles and then connects them.
- * There is a problem with it: The output is correct in gremlify and not here:
- *    https://gremlify.com/0h8k4hfbpgs
  */
 export function getMatchesSharedWithEachMatchV2(traversal: Traversal): Traversal {
    return (
       traversal
          .as('a')
 
-         // Find all triangles:
-         .repeat(__.both())
+         // Find all triangles and generate arrays with them:
+         .repeat(__.both('Match'))
          .times(2)
-         .simplePath()
-         .where(__.both().as('a'))
+         .where(__.both('Match').as('a'))
          .path()
+         .from_('a')
 
-         // Connect triangles when they have users in common
+         // Remove duplicate users inside the triangle:
          .map(
             __.unfold()
-               .limit(3)
                .order()
                .by(t.id)
                .dedup()
                .fold(),
          )
          .dedup()
+
+         // Group the triangles by thier connectable parts
          .group('m')
          .by(__.limit(scope.local, 2))
          .group('m')
          .by(__.tail(scope.local, 2))
          .group('m')
          .by(__.union(__.limit(scope.local, 1), __.tail(scope.local, 1)).fold())
+
+         // Join the triangle groups
          .cap('m')
          .unfold()
 
-         // Remove duplicates:
+         // Remove duplicate groups:
          .map(
             __.select(column.values)
                .unfold()
