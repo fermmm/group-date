@@ -10,14 +10,14 @@ export function getMatchesSharedWithEachMatchV2(traversal: Traversal): Traversal
       traversal
          .as('a')
 
-         // Find all triangles and generate arrays with them:
+         // Find all triangles
          .repeat(__.both('Match'))
          .times(2)
          .where(__.both('Match').as('a'))
          .path()
          .from_('a')
 
-         // Remove duplicate users inside the triangle:
+         // Remove duplicate users inside the triangle and cut it to 3 elements just in case:
          .map(
             __.unfold()
                .limit(3)
@@ -28,7 +28,7 @@ export function getMatchesSharedWithEachMatchV2(traversal: Traversal): Traversal
          )
          .dedup()
 
-         // Group the triangles by thier connectable parts
+         // Group the triangles when their borders are the same:
          .group('m')
          .by(__.limit(scope.local, 2))
          .group('m')

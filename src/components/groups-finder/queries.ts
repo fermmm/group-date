@@ -5,8 +5,8 @@ import { getMatchesSharedWithEachMatchV2 } from './tools/prototypes';
 
 export function getGroupsOfMatchingUsers(): Traversal {
    let traversal = getUsersAllowedToBeOnNewGroups();
-   // traversal = getMatchesSharedWithEachMatch(traversal);
-   traversal = getMatchesSharedWithEachMatchV2(traversal);
+   traversal = getMatchesSharedWithEachMatch(traversal);
+   // traversal = getMatchesSharedWithEachMatchV2(traversal);
    return traversal;
 }
 
@@ -42,19 +42,17 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
 export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
    return (
       traversal
-         .project('userGroups')
-         .by(
+         .flatMap(
             __.as('appUser')
                .both('Match')
-               .project('group')
-               .by(
+               .flatMap(
                   __.union(
                      // Search the "matches in common" (matches of the match that are also matches of the user)
                      __.both('Match')
                         .where(P.neq('appUser'))
                         .where(__.both('Match').where(P.eq('appUser'))),
 
-                     // The search above doesn't include the 2 users that are being checked against and they are also part of the group, so we add them in a union
+                     // The search above doesn't include the 2 users that are being checked against and they are also part of the group, so we add them in this union
                      __.identity(),
                      __.select('appUser'),
                   )
@@ -62,13 +60,8 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
                      .order()
                      .by('userId') // TODO: aca hay que ordenar por la cantidad de conexiones que tienen entre si cada miembro del grupo por que despues se viene un limit(), o tambien se podria ordenar por que tanto necesitan estar en un grupo
                      .fold(),
-               )
-               .select(column.values)
-               .fold(),
+               ),
          )
-         .select(column.values)
-         .repeat(__.unfold())
-         .times(3)
 
          // Remove groups smaller than the minimum group size and remove duplicates from the list
          .where(__.count(scope.local).is(P.gte(MIN_GROUP_SIZE)))
