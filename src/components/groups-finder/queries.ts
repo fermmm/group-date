@@ -38,6 +38,7 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
 
 /**
  * Creates groups with matches sharing the same match
+ * https://gremlify.com/ja4tpbiyic8
  */
 export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
    return (
@@ -46,20 +47,41 @@ export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
             __.as('appUser')
                .both('Match')
                .flatMap(
-                  __.union(
-                     // Search the "matches in common" (matches of the match that are also matches of the user)
-                     __.both('Match')
-                        .where(P.neq('appUser'))
-                        .where(__.both('Match').where(P.eq('appUser'))),
-
-                     // The search above doesn't include the 2 users that are being checked against and they are also part of the group, so we add them in this union
-                     __.identity(),
-                     __.select('appUser'),
-                  )
-                     // We need to order here because dedup() removes duplicates if the order of the elements in the groups are the same
-                     .order()
-                     .by('userId') // TODO: aca hay que ordenar por la cantidad de conexiones que tienen entre si cada miembro del grupo por que despues se viene un limit(), o tambien se podria ordenar por que tanto necesitan estar en un grupo
-                     .fold(),
+                  __.project('triangles', 'squares')
+                     .by(
+                        // Search triangles: the "matches in common" (matches of the match that are also matches of the user)
+                        __.both('Match')
+                           .where(__.both('Match').where(P.eq('appUser')))
+                           .simplePath()
+                           .path()
+                           .fold(),
+                     )
+                     .by(
+                        // Search squares: When 2 matches has a match in common and is not a match of the user, a square shape
+                        __.both('Match')
+                           .where(__.both('Match').where(P.neq('appUser')))
+                           .both('Match')
+                           .where(__.both('Match').where(P.eq('appUser')))
+                           .simplePath()
+                           .path()
+                           .fold(),
+                     )
+                     // The triangles groups are more connected than the square groups so they are delivered as independent groups, the square groups are delivered combined with the triangle groups
+                     .union(
+                        __.select('triangles').unfold(),
+                        __.union(
+                           __.select('triangles')
+                              .unfold()
+                              .unfold(),
+                           __.select('squares')
+                              .unfold()
+                              .unfold(),
+                        ).fold(),
+                     )
+                     // We need to order here because dedup() removes duplicates only if the order of the elements in the groups are the same
+                     .order(scope.local)
+                     .by('userId')
+                     .dedup(scope.local), // TODO: aca hay que ordenar por la cantidad de conexiones que tienen entre si cada miembro del grupo por que despues se viene un limit(), o tambien se podria ordenar por que tanto necesitan estar en un grupo
                ),
          )
 
