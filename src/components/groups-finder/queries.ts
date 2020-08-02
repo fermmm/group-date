@@ -41,8 +41,9 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
  * Returns groups of matching users.
  *
  * Users can be in a group when the following requirements are fulfilled:
- *    1. A match that has at least 1 match in common can be together in a group (also with the 1+ match in common)
- *    2. If a user of distance 2 has at least 2 matches in common then they can be together in the group (also with the 2+ matches in common)
+ *
+ * 1. A match that has at least 1 match in common can be together in a group (also with the 1+ match in common)
+ * 2. If a user of distance 2 has at least 2 matches in common then they can be together in the group (also with the 2+ matches in common)
  *
  * These 2 rules can also be thought of as figures in the graph:
  *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
