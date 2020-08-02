@@ -1,11 +1,11 @@
 import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { MIN_GROUP_SIZE } from '../../configurations';
-import { getMatchesSharedWithEachMatchV2 } from './tools/prototypes';
+import { getMatchingUsersGroupsV2 } from './tools/prototypes';
 
 export function getGroupsOfMatchingUsers(): Traversal {
    let traversal = getUsersAllowedToBeOnNewGroups();
-   traversal = getMatchesSharedWithEachMatch(traversal);
+   traversal = getMatchingUsersGroups(traversal);
    // traversal = getMatchesSharedWithEachMatchV2(traversal);
    return traversal;
 }
@@ -37,10 +37,18 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
 */
 
 /**
- * Creates groups with matches sharing the same match
- * https://gremlify.com/ja4tpbiyic8
+ * This query finds users that matches together forming a group, it's the core of the app.
+ * Returns groups of matching users.
+ *
+ * Users can be in a group when the following requirements are fulfilled:
+ *    1. A match that has at least 1 match in common can be together in a group (also with the 1+ match in common)
+ *    2. If a user of distance 2 has at least 2 matches in common then they can be together in the group (also with the 2+ matches in common)
+ *
+ * These 2 rules can also be thought of as figures in the graph:
+ *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
+ *
  */
-export function getMatchesSharedWithEachMatch(traversal: Traversal): Traversal {
+export function getMatchingUsersGroups(traversal: Traversal): Traversal {
    return (
       traversal
          .flatMap(
