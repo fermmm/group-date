@@ -46,7 +46,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      logComplete(await queryToGetPossibleGroups());
+      logComplete(await queryToGetPossibleGroups().toList());
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;

@@ -98,10 +98,25 @@ export function queryToGetPossibleQualityGroups(traversal: Traversal): Traversal
          .where(__.count(scope.local).is(P.gte(MIN_GROUP_SIZE)))
          .dedup()
 
-         // To log the names instead of the vertex object uncomment this:
+         // This part builds the format of the final output, at this point each group is a list of users and we need to
+         // convert that into an object that contains the user and who that users matches with within the group.
          .map(
-            __.unfold()
-               .values('name')
+            __.as('g')
+               .unfold()
+               .map(
+                  __.project('user', 'matches')
+                     .by(
+                        __.values('name'), // Uncommenting this line can be useful for debugging
+                     )
+                     .by(
+                        __.as('u')
+                           .select('g')
+                           .unfold()
+                           .where(__.both('Match').where(P.eq('u'))) // Get the matches of the user within the group
+                           .values('name') // Changing "userId" by "name" here is useful for debugging
+                           .fold(),
+                     ),
+               )
                .fold(),
          )
    );
