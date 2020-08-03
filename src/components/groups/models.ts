@@ -17,11 +17,11 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
 import {
    queryToAddDateIdeaToGroup,
-   queryToIncludeMembersListInGroup,
    queryToAddUserToGroup,
-   queryToGetGroupsOfUserByUserId,
-   queryToGetGroupById,
    queryToCreateGroup,
+   queryToGetGroupById,
+   queryToGetGroupsOfUserByUserId,
+   queryToIncludeMembersListInGroup,
    queryToUpdateGroupProperty,
 } from './queries';
 

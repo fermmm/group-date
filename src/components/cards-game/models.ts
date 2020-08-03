@@ -9,8 +9,8 @@ import { queryToUpdateUserProps } from '../common/queries';
 import { addNotificationToUser } from '../user/models';
 import {
    queryToGetAllUsersWantingNewCardsNotification,
-   queryToGetDislikedUsers,
    queryToGetCardsRecommendations,
+   queryToGetDislikedUsers,
 } from './queries';
 
 export function scheduledTasksCardGame(): void {
