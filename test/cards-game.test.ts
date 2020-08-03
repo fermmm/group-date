@@ -5,8 +5,8 @@ import {
    notifyAllUsersAboutNewCards,
    recommendationsGet,
 } from '../src/components/cards-game/models';
-import { orderResultsByMatchingQuestionAnswers } from '../src/components/cards-game/queries';
-import { getAllCompleteUsers, removeUsers } from '../src/components/common/queries';
+import { queryToOrderResultsByMatchingQuestions } from '../src/components/cards-game/queries';
+import { queryToGetAllCompleteUsers, queryToRemoveUsers } from '../src/components/common/queries';
 import { userGet, userPost } from '../src/components/user/models';
 import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tools/endpoints-interfaces/user';
 import { amountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
@@ -306,15 +306,15 @@ describe('Cards game', () => {
       expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
       expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
 
-      await removeUsers(fakeUsers);
+      await queryToRemoveUsers(fakeUsers);
    });
 
    test('Order of cards deep query testing is correct', async () => {
       fakeUsers = await createFakeUsers(50);
       searcherUser = fakeUsers[0];
 
-      let query = getAllCompleteUsers();
-      query = orderResultsByMatchingQuestionAnswers(query, searcherUser);
+      let query = queryToGetAllCompleteUsers();
+      query = queryToOrderResultsByMatchingQuestions(query, searcherUser);
 
       let orderIsCorrect: boolean = true;
       const orderedUsers = await queryToUserList(query);
@@ -339,7 +339,7 @@ describe('Cards game', () => {
       }
 
       expect(orderIsCorrect).toBe(true);
-      await removeUsers(fakeUsers);
+      await queryToRemoveUsers(fakeUsers);
    });
 
    test('Users gets notified of new cards when they request for it', async () => {
@@ -368,11 +368,11 @@ describe('Cards game', () => {
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
       expect(mainUser.notifications.length).toBe(1);
 
-      await removeUsers([mainUser]);
-      await removeUsers(fakeCompatibleUsers);
+      await queryToRemoveUsers([mainUser]);
+      await queryToRemoveUsers(fakeCompatibleUsers);
    });
 
    afterAll(async () => {
-      await removeUsers(fakeUsers);
+      await queryToRemoveUsers(fakeUsers);
    });
 });

@@ -27,13 +27,13 @@ import {
    validateUserProps,
 } from '../../shared-tools/validators/user';
 import { retrieveUser } from '../common/models';
-import { updateUserProps } from '../common/queries';
+import { queryToUpdateUserProps } from '../common/queries';
 import {
-   getAttractionsReceived,
-   getAttractionsSent,
-   getMatches,
-   setAttraction,
-   setUserEditableProps,
+   queryToGetAttractionsReceived,
+   queryToGetAttractionsSent,
+   queryToGetMatches,
+   queryToSetAttraction,
+   queryToSetUserEditableProps,
 } from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
@@ -54,7 +54,7 @@ export async function profileStatusGet(
       missingQuestionsId: getMissingQuestions(user),
    };
 
-   updateUserProps(user.token, [
+   queryToUpdateUserProps(user.token, [
       {
          key: 'profileCompleted',
          value: result.missingEditableUserProps.length === 0 && result.missingQuestionsId.length === 0,
@@ -120,7 +120,7 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
          ctx.throw(400, JSON.stringify(validationResult));
       }
 
-      await setUserEditableProps(params.token, params.props);
+      await queryToSetUserEditableProps(params.token, params.props);
    }
 
    if (params.questions != null) {
@@ -143,7 +143,7 @@ export async function addNotificationToUser(
       date: moment().unix(),
    });
 
-   await updateUserProps(token, [
+   await queryToUpdateUserProps(token, [
       {
          key: 'notifications',
          value: user.notifications,
@@ -155,28 +155,28 @@ export async function addNotificationToUser(
  * Endpoint to set attraction (like or dislike a user)
  */
 export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
-   return setAttraction(params);
+   return queryToSetAttraction(params);
 }
 
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 export async function matchesGet(token: string): Promise<User[]> {
-   return queryToUserList(getMatches(token), false, false);
+   return queryToUserList(queryToGetMatches(token), false, false);
 }
 
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 export async function attractionsReceivedGet(token: string, types?: AttractionType[]): Promise<User[]> {
-   return queryToUserList(getAttractionsReceived(token, types), false, false);
+   return queryToUserList(queryToGetAttractionsReceived(token, types), false, false);
 }
 
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
-   return queryToUserList(getAttractionsSent(token, types), false, false);
+   return queryToUserList(queryToGetAttractionsSent(token, types), false, false);
 }
 
 const imageSaver = koaBody({

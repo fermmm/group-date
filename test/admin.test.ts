@@ -7,7 +7,7 @@ import {
    convertToAdminPost,
 } from '../src/components/admin/models';
 import { retrieveFullyRegisteredUser } from '../src/components/common/models';
-import { removeUsers } from '../src/components/common/queries';
+import { queryToRemoveUsers } from '../src/components/common/queries';
 import { ChatWithAdmins } from '../src/shared-tools/endpoints-interfaces/admin';
 import { User } from '../src/shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
@@ -89,6 +89,6 @@ describe('Users', () => {
    });
 
    afterAll(async () => {
-      await removeUsers(fakeUsers);
+      await queryToRemoveUsers(fakeUsers);
    });
 });

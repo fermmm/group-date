@@ -16,13 +16,13 @@ import {
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
 import {
-   addDateIdeaToGroup,
-   addMembersToGroupTraversal,
-   addUserToGroup,
-   getGroupsOfUserById,
-   getGroupTraversalById,
+   queryToAddDateIdeaToGroup,
+   queryToIncludeMembersListInGroup,
+   queryToAddUserToGroup,
+   queryToGetGroupsOfUserByUserId,
+   queryToGetGroupById,
    queryToCreateGroup,
-   updateGroup,
+   queryToUpdateGroupProperty,
 } from './queries';
 
 const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
@@ -52,7 +52,7 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
 export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
-   return queryToGroupList(addMembersToGroupTraversal(getGroupsOfUserById(user.userId)));
+   return queryToGroupList(queryToIncludeMembersListInGroup(queryToGetGroupsOfUserByUserId(user.userId)));
 }
 
 /**
@@ -65,7 +65,7 @@ export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Pr
    if (group.usersThatAccepted.indexOf(user.userId) === -1) {
       group.usersThatAccepted.push(user.userId);
    }
-   await updateGroup({ groupId: group.groupId, usersThatAccepted: group.usersThatAccepted });
+   await queryToUpdateGroupProperty({ groupId: group.groupId, usersThatAccepted: group.usersThatAccepted });
 }
 
 /**
@@ -95,7 +95,7 @@ export async function dateIdeaVotePost(params: DateIdeaVotePostParams, ctx: Base
       }
    }
 
-   await updateGroup({ groupId: group.groupId, dateIdeas: group.dateIdeas });
+   await queryToUpdateGroupProperty({ groupId: group.groupId, dateIdeas: group.dateIdeas });
 }
 
 /**
@@ -124,7 +124,7 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
       }
    }
 
-   await updateGroup({ groupId: group.groupId, dayOptions: group.dayOptions });
+   await queryToUpdateGroupProperty({ groupId: group.groupId, dayOptions: group.dayOptions });
 }
 
 /**
@@ -146,7 +146,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    });
    group.chat.usersDownloadedLastMessage = [];
 
-   await updateGroup({ groupId: group.groupId, chat: group.chat });
+   await queryToUpdateGroupProperty({ groupId: group.groupId, chat: group.chat });
 }
 
 /**
@@ -167,7 +167,7 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
          description: params.feedback.description,
       });
 
-      await updateGroup({ groupId: group.groupId, feedback: group.feedback });
+      await queryToUpdateGroupProperty({ groupId: group.groupId, feedback: group.feedback });
    }
 }
 
@@ -189,10 +189,10 @@ export async function getGroupById(
    groupId: string,
    { includeMembersList = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
 ): Promise<Group> {
-   let traversal = getGroupTraversalById(groupId, onlyIfAMemberHasUserId);
+   let traversal = queryToGetGroupById(groupId, onlyIfAMemberHasUserId);
 
    if (includeMembersList) {
-      traversal = addMembersToGroupTraversal(traversal);
+      traversal = queryToIncludeMembersListInGroup(traversal);
    } else {
       traversal = valueMap(traversal);
    }
@@ -213,8 +213,8 @@ export async function addUsersToGroup(users: User[], groupId: string): Promise<v
    let group = await getGroupById(groupId);
 
    for (const user of users) {
-      await addUserToGroup(user, group);
-      await addDateIdeaToGroup(group, {
+      await queryToAddUserToGroup(user, group);
+      await queryToAddDateIdeaToGroup(group, {
          description: user.dateIdeaName,
          address: user.dateIdeaAddress,
          authorUserId: user.userId,
@@ -250,7 +250,7 @@ async function updateAndCleanChat(user: User, group: Group): Promise<void> {
    }
 
    if (updateChanges) {
-      await updateGroup({ groupId: group.groupId, chat: group.chat });
+      await queryToUpdateGroupProperty({ groupId: group.groupId, chat: group.chat });
    }
 }
 

@@ -4,7 +4,7 @@ import { __, g, retryOnError } from '../../common-tools/database-tools/database-
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 
-export function getUserTraversalByToken(token: string, currentTraversal?: Traversal): Traversal {
+export function queryToGetUserByToken(token: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -12,7 +12,7 @@ export function getUserTraversalByToken(token: string, currentTraversal?: Traver
    return currentTraversal.V().has('user', 'token', String(token));
 }
 
-export function getUserTraversalByEmail(email: string, currentTraversal?: Traversal): Traversal {
+export function queryToGetUserByEmail(email: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -20,7 +20,7 @@ export function getUserTraversalByEmail(email: string, currentTraversal?: Traver
    return currentTraversal.V().has('user', 'email', String(email));
 }
 
-export function getUserTraversalById(userId: string, currentTraversal?: Traversal): Traversal {
+export function queryToGetUserById(userId: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -28,7 +28,7 @@ export function getUserTraversalById(userId: string, currentTraversal?: Traversa
    return currentTraversal.V().has('user', 'userId', String(userId));
 }
 
-export function getUsersListTraversalFromIds(usersIds: string[], currentTraversal?: Traversal): Traversal {
+export function queryToGetUsersListFromIds(usersIds: string[], currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
       currentTraversal = g;
    }
@@ -38,11 +38,14 @@ export function getUsersListTraversalFromIds(usersIds: string[], currentTraversa
    return currentTraversal.or(...search);
 }
 
+/**
+ * Receives a user traversal and returns the user only if has the profile completed
+ */
 export function hasProfileCompleted(currentTraversal?: Traversal): Traversal {
    return currentTraversal.has('user', 'profileCompleted', true);
 }
 
-export async function updateUserToken(userEmail: string, newToken: string): Promise<void> {
+export async function queryToUpdateUserToken(userEmail: string, newToken: string): Promise<void> {
    await retryOnError(() =>
       g
          .V()
@@ -54,12 +57,12 @@ export async function updateUserToken(userEmail: string, newToken: string): Prom
    return Promise.resolve();
 }
 
-export async function updateUserProps(
+export async function queryToUpdateUserProps(
    token: string,
    props: Array<{ key: keyof User; value: ValueOf<User> }>,
 ): Promise<void> {
    await retryOnError(() => {
-      let query = getUserTraversalByToken(token);
+      let query = queryToGetUserByToken(token);
 
       for (const prop of props) {
          query = query.property(prop.key, serializeIfNeeded(prop.value));
@@ -71,21 +74,21 @@ export async function updateUserProps(
    return Promise.resolve();
 }
 
-export function getAllUsers(): Traversal {
+export function queryToGetAllUsers(): Traversal {
    return g.V().hasLabel('user');
 }
 
-export function getAllCompleteUsers(): Traversal {
-   return getAllUsers().has('profileCompleted', true);
+export function queryToGetAllCompleteUsers(): Traversal {
+   return queryToGetAllUsers().has('profileCompleted', true);
 }
 
 /**
  * Only used in tests.
  * If no user list is provided all users on the database are removed.
  */
-export async function removeUsers(users?: Array<Partial<User>>): Promise<void> {
+export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<void> {
    if (users == null) {
-      return getAllUsers()
+      return queryToGetAllUsers()
          .drop()
          .iterate();
    }

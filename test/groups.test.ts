@@ -1,5 +1,5 @@
 import 'jest';
-import { removeUsers } from '../src/components/common/queries';
+import { queryToRemoveUsers } from '../src/components/common/queries';
 import {
    acceptPost,
    addUsersToGroup,
@@ -218,6 +218,6 @@ describe('Groups', () => {
    });
 
    afterAll(async () => {
-      await removeUsers(fakeUsers);
+      await queryToRemoveUsers(fakeUsers);
    });
 });

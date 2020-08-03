@@ -1,5 +1,5 @@
 import 'jest';
-import { removeUsers } from '../src/components/common/queries';
+import { queryToRemoveUsers } from '../src/components/common/queries';
 import {
    addNotificationToUser,
    attractionsReceivedGet,
@@ -102,7 +102,7 @@ describe('Users', () => {
    });
 
    afterAll(async () => {
-      await removeUsers([
+      await queryToRemoveUsers([
          ...fakeUsers,
          ...matchingUsersCouple1,
          ...matchingUsersCouple2,

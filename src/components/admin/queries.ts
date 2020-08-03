@@ -3,9 +3,9 @@ import { serializeIfNeeded } from '../../common-tools/database-tools/data-conver
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
-import { getUserTraversalById } from '../common/queries';
+import { queryToGetUserById } from '../common/queries';
 
-export function getAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
+export function queryToGetAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
    const projectWithoutUserData: Traversal = __.valueMap().by(__.unfold());
 
    const projectWithUserData: Traversal = __.union(
@@ -21,18 +21,18 @@ export function getAdminChatMessages(userId: string, includeUserData: boolean): 
       .by(__.select(column.keys))
       .by(__.select(column.values));
 
-   return getUserTraversalById(userId)
+   return queryToGetUserById(userId)
       .as('user')
       .out('chatWithAdmins')
       .choose(__.identity(), includeUserData ? projectWithUserData : projectWithoutUserData);
 }
 
-export function saveAdminChatMessage(
+export function queryToSaveAdminChatMessage(
    userId: string,
    updatedMessagesList: ChatMessage[],
    lastMessageIsFromAdmin: boolean,
 ): Traversal {
-   return getUserTraversalById(userId)
+   return queryToGetUserById(userId)
       .as('user')
       .coalesce(
          __.out('chatWithAdmins'),
@@ -47,7 +47,7 @@ export function saveAdminChatMessage(
       .property('lastMessageDate', moment().unix());
 }
 
-export function getAllChatsWithAdmins(excludeRespondedByAdmin: boolean): Traversal {
+export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): Traversal {
    const projectWithUserData: Traversal = __.union(
       __.valueMap().by(__.unfold()),
       __.project('nonAdminUser').by(

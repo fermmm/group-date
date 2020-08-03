@@ -5,9 +5,13 @@ import { SEND_NEW_CARDS_NOTIFICATION_FREQUENCY } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
-import { updateUserProps } from '../common/queries';
+import { queryToUpdateUserProps } from '../common/queries';
 import { addNotificationToUser } from '../user/models';
-import { getAllUsersWantingNewCardsNotification, getDislikedUsers, getRecommendations } from './queries';
+import {
+   queryToGetAllUsersWantingNewCardsNotification,
+   queryToGetDislikedUsers,
+   queryToGetCardsRecommendations,
+} from './queries';
 
 export function scheduledTasksCardGame(): void {
    setIntervalAsync(notifyAllUsersAboutNewCards, SEND_NEW_CARDS_NOTIFICATION_FREQUENCY);
@@ -15,13 +19,13 @@ export function scheduledTasksCardGame(): void {
 
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   const recommendationsQuery = getRecommendations(user);
+   const recommendationsQuery = queryToGetCardsRecommendations(user);
    return queryToUserList(recommendationsQuery);
 }
 
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   const recommendationsQuery = getDislikedUsers(params.token, user);
+   const recommendationsQuery = queryToGetDislikedUsers(params.token, user);
    return queryToUserList(recommendationsQuery);
 }
 
@@ -37,11 +41,11 @@ export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext)
  *    4. After sending the notification sets sendNewUsersNotification to 0 to disable this functionality.
  */
 export async function notifyAllUsersAboutNewCards(): Promise<void> {
-   const users: User[] = await queryToUserList(getAllUsersWantingNewCardsNotification(), false);
+   const users: User[] = await queryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
    for (const user of users) {
-      const recommendations: number = (await getRecommendations(user).toList()).length;
+      const recommendations: number = (await queryToGetCardsRecommendations(user).toList()).length;
       if (recommendations >= user.sendNewUsersNotification) {
-         await updateUserProps(user.token, [
+         await queryToUpdateUserProps(user.token, [
             {
                key: 'sendNewUsersNotification',
                value: 0,

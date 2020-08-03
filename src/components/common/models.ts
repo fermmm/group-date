@@ -5,7 +5,7 @@ import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { FacebookResponse } from '../../shared-tools/endpoints-interfaces/common';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToCreateUser } from '../user/queries';
-import { getUserTraversalByEmail, getUserTraversalByToken, updateUserToken } from './queries';
+import { queryToGetUserByEmail, queryToGetUserByToken, queryToUpdateUserToken } from './queries';
 
 /**
  * Tries to get the user using the Facebook token and if the user does not exist it creates it.
@@ -27,7 +27,7 @@ export async function retrieveUser(
 ): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
-   user = await queryToUser(getUserTraversalByToken(token), includeQuestionsData);
+   user = await queryToUser(queryToGetUserByToken(token), includeQuestionsData);
 
    if (user != null) {
       return user;
@@ -45,10 +45,10 @@ export async function retrieveUser(
       ctx.throw(400, 'Facebook error 01');
    }
 
-   user = await queryToUser(getUserTraversalByEmail(userDataFromFacebook.content.email), includeQuestionsData);
+   user = await queryToUser(queryToGetUserByEmail(userDataFromFacebook.content.email), includeQuestionsData);
 
    if (user != null) {
-      await updateUserToken(userDataFromFacebook.content.email, token);
+      await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
       return user;
    }
 

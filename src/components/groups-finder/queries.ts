@@ -1,16 +1,16 @@
 import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { MIN_GROUP_SIZE } from '../../configurations';
-import { getMatchingUsersGroupsV2 } from './tools/prototypes';
+import { queryToGetPossibleQualityGroupsV2 } from './tools/prototypes';
 
-export function getGroupsOfMatchingUsers(): Traversal {
-   let traversal = getUsersAllowedToBeOnNewGroups();
-   traversal = getMatchingUsersGroups(traversal);
-   // traversal = getMatchesSharedWithEachMatchV2(traversal);
+export function queryToGetPossibleGroups(): Traversal {
+   let traversal = queryToGetUsersAllowedToBeOnNewGroups();
+   traversal = queryToGetPossibleQualityGroups(traversal);
+   // traversal = queryToGetPossibleQualityGroupsV2(traversal);
    return traversal;
 }
 
-export function getUsersAllowedToBeOnNewGroups(): Traversal {
+export function queryToGetUsersAllowedToBeOnNewGroups(): Traversal {
    return g.V().hasLabel('user');
 }
 
@@ -49,7 +49,7 @@ export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Trav
  *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
  *
  */
-export function getMatchingUsersGroups(traversal: Traversal): Traversal {
+export function queryToGetPossibleQualityGroups(traversal: Traversal): Traversal {
    return (
       traversal
          .flatMap(

@@ -47,7 +47,7 @@ export async function queryToUserList(
 }
 
 /**
- * Converts into a Group object a gremlin query that should return a single group vertex.
+ * Converts a Gremlin query that returns a single group into a Group object.
  */
 export async function queryToGroup(queryOfGroup: Traversal, protectPrivacy: boolean = true): Promise<Group> {
    return gremlinMapToGroup((await retryOnError(() => queryOfGroup.next())).value, protectPrivacy);

@@ -1,7 +1,5 @@
 import 'jest';
 import { queryToUserList } from '../src/common-tools/database-tools/data-conversion-tools';
-import { getUserTraversalById, removeUsers } from '../src/components/common/queries';
-import { getMatchesOrderedByConnectionsAmount } from '../src/components/groups-finder/queries';
 import { User } from '../src/shared-tools/endpoints-interfaces/user';
 import { connectUsersInChain, createMatchingUsers, matchUserWithUsers } from './tools/groups';
 import { createFakeUser, createFakeUsers } from './tools/users';

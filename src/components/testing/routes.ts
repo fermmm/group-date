@@ -12,13 +12,13 @@ import { __, g, logComplete } from '../../common-tools/database-tools/database-m
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { getAllUsers, getUserTraversalById, removeUsers } from '../common/queries';
-import { getGroupsOfMatchingUsers } from '../groups-finder/queries';
+import { queryToGetAllUsers, queryToGetUserById, queryToRemoveUsers } from '../common/queries';
+import { queryToGetPossibleGroups } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      await removeUsers();
+      await queryToRemoveUsers();
       // const fakeUsers = await createFakeUsers(3);
 
       // const mainUser = fakeUsers[0];
@@ -46,7 +46,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      logComplete(await getGroupsOfMatchingUsers().toList());
+      logComplete(await queryToGetPossibleGroups());
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;

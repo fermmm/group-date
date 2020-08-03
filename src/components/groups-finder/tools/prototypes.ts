@@ -16,7 +16,7 @@ import { Traversal } from '../../../common-tools/database-tools/gremlin-typing-t
  * The query meets the objective by finding this figures and then combining them when they have at least 2 users in common, this is another
  * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
  */
-export function getMatchingUsersGroupsV2(traversal: Traversal): Traversal {
+export function queryToGetPossibleQualityGroupsV2(traversal: Traversal): Traversal {
    return (
       traversal
          .as('a')

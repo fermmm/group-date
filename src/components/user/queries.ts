@@ -8,14 +8,14 @@ import {
    SetAttractionParams,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
-import { getUserTraversalByToken, hasProfileCompleted } from '../common/queries';
+import { hasProfileCompleted, queryToGetUserByToken } from '../common/queries';
 
 export function queryToCreateUser(
    token: string,
    email: string,
    setProfileCompletedForTesting = false,
 ): Traversal {
-   return getUserTraversalByToken(token)
+   return queryToGetUserByToken(token)
       .fold()
       .coalesce(
          __.unfold(),
@@ -29,8 +29,8 @@ export function queryToCreateUser(
       );
 }
 
-export async function setUserEditableProps(token: string, userProps: ExposedUserProps): Promise<void> {
-   let query: Traversal = getUserTraversalByToken(token);
+export async function queryToSetUserEditableProps(token: string, userProps: ExposedUserProps): Promise<void> {
+   let query: Traversal = queryToGetUserByToken(token);
 
    editableUserPropsList.forEach(editableUserProp => {
       if (userProps[editableUserProp] != null) {
@@ -41,8 +41,8 @@ export async function setUserEditableProps(token: string, userProps: ExposedUser
    return retryOnError(() => query.iterate());
 }
 
-export async function setAttraction(params: SetAttractionParams): Promise<void> {
-   let query: Traversal = hasProfileCompleted(getUserTraversalByToken(params.token)).as('user');
+export async function queryToSetAttraction(params: SetAttractionParams): Promise<void> {
+   let query: Traversal = hasProfileCompleted(queryToGetUserByToken(params.token)).as('user');
 
    for (const paramsItem of params.attractions) {
       const involvedUsersSearch = __.V()
@@ -108,16 +108,16 @@ export async function setAttraction(params: SetAttractionParams): Promise<void> 
    return retryOnError(() => query.iterate());
 }
 
-export function getMatches(token: string): Traversal {
-   return getUserTraversalByToken(token).both('Match');
+export function queryToGetMatches(token: string): Traversal {
+   return queryToGetUserByToken(token).both('Match');
 }
 
-export function getAttractionsSent(token: string, types?: AttractionType[]): Traversal {
+export function queryToGetAttractionsSent(token: string, types?: AttractionType[]): Traversal {
    types = types ?? allAttractionTypes;
-   return getUserTraversalByToken(token).out(...types);
+   return queryToGetUserByToken(token).out(...types);
 }
 
-export function getAttractionsReceived(token: string, types?: AttractionType[]): Traversal {
+export function queryToGetAttractionsReceived(token: string, types?: AttractionType[]): Traversal {
    types = types ?? allAttractionTypes;
-   return getUserTraversalByToken(token).in_(...types);
+   return queryToGetUserByToken(token).in_(...types);
 }

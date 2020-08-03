@@ -9,13 +9,13 @@ import {
    QuestionResponse,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { getAllCompleteUsers, getUserTraversalByToken } from '../common/queries';
+import { queryToGetAllCompleteUsers, queryToGetUserByToken } from '../common/queries';
 import { getQuestionDataById, questions } from '../user/questions/models';
 
 const RESULTS_LIMIT: number = 70;
 
-export function getRecommendations(searcherUser: User): Traversal {
-   let query: Traversal = getAllCompleteUsers();
+export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
+   let query: Traversal = queryToGetAllCompleteUsers();
 
    /**
     * Is inside the distance range the user wants
@@ -144,7 +144,7 @@ export function getRecommendations(searcherUser: User): Traversal {
    /**
     * Order the results
     */
-   query = orderResultsByMatchingQuestionAnswers(query, searcherUser);
+   query = queryToOrderResultsByMatchingQuestions(query, searcherUser);
 
    /**
     * Limit results
@@ -154,8 +154,8 @@ export function getRecommendations(searcherUser: User): Traversal {
    return query;
 }
 
-export function getDislikedUsers(token: string, searcherUser: User): Traversal {
-   let query: Traversal = getUserTraversalByToken(token).out(AttractionType.Dislike);
+export function queryToGetDislikedUsers(token: string, searcherUser: User): Traversal {
+   let query: Traversal = queryToGetUserByToken(token).out(AttractionType.Dislike);
 
    /**
     * Filter inactive accounts
@@ -165,7 +165,7 @@ export function getDislikedUsers(token: string, searcherUser: User): Traversal {
    /**
     * Order the results
     */
-   query = orderResultsByMatchingQuestionAnswers(query, searcherUser);
+   query = queryToOrderResultsByMatchingQuestions(query, searcherUser);
 
    /**
     * Limit results
@@ -175,7 +175,7 @@ export function getDislikedUsers(token: string, searcherUser: User): Traversal {
    return query;
 }
 
-export function orderResultsByMatchingQuestionAnswers(query: Traversal, searcherUser: User): Traversal {
+export function queryToOrderResultsByMatchingQuestions(query: Traversal, searcherUser: User): Traversal {
    query = query.project('userVertex', 'count').by();
 
    const sameResponsesFilter = [];
@@ -201,6 +201,6 @@ export function orderResultsByMatchingQuestionAnswers(query: Traversal, searcher
    return query;
 }
 
-export function getAllUsersWantingNewCardsNotification(): Traversal {
-   return getAllCompleteUsers().has('sendNewUsersNotification', P.gt(0));
+export function queryToGetAllUsersWantingNewCardsNotification(): Traversal {
+   return queryToGetAllCompleteUsers().has('sendNewUsersNotification', P.gt(0));
 }

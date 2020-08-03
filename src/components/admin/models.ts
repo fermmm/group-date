@@ -15,14 +15,18 @@ import {
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveUser } from '../common/models';
-import { updateUserProps } from '../common/queries';
-import { getAdminChatMessages, getAllChatsWithAdmins, saveAdminChatMessage } from './queries';
+import { queryToUpdateUserProps } from '../common/queries';
+import {
+   queryToGetAdminChatMessages,
+   queryToGetAllChatsWithAdmins,
+   queryToSaveAdminChatMessage,
+} from './queries';
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
    const nonAdminUserId: string = callerUser.isAdmin ? params.targetUserId : callerUser.userId;
    const result: ChatWithAdmins = await queryToChatWithAdmins(
-      getAdminChatMessages(nonAdminUserId, callerUser.isAdmin),
+      queryToGetAdminChatMessages(nonAdminUserId, callerUser.isAdmin),
    );
    return result;
 }
@@ -31,7 +35,7 @@ export async function adminChatPost(params: AdminChatPostParams, ctx: BaseContex
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
    const nonAdminUserId: string = callerUser.isAdmin ? params.targetUserId : callerUser.userId;
    const currentChat: ChatMessage[] =
-      (await queryToChatWithAdmins(getAdminChatMessages(nonAdminUserId, false)))?.messages || [];
+      (await queryToChatWithAdmins(queryToGetAdminChatMessages(nonAdminUserId, false)))?.messages || [];
 
    currentChat.push({
       messageText: params.messageText,
@@ -40,7 +44,7 @@ export async function adminChatPost(params: AdminChatPostParams, ctx: BaseContex
       authorUserId: callerUser.isAdmin ? '' : callerUser.userId,
    });
 
-   await saveAdminChatMessage(nonAdminUserId, currentChat, callerUser.isAdmin || false).iterate();
+   await queryToSaveAdminChatMessage(nonAdminUserId, currentChat, callerUser.isAdmin || false).iterate();
 }
 
 export async function allChatsWithAdminsGet(
@@ -52,7 +56,7 @@ export async function allChatsWithAdminsGet(
       return null;
    }
 
-   return queryToChatWithAdminsList(getAllChatsWithAdmins(params.excludeRespondedByAdmin));
+   return queryToChatWithAdminsList(queryToGetAllChatsWithAdmins(params.excludeRespondedByAdmin));
 }
 
 export async function convertToAdminPost(params: AdminConvertPostParams, ctx: BaseContext): Promise<void> {
@@ -65,5 +69,5 @@ export async function convertToAdminPost(params: AdminConvertPostParams, ctx: Ba
 }
 
 export async function convertToAdmin(token: string): Promise<void> {
-   await updateUserProps(token, [{ key: 'isAdmin', value: true }]);
+   await queryToUpdateUserProps(token, [{ key: 'isAdmin', value: true }]);
 }

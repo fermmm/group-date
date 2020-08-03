@@ -5,7 +5,7 @@ import { __, column, g } from '../../common-tools/database-tools/database-manage
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { DateIdea, DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { getUserTraversalById } from '../common/queries';
+import { queryToGetUserById } from '../common/queries';
 
 /**
  * Creates an empty group and returns it as a traversal query
@@ -27,7 +27,10 @@ export function queryToCreateGroup(dayOptions: DayOption[]): Traversal {
       .property('feedback', serializeIfNeeded([]));
 }
 
-export function addMembersToGroupTraversal(traversal: Traversal): Traversal {
+/**
+ * Receives a traversal that selects one or more groups vertices, returns the groups including the members list.
+ */
+export function queryToIncludeMembersListInGroup(traversal: Traversal): Traversal {
    traversal = traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),
@@ -47,7 +50,7 @@ export function addMembersToGroupTraversal(traversal: Traversal): Traversal {
    return traversal;
 }
 
-export function getGroupTraversalById(groupId: string, onlyIfAMemberHasUserId?: string): Traversal {
+export function queryToGetGroupById(groupId: string, onlyIfAMemberHasUserId?: string): Traversal {
    let traversal = g.V().has('group', 'groupId', groupId);
 
    if (onlyIfAMemberHasUserId != null) {
@@ -57,15 +60,15 @@ export function getGroupTraversalById(groupId: string, onlyIfAMemberHasUserId?: 
    return traversal;
 }
 
-export function getGroupsOfUserById(userId: string): Traversal {
-   return getUserTraversalById(userId).out('member');
+export function queryToGetGroupsOfUserByUserId(userId: string): Traversal {
+   return queryToGetUserById(userId).out('member');
 }
 
-export function updateGroup(
+export function queryToUpdateGroupProperty(
    group: MarkRequired<Partial<Group>, 'groupId'>,
    onlyIfAMemberHasUserId?: string,
 ): Promise<void> {
-   let traversal = getGroupTraversalById(group.groupId, onlyIfAMemberHasUserId);
+   let traversal = queryToGetGroupById(group.groupId, onlyIfAMemberHasUserId);
 
    for (const key of Object.keys(group)) {
       traversal = traversal.property(key, serializeIfNeeded(group[key]));
@@ -74,13 +77,13 @@ export function updateGroup(
    return traversal.iterate();
 }
 
-export async function addUserToGroup(user: User, group: Group): Promise<void> {
-   await getUserTraversalById(user.userId)
+export async function queryToAddUserToGroup(user: User, group: Group): Promise<void> {
+   await queryToGetUserById(user.userId)
       .addE('member')
       .to(__.V().has('group', 'groupId', group.groupId))
       .iterate();
 }
 
-export async function addDateIdeaToGroup(group: Group, dateIdea: DateIdea): Promise<void> {
-   return updateGroup({ groupId: group.groupId, dateIdeas: [...group.dateIdeas, dateIdea] });
+export async function queryToAddDateIdeaToGroup(group: Group, dateIdea: DateIdea): Promise<void> {
+   return queryToUpdateGroupProperty({ groupId: group.groupId, dateIdeas: [...group.dateIdeas, dateIdea] });
 }
