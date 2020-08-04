@@ -13,7 +13,7 @@ import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tool
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetAllUsers, queryToGetUserById, queryToRemoveUsers } from '../common/queries';
-import { queryToGetPossibleGroups } from '../groups-finder/queries';
+import { queryToGetPossibleGoodGroups } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
 
 export function testingRoutes(router: Router): void {
@@ -46,7 +46,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      logComplete(await queryToGetPossibleGroups().toList());
+      logComplete(await queryToGetPossibleGoodGroups().toList());
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;

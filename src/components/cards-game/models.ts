@@ -1,7 +1,7 @@
 import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { queryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
-import { SEND_NEW_CARDS_NOTIFICATION_FREQUENCY } from '../../configurations';
+import { NOTIFICATION_FREQUENCY_NEW_CARDS } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
@@ -14,7 +14,7 @@ import {
 } from './queries';
 
 export function scheduledTasksCardGame(): void {
-   setIntervalAsync(notifyAllUsersAboutNewCards, SEND_NEW_CARDS_NOTIFICATION_FREQUENCY);
+   setIntervalAsync(notifyAllUsersAboutNewCards, NOTIFICATION_FREQUENCY_NEW_CARDS);
 }
 
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
