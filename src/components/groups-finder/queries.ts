@@ -48,6 +48,8 @@ function queryToGetUsersAllowedToBeOnBadGroups(): Traversal {
  * These 2 rules can also be thought of as figures in the graph:
  *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
  *
+ * To test with the query easily:
+ * https://gremlify.com/id19z50t41i
  */
 function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
    return (
@@ -114,6 +116,9 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
  *
  * The query meets the objective by finding this figures and then combining them when they have at least 2 users in common, this is another
  * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
+ *
+ * To test with the query easily:
+ * https://gremlify.com/g36faa7bw0b
  */
 function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversal {
    return (
@@ -180,7 +185,8 @@ function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversa
  * These groups are "circles" of users with 2 connections each, can be visualized as a round of
  * people holding hands.
  *
- * https://gremlify.com/k4zbb4oai6
+ * To test with the query easily:
+ * https://gremlify.com/o9rye6xy5od
  */
 function queryToSearchBadQualityGroups(traversal: Traversal): Traversal {
    const searches: Traversal[] = [];
