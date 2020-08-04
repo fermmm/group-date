@@ -7,6 +7,7 @@ export function queryToGetPossibleGroups(): Traversal {
    let traversal = queryToGetUsersAllowedToBeOnNewGroups();
    traversal = queryToGetPossibleQualityGroups(traversal);
    // traversal = queryToGetPossibleQualityGroupsV2(traversal);
+   traversal = queryToAddDetailsToUsersArrays(traversal, true);
    return traversal;
 }
 
@@ -14,31 +15,9 @@ export function queryToGetUsersAllowedToBeOnNewGroups(): Traversal {
    return g.V().hasLabel('user');
 }
 
-/*
-export function getMatchesOrderedByConnectionsAmount(traversal: Traversal): Traversal {
-   traversal = traversal
-      .project('user', 'matches')
-      .by()
-      .by(
-         __.both('Match')
-            .as('m')
-            .order()
-            .by(
-               __.bothE('Match')
-                  .where(__.bothV().as('m'))
-                  .count(),
-               order.desc,
-            )
-            .fold(),
-      );
-
-   return traversal;
-}
-*/
-
 /**
  * This query finds users that matches together forming a group, it's the core of the app.
- * Returns groups of matching users.
+ * Returns arrays of matching users.
  *
  * Users can be in a group when the following requirements are fulfilled:
  *
@@ -97,27 +76,30 @@ export function queryToGetPossibleQualityGroups(traversal: Traversal): Traversal
          // Remove groups smaller than the minimum group size and remove duplicates from the list
          .where(__.count(scope.local).is(P.gte(MIN_GROUP_SIZE)))
          .dedup()
+   );
+}
 
-         // This part builds the format of the final output, at this point each group is a list of users and we need to
-         // convert that into an object that contains the user and who that users matches with within the group.
+/**
+ * Receives a traversal with a list of users arrays and for each user adds it's matches within the group. This extra
+ * info is required by the group quality analyzer
+ * @param returnNamesInsteadOfIds Default = false. If set to true returns user names instead of userId. Useful for debugging.
+ */
+function queryToAddDetailsToUsersArrays(tr: Traversal, returnNamesInsteadOfIds: boolean = false): Traversal {
+   return tr.map(
+      __.as('g')
+         .unfold()
          .map(
-            __.as('g')
-               .unfold()
-               .map(
-                  __.project('user', 'matches')
-                     .by(
-                        __.values('name'), // Uncommenting this line can be useful for debugging
-                     )
-                     .by(
-                        __.as('u')
-                           .select('g')
-                           .unfold()
-                           .where(__.both('Match').where(P.eq('u'))) // Get the matches of the user within the group
-                           .values('name') // Changing "userId" by "name" here is useful for debugging
-                           .fold(),
-                     ),
-               )
-               .fold(),
+            __.project('user', 'matches')
+               .by(__.values(returnNamesInsteadOfIds ? 'name' : 'userId'))
+               .by(
+                  __.as('u')
+                     .select('g')
+                     .unfold()
+                     .where(__.both('Match').where(P.eq('u'))) // Get the matches of the user within the group
+                     .values(returnNamesInsteadOfIds ? 'name' : 'userId')
+                     .fold(),
+               ),
          )
+         .fold(),
    );
 }
