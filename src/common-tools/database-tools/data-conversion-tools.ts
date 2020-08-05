@@ -1,3 +1,4 @@
+import { UserAndItsMatches } from '../../components/groups-finder/queries';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
@@ -174,6 +175,18 @@ function gremlinMapToChatWithAdmins(
    result.nonAdminUser = nonAdminUser;
 
    return result;
+}
+
+/**
+ * Converts a gremlin query that should return a list of groups of users into the final serialized objects.
+ */
+export async function queryToGroupSearchResults(query: Traversal): Promise<UserAndItsMatches[][]> {
+   const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
+      Array<Map<keyof UserAndItsMatches, string>>
+   >;
+   return resultGremlinOutput.map(groupAsMap => {
+      return groupAsMap.map(g => gremlinMapToObject<UserAndItsMatches>(g));
+   });
 }
 
 /**

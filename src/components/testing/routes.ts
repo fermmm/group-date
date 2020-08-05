@@ -7,7 +7,10 @@ import {
    matchUserWithUsers,
 } from '../../../test/tools/groups';
 import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../../test/tools/users';
-import { queryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
+import {
+   queryToGroupSearchResults,
+   queryToUserList,
+} from '../../common-tools/database-tools/data-conversion-tools';
 import { __, g, logComplete } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
@@ -46,7 +49,8 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      logComplete(await queryToGetPossibleGoodGroups().toList());
+      const result = await queryToGroupSearchResults(queryToGetPossibleGoodGroups());
+      logComplete(result);
 
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;

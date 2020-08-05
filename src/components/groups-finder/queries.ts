@@ -13,7 +13,7 @@ export function queryToGetPossibleGoodGroups(): Traversal {
    } else {
       traversal = queryToSearchGoodQualityGroups(traversal);
    }
-   traversal = queryToAddDetailsToUsersArrays(traversal, true);
+   traversal = queryToAddDetailsToUsersArrays(traversal, false);
    return traversal;
 }
 
@@ -243,4 +243,9 @@ function queryToAddDetailsToUsersArrays(tr: Traversal, returnNamesInsteadOfIds: 
          )
          .fold(),
    );
+}
+
+export interface UserAndItsMatches {
+   user: string;
+   matches: string;
 }
