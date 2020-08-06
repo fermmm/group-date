@@ -3,6 +3,7 @@ import { User } from './user';
 
 export interface Group {
    groupId: string;
+   creationDate: number;
    members: User[];
    chat: GroupChat;
    dateIdeas: DateIdea[];

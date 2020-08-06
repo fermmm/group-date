@@ -1,3 +1,4 @@
+import * as moment from 'moment';
 import { MarkRequired } from 'ts-essentials';
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
@@ -21,6 +22,7 @@ export function queryToCreateGroup(dayOptions: DayOption[]): Traversal {
             messages: [],
          }),
       )
+      .property('creationDate', moment().unix())
       .property('dateIdeas', serializeIfNeeded([]))
       .property('dayOptions', serializeIfNeeded(dayOptions))
       .property('usersThatAccepted', serializeIfNeeded([]))
