@@ -3,14 +3,48 @@ import { hoursToMilliseconds } from './common-tools/js-tools/js-tools';
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////  GROUP RESTRICTIONS  /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The minimum and maximum size of the groups in the app. There has to be a maximum and it's related with how
+ * confortable can be to have a date with too much people.
+ */
 export const MIN_GROUP_SIZE = 3;
 export const MAX_GROUP_SIZE = 12;
+
+/**
+ * The users can have a maximum amount of active groups, otherwise they can be absent in the rest of the groups
+ * because they have too many ones to spend their time on.
+ * The limit of the groups works with slots, each slot is configured to be filled with a specific group size.
+ * If you want to configure the app to have multiple slots with the same size, use the "amount" property.
+ * The reason for this is because all slots can be filled with similar groups that are fast to emerge, preventing
+ * the user from having groups that take longer to emerge but are different.
+ * This is the configurable list of slots available for each user
+ */
+export const GROUP_SLOTS = [
+   {
+      minimumSize: MIN_GROUP_SIZE,
+      maximumSize: 6,
+      amount: 1,
+   },
+   {
+      minimumSize: 7,
+      maximumSize: MAX_GROUP_SIZE,
+      amount: 1,
+   },
+];
+
+/**
+ * The group search algorithm can start searching for small groups first or big ones first, this is important
+ * because if small groups are search first that can prevent the big groups from emerging because users are already
+ * together in small groups and cannot be together again in a bigger group. Searching big groups first is recommended,
+ * because probably big groups are more interesting.
+ */
+export const SEARCH_BIG_GROUPS_FIRST = true;
 
 /**
  * TODO: Implement
  */
 // export const BEST_GROUP_SIZE = 12
-// export const MAX_WAITING_FOR_BEST_GROUP = 7; // Days
 
 /**
  * Metaconnections = The connections of your connections.

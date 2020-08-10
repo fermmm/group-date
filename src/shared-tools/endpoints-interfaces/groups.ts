@@ -6,7 +6,7 @@ export interface Group {
    creationDate: number;
    members: User[];
    chat: GroupChat;
-   dateIdeas: DateIdea[];
+   dateIdeasVotes: Record<string, string[]>;
    dayOptions: DayOption[];
    usersThatAccepted: string[];
    feedback: ExperienceFeedback[];

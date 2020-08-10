@@ -2,13 +2,13 @@ import 'jest';
 import { queryToRemoveUsers } from '../src/components/common/queries';
 import {
    acceptPost,
-   addUsersToGroup,
    chatPost,
    createGroup,
    dateDayVotePost,
    dateIdeaVotePost,
    feedbackPost,
    getGroupById,
+   getSlotIdFromUsersAmount,
    groupGet,
    userGroupsGet,
 } from '../src/components/groups/models';
@@ -25,18 +25,14 @@ describe('Groups', () => {
    let mainUser2: User;
 
    beforeAll(async () => {
-      group = await createGroup();
-      group2 = await createGroup();
       fakeUsers = await createFakeUsers(10);
       mainUser = fakeUsers[0];
       mainUser2 = fakeUsers[1];
-      await addUsersToGroup(fakeUsers, group.groupId);
-      await addUsersToGroup([mainUser2], group2.groupId);
-   });
-
-   test('Ideas list gets populated with the ideas from users added to the group', async () => {
-      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
-      expect(group.dateIdeas.length === fakeUsers.length).toBe(true);
+      group = await createGroup({
+         usersIds: fakeUsers.map(u => u.userId),
+         slotToUse: getSlotIdFromUsersAmount(fakeUsers.length),
+      });
+      group2 = await createGroup({ usersIds: [mainUser2.userId], slotToUse: getSlotIdFromUsersAmount(1) });
    });
 
    test('Users that accept the group are stored correctly', async () => {
@@ -91,12 +87,14 @@ describe('Groups', () => {
       group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
-      expect(group.dateIdeas[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
-      expect(group.dateIdeas[4].votersUserId.indexOf(mainUser2.userId) !== -1).toBe(true);
+      expect(group.dateIdeasVotes[fakeUsers[4].userId]).toContain(mainUser.userId);
+      expect(group.dateIdeasVotes[fakeUsers[4].userId]).toContain(mainUser2.userId);
+
       // The idea 3 only by mainUser
-      expect(group.dateIdeas[3].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
+      expect(group.dateIdeasVotes[fakeUsers[3].userId]).toContain(mainUser.userId);
+
       // There should be the correct amount of votes
-      expect(group.dateIdeas[3].votersUserId.length === 1).toBe(true);
+      expect(group.dateIdeasVotes[fakeUsers[3].userId]).toHaveLength(1);
    });
 
    test('Voting day option works correctly and not cheating is allowed', async () => {

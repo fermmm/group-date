@@ -1,8 +1,8 @@
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { v1 as uuidv1 } from 'uuid';
-import { valueMap } from '../../common-tools/database-tools/common-queries';
 import { queryToGroup, queryToGroupList } from '../../common-tools/database-tools/data-conversion-tools';
+import { GROUP_SLOTS } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    BasicGroupParams,
@@ -16,17 +16,53 @@ import {
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
 import {
-   queryToAddDateIdeaToGroup,
-   queryToAddUserToGroup,
+   AddUsersToGroupSettings,
+   queryToAddUsersToGroup,
    queryToCreateGroup,
    queryToGetGroupById,
    queryToGetGroupsOfUserByUserId,
-   queryToIncludeMembersListInGroup,
    queryToUpdateGroupProperty,
+   queryToVoteDateIdeas,
 } from './queries';
 
 const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
+
+/**
+ * Internal function to create a group (this is not an endpoint)
+ * @param initialUsers The initial users to add and the
+ */
+export async function createGroup(initialUsers?: AddUsersToGroupSettings): Promise<Group> {
+   const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS ?? 12).map(date => ({
+      date,
+      votersUserId: [],
+   }));
+   return queryToGroup(queryToCreateGroup(dayOptions, initialUsers), false);
+}
+
+/**
+ * Internal function to get a group by Id (this is not an endpoint)
+ */
+export async function getGroupById(
+   groupId: string,
+   { includeFullDetails = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
+): Promise<Group> {
+   const groupTraversal = queryToGetGroupById(groupId, onlyIfAMemberHasUserId);
+   const result: Group = await queryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
+
+   if (result == null && ctx != null) {
+      ctx.throw(400, 'Group not found');
+   }
+
+   return result;
+}
+
+/**
+ * Internal function to add users to a group (this is not an endpoint)
+ */
+export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSettings): Promise<void> {
+   await queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate();
+}
 
 /**
  * Endpoints to get a specific group that the user is part of.
@@ -37,7 +73,7 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
       onlyIfAMemberHasUserId: user.userId,
-      includeMembersList: true,
+      includeFullDetails: true,
       ctx,
    });
 
@@ -51,8 +87,7 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
  */
 export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-
-   return queryToGroupList(queryToIncludeMembersListInGroup(queryToGetGroupsOfUserByUserId(user.userId)));
+   return queryToGroupList(queryToGetGroupsOfUserByUserId(user.userId));
 }
 
 /**
@@ -75,27 +110,11 @@ export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Pr
  */
 export async function dateIdeaVotePost(params: DateIdeaVotePostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
-
-   for (const dateIdea of group.dateIdeas) {
-      const userIsVotingThisOption: boolean =
-         params.ideasToVoteAuthorsIds.indexOf(dateIdea.authorUserId) !== -1;
-      const userIdPosOnVotes: number = dateIdea.votersUserId.indexOf(user.userId);
-      const optionAlreadyVoted: boolean = userIdPosOnVotes !== -1;
-
-      if (userIsVotingThisOption) {
-         if (!optionAlreadyVoted) {
-            dateIdea.votersUserId.push(user.userId);
-         }
-      } else {
-         // Remove the user vote if it is there from a previous api call
-         if (optionAlreadyVoted) {
-            dateIdea.votersUserId.splice(userIdPosOnVotes, 1);
-         }
-      }
-   }
-
-   await queryToUpdateGroupProperty({ groupId: group.groupId, dateIdeas: group.dateIdeas });
+   await queryToVoteDateIdeas(
+      queryToGetGroupById(params.groupId, user.userId),
+      user.userId,
+      params.ideasToVoteAuthorsIds,
+   ).iterate();
 }
 
 /**
@@ -134,7 +153,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
       onlyIfAMemberHasUserId: user.userId,
-      includeMembersList: true,
+      includeFullDetails: true,
       ctx,
    });
 
@@ -168,61 +187,6 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
       });
 
       await queryToUpdateGroupProperty({ groupId: group.groupId, feedback: group.feedback });
-   }
-}
-
-/**
- * Internal function to create a group (this is not an endpoint)
- */
-export async function createGroup(protectPrivacy: boolean = true): Promise<Group> {
-   const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS ?? 12).map(date => ({
-      date,
-      votersUserId: [],
-   }));
-   return queryToGroup(valueMap(queryToCreateGroup(dayOptions)), protectPrivacy);
-}
-
-/**
- * Internal function to get a group by Id
- */
-export async function getGroupById(
-   groupId: string,
-   { includeMembersList = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
-): Promise<Group> {
-   let traversal = queryToGetGroupById(groupId, onlyIfAMemberHasUserId);
-
-   if (includeMembersList) {
-      traversal = queryToIncludeMembersListInGroup(traversal);
-   } else {
-      traversal = valueMap(traversal);
-   }
-
-   const result: Group = await queryToGroup(traversal, protectPrivacy);
-
-   if (result == null && ctx != null) {
-      ctx.throw(400, 'Group not found');
-   }
-
-   return result;
-}
-
-/**
- * Internal function to add a user to a group
- */
-export async function addUsersToGroup(users: User[], groupId: string): Promise<void> {
-   let group = await getGroupById(groupId);
-
-   for (const user of users) {
-      await queryToAddUserToGroup(user, group);
-      await queryToAddDateIdeaToGroup(group, {
-         description: user.dateIdeaName,
-         address: user.dateIdeaAddress,
-         authorUserId: user.userId,
-         votersUserId: [],
-      });
-
-      // Update the group data to be able to manipulate arrays in the next for loop iteration
-      group = await getGroupById(groupId);
    }
 }
 
@@ -270,8 +234,12 @@ function getComingWeekendDays(limitAmount: number): number[] {
    return result;
 }
 
+export function getSlotIdFromUsersAmount(amount: number): number {
+   return GROUP_SLOTS.findIndex(slot => amount >= slot.minimumSize && amount <= slot.maximumSize);
+}
+
 interface GetGroupByIdOptions {
-   includeMembersList?: boolean;
+   includeFullDetails?: boolean;
    onlyIfAMemberHasUserId?: string;
    protectPrivacy?: boolean;
    ctx?: BaseContext;

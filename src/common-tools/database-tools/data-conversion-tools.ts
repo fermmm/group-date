@@ -1,4 +1,5 @@
 import { UserAndItsMatches } from '../../components/groups-finder/queries';
+import { queryToGetGroupsInFinalFormat } from '../../components/groups/queries';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
@@ -50,8 +51,15 @@ export async function queryToUserList(
 /**
  * Converts a Gremlin query that returns a single group into a Group object.
  */
-export async function queryToGroup(queryOfGroup: Traversal, protectPrivacy: boolean = true): Promise<Group> {
-   return gremlinMapToGroup((await retryOnError(() => queryOfGroup.next())).value, protectPrivacy);
+export async function queryToGroup(
+   queryOfGroup: Traversal,
+   protectPrivacy: boolean = true,
+   includeFullDetails: boolean = true,
+): Promise<Group> {
+   return gremlinMapToGroup(
+      (await retryOnError(() => queryToGetGroupsInFinalFormat(queryOfGroup, includeFullDetails).next())).value,
+      protectPrivacy,
+   );
 }
 
 /**
@@ -60,10 +68,12 @@ export async function queryToGroup(queryOfGroup: Traversal, protectPrivacy: bool
 export async function queryToGroupList(
    queryOfGroups: Traversal,
    protectPrivacy: boolean = true,
+   includeFullDetails: boolean = true,
 ): Promise<Group[]> {
-   const resultGremlinOutput = (await retryOnError(() => queryOfGroups.toList())) as Array<
-      Map<keyof Group, GremlinValueType>
-   >;
+   const resultGremlinOutput = (await retryOnError(() =>
+      queryToGetGroupsInFinalFormat(queryOfGroups, includeFullDetails).toList(),
+   )) as Array<Map<keyof Group, GremlinValueType>>;
+
    return resultGremlinOutput.map(groupFromQuery => {
       return gremlinMapToGroup(groupFromQuery, protectPrivacy);
    });
@@ -137,7 +147,6 @@ function gremlinMapToGroup(
    // Now the rest of the group properties can be converted
    const group = gremlinMapToObject<Group>(groupFromDatabase, [
       'chat',
-      'dateIdeas',
       'dayOptions',
       'usersThatAccepted',
       'feedback',
