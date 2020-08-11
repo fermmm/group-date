@@ -2,6 +2,12 @@ import { __, column, g, order, P, scope, t } from '../../common-tools/database-t
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { MAX_GROUP_SIZE, MIN_GROUP_SIZE, USE_GROUPS_SEARCH_OPTIMIZED_QUERY } from '../../configurations';
 
+/*
+ *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
+ *    grupo ya creado si no se vuelve a computar, lo que se podria hacer es crear una nueva busqueda pero para
+ *    meter usuarios nuevos en grupos ya creados
+ */
+
 /**
  * This query returns lists of users arrays where it's users matches between them.
  * This search is required to analyze and then create new groups. It's the core feature of the app.
@@ -48,7 +54,7 @@ function queryToGetUsersAllowedToBeOnBadGroups(): Traversal {
  * These 2 rules can also be thought of as figures in the graph:
  *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
  *
- * To test with the query easily:
+ * To test the query easily:
  * https://gremlify.com/id19z50t41i
  */
 function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
@@ -117,7 +123,7 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
  * The query meets the objective by finding this figures and then combining them when they have at least 2 users in common, this is another
  * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
  *
- * To test with the query easily:
+ * To test the query easily:
  * https://gremlify.com/g36faa7bw0b
  */
 function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversal {
@@ -183,9 +189,9 @@ function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversa
  * arrays of matching users that are not so well connected.
  *
  * These groups are "circles" of users with 2 connections each, can be visualized as a round of
- * people holding hands.
+ * people.
  *
- * To test with the query easily:
+ * To test the query easily:
  * https://gremlify.com/o9rye6xy5od
  */
 function queryToSearchBadQualityGroups(traversal: Traversal): Traversal {

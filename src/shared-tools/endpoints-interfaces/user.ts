@@ -106,6 +106,11 @@ export enum AttractionType {
    Dislike = 'Dislike',
 }
 
+export enum MatchType {
+   Like = 'Match',
+   Dislike = 'SeenMatch',
+}
+
 export interface Notification {
    notificationId: string;
    date: number;
@@ -126,3 +131,4 @@ export enum NotificationType {
 }
 
 export const allAttractionTypes: AttractionType[] = Object.values(AttractionType);
+export const allMatchTypes: MatchType[] = Object.values(MatchType);

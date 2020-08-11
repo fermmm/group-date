@@ -7,36 +7,10 @@ import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tool
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { queryToGetUserById } from '../common/queries';
 
+// TODO: Cuando un grupo esta finalizado se elimina el edge slot1 o slot2
+
 /**
  * Creates a group and returns it as a traversal query
- */
-/**
- * TODO:
- *    - [Hecho] La funcion de crear grupo tiene que aceptar usuarios iniciales para agregar
- *
- *    - [Hecho] Cuando se crea un grupo se crea un edge desde cada usuario al grupo llamado slot1 o slot2
- *      segun corresponda con la cantidad de usuarios iniciales
- *
- *    - [Hecho] Cuando se crea un grupo cambiar los edges Match entre sus usuarios por "SeenMatch"
- *
- *    - [Hecho] La funcion que agrega un voto a la dateIdea hay que programarla de vuelta basada en la property dateIdeaVotes
- *      de el edge "member"
- *
- *    - [Hecho] Hay que programar de vuelta para que devuelva los votos de todas las dates ideas
- *      ahora mismo no esta devolviendo quienes votaron
- *
- *    - Actualmente no hay un test de los slots, habría que implementarlo.
- *
- *    - Arreglar el juego de cartas para que no aparezcan los Match ni los SeenMatch
- *
- *    - Antes de agregar usuarios a un grupo ya existente tiene que haber algo que impide que el grupo sea
- *      mas grande que el maximo
- *
- *    - Cuando un grupo esta finalizado se elimina el edge slot1 o slot2
- *
- *    Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
- *    grupo ya creado si no se vuelve a computar, lo que se podria hacer es crear una nueva busqueda pero para
- *    meter usuarios nuevos en grupos ya creados
  */
 export function queryToCreateGroup(dayOptions: DayOption[], initialUsers?: AddUsersToGroupSettings): Traversal {
    let traversal: Traversal = g

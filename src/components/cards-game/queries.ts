@@ -1,9 +1,11 @@
 import * as moment from 'moment';
 import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { KM_IN_GPS_FORMAT, MONTH_IN_UNIX_FORMAT } from '../../common-tools/math-tools/constants';
+import { KM_IN_GPS_FORMAT, ONE_MONTH_IN_SECONDS } from '../../common-tools/math-tools/constants';
+import { CARDS_MAXIMUM_INACTIVITY } from '../../configurations';
 import {
    allAttractionTypes,
+   allMatchTypes,
    AttractionType,
    Gender,
    QuestionResponse,
@@ -42,14 +44,23 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    /**
     * Don't show inactive accounts
     */
-   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
+   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - CARDS_MAXIMUM_INACTIVITY)));
 
    /**
     * Was not already reviewed by the user
     */
-   for (const attractionType of allAttractionTypes) {
-      query = query.not(__.inE(attractionType).where(__.outV().has('token', searcherUser.token)));
-   }
+   query = query.not(__.inE(...allAttractionTypes).where(__.outV().has('token', searcherUser.token)));
+
+   /**
+    * It's not a Match or SeenMatch
+    */
+   query = query.not(
+      __.bothE(...allMatchTypes).where(
+         __.bothV()
+            .simplePath()
+            .has('token', searcherUser.token),
+      ),
+   );
 
    /**
     * It's another user (not self)
@@ -160,7 +171,7 @@ export function queryToGetDislikedUsers(token: string, searcherUser: User): Trav
    /**
     * Filter inactive accounts
     */
-   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - MONTH_IN_UNIX_FORMAT)));
+   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - ONE_MONTH_IN_SECONDS)));
 
    /**
     * Order the results

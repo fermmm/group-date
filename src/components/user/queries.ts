@@ -41,6 +41,7 @@ export async function queryToSetUserEditableProps(token: string, userProps: Expo
    return retryOnError(() => query.iterate());
 }
 
+// TODO: Que pasa si das like a alguien que es SeenMatch? no deberias poder.
 export async function queryToSetAttraction(params: SetAttractionParams): Promise<void> {
    let query: Traversal = hasProfileCompleted(queryToGetUserByToken(params.token)).as('user');
 
