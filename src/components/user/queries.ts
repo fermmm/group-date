@@ -1,11 +1,12 @@
 import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
-import { __, retryOnError } from '../../common-tools/database-tools/database-manager';
+import { __, retryOnError, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    allAttractionTypes,
    AttractionType,
    SetAttractionParams,
+   allMatchTypes,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
 import { hasProfileCompleted, queryToGetUserByToken } from '../common/queries';
@@ -49,6 +50,7 @@ export async function queryToSetAttraction(params: SetAttractionParams): Promise
       const involvedUsersSearch = __.V()
          .has('user', 'userId', paramsItem.userId)
          .where(__.not(__.has('user', 'token', params.token))) // This prevents self liking
+         .not(__.both('SeenMatch').where(P.eq('user')))
          .store(paramsItem.userId);
 
       let traversal: Traversal = __.select(paramsItem.userId).unfold();
@@ -110,7 +112,7 @@ export async function queryToSetAttraction(params: SetAttractionParams): Promise
 }
 
 export function queryToGetMatches(token: string): Traversal {
-   return queryToGetUserByToken(token).both('Match');
+   return queryToGetUserByToken(token).both(...allMatchTypes);
 }
 
 export function queryToGetAttractionsSent(token: string, types?: AttractionType[]): Traversal {

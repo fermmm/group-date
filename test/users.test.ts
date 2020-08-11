@@ -1,5 +1,6 @@
 import 'jest';
 import { queryToRemoveUsers } from '../src/components/common/queries';
+import { createGroup, getSlotIdFromUsersAmount } from '../src/components/groups/models';
 import {
    addNotificationToUser,
    attractionsReceivedGet,
@@ -8,52 +9,47 @@ import {
    profileStatusGet,
    userGet,
 } from '../src/components/user/models';
+import { Group } from '../src/shared-tools/endpoints-interfaces/groups';
 import { AttractionType, NotificationType, User } from '../src/shared-tools/endpoints-interfaces/user';
 import { createMatchingUsers } from './tools/groups';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUser, createFakeUsers, setAttraction } from './tools/users';
 
 describe('Users', () => {
-   const FAKE_USERS_AMOUNT: number = 20;
-   let fakeUsers: Array<Partial<User>>;
    let matchingUsersCouple1: User[];
    let matchingUsersCouple2: User[];
    let matchingUsersCouple3: User[];
-   let matchingGroup: User[];
+   let matching10: User[];
+   let matching10Group: Group;
 
    beforeAll(async () => {
       matchingUsersCouple1 = await createMatchingUsers(2);
       matchingUsersCouple2 = await createMatchingUsers(2);
       matchingUsersCouple3 = await createMatchingUsers(2);
-      matchingGroup = await createMatchingUsers(10);
-      fakeUsers = await createFakeUsers(FAKE_USERS_AMOUNT);
-   });
-
-   test('Fake users are created', () => {
-      expect(fakeUsers).toHaveLength(FAKE_USERS_AMOUNT);
+      matching10 = await createMatchingUsers(10);
    });
 
    test('Fake users profile is completed', async () => {
-      await profileStatusGet({ token: fakeUsers[0].token }, fakeCtx);
-      const updatedUser: Partial<User> = await userGet({ token: fakeUsers[0].token }, fakeCtx);
+      await profileStatusGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
+      const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       expect(updatedUser.profileCompleted).toBe(true);
    });
 
    test('Notifications works', async () => {
-      await addNotificationToUser(fakeUsers[0].token, {
+      await addNotificationToUser(matchingUsersCouple1[0].token, {
          type: NotificationType.Group,
          title: 'Prueba',
          text: 'sarasa2',
          targetId: 'http://sarasa.com',
       });
-      await addNotificationToUser(fakeUsers[0].token, {
+      await addNotificationToUser(matchingUsersCouple1[0].token, {
          type: NotificationType.FacebookEvent,
          title: 'sarasa3',
          text: 'sarasa4',
          targetId: 'http://sarasa.com',
       });
 
-      const updatedUser: Partial<User> = await userGet({ token: fakeUsers[0].token }, fakeCtx);
+      const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       expect(updatedUser.notifications.length).toBe(2);
    });
 
@@ -96,18 +92,23 @@ describe('Users', () => {
       expect(await matchesGet(matchingUsersCouple1[1].token)).toHaveLength(1);
       expect((await matchesGet(matchingUsersCouple1[0].token))[0].userId).toBe(matchingUsersCouple1[1].userId);
       expect((await matchesGet(matchingUsersCouple1[1].token))[0].userId).toBe(matchingUsersCouple1[0].userId);
-      expect(await matchesGet(matchingGroup[matchingGroup.length - 1].token)).toHaveLength(
-         matchingGroup.length - 1,
-      );
+      expect(await matchesGet(matching10[matching10.length - 1].token)).toHaveLength(matching10.length - 1);
+
+      // After a group creation the users "Match" are converted into a "SeenMatch" and it should not be possible to change set attraction anymore
+      matching10Group = await createGroup({
+         usersIds: matching10.map(u => u.userId),
+         slotToUse: getSlotIdFromUsersAmount(matching10.length),
+      });
+      await setAttraction(matching10[0], [matching10[1]], AttractionType.Dislike);
+      expect(await attractionsSentGet(matching10[0].token, [AttractionType.Dislike])).toHaveLength(0);
    });
 
    afterAll(async () => {
       await queryToRemoveUsers([
-         ...fakeUsers,
          ...matchingUsersCouple1,
          ...matchingUsersCouple2,
          ...matchingUsersCouple3,
-         ...matchingGroup,
+         ...matching10,
       ]);
    });
 });
