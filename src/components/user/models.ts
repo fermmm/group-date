@@ -155,7 +155,7 @@ export async function addNotificationToUser(
  * Endpoint to set attraction (like or dislike a user)
  */
 export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
-   return queryToSetAttraction(params);
+   return await queryToSetAttraction(params).iterate();
 }
 
 /**

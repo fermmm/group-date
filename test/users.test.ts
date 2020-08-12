@@ -54,8 +54,14 @@ describe('Users', () => {
    });
 
    test('Attraction works', async () => {
-      // Multiple likes sent simultaneously gets saved
       const testProtagonist: User = await createFakeUser();
+
+      // Self liking should be not possible
+      await setAttraction(testProtagonist, [testProtagonist], AttractionType.Like);
+      expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(0);
+      expect(await attractionsReceivedGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(0);
+
+      // Multiple likes sent simultaneously gets saved
       await setAttraction(testProtagonist, matchingUsersCouple2, AttractionType.Like);
       await setAttraction(testProtagonist, matchingUsersCouple3, AttractionType.Dislike);
       expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(
@@ -96,7 +102,7 @@ describe('Users', () => {
 
       // After a group creation the users "Match" are converted into a "SeenMatch" and it should not be possible to change set attraction anymore
       matching10Group = await createGroup({
-         usersIds: matching10.map(u => u.userId),
+         usersIds: matching10.map(u => u.userId), // Creating a group converts matches into seen matches
          slotToUse: getSlotIdFromUsersAmount(matching10.length),
       });
       await setAttraction(matching10[0], [matching10[1]], AttractionType.Dislike);
