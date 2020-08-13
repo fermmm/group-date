@@ -15,19 +15,27 @@ import { GremlinValueType, SupportedGremlinTypes, Traversal } from './gremlin-ty
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
  */
-export async function queryToUser(queryOfUser: Traversal, includeQuestions: boolean): Promise<User> {
+/**
+ *
+ * @param queryOfUser
+ * @param includeQuestions
+ */
+export async function fromQueryToUser(queryOfUser: Traversal, includeQuestions: boolean): Promise<User> {
    if (includeQuestions) {
       queryOfUser = addQuestionsRespondedToUserQuery(queryOfUser);
    } else {
       queryOfUser = valueMap(queryOfUser);
    }
-   return gremlinMapToUser((await retryOnError(() => queryOfUser.next())).value);
+   return fromGremlinMapToUser((await retryOnError(() => queryOfUser.next())).value);
 }
 
 /**
  * Converts a gremlin query that should return a list of users' vertexes into a list of Users as object.
+ *
+ * @param protectPrivacy Don't include internal properties like token and other credentials. default = true
+ * @param includeQuestionsData default = true
  */
-export async function queryToUserList(
+export async function fromQueryToUserList(
    queryOfUsers: Traversal,
    protectPrivacy: boolean = true,
    includeQuestionsData: boolean = true,
@@ -42,21 +50,21 @@ export async function queryToUserList(
    >;
    return resultGremlinOutput.map(userFromQuery => {
       if (protectPrivacy) {
-         return removePrivacySensitiveUserProps(gremlinMapToUser(userFromQuery));
+         return removePrivacySensitiveUserProps(fromGremlinMapToUser(userFromQuery));
       }
-      return gremlinMapToUser(userFromQuery);
+      return fromGremlinMapToUser(userFromQuery);
    });
 }
 
 /**
  * Converts a Gremlin query that returns a single group into a Group object.
  */
-export async function queryToGroup(
+export async function fromQueryToGroup(
    queryOfGroup: Traversal,
    protectPrivacy: boolean = true,
    includeFullDetails: boolean = true,
 ): Promise<Group> {
-   return gremlinMapToGroup(
+   return fromGremlinMapToGroup(
       (await retryOnError(() => queryToGetGroupsInFinalFormat(queryOfGroup, includeFullDetails).next())).value,
       protectPrivacy,
    );
@@ -65,7 +73,7 @@ export async function queryToGroup(
 /**
  * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
  */
-export async function queryToGroupList(
+export async function fromQueryToGroupList(
    queryOfGroups: Traversal,
    protectPrivacy: boolean = true,
    includeFullDetails: boolean = true,
@@ -75,24 +83,24 @@ export async function queryToGroupList(
    )) as Array<Map<keyof Group, GremlinValueType>>;
 
    return resultGremlinOutput.map(groupFromQuery => {
-      return gremlinMapToGroup(groupFromQuery, protectPrivacy);
+      return fromGremlinMapToGroup(groupFromQuery, protectPrivacy);
    });
 }
 
 /**
  * Converts into a Group object a gremlin query that should return a single group vertex.
  */
-export async function queryToChatWithAdmins(
+export async function fromQueryToChatWithAdmins(
    query: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<ChatWithAdmins> {
-   return gremlinMapToChatWithAdmins((await retryOnError(() => query.next())).value, protectPrivacy);
+   return fromGremlinMapToChatWithAdmins((await retryOnError(() => query.next())).value, protectPrivacy);
 }
 
 /**
  * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
  */
-export async function queryToChatWithAdminsList(
+export async function fromQueryToChatWithAdminsList(
    query: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<ChatWithAdmins[]> {
@@ -100,19 +108,31 @@ export async function queryToChatWithAdminsList(
       Map<keyof ChatWithAdmins, GremlinValueType>
    >;
    return resultGremlinOutput.map(queryElement => {
-      return gremlinMapToChatWithAdmins(queryElement, protectPrivacy);
+      return fromGremlinMapToChatWithAdmins(queryElement, protectPrivacy);
+   });
+}
+
+/**
+ * Converts a gremlin query that should return a list of groups of users into the final serialized objects.
+ */
+export async function fromQueryToGroupSearchResults(query: Traversal): Promise<UserAndItsMatches[][]> {
+   const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
+      Array<Map<keyof UserAndItsMatches, string>>
+   >;
+   return resultGremlinOutput.map(groupAsMap => {
+      return groupAsMap.map(g => fromGremlinMapToObject<UserAndItsMatches>(g));
    });
 }
 
 /**
  * Converts the format of the Gremlin Map output into a User object
  */
-function gremlinMapToUser(userFromDatabase: Map<keyof User, GremlinValueType>): User {
+function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinValueType>): User {
    if (userFromDatabase == null) {
       return null;
    }
 
-   const result = gremlinMapToObject<User>(userFromDatabase, ['pictures', 'notifications']);
+   const result = fromGremlinMapToObject<User>(userFromDatabase, ['pictures', 'notifications']);
 
    if (result.questions != null) {
       for (const question of result.questions) {
@@ -126,7 +146,7 @@ function gremlinMapToUser(userFromDatabase: Map<keyof User, GremlinValueType>): 
 /**
  * Converts the format of the Gremlin Map output into a Group object
  */
-function gremlinMapToGroup(
+function fromGremlinMapToGroup(
    groupFromDatabase: Map<keyof Group, GremlinValueType>,
    protectPrivacy: boolean = true,
 ): Group {
@@ -138,14 +158,14 @@ function gremlinMapToGroup(
    const members = groupFromDatabase.get('members') as Array<Map<keyof User, GremlinValueType>>;
    const membersConverted = members?.map(userFromQuery => {
       if (protectPrivacy) {
-         return removePrivacySensitiveUserProps(gremlinMapToUser(userFromQuery));
+         return removePrivacySensitiveUserProps(fromGremlinMapToUser(userFromQuery));
       }
-      return gremlinMapToUser(userFromQuery);
+      return fromGremlinMapToUser(userFromQuery);
    });
    groupFromDatabase.delete('members');
 
    // Now the rest of the group properties can be converted
-   const group = gremlinMapToObject<Group>(groupFromDatabase, [
+   const group = fromGremlinMapToObject<Group>(groupFromDatabase, [
       'chat',
       'dayOptions',
       'usersThatAccepted',
@@ -164,7 +184,7 @@ function gremlinMapToGroup(
 /**
  * Converts the format of the Gremlin Map output into a ChatWithAdmins object
  */
-function gremlinMapToChatWithAdmins(
+function fromGremlinMapToChatWithAdmins(
    chatWithAdmins: Map<keyof ChatWithAdmins, GremlinValueType>,
    protectPrivacy: boolean = true,
 ): ChatWithAdmins {
@@ -173,41 +193,34 @@ function gremlinMapToChatWithAdmins(
    }
 
    // Convert user prop with the corresponding converter for the users
-   let nonAdminUser = gremlinMapToUser(chatWithAdmins.get('nonAdminUser') as Map<keyof User, GremlinValueType>);
+   let nonAdminUser = fromGremlinMapToUser(
+      chatWithAdmins.get('nonAdminUser') as Map<keyof User, GremlinValueType>,
+   );
    chatWithAdmins.delete('nonAdminUser');
    if (nonAdminUser != null && protectPrivacy) {
       nonAdminUser = removePrivacySensitiveUserProps(nonAdminUser);
    }
 
    // Now the rest of the properties can be converted
-   const result = gremlinMapToObject<ChatWithAdmins>(chatWithAdmins, ['messages']);
+   const result = fromGremlinMapToObject<ChatWithAdmins>(chatWithAdmins, ['messages']);
    result.nonAdminUser = nonAdminUser;
 
    return result;
 }
 
 /**
- * Converts a gremlin query that should return a list of groups of users into the final serialized objects.
- */
-export async function queryToGroupSearchResults(query: Traversal): Promise<UserAndItsMatches[][]> {
-   const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
-      Array<Map<keyof UserAndItsMatches, string>>
-   >;
-   return resultGremlinOutput.map(groupAsMap => {
-      return groupAsMap.map(g => gremlinMapToObject<UserAndItsMatches>(g));
-   });
-}
-
-/**
  * Converts the format of the Gremlin Map output into JS object
  */
-function gremlinMapToObject<T>(gremlinMap: Map<keyof T, GremlinValueType>, propsToParse?: Array<keyof T>): T {
+function fromGremlinMapToObject<T>(
+   gremlinMap: Map<keyof T, GremlinValueType>,
+   propsToParse?: Array<keyof T>,
+): T {
    if (gremlinMap == null) {
       return null;
    }
 
    // Add general props
-   const result: Record<keyof T, GremlinValueType> = mapToObjectDeep(gremlinMap);
+   const result: Record<keyof T, GremlinValueType> = fromMapToObjectDeep(gremlinMap);
 
    propsToParse?.forEach(propName => {
       if (result[propName] != null) {
@@ -218,9 +231,9 @@ function gremlinMapToObject<T>(gremlinMap: Map<keyof T, GremlinValueType>, props
    return (result as unknown) as T;
 }
 
-function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
+function fromMapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
    if (map instanceof Array) {
-      return map.map(v => mapToObjectDeep(v));
+      return map.map(v => fromMapToObjectDeep(v));
    }
 
    if (!(map instanceof Map)) {
@@ -229,7 +242,7 @@ function mapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
 
    const result: Record<string, any> = {};
    map.forEach((v, k) => {
-      result[k] = mapToObjectDeep(v);
+      result[k] = fromMapToObjectDeep(v);
    });
 
    return result;

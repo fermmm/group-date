@@ -7,7 +7,7 @@ const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
 export const g = (traversal().withRemote(
    new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL, {}),
-) as unknown) as Traversal;
+) as unknown) as gremlin.process.GraphTraversalSource;
 export const __ = (gremlin.process.statics as unknown) as Traversal;
 export const withOptions = gremlin.process.withOptions;
 export const TextP = gremlin.process.TextP;
@@ -58,7 +58,7 @@ export async function waitForDatabase(silent: boolean = false): Promise<void> {
  * This solves the "ConcurrentModificationException" error that happens when gremlin has
  * too many modifications requests in a short period of time and requires a retry sometimes.
  *
- * @param query The query wraped into a arrow function like this: () => g.V().toList()
+ * @param query The query wrapped into a arrow function like this: () => g.V().toList()
  */
 export async function retryOnError<T>(query: () => Promise<T>, logResult: boolean = false): Promise<T> {
    try {

@@ -1,10 +1,10 @@
 import * as Chance from 'chance';
 import * as moment from 'moment';
 import ora = require('ora');
-import { queryToUser } from '../../src/common-tools/database-tools/data-conversion-tools';
-import { setAttractionPost, userPost } from '../../src/components/user/models';
-import { queryToCreateUser } from '../../src/components/user/queries';
-import { getIncompatibleAnswers, questions as questionsData } from '../../src/components/user/questions/models';
+import { fromQueryToUser } from '../../common-tools/database-tools/data-conversion-tools';
+import { setAttractionPost, userPost } from '../../components/user/models';
+import { queryToCreateUser } from '../../components/user/queries';
+import { getIncompatibleAnswers, questions as questionsData } from '../../components/user/questions/models';
 import {
    Attraction,
    AttractionType,
@@ -12,8 +12,8 @@ import {
    QuestionResponse,
    User,
    UserPostParams,
-} from '../../src/shared-tools/endpoints-interfaces/user';
-import { ExposedUserProps } from '../../src/shared-tools/validators/user';
+} from '../../shared-tools/endpoints-interfaces/user';
+import { ExposedUserProps } from '../../shared-tools/validators/user';
 import { fakeCtx } from './replacements';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
@@ -96,7 +96,7 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
       };
    });
 
-   let user: Partial<User> = await queryToUser(queryToCreateUser(token, chance.email(), true), true);
+   let user: Partial<User> = await fromQueryToUser(queryToCreateUser(token, chance.email(), true), true);
    await userPost({ token, props, questions }, fakeCtx);
 
    // await profileStatusGet({ token }, fakeCtx);

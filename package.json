@@ -75,7 +75,7 @@
          "**/test/**/*.test.ts"
       ],
       "testTimeout": 60000,
-      "globalSetup": "./test/tools/initializer.ts"
+      "globalSetup": "./src/test/tools/initializer.ts"
    },
    "husky": {
       "hooks": {

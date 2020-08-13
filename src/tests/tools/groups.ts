@@ -1,5 +1,5 @@
 import * as Chance from 'chance';
-import { User } from '../../src/shared-tools/endpoints-interfaces/user';
+import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { createFakeUsers, setAttractionAllWithAll, setAttractionMatch } from './users';
 
 /**

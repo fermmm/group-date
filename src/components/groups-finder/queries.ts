@@ -4,7 +4,7 @@ import { MAX_GROUP_SIZE, MIN_GROUP_SIZE, USE_GROUPS_SEARCH_OPTIMIZED_QUERY } fro
 
 /*
  *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
- *    grupo ya creado si no se vuelve a computar, lo que se podria hacer es crear una nueva busqueda pero para
+ *    grupo ya creado si no se vuelve a computar, lo que se podría hacer es crear una nueva búsqueda pero para
  *    meter usuarios nuevos en grupos ya creados
  */
 
@@ -126,6 +126,7 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
  * To test the query easily:
  * https://gremlify.com/g36faa7bw0b
  */
+// TODO: Agregar un parámetro maxGroupSize y minGroupSize, que solo usuarios con el slot disponible sean buscados
 function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversal {
    return (
       traversal

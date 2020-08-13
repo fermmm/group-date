@@ -129,7 +129,7 @@ export function connectAllWithNeighbors(groupAsConnections: number[][], loop: bo
    return result;
 }
 
-export function addUsersAndConnectRandomly(params: AddUsersRondomlyParams): number[][] {
+export function addUsersAndConnectRandomly(params: AddUsersRandomlyParams): number[][] {
    let result: number[][] = copyGroup(params.groupAsConnections ?? []);
    const chance = new Chance(params?.seed ?? 0);
    for (let i = 0; i < params.amountOfUsers; i++) {
@@ -162,7 +162,7 @@ function getRandomArrayIndexes(
    return result;
 }
 
-export interface AddUsersRondomlyParams {
+export interface AddUsersRandomlyParams {
    groupAsConnections?: number[][];
    amountOfUsers: number;
    minConnectionsPerUser: number;

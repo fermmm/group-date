@@ -1,15 +1,15 @@
 import 'jest';
-import { queryToUserList } from '../src/common-tools/database-tools/data-conversion-tools';
+import { fromQueryToUserList } from '../common-tools/database-tools/data-conversion-tools';
 import {
    dislikedUsersGet,
    notifyAllUsersAboutNewCards,
    recommendationsGet,
-} from '../src/components/cards-game/models';
-import { queryToOrderResultsByMatchingQuestions } from '../src/components/cards-game/queries';
-import { queryToGetAllCompleteUsers, queryToRemoveUsers } from '../src/components/common/queries';
-import { userGet, userPost } from '../src/components/user/models';
-import { AttractionType, Gender, User, UserPostParams } from '../src/shared-tools/endpoints-interfaces/user';
-import { amountOfMatchingResponses } from '../src/shared-tools/user-tools/user-tools';
+} from '../components/cards-game/models';
+import { queryToOrderResultsByMatchingQuestions } from '../components/cards-game/queries';
+import { queryToGetAllCompleteUsers, queryToRemoveUsers } from '../components/common/queries';
+import { userGet, userPost } from '../components/user/models';
+import { AttractionType, Gender, User, UserPostParams } from '../shared-tools/endpoints-interfaces/user';
+import { amountOfMatchingResponses } from '../shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
 import { createFakeCompatibleUsers, createFakeUser, createFakeUsers, setAttraction } from './tools/users';
@@ -36,8 +36,8 @@ describe('Cards game', () => {
             targetAgeMax: 38,
             targetDistance: 30,
             pictures: ['http://test.com/image.jpg'],
-            dateIdeaName: 'Ca futgeg kusuku bihlow honsonaf.',
-            dateIdeaAddress: '1324 Focsev Manor',
+            dateIdeaName: 'holis.',
+            dateIdeaAddress: '1324 holis',
             likesWomanTrans: false,
             likesManTrans: false,
             likesWoman: true,
@@ -271,7 +271,7 @@ describe('Cards game', () => {
    test('Recommendations returns correct users in correct order', async () => {
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
 
-      // Check ammount
+      // Check amount
       expect(recommendations).toHaveLength(2);
 
       // Check for duplication
@@ -281,7 +281,7 @@ describe('Cards game', () => {
       expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
       expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
 
-      // Check ammount of matching responses
+      // Check amount of matching responses
       expect(
          amountOfMatchingResponses(searcherUser, recommendations[0]) >=
             amountOfMatchingResponses(searcherUser, recommendations[1]),
@@ -296,7 +296,7 @@ describe('Cards game', () => {
    test('Disliked users returns the correct data', async () => {
       recommendations = await dislikedUsersGet({ token: searcherUser.token }, fakeCtx);
 
-      // Check ammount
+      // Check amount
       expect(recommendations).toHaveLength(2);
 
       // Check for duplication
@@ -317,7 +317,7 @@ describe('Cards game', () => {
       query = queryToOrderResultsByMatchingQuestions(query, searcherUser);
 
       let orderIsCorrect: boolean = true;
-      const orderedUsers = await queryToUserList(query);
+      const orderedUsers = await fromQueryToUserList(query);
 
       expect(orderedUsers.length === fakeUsers.length).toBe(true);
 

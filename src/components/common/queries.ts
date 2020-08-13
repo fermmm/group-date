@@ -6,7 +6,7 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 
 export function queryToGetUserByToken(token: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g;
+      currentTraversal = (g as unknown) as Traversal;
    }
 
    return currentTraversal.V().has('user', 'token', String(token));
@@ -14,7 +14,7 @@ export function queryToGetUserByToken(token: string, currentTraversal?: Traversa
 
 export function queryToGetUserByEmail(email: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g;
+      currentTraversal = (g as unknown) as Traversal;
    }
 
    return currentTraversal.V().has('user', 'email', String(email));
@@ -22,7 +22,7 @@ export function queryToGetUserByEmail(email: string, currentTraversal?: Traversa
 
 export function queryToGetUserById(userId: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g;
+      currentTraversal = (g as unknown) as Traversal;
    }
 
    return currentTraversal.V().has('user', 'userId', String(userId));
@@ -30,7 +30,7 @@ export function queryToGetUserById(userId: string, currentTraversal?: Traversal)
 
 export function queryToGetUsersListFromIds(usersIds: string[], currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g;
+      currentTraversal = (g as unknown) as Traversal;
    }
    currentTraversal = currentTraversal.V().hasLabel('user');
 
@@ -93,7 +93,7 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
          .iterate();
    }
 
-   let query: Traversal = g;
+   let query: Traversal = (g as unknown) as Traversal;
 
    for (const user of users) {
       query = query

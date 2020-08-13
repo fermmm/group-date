@@ -1,5 +1,5 @@
 import { BaseContext } from 'koa';
-import { queryToUser } from '../../common-tools/database-tools/data-conversion-tools';
+import { fromQueryToUser } from '../../common-tools/database-tools/data-conversion-tools';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { FacebookResponse } from '../../shared-tools/endpoints-interfaces/common';
@@ -27,7 +27,7 @@ export async function retrieveUser(
 ): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
-   user = await queryToUser(queryToGetUserByToken(token), includeQuestionsData);
+   user = await fromQueryToUser(queryToGetUserByToken(token), includeQuestionsData);
 
    if (user != null) {
       return user;
@@ -45,14 +45,17 @@ export async function retrieveUser(
       ctx.throw(400, 'Facebook error 01');
    }
 
-   user = await queryToUser(queryToGetUserByEmail(userDataFromFacebook.content.email), includeQuestionsData);
+   user = await fromQueryToUser(
+      queryToGetUserByEmail(userDataFromFacebook.content.email),
+      includeQuestionsData,
+   );
 
    if (user != null) {
       await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
       return user;
    }
 
-   return queryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeQuestionsData);
+   return fromQueryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeQuestionsData);
 }
 
 /**

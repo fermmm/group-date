@@ -5,7 +5,7 @@ import { queryToGetUserByToken } from '../../common/queries';
 import { getIncompatibleAnswers } from './models';
 
 export async function createQuestions(questions: QuestionData[]): Promise<void> {
-   let traversal: Traversal = g;
+   let traversal: Traversal = (g as unknown) as Traversal;
 
    /**
     * Add question to the database from the questions list provided (only when it does not
@@ -37,7 +37,7 @@ export async function createQuestions(questions: QuestionData[]): Promise<void> 
       return Promise.resolve();
    }
 
-   let traversal2: Traversal = g;
+   let traversal2: Traversal = (g as unknown) as Traversal;
    for (const question of surplusQuestions) {
       traversal2 = traversal2
          .V()

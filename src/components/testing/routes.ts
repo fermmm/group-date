@@ -5,11 +5,11 @@ import {
    createMatchingUsers,
    matchUsersWithUsers,
    matchUserWithUsers,
-} from '../../../test/tools/groups';
-import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../../test/tools/users';
+} from '../../tests/tools/groups';
+import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../tests/tools/users';
 import {
-   queryToGroupSearchResults,
-   queryToUserList,
+   fromQueryToGroupSearchResults,
+   fromQueryToUserList,
 } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, g, logComplete } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
@@ -49,7 +49,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      const result = await queryToGroupSearchResults(queryToGetPossibleGoodGroups());
+      const result = await fromQueryToGroupSearchResults(queryToGetPossibleGoodGroups());
       logComplete(result);
 
       // await removeUsers(fakeUsers);
@@ -58,7 +58,7 @@ export function testingRoutes(router: Router): void {
 }
 
 async function logUserListNames(query: Traversal) {
-   console.log((await queryToUserList(query)).map(u => u.name));
+   console.log((await fromQueryToUserList(query)).map(u => u.name));
 }
 
 export function getUserListsDifferences(list1: User[], list2: User[]): User[] {

@@ -2,8 +2,8 @@ import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { v1 as uuidv1 } from 'uuid';
 import {
-   queryToChatWithAdmins,
-   queryToChatWithAdminsList,
+   fromQueryToChatWithAdmins,
+   fromQueryToChatWithAdminsList,
 } from '../../common-tools/database-tools/data-conversion-tools';
 import {
    AdminChatGetAllParams,
@@ -25,7 +25,7 @@ import {
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
    const nonAdminUserId: string = callerUser.isAdmin ? params.targetUserId : callerUser.userId;
-   const result: ChatWithAdmins = await queryToChatWithAdmins(
+   const result: ChatWithAdmins = await fromQueryToChatWithAdmins(
       queryToGetAdminChatMessages(nonAdminUserId, callerUser.isAdmin),
    );
    return result;
@@ -35,7 +35,7 @@ export async function adminChatPost(params: AdminChatPostParams, ctx: BaseContex
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
    const nonAdminUserId: string = callerUser.isAdmin ? params.targetUserId : callerUser.userId;
    const currentChat: ChatMessage[] =
-      (await queryToChatWithAdmins(queryToGetAdminChatMessages(nonAdminUserId, false)))?.messages || [];
+      (await fromQueryToChatWithAdmins(queryToGetAdminChatMessages(nonAdminUserId, false)))?.messages || [];
 
    currentChat.push({
       messageText: params.messageText,
@@ -56,7 +56,7 @@ export async function allChatsWithAdminsGet(
       return null;
    }
 
-   return queryToChatWithAdminsList(queryToGetAllChatsWithAdmins(params.excludeRespondedByAdmin));
+   return fromQueryToChatWithAdminsList(queryToGetAllChatsWithAdmins(params.excludeRespondedByAdmin));
 }
 
 export async function convertToAdminPost(params: AdminConvertPostParams, ctx: BaseContext): Promise<void> {

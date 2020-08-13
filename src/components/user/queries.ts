@@ -42,6 +42,9 @@ export async function queryToSetUserEditableProps(token: string, userProps: Expo
    return retryOnError(() => query.iterate());
 }
 
+/**
+ * To play with this query: https://gremlify.com/chrl4ahk3t
+ */
 export function queryToSetAttraction(params: SetAttractionParams): Traversal {
    const usersToSetAttractionTraversals: Traversal[] = params.attractions.map(p =>
       __.has('user', 'userId', p.userId),

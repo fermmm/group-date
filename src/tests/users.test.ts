@@ -1,6 +1,6 @@
 import 'jest';
-import { queryToRemoveUsers } from '../src/components/common/queries';
-import { createGroup, getSlotIdFromUsersAmount } from '../src/components/groups/models';
+import { queryToRemoveUsers } from '../components/common/queries';
+import { createGroup, getSlotIdFromUsersAmount } from '../components/groups/models';
 import {
    addNotificationToUser,
    attractionsReceivedGet,
@@ -8,9 +8,9 @@ import {
    matchesGet,
    profileStatusGet,
    userGet,
-} from '../src/components/user/models';
-import { Group } from '../src/shared-tools/endpoints-interfaces/groups';
-import { AttractionType, NotificationType, User } from '../src/shared-tools/endpoints-interfaces/user';
+} from '../components/user/models';
+import { Group } from '../shared-tools/endpoints-interfaces/groups';
+import { AttractionType, NotificationType, User } from '../shared-tools/endpoints-interfaces/user';
 import { createMatchingUsers } from './tools/groups';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUser, createFakeUsers, setAttraction } from './tools/users';

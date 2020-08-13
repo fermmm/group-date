@@ -1,6 +1,6 @@
 import 'jest';
-import { queryToUserList } from '../src/common-tools/database-tools/data-conversion-tools';
-import { User } from '../src/shared-tools/endpoints-interfaces/user';
+import { fromQueryToUserList } from '../common-tools/database-tools/data-conversion-tools';
+import { User } from '../shared-tools/endpoints-interfaces/user';
 import { connectUsersInChain, createMatchingUsers, matchUserWithUsers } from './tools/groups';
 import { createFakeUser, createFakeUsers } from './tools/users';
 

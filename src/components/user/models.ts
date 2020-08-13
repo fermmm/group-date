@@ -9,7 +9,7 @@ import * as moment from 'moment';
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { v1 as uuidv1 } from 'uuid';
-import { queryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
+import { fromQueryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    AttractionType,
@@ -162,21 +162,21 @@ export async function setAttractionPost(params: SetAttractionParams, ctx: BaseCo
  * This function is not exposed to the server API. It's only for tests.
  */
 export async function matchesGet(token: string): Promise<User[]> {
-   return queryToUserList(queryToGetMatches(token), false, false);
+   return fromQueryToUserList(queryToGetMatches(token), false, false);
 }
 
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 export async function attractionsReceivedGet(token: string, types?: AttractionType[]): Promise<User[]> {
-   return queryToUserList(queryToGetAttractionsReceived(token, types), false, false);
+   return fromQueryToUserList(queryToGetAttractionsReceived(token, types), false, false);
 }
 
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
-   return queryToUserList(queryToGetAttractionsSent(token, types), false, false);
+   return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
 }
 
 const imageSaver = koaBody({

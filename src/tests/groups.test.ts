@@ -1,5 +1,5 @@
 import 'jest';
-import { queryToRemoveUsers } from '../src/components/common/queries';
+import { queryToRemoveUsers } from '../components/common/queries';
 import {
    acceptPost,
    chatPost,
@@ -11,9 +11,9 @@ import {
    getSlotIdFromUsersAmount,
    groupGet,
    userGroupsGet,
-} from '../src/components/groups/models';
-import { ExperienceFeedbackType, Group } from '../src/shared-tools/endpoints-interfaces/groups';
-import { User } from '../src/shared-tools/endpoints-interfaces/user';
+} from '../components/groups/models';
+import { ExperienceFeedbackType, Group } from '../shared-tools/endpoints-interfaces/groups';
+import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUsers } from './tools/users';
 

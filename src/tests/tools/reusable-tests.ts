@@ -1,5 +1,5 @@
 import 'jest';
-import { User, UserPostParams } from '../../src/shared-tools/endpoints-interfaces/user';
+import { User, UserPostParams } from '../../shared-tools/endpoints-interfaces/user';
 
 export function fakeUsersMatchesFakeData(fakeUsers: User[], fakeData: Array<Partial<UserPostParams>>): void {
    expect(fakeUsers).toHaveLength(fakeData.length);

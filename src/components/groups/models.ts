@@ -1,7 +1,10 @@
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { v1 as uuidv1 } from 'uuid';
-import { queryToGroup, queryToGroupList } from '../../common-tools/database-tools/data-conversion-tools';
+import {
+   fromQueryToGroup,
+   fromQueryToGroupList,
+} from '../../common-tools/database-tools/data-conversion-tools';
 import { GROUP_SLOTS } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
@@ -15,6 +18,7 @@ import {
 } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
+import { queryToFindSlotsToRelease } from './queries';
 import {
    AddUsersToGroupSettings,
    queryToAddUsersToGroup,
@@ -25,6 +29,7 @@ import {
    queryToVoteDateIdeas,
 } from './queries';
 
+// TODO: Mover esto a las configurations.ts
 const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
 
@@ -37,7 +42,7 @@ export async function createGroup(initialUsers?: AddUsersToGroupSettings): Promi
       date,
       votersUserId: [],
    }));
-   return queryToGroup(queryToCreateGroup(dayOptions, initialUsers), false);
+   return fromQueryToGroup(queryToCreateGroup(dayOptions, initialUsers), false);
 }
 
 /**
@@ -48,7 +53,7 @@ export async function getGroupById(
    { includeFullDetails = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
 ): Promise<Group> {
    const groupTraversal = queryToGetGroupById(groupId, onlyIfAMemberHasUserId);
-   const result: Group = await queryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
+   const result: Group = await fromQueryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
 
    if (result == null && ctx != null) {
       ctx.throw(400, 'Group not found');
@@ -87,7 +92,7 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
  */
 export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   return queryToGroupList(queryToGetGroupsOfUserByUserId(user.userId));
+   return fromQueryToGroupList(queryToGetGroupsOfUserByUserId(user.userId));
 }
 
 /**
@@ -190,6 +195,11 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
    }
 }
 
+// TODO: Testear y escribir test de esta query y ponerla para que se ejecute cada cierto tiempo
+export async function findSlotsToRelease(): Promise<void> {
+   return await queryToFindSlotsToRelease().iterate();
+}
+
 /**
  * Internal function that adds the user to the read list and removes last messages
  * that should be already catched by the client.
@@ -236,6 +246,14 @@ function getComingWeekendDays(limitAmount: number): number[] {
 
 export function getSlotIdFromUsersAmount(amount: number): number {
    return GROUP_SLOTS.findIndex(slot => amount >= slot.minimumSize && amount <= slot.maximumSize);
+}
+
+export function getAllSlotsNames(): string[] {
+   const result: string[] = [];
+   for (let i = 0; i < GROUP_SLOTS.length; i++) {
+      result.push('slot' + i);
+   }
+   return result;
 }
 
 interface GetGroupByIdOptions {

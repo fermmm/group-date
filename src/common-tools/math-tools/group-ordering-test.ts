@@ -147,8 +147,8 @@ export function groupOrderingTest() {
 
          // Este parámetro habla del tamaño del grupo vito desde cada usuario
          const averageConnections: number = getAverageConnectionsAmount(group);
-         // Este parámetro habla sobre la diversidad del grupo, si es 1 son grupos lesb/gay con bi sin hetero.
-         // Pero tambien si el valor es menor a 0.45 significa que el grupo esta poco interconectado, poco valor
+         // Este parámetro habla sobre la diversidad del grupo, si es 1 son grupos lesbian/gay con bi sin hetero.
+         // Pero también si el valor es menor a 0.45 significa que el grupo esta poco inter-conectado, poco valor
          const coverage: number = getConnectionsCoverageAverage(group);
          // Este parámetro habla de la calidad del grupo
          const connectionsMetaconnectionsDistance: number = getConnectionsMetaconnectionsDistance(groupTrimmed);

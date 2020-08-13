@@ -4,10 +4,10 @@ import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { RELEASE_SLOT_TIME } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { queryToGetUserById } from '../common/queries';
-
-// TODO: Cuando un grupo esta finalizado se elimina el edge slot1 o slot2
+import { getAllSlotsNames } from './models';
 
 /**
  * Creates a group and returns it as a traversal query
@@ -79,6 +79,21 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
    );
 }
 
+/**
+ * Finds group slots that can be released and releases them. Removed the slot edge.
+ */
+export function queryToFindSlotsToRelease(): Traversal {
+   return g
+      .E()
+      .hasLabel(...getAllSlotsNames())
+      .where(
+         __.inV()
+            .values('creationDate')
+            .is(P.lt(moment().unix() - RELEASE_SLOT_TIME)),
+      )
+      .drop();
+}
+
 export function queryToVoteDateIdeas(group: Traversal, userId: string, usersIdsToVote: string[]): Traversal {
    let traversal: Traversal = group
       .as('group')
@@ -133,9 +148,10 @@ export function queryToUpdateGroupProperty(
 }
 
 /**
- * Receives a traversal that selects one or more groups vertices, returns the groups including the members list.
+ * Receives a traversal that selects one or more groups vertices and returns them in a value map format.
+ * Also optionally includes the members list and date ideas.
  * @param traversal A traversal that has one or more groups.
- * @param details The list of group details to include default = all details
+ * @param details Include or not the full group details default = true
  */
 export function queryToGetGroupsInFinalFormat(
    traversal: Traversal,

@@ -5,11 +5,11 @@ import {
    allChatsWithAdminsGet,
    convertToAdmin,
    convertToAdminPost,
-} from '../src/components/admin/models';
-import { retrieveFullyRegisteredUser } from '../src/components/common/models';
-import { queryToRemoveUsers } from '../src/components/common/queries';
-import { ChatWithAdmins } from '../src/shared-tools/endpoints-interfaces/admin';
-import { User } from '../src/shared-tools/endpoints-interfaces/user';
+} from '../components/admin/models';
+import { retrieveFullyRegisteredUser } from '../components/common/models';
+import { queryToRemoveUsers } from '../components/common/queries';
+import { ChatWithAdmins } from '../shared-tools/endpoints-interfaces/admin';
+import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUsers } from './tools/users';
 
@@ -62,7 +62,7 @@ describe('Users', () => {
    test('Admins can send messages and identity of admins is hidden', async () => {
       await adminChatPost({ token: mainUser2.token, messageText: 'holis' }, null);
       await adminChatPost(
-         { token: adminUser.token, targetUserId: mainUser2.userId, messageText: 'hola que queres' },
+         { token: adminUser.token, targetUserId: mainUser2.userId, messageText: 'hola que querés' },
          null,
       );
 

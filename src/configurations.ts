@@ -42,7 +42,7 @@ export const GROUP_SLOTS = [
 /**
  * A slot will be available again after a specific time set in this constant
  */
-export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 4;
+export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
 
 /**
  * The group search algorithm can start searching for small groups first or big ones first, this is important
@@ -94,7 +94,7 @@ export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Maximum time (in seconds) since last login allowed, after this inactivity time the user no longera appears
+ * Maximum time (in seconds) since last login allowed, after this inactivity time the user no longer appears
  * on the cards recommendations until next login.
  */
 export const CARDS_MAXIMUM_INACTIVITY = ONE_MONTH_IN_SECONDS;

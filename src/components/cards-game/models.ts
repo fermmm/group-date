@@ -1,6 +1,6 @@
 import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { queryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
+import { fromQueryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
 import { NOTIFICATION_FREQUENCY_NEW_CARDS } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
@@ -20,13 +20,13 @@ export function scheduledTasksCardGame(): void {
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
    const recommendationsQuery = queryToGetCardsRecommendations(user);
-   return queryToUserList(recommendationsQuery);
+   return fromQueryToUserList(recommendationsQuery);
 }
 
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
    const recommendationsQuery = queryToGetDislikedUsers(params.token, user);
-   return queryToUserList(recommendationsQuery);
+   return fromQueryToUserList(recommendationsQuery);
 }
 
 /**
@@ -41,7 +41,7 @@ export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext)
  *    4. After sending the notification sets sendNewUsersNotification to 0 to disable this functionality.
  */
 export async function notifyAllUsersAboutNewCards(): Promise<void> {
-   const users: User[] = await queryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
+   const users: User[] = await fromQueryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
    for (const user of users) {
       const recommendations: number = (await queryToGetCardsRecommendations(user).toList()).length;
       if (recommendations >= user.sendNewUsersNotification) {
