@@ -1,5 +1,5 @@
 import { hoursToMilliseconds } from './common-tools/js-tools/js-tools';
-import { ONE_MONTH_IN_SECONDS } from './common-tools/math-tools/constants';
+import { ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  GROUPS SEARCH  /////////////////////////////////////////////
@@ -13,13 +13,18 @@ export const MIN_GROUP_SIZE = 3;
 export const MAX_GROUP_SIZE = 12;
 
 /**
- * The users can have a maximum amount of active groups, otherwise they can be absent in the rest of the groups
- * because they have too many ones to spend their time on.
- * The limit of the groups works with slots, each slot is configured to be filled with a specific group size.
- * If you want to configure the app to have multiple slots with the same size, use the "amount" property.
- * The reason for this is because all slots can be filled with similar groups that are fast to emerge, preventing
- * the user from having groups that take longer to emerge but are different.
- * This is the configurable list of slots available for each user
+ * The users have a limit in the amount of simultaneous groups they can be members of because being in too
+ * many groups at the same time leads to users that will be "too busy" generating groups with absent members.
+ *
+ * This limitation works with slots, there are a specific number of slots and they can be occupied with groups
+ * of specific size for each slot.
+ * This slot-size feature it's implemented because different kind of group options are a good reason that
+ * justifies having more than one group at the same time (with limits).
+ * Also is possible to configure slots for sizes of groups that takes longer to form (the bigger groups),
+ * otherwise the slots gets all occupied by fast forming groups first (the smaller ones).
+ *
+ * This is the configurable list of slots available for the users.
+ * If you want to configure the app to have multiple slots with the same group size, use the "amount" property.
  */
 export const GROUP_SLOTS = [
    {
@@ -33,6 +38,11 @@ export const GROUP_SLOTS = [
       amount: 1,
    },
 ];
+
+/**
+ * A slot will be available again after a specific time set in this constant
+ */
+export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 4;
 
 /**
  * The group search algorithm can start searching for small groups first or big ones first, this is important
@@ -80,12 +90,12 @@ export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////  CARDS RECOMENDATIONS  //////////////////////////////////////////
+////////////////////////////////////////////////  CARDS RECOMMENDATIONS  /////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Maximum time (in seconds) since last login allowed, after this inactivity time the user no longera appears
- * on the cards recomendations until next login.
+ * on the cards recommendations until next login.
  */
 export const CARDS_MAXIMUM_INACTIVITY = ONE_MONTH_IN_SECONDS;
 

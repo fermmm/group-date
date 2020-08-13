@@ -43,13 +43,18 @@ export async function queryToSetUserEditableProps(token: string, userProps: Expo
 }
 
 export function queryToSetAttraction(params: SetAttractionParams): Traversal {
+   const usersToSetAttractionTraversals: Traversal[] = params.attractions.map(p =>
+      __.has('user', 'userId', p.userId),
+   );
+   const isUserToLikeCheckTraversals: Traversal[] = params.attractions.flatMap(p =>
+      p.attractionType === AttractionType.Like ? __.values('userId').is(P.eq(p.userId)) : [],
+   );
+
    return (
       hasProfileCompleted(queryToGetUserByToken(params.token))
          .as('user')
          .V()
-         .union(
-            ...params.attractions.map(attractionParams => __.has('user', 'userId', attractionParams.userId)),
-         )
+         .union(...usersToSetAttractionTraversals)
 
          // This prevents self like
          .not(__.has('token', params.token))
@@ -77,13 +82,7 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
                // Now we can add the new edges
                .sideEffect(
                   __.choose(
-                     __.union(
-                        ...params.attractions.flatMap(attractionParams =>
-                           attractionParams.attractionType === AttractionType.Like
-                              ? __.values('userId').is(P.eq(attractionParams.userId))
-                              : [],
-                        ),
-                     ),
+                     __.union(...isUserToLikeCheckTraversals),
                      __.addE('Like').from_('user'),
                      __.addE('Dislike').from_('user'),
                   ),
