@@ -1,6 +1,11 @@
 import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { MAX_GROUP_SIZE, MIN_GROUP_SIZE, USE_GROUPS_SEARCH_OPTIMIZED_QUERY } from '../../configurations';
+import {
+   GROUP_SLOTS,
+   MAX_GROUP_SIZE,
+   MIN_GROUP_SIZE,
+   USE_GROUPS_SEARCH_OPTIMIZED_QUERY,
+} from '../../configurations';
 
 /*
  *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
@@ -12,14 +17,14 @@ import { MAX_GROUP_SIZE, MIN_GROUP_SIZE, USE_GROUPS_SEARCH_OPTIMIZED_QUERY } fro
  * This query returns lists of users arrays where it's users matches between them.
  * This search is required to analyze and then create new groups. It's the core feature of the app.
  */
-export function queryToGetPossibleGoodGroups(): Traversal {
-   let traversal = queryToGetUsersAllowedToBeOnGoodGroups();
+export function queryToGetPossibleGoodGroups(targetSlotIndex: number): Traversal {
+   let traversal = queryToGetUsersAllowedToBeOnGoodGroups(targetSlotIndex);
    if (USE_GROUPS_SEARCH_OPTIMIZED_QUERY) {
       traversal = queryToSearchGoodQualityGroupsOptimized(traversal);
    } else {
       traversal = queryToSearchGoodQualityGroups(traversal);
    }
-   traversal = queryToAddDetailsToUsersArrays(traversal, false);
+   traversal = queryToAddDetailsAndFinalSizeToUsersArrays(traversal, GROUP_SLOTS[targetSlotIndex], true);
    return traversal;
 }
 
@@ -27,14 +32,15 @@ export function queryToGetPossibleGoodGroups(): Traversal {
  * This query returns lists of users arrays where it's users matches between them but they are not very well connected.
  * This search is required to analyze and then create new groups. It's the core feature of the app.
  */
-export function queryToGetPossibleBadGroups(): Traversal {
+export function queryToGetPossibleBadGroups(targetGroupSlot: GroupSlotConfig): Traversal {
    let traversal = queryToGetUsersAllowedToBeOnBadGroups();
    traversal = queryToSearchBadQualityGroups(traversal);
-   traversal = queryToAddDetailsToUsersArrays(traversal, true);
+   traversal = queryToAddDetailsAndFinalSizeToUsersArrays(traversal, targetGroupSlot, true);
    return traversal;
 }
 
-function queryToGetUsersAllowedToBeOnGoodGroups(): Traversal {
+// TODO: Aca se tienen que filtrar los usuarios que tienen el slotIndex disponible según el parámetro amount del slot
+function queryToGetUsersAllowedToBeOnGoodGroups(targetSlotIndex: number): Traversal {
    return g.V().hasLabel('user');
 }
 
@@ -101,7 +107,6 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
                      .dedup(scope.local),
                ),
          )
-
          // Remove groups smaller than the minimum group size and remove duplicates from the list
          .where(__.count(scope.local).is(P.gte(MIN_GROUP_SIZE)))
          .dedup()
@@ -124,7 +129,7 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
  * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
  *
  * To test the query easily:
- * https://gremlify.com/g36faa7bw0b
+ * https://gremlify.com/j3hdylnk2vj
  */
 // TODO: Agregar un parámetro maxGroupSize y minGroupSize, que solo usuarios con el slot disponible sean buscados
 function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversal {
@@ -229,30 +234,58 @@ function queryToSearchBadQualityGroups(traversal: Traversal): Traversal {
 
 /**
  * Receives a traversal with a list of users arrays and for each user adds it's matches within the group. This extra
- * info is required by the group quality analyzer
- * @param returnNamesInsteadOfIds Default = false. If set to true returns user names instead of userId. Useful for debugging.
+ * info is required by the group quality analyzer.
+ * Also ignores groups that are outside the size restrictions selected.
+ *
+ * To test the query easily:
+ * https://gremlify.com/yw7dz6kh1h8
+ *
+ *
+ * @param sizeRestriction Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
+ * @param returnNames Default = false. If set to true returns user names instead of userId. Useful for debugging.
  */
-function queryToAddDetailsToUsersArrays(tr: Traversal, returnNamesInsteadOfIds: boolean = false): Traversal {
+function queryToAddDetailsAndFinalSizeToUsersArrays(
+   tr: Traversal,
+   sizeRestriction?: SizeRestriction,
+   returnNames: boolean = false,
+): Traversal {
    return tr.map(
-      __.as('g')
+      __.where(
+         __.count(scope.local)
+            .is(P.gte(sizeRestriction?.minimumSize ?? 0))
+            .is(P.lte(sizeRestriction?.maximumSize ?? 1000000)),
+      )
+         .as('g')
          .unfold()
          .map(
             __.project('user', 'matches')
-               .by(__.values(returnNamesInsteadOfIds ? 'name' : 'userId'))
+               .by(__.values(returnNames ? 'name' : 'userId'))
                .by(
                   __.as('u')
                      .select('g')
                      .unfold()
                      .where(__.both('Match').where(P.eq('u'))) // Get the matches of the user within the group
-                     .values(returnNamesInsteadOfIds ? 'name' : 'userId')
+                     .values(returnNames ? 'name' : 'userId')
                      .fold(),
                ),
          )
-         .fold(),
+         .order()
+         .by(__.select('matches').count(scope.local), order.desc) // Order the users by their amount of matches
+         .fold()
+         .choose(__.count(scope.local).is(P.eq(0)), __.unfold()), // Remove empty arrays caused by the group size restrictions
    );
 }
 
 export interface UserAndItsMatches {
    user: string;
    matches: string;
+}
+
+export interface SizeRestriction {
+   minimumSize?: number;
+   maximumSize?: number;
+}
+
+export interface GroupSlotConfig extends SizeRestriction {
+   amount: number;
 }

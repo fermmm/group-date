@@ -18,6 +18,7 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetAllUsers, queryToGetUserById, queryToRemoveUsers } from '../common/queries';
 import { queryToGetPossibleGoodGroups } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
+import { GROUP_SLOTS } from '../../configurations';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
@@ -49,7 +50,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      const result = await fromQueryToGroupSearchResults(queryToGetPossibleGoodGroups());
+      const result = await fromQueryToGroupSearchResults(queryToGetPossibleGoodGroups(0));
       logComplete(result);
 
       // await removeUsers(fakeUsers);

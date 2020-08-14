@@ -16,25 +16,27 @@ export const MAX_GROUP_SIZE = 12;
  * The users have a limit in the amount of simultaneous groups they can be members of because being in too
  * many groups at the same time leads to users that will be "too busy" generating groups with absent members.
  *
- * This limitation works with slots, there are a specific number of slots and they can be occupied with groups
- * of specific size for each slot.
- * This slot-size feature it's implemented because different kind of group options are a good reason that
+ * This limitation works with a "group slot" system: Each user has a limited number of group slots, also each
+ * slot is reserved for a specific group size.
+ * This slot-size feature it's implemented because different kind of group size options are a good reason that
  * justifies having more than one group at the same time (with limits).
- * Also is possible to configure slots for sizes of groups that takes longer to form (the bigger groups),
- * otherwise the slots gets all occupied by fast forming groups first (the smaller ones).
+ * Also this feature solves another problem: The bigger groups takes more time to form without size reserved
+ * slots the slots would get all occupied by fast forming groups first (the smaller ones) giving an unintended
+ * priority to these groups.
+ * The slots gets released after some configurable time.
  *
- * This is the configurable list of slots available for the users.
+ * So this is the configurable list of slots available for the users.
  * If you want to configure the app to have multiple slots with the same group size, use the "amount" property.
+ * If the minimum size of a group slot is the minimum size of a possible group in the app don't include
+ * the minimumSize property the same applies for the maximumSize property.
  */
 export const GROUP_SLOTS = [
    {
-      minimumSize: MIN_GROUP_SIZE,
       maximumSize: 6,
       amount: 1,
    },
    {
       minimumSize: 7,
-      maximumSize: MAX_GROUP_SIZE,
       amount: 1,
    },
 ];
@@ -48,12 +50,12 @@ export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
  * The group search algorithm can start searching for small groups first or big ones first, this is important
  * because if small groups are search first that can prevent the big groups from emerging because users are already
  * together in small groups and cannot be together again in a bigger group. Searching big groups first is recommended,
- * because probably big groups are more interesting.
+ * because probably big groups are less easy to form and that needs some compensation.
  */
 export const SEARCH_BIG_GROUPS_FIRST = true;
 
 /**
- * TODO: Implement
+ * TODO: Checkear si esta buena esta setting
  */
 // export const BEST_GROUP_SIZE = 12
 
