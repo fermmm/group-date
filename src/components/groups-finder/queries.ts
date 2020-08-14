@@ -252,6 +252,7 @@ function queryToAddDetailsAndFinalSizeToUsersArrays(
    return tr.map(
       __.where(
          __.count(scope.local)
+            .is(P.gte(MIN_GROUP_SIZE))
             .is(P.gte(sizeRestriction?.minimumSize ?? 0))
             .is(P.lte(sizeRestriction?.maximumSize ?? 1000000)),
       )
