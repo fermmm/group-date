@@ -2,7 +2,7 @@ import { hoursToMilliseconds } from './common-tools/js-tools/js-tools';
 import { ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////  GROUPS SEARCH  /////////////////////////////////////////////
+////////////////////////////////////////////////////  GROUPS  ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -83,11 +83,17 @@ export const SEARCH_BIG_GROUPS_FIRST = true;
 export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 
 /*
- * If a user has more connections than this number the exceeding connections will not be computed in some calculations.
+ * If a user has more connections than this number the exceeding connections will not be computed in the group quality
+ * algorithm.
  * This is important because in real life a person has time for a limited amount of people, so with this parameter is
  * possible to get the calculation results more similar to a real life situation.
  */
 export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
+
+/**
+ * Maximum amount of options to vote the day of the date.
+ */
+export const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  CARDS RECOMMENDATIONS  /////////////////////////////////////////
@@ -104,4 +110,6 @@ export const CARDS_MAXIMUM_INACTIVITY = ONE_MONTH_IN_SECONDS;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
+export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
+export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 export const USE_GROUPS_SEARCH_OPTIMIZED_QUERY = true;

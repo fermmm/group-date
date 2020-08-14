@@ -1,11 +1,17 @@
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
+import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { v1 as uuidv1 } from 'uuid';
 import {
    fromQueryToGroup,
    fromQueryToGroupList,
 } from '../../common-tools/database-tools/data-conversion-tools';
-import { GROUP_SLOTS } from '../../configurations';
+import {
+   FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
+   GROUP_SLOTS,
+   MAX_CHAT_MESSAGES_STORED_ON_SERVER,
+   MAX_WEEKEND_DAYS_VOTE_OPTIONS,
+} from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    BasicGroupParams,
@@ -29,16 +35,16 @@ import {
    queryToVoteDateIdeas,
 } from './queries';
 
-// TODO: Mover esto a las configurations.ts
-const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
-const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
+export async function scheduledTasksGroups(): Promise<void> {
+   setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
+}
 
 /**
  * Internal function to create a group (this is not an endpoint)
  * @param initialUsers The initial users to add and the
  */
 export async function createGroup(initialUsers?: AddUsersToGroupSettings): Promise<Group> {
-   const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS ?? 12).map(date => ({
+   const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS).map(date => ({
       date,
       votersUserId: [],
    }));
@@ -195,7 +201,7 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
    }
 }
 
-// TODO: Testear y escribir test de esta query y ponerla para que se ejecute cada cierto tiempo
+// TODO: Testear y escribir test de esta query
 export async function findSlotsToRelease(): Promise<void> {
    return await queryToFindSlotsToRelease().iterate();
 }

@@ -14,6 +14,7 @@ import { rateLimiterConfig } from './common-tools/security-tools/security-tools'
 import { adminRoutes } from './components/admin/routes';
 import { scheduledTasksCardGame } from './components/cards-game/models';
 import { cardsGameRoutes } from './components/cards-game/routes';
+import { scheduledTasksGroups } from './components/groups/models';
 import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
 import { testingRoutes } from './components/testing/routes';
@@ -42,8 +43,9 @@ import { userRoutes } from './components/user/routes';
    adminRoutes(router);
    testingRoutes(router);
 
-   // Scheduled Tasks
+   // Scheduled tasks
    scheduledTasksCardGame();
+   scheduledTasksGroups();
 
    // App uses:
    app.use(ratelimit(rateLimiterConfig))
