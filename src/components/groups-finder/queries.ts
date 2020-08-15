@@ -1,11 +1,6 @@
 import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import {
-   GROUP_SLOTS,
-   MAX_GROUP_SIZE,
-   MIN_GROUP_SIZE,
-   USE_GROUPS_SEARCH_OPTIMIZED_QUERY,
-} from '../../configurations';
+import { GROUP_SLOTS, MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../../configurations';
 
 /*
  *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
@@ -19,11 +14,7 @@ import {
  */
 export function queryToGetPossibleGoodGroups(targetSlotIndex: number): Traversal {
    let traversal = queryToGetUsersAllowedToBeOnGoodGroups(targetSlotIndex);
-   if (USE_GROUPS_SEARCH_OPTIMIZED_QUERY) {
-      traversal = queryToSearchGoodQualityGroupsOptimized(traversal);
-   } else {
-      traversal = queryToSearchGoodQualityGroups(traversal);
-   }
+   traversal = queryToSearchGoodQualityGroups(traversal);
    traversal = queryToAddDetailsAndFinalSizeToUsersArrays(traversal, GROUP_SLOTS[targetSlotIndex], true);
    return traversal;
 }
@@ -60,78 +51,16 @@ function queryToGetUsersAllowedToBeOnBadGroups(): Traversal {
  * These 2 rules can also be thought of as figures in the graph:
  *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
  *
- * To test the query easily:
- * https://gremlify.com/id19z50t41i
- */
-function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
-   return (
-      traversal
-         .flatMap(
-            __.as('appUser')
-               .both('Match')
-               .flatMap(
-                  __.project('triangles', 'squares')
-                     .by(
-                        // Search triangles: the "matches in common" (matches of the match that are also matches of the user)
-                        __.both('Match')
-                           .where(__.both('Match').where(P.eq('appUser')))
-                           .simplePath()
-                           .path()
-                           .fold(),
-                     )
-                     .by(
-                        // Search squares: When 2 matches has a match in common and is not a match of the user, a square shape
-                        __.both('Match')
-                           .where(__.both('Match').where(P.neq('appUser')))
-                           .both('Match')
-                           .where(__.both('Match').where(P.eq('appUser')))
-                           .simplePath()
-                           .path()
-                           .fold(),
-                     )
-                     // The triangles groups are more connected than the square groups so they are delivered as independent groups, the square groups are delivered combined with the triangle groups
-                     .union(
-                        __.select('triangles').unfold(),
-                        __.union(
-                           __.select('triangles')
-                              .unfold()
-                              .unfold(),
-                           __.select('squares')
-                              .unfold()
-                              .unfold(),
-                        ).fold(),
-                     )
-                     // We need to order here because dedup() removes duplicates only if the order of the elements in the groups are the same
-                     .order(scope.local)
-                     .by(t.id)
-                     .dedup(scope.local),
-               ),
-         )
-         // Remove groups smaller than the minimum group size and remove duplicates from the list
-         .where(__.count(scope.local).is(P.gte(MIN_GROUP_SIZE)))
-         .dedup()
-   );
-}
-
-/**
- * This query finds users that matches together forming a group, it's the core of the app.
- * Returns arrays of matching users.
- *
- * Users can be in a group when the following requirements are fulfilled:
- *
- * 1. A match that has at least 1 match in common can be together in a group (also with the 1+ match in common)
- * 2. If a user of distance 2 has at least 2 matches in common then they can be together in the group (also with the 2+ matches in common)
- *
- * These 2 rules can also be thought of as figures in the graph:
- *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
- *
  * The query meets the objective by finding this figures and then combining them when they have at least 2 users in common, this is another
  * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
  *
  * To test the query easily:
  * https://gremlify.com/j3hdylnk2vj
+ *
+ * Old less performing version:
+ * https://gremlify.com/id19z50t41i
  */
-function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversal {
+function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
    return (
       traversal
          .as('a')
@@ -160,8 +89,6 @@ function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversa
                .fold(),
          )
          .dedup()
-         // TODO: Ver si se puede descartar grupos pequeños cuando están incluidos en otro grande
-         // Group the figures when they share 2 users in common
          .group('m')
          .by(__.range(scope.local, 0, 1))
          .group('m')
