@@ -131,7 +131,6 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
  * To test the query easily:
  * https://gremlify.com/j3hdylnk2vj
  */
-// TODO: Agregar un parámetro maxGroupSize y minGroupSize, que solo usuarios con el slot disponible sean buscados
 function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversal {
    return (
       traversal
@@ -161,7 +160,7 @@ function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversa
                .fold(),
          )
          .dedup()
-
+         // TODO: Ver si se puede descartar grupos pequeños cuando están incluidos en otro grande
          // Group the figures when they share 2 users in common
          .group('m')
          .by(__.range(scope.local, 0, 1))
@@ -176,14 +175,36 @@ function queryToSearchGoodQualityGroupsOptimized(traversal: Traversal): Traversa
          .cap('m')
          .unfold()
 
-         // Remove duplicates. Also ordering the users is needed here so dedup recognizes all the groups as the same one
          .map(
             __.select(column.values)
                .unfold()
+               .dedup()
+               .fold()
+               // Here we remove users if the group is larger than the maximum allowed
+               // but shapes are removed instead of specific users, this way the group
+               // can lose users and lose fewer connections
+               .choose(
+                  __.unfold()
+                     .unfold()
+                     .dedup()
+                     .count()
+                     .is(P.gt(MAX_GROUP_SIZE)),
+                  // TODO: Esto es arbitrario, tal vez se pueda ordenar los usuarios antes por cantidad de grupos en los que estuvieron
+                  __.repeat(__.range(scope.local, 1, -1)).until(
+                     __.unfold()
+                        .unfold()
+                        .dedup()
+                        .count()
+                        .is(P.lte(MAX_GROUP_SIZE)),
+                  ),
+               )
                .unfold()
+               .unfold()
+               .dedup()
+               // In all the groups we need to order the users in the same way so the next dedup
+               // recognizes all the groups as the same group
                .order()
                .by(t.id)
-               .dedup()
                .fold(),
          )
          .dedup()
