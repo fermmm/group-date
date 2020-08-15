@@ -30,7 +30,7 @@ export const MAX_GROUP_SIZE = 12;
  * If the minimum size of a group slot is the minimum size of a possible group in the app don't include
  * the minimumSize property the same applies for the maximumSize property.
  */
-export const GROUP_SLOTS = [
+export const GROUP_SLOTS_CONFIGS = [
    {
       maximumSize: 6,
       amount: 1,

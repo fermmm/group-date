@@ -1,6 +1,7 @@
 import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { GROUP_SLOTS, MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../../configurations';
+import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../../configurations';
+import { queryToGetAllCompleteUsers } from '../common/queries';
 
 /*
  *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
@@ -12,31 +13,36 @@ import { GROUP_SLOTS, MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../../configuration
  * This query returns lists of users arrays where it's users matches between them.
  * This search is required to analyze and then create new groups. It's the core feature of the app.
  */
-export function queryToGetPossibleGoodGroups(targetSlotIndex: number): Traversal {
-   let traversal = queryToGetUsersAllowedToBeOnGoodGroups(targetSlotIndex);
-   traversal = queryToSearchGoodQualityGroups(traversal);
-   traversal = queryToAddDetailsAndFinalSizeToUsersArrays(traversal, GROUP_SLOTS[targetSlotIndex], true);
+export function queryToGetPossibleGoodGroups(targetSlotIndex: number, quality: GroupQuality): Traversal {
+   let traversal =
+      quality === GroupQuality.Good
+         ? queryToGetUsersAllowedToBeOnGroups(targetSlotIndex)
+         : queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex);
+
+   traversal =
+      quality === GroupQuality.Good
+         ? queryToSearchGoodQualityGroups(traversal)
+         : queryToSearchBadQualityGroups(traversal);
+
+   traversal = queryToAddDetailsAndFinalSizeToUsersArrays(
+      traversal,
+      GROUP_SLOTS_CONFIGS[targetSlotIndex],
+      true,
+   );
    return traversal;
 }
 
-/**
- * This query returns lists of users arrays where it's users matches between them but they are not very well connected.
- * This search is required to analyze and then create new groups. It's the core feature of the app.
- */
-export function queryToGetPossibleBadGroups(targetGroupSlot: GroupSlotConfig): Traversal {
-   let traversal = queryToGetUsersAllowedToBeOnBadGroups();
-   traversal = queryToSearchBadQualityGroups(traversal);
-   traversal = queryToAddDetailsAndFinalSizeToUsersArrays(traversal, targetGroupSlot, true);
-   return traversal;
+function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex: number): Traversal {
+   return queryToGetAllCompleteUsers().where(
+      __.outE('slot' + targetSlotIndex)
+         .count()
+         .is(P.lt(GROUP_SLOTS_CONFIGS[targetSlotIndex].amount)),
+   );
 }
 
-// TODO: Aca se tienen que filtrar los usuarios que tienen el slotIndex disponible según el parámetro amount del slot
-function queryToGetUsersAllowedToBeOnGoodGroups(targetSlotIndex: number): Traversal {
-   return g.V().hasLabel('user');
-}
-
-function queryToGetUsersAllowedToBeOnBadGroups(): Traversal {
-   return g.V().hasLabel('user');
+// TODO: Para terminar esto hay que agregar un timestamp cada vez que un usuario entra a un grupo
+function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Traversal {
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex).where();
 }
 
 /**
@@ -116,7 +122,6 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
                      .dedup()
                      .count()
                      .is(P.gt(MAX_GROUP_SIZE)),
-                  // TODO: Esto es arbitrario, tal vez se pueda ordenar los usuarios antes por cantidad de grupos en los que estuvieron
                   __.repeat(__.range(scope.local, 1, -1)).until(
                      __.unfold()
                         .unfold()
@@ -237,4 +242,9 @@ export interface SizeRestriction {
 
 export interface GroupSlotConfig extends SizeRestriction {
    amount: number;
+}
+
+export enum GroupQuality {
+   Bad,
+   Good,
 }

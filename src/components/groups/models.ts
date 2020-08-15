@@ -8,7 +8,7 @@ import {
 } from '../../common-tools/database-tools/data-conversion-tools';
 import {
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
-   GROUP_SLOTS,
+   GROUP_SLOTS_CONFIGS,
    MAX_CHAT_MESSAGES_STORED_ON_SERVER,
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
 } from '../../configurations';
@@ -251,12 +251,12 @@ function getComingWeekendDays(limitAmount: number): number[] {
 }
 
 export function getSlotIdFromUsersAmount(amount: number): number {
-   return GROUP_SLOTS.findIndex(slot => amount >= slot.minimumSize && amount <= slot.maximumSize);
+   return GROUP_SLOTS_CONFIGS.findIndex(slot => amount >= slot.minimumSize && amount <= slot.maximumSize);
 }
 
 export function getAllSlotsNames(): string[] {
    const result: string[] = [];
-   for (let i = 0; i < GROUP_SLOTS.length; i++) {
+   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
       result.push('slot' + i);
    }
    return result;

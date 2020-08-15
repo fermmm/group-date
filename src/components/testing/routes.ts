@@ -18,7 +18,7 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetAllUsers, queryToGetUserById, queryToRemoveUsers } from '../common/queries';
 import { queryToGetPossibleGoodGroups } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
-import { GROUP_SLOTS } from '../../configurations';
+import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
