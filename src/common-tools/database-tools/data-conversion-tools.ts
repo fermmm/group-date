@@ -1,4 +1,4 @@
-import { UserAndItsMatches } from '../../components/groups-finder/queries';
+import { UserAndItsMatches } from '../../components/groups-finder/models';
 import { queryToGetGroupsInFinalFormat } from '../../components/groups/queries';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
@@ -30,7 +30,7 @@ export async function fromQueryToUser(queryOfUser: Traversal, includeQuestions: 
 }
 
 /**
- * Converts a gremlin query that should return a list of users' vertexes into a list of Users as object.
+ * Converts a gremlin query that should return a list of users' vertices into a list of Users as object.
  *
  * @param protectPrivacy Don't include internal properties like token and other credentials. default = true
  * @param includeQuestionsData default = true
@@ -71,7 +71,7 @@ export async function fromQueryToGroup(
 }
 
 /**
- * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
+ * Converts a gremlin query that should return a list of groups' vertices into a list of Group as object.
  */
 export async function fromQueryToGroupList(
    queryOfGroups: Traversal,
@@ -98,7 +98,7 @@ export async function fromQueryToChatWithAdmins(
 }
 
 /**
- * Converts a gremlin query that should return a list of groups' vertexes into a list of Group as object.
+ * Converts a gremlin query that should return a list of groups' vertices into a list of Group as object.
  */
 export async function fromQueryToChatWithAdminsList(
    query: Traversal,
@@ -113,9 +113,9 @@ export async function fromQueryToChatWithAdminsList(
 }
 
 /**
- * Converts a gremlin query that should return a list of groups of users into the final serialized objects.
+ * Converts a gremlin query that should return a list of group candidates (groups of users) into the corresponding serialized objects.
  */
-export async function fromQueryToGroupSearchResults(query: Traversal): Promise<UserAndItsMatches[][]> {
+export async function fromQueryToGroupCandidate(query: Traversal): Promise<UserAndItsMatches[][]> {
    const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
       Array<Map<keyof UserAndItsMatches, string>>
    >;

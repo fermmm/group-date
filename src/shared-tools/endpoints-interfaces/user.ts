@@ -30,6 +30,7 @@ export interface User {
    profileCompleted: boolean;
    isAdmin?: boolean;
    sendNewUsersNotification: number;
+   lastGroupJoinedDate: number;
    questions?: QuestionResponse[];
 }
 

@@ -1,48 +1,63 @@
-import { __, column, g, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
+import { __, column, order, P, scope, t } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../../configurations';
+import {
+   GROUP_SLOTS_CONFIGS,
+   MAXIMUM_INACTIVITY_FOR_NEW_GROUPS,
+   MAX_GROUP_SIZE,
+   MIN_GROUP_SIZE,
+   SHOW_BAD_QUALITY_GROUPS_TIME,
+} from '../../configurations';
 import { queryToGetAllCompleteUsers } from '../common/queries';
-
-/*
- *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran nuevos usuarios con el
- *    grupo ya creado si no se vuelve a computar, lo que se podría hacer es crear una nueva búsqueda pero para
- *    meter usuarios nuevos en grupos ya creados
- */
+import { GroupQuality, SizeRestriction } from './models';
+import * as moment from 'moment';
 
 /**
  * This query returns lists of users arrays where it's users matches between them.
- * This search is required to analyze and then create new groups. It's the core feature of the app.
+ * This search is required to create new "group candidates". It's the core feature of the app.
  */
-export function queryToGetPossibleGoodGroups(targetSlotIndex: number, quality: GroupQuality): Traversal {
-   let traversal =
-      quality === GroupQuality.Good
-         ? queryToGetUsersAllowedToBeOnGroups(targetSlotIndex)
-         : queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex);
+export function queryToGetGroupCandidates(targetSlotIndex: number, quality: GroupQuality): Traversal {
+   let traversal: Traversal;
 
-   traversal =
-      quality === GroupQuality.Good
-         ? queryToSearchGoodQualityGroups(traversal)
-         : queryToSearchBadQualityGroups(traversal);
+   switch (quality) {
+      case GroupQuality.Good:
+         traversal = queryToGetUsersAllowedToBeOnGroups(targetSlotIndex);
+         traversal = queryToSearchGoodQualityMatchingGroups(traversal);
+         break;
+      case GroupQuality.Bad:
+         traversal = queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex);
+         traversal = queryToSearchBadQualityMatchingGroups(traversal);
+         break;
+   }
 
-   traversal = queryToAddDetailsAndFinalSizeToUsersArrays(
-      traversal,
-      GROUP_SLOTS_CONFIGS[targetSlotIndex],
-      true,
-   );
+   traversal = queryToAddDetailsAndIgnoreInvalidSizes(traversal, GROUP_SLOTS_CONFIGS[targetSlotIndex], true);
+
    return traversal;
 }
 
 function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex: number): Traversal {
-   return queryToGetAllCompleteUsers().where(
-      __.outE('slot' + targetSlotIndex)
-         .count()
-         .is(P.lt(GROUP_SLOTS_CONFIGS[targetSlotIndex].amount)),
+   return (
+      queryToGetAllCompleteUsers()
+         // Only users with not too many groups already active can be part of new group searches
+         .where(
+            __.outE('slot' + targetSlotIndex)
+               .count()
+               .is(P.lt(GROUP_SLOTS_CONFIGS[targetSlotIndex].amount)),
+         )
+
+         // Don't introduce inactive users into the groups candidates.
+         // Inactive means many time without login and no new users notifications pending
+         .not(
+            __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
+               .and()
+               .has('sendNewUsersNotification', 0),
+         )
    );
 }
 
-// TODO: Para terminar esto hay que agregar un timestamp cada vez que un usuario entra a un grupo
 function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Traversal {
-   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex).where();
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex).where(
+      __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - SHOW_BAD_QUALITY_GROUPS_TIME)),
+   );
 }
 
 /**
@@ -66,7 +81,7 @@ function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Travers
  * Old less performing version:
  * https://gremlify.com/id19z50t41i
  */
-function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
+function queryToSearchGoodQualityMatchingGroups(traversal: Traversal): Traversal {
    return (
       traversal
          .as('a')
@@ -153,7 +168,7 @@ function queryToSearchGoodQualityGroups(traversal: Traversal): Traversal {
  * To test the query easily:
  * https://gremlify.com/o9rye6xy5od
  */
-function queryToSearchBadQualityGroups(traversal: Traversal): Traversal {
+function queryToSearchBadQualityMatchingGroups(traversal: Traversal): Traversal {
    const searches: Traversal[] = [];
 
    for (let i = 5; i <= MAX_GROUP_SIZE; i++) {
@@ -197,12 +212,12 @@ function queryToSearchBadQualityGroups(traversal: Traversal): Traversal {
  * @param sizeRestriction Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
  * @param returnNames Default = false. If set to true returns user names instead of userId. Useful for debugging.
  */
-function queryToAddDetailsAndFinalSizeToUsersArrays(
-   tr: Traversal,
+function queryToAddDetailsAndIgnoreInvalidSizes(
+   traversal: Traversal,
    sizeRestriction?: SizeRestriction,
    returnNames: boolean = false,
 ): Traversal {
-   return tr.map(
+   return traversal.map(
       __.where(
          __.count(scope.local)
             .is(P.gte(MIN_GROUP_SIZE))
@@ -228,23 +243,4 @@ function queryToAddDetailsAndFinalSizeToUsersArrays(
          .fold()
          .choose(__.count(scope.local).is(P.eq(0)), __.unfold()), // Remove empty arrays caused by the group size restrictions
    );
-}
-
-export interface UserAndItsMatches {
-   user: string;
-   matches: string;
-}
-
-export interface SizeRestriction {
-   minimumSize?: number;
-   maximumSize?: number;
-}
-
-export interface GroupSlotConfig extends SizeRestriction {
-   amount: number;
-}
-
-export enum GroupQuality {
-   Bad,
-   Good,
 }

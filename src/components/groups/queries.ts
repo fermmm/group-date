@@ -54,11 +54,12 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
                .union(...settings.usersIds.map(u => __.has('userId', u)))
                .sideEffect(__.addE('member').to('group'))
                // Add the corresponding slot edge, slots avoids adding the users in too many groups
-               .sideEffect(__.addE('slot' + settings.slotToUse).to('group')),
+               .sideEffect(__.addE('slot' + settings.slotToUse).to('group'))
+               .sideEffect(__.property('lastGroupJoinedDate', moment().unix())),
          )
 
-         // Change the "Match" edges between the members for new "SeenMatch" edges in order to be ignored by the group
-         // finding algorithms avoiding repeated groups or groups with repeated matches.
+         // Replace the "Match" edges between the members of the group by a "SeenMatch" edge in order to be ignored
+         // by the group finding algorithms. This avoids repeated groups or groups with repeated matches.
          .sideEffect(
             __.both('member')
                .bothE('Match')

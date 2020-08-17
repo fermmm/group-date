@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { KM_IN_GPS_FORMAT, ONE_MONTH_IN_SECONDS } from '../../common-tools/math-tools/constants';
-import { CARDS_MAXIMUM_INACTIVITY } from '../../configurations';
+import { CARDS_GAME_MAX_RESULTS_PER_REQUEST, MAXIMUM_INACTIVITY_FOR_CARDS } from '../../configurations';
 import {
    allAttractionTypes,
    allMatchTypes,
@@ -13,8 +13,6 @@ import {
 } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetAllCompleteUsers, queryToGetUserByToken } from '../common/queries';
 import { getQuestionDataById, questions } from '../user/questions/models';
-
-const RESULTS_LIMIT: number = 70;
 
 export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    let query: Traversal = queryToGetAllCompleteUsers();
@@ -42,9 +40,13 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    );
 
    /**
-    * Don't show inactive accounts
+    * Don't show inactive accounts. Inactive means many time without login and no new users notifications pending
     */
-   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - CARDS_MAXIMUM_INACTIVITY)));
+   query = query.not(
+      __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_CARDS))
+         .and()
+         .has('sendNewUsersNotification', 0),
+   );
 
    /**
     * Was not already reviewed by the user
@@ -160,7 +162,7 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    /**
     * Limit results
     */
-   query = query.limit(RESULTS_LIMIT);
+   query = query.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST);
 
    return query;
 }
@@ -181,7 +183,7 @@ export function queryToGetDislikedUsers(token: string, searcherUser: User): Trav
    /**
     * Limit results
     */
-   query = query.limit(RESULTS_LIMIT);
+   query = query.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST);
 
    return query;
 }

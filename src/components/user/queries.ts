@@ -10,6 +10,7 @@ import {
 } from '../../shared-tools/endpoints-interfaces/user';
 import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
 import { hasProfileCompleted, queryToGetUserByToken } from '../common/queries';
+import * as moment from 'moment';
 
 export function queryToCreateUser(
    token: string,
@@ -26,6 +27,7 @@ export function queryToCreateUser(
             .property('email', email)
             .property('profileCompleted', setProfileCompletedForTesting)
             .property('sendNewUsersNotification', 0)
+            .property('lastGroupJoinedDate', moment().unix())
             .property('notifications', '[]'),
       );
 }

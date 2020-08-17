@@ -8,7 +8,7 @@ import {
 } from '../../tests/tools/groups';
 import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../tests/tools/users';
 import {
-   fromQueryToGroupSearchResults,
+   fromQueryToGroupCandidate,
    fromQueryToUserList,
 } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, g, logComplete } from '../../common-tools/database-tools/database-manager';
@@ -16,9 +16,10 @@ import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tool
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetAllUsers, queryToGetUserById, queryToRemoveUsers } from '../common/queries';
-import { queryToGetPossibleGoodGroups } from '../groups-finder/queries';
+import { queryToGetGroupCandidates } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
+import { GroupQuality } from '../groups-finder/models';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
@@ -50,7 +51,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      const result = await fromQueryToGroupSearchResults(queryToGetPossibleGoodGroups(0));
+      const result = await fromQueryToGroupCandidate(queryToGetGroupCandidates(0, GroupQuality.Good));
       logComplete(result);
 
       // await removeUsers(fakeUsers);

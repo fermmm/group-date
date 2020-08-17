@@ -47,6 +47,12 @@ export const GROUP_SLOTS_CONFIGS = [
 export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
 
 /**
+ * Bad quality groups are groups where each user only has 2 matches, these groups are probably less interesting
+ * so only appears to users that don't have a group in a long time, that time is this setting.
+ */
+export const SHOW_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
+
+/**
  * The group search algorithm can start searching for small groups first or big ones first, this is important
  * because if small groups are search first that can prevent the big groups from emerging because users are already
  * together in small groups and cannot be together again in a bigger group. Searching big groups first is recommended,
@@ -97,6 +103,12 @@ export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
  */
 export const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
 
+/**
+ * Maximum time (in seconds) since last login allowed, after this inactivity time the user is no longer part of
+ * new groups searching until next login.
+ */
+export const MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = ONE_MONTH_IN_SECONDS;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  CARDS RECOMMENDATIONS  /////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +117,7 @@ export const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
  * Maximum time (in seconds) since last login allowed, after this inactivity time the user no longer appears
  * on the cards recommendations until next login.
  */
-export const CARDS_MAXIMUM_INACTIVITY = ONE_MONTH_IN_SECONDS;
+export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
@@ -114,3 +126,4 @@ export const CARDS_MAXIMUM_INACTIVITY = ONE_MONTH_IN_SECONDS;
 export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
 export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
+export const CARDS_GAME_MAX_RESULTS_PER_REQUEST: number = 70;
