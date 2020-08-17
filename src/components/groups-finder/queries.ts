@@ -76,7 +76,7 @@ function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Travers
  * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
  *
  * To test the query easily:
- * https://gremlify.com/j3hdylnk2vj
+ * https://gremlify.com/5lgbctob8n4
  *
  * Old less performing version:
  * https://gremlify.com/id19z50t41i
@@ -206,7 +206,7 @@ function queryToSearchBadQualityMatchingGroups(traversal: Traversal): Traversal 
  * Also ignores groups that are outside the size restrictions selected.
  *
  * To test the query easily:
- * https://gremlify.com/yw7dz6kh1h8
+ * https://gremlify.com/5lgbctob8n4
  *
  *
  * @param sizeRestriction Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
