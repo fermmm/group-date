@@ -1,5 +1,5 @@
 import { hoursToMilliseconds } from './common-tools/js-tools/js-tools';
-import { ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
+import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  GROUPS  ////////////////////////////////////////////////////
@@ -108,6 +108,16 @@ export const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
  * new groups searching until next login.
  */
 export const MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = ONE_MONTH_IN_SECONDS;
+
+/**
+ * After a group is created it can still receive new users until a time passed.
+ * Too high times in this setting is dangerous because there is a situation where members are added after a
+ * group already met in person, this has serious negative impact since all the matches in the group becomes
+ * "seen matches" so "late" users will not see the matching members of the group again.
+ * A possible improvement to implement is a way to know if the users met in person and use that instead of
+ * a timer to close the group.
+ */
+export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  CARDS RECOMMENDATIONS  /////////////////////////////////////////

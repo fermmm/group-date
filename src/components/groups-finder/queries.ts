@@ -4,6 +4,7 @@ import {
    GROUP_SLOTS_CONFIGS,
    MAXIMUM_INACTIVITY_FOR_NEW_GROUPS,
    MAX_GROUP_SIZE,
+   MAX_TIME_GROUPS_RECEIVE_NEW_USERS,
    MIN_GROUP_SIZE,
    SHOW_BAD_QUALITY_GROUPS_TIME,
 } from '../../configurations';
@@ -31,6 +32,17 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
 
    traversal = queryToAddDetailsAndIgnoreInvalidSizes(traversal, GROUP_SLOTS_CONFIGS[targetSlotIndex], true);
 
+   return traversal;
+}
+
+/**
+ * This query returns a list of users that can be added in active groups that are open to receive new users.
+ * Includes the group members and their matches.
+ */
+export function queryToGetUsersToAddInActiveGroups(targetSlotIndex: number): Traversal {
+   let traversal: Traversal;
+   traversal = queryToGetUsersAllowedToBeOnGroups(targetSlotIndex);
+   traversal = queryToFindUsersToAddInActiveGroups(traversal, GROUP_SLOTS_CONFIGS[targetSlotIndex]);
    return traversal;
 }
 
@@ -242,5 +254,71 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
          .by(__.select('matches').count(scope.local), order.desc) // Order the users by their amount of matches
          .fold()
          .choose(__.count(scope.local).is(P.eq(0)), __.unfold()), // Remove empty arrays caused by the group size restrictions
+   );
+}
+
+/**
+ * Receives a traversal with a list of users and returns a list of users with the active groups where each user can
+ * be added, also details of the groups are included.
+ * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
+ *
+ * To play with this query:
+ * https://gremlify.com/j974mw21khq
+ */
+function queryToFindUsersToAddInActiveGroups(
+   traversal: Traversal,
+   sizeRestriction?: SizeRestriction,
+): Traversal {
+   return (
+      traversal
+         .map(
+            __.as('user')
+               .project('userId', 'groups')
+               .by(__.values('userId'))
+               .by(
+                  // Find the groups where the user has 2 matches
+                  __.both('Match')
+                     .out('member')
+                     .where(
+                        __.in_('member')
+                           .simplePath()
+                           .where(__.both('Match').as('user')),
+                     )
+
+                     // Not groups where the user already belongs
+                     .not(__.where(__.in_('member').as('user')))
+                     // Groups where the size is desired
+                     .where(
+                        __.in_('member')
+                           .count()
+                           .is(P.lt(MAX_GROUP_SIZE)) // Not groups already full
+                           .is(P.gte(sizeRestriction.minimumSize)) // Groups bigger than the minimum size in slot
+                           .is(P.lte(sizeRestriction.maximumSize)), // Not groups bigger than the target slot size
+                     )
+                     // Groups that are new
+                     .where(__.has('creationDate', P.gt(moment().unix() - MAX_TIME_GROUPS_RECEIVE_NEW_USERS)))
+
+                     .dedup()
+                     .project('groupId', 'membersAndMatches')
+                     .by(__.values('groupId'))
+                     .by(
+                        // Get members of the group and their matches (not including the possible new member)
+                        __.as('group')
+                           .in_('member')
+                           .project('user', 'matches')
+                           .by(__.values('userId'))
+                           .by(
+                              __.both('Match')
+                                 .where(__.out('member').as('group'))
+                                 .values('userId')
+                                 .fold(),
+                           )
+                           .fold(),
+                     )
+                     .fold(),
+               ),
+         )
+         // Remove empty results
+         .where(__.select('groups').unfold())
    );
 }
