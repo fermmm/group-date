@@ -1,4 +1,4 @@
-import { UserAndItsMatches } from '../../components/groups-finder/models';
+import { UserAndItsMatches, UsersToAddToActiveGroups } from '../../components/groups-finder/models';
 import { queryToGetGroupsInFinalFormat } from '../../components/groups/queries';
 import { addQuestionsRespondedToUserQuery } from '../../components/user/questions/queries';
 import { ChatWithAdmins } from '../../shared-tools/endpoints-interfaces/admin';
@@ -115,13 +115,25 @@ export async function fromQueryToChatWithAdminsList(
 /**
  * Converts a gremlin query that should return a list of group candidates (groups of users) into the corresponding serialized objects.
  */
-export async function fromQueryToGroupCandidate(query: Traversal): Promise<UserAndItsMatches[][]> {
+export async function fromQueryToGroupCandidates(query: Traversal): Promise<UserAndItsMatches[][]> {
    const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
       Array<Map<keyof UserAndItsMatches, string>>
    >;
    return resultGremlinOutput.map(groupAsMap => {
       return groupAsMap.map(g => fromGremlinMapToObject<UserAndItsMatches>(g));
    });
+}
+
+/**
+ * Converts into a serializer object a gremlin query that should return a list of users with the open groups to be added
+ */
+export async function fromQueryToUsersToAddInActiveGroups(
+   query: Traversal,
+): Promise<UsersToAddToActiveGroups[]> {
+   const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
+      Map<keyof UsersToAddToActiveGroups, GremlinValueType>
+   >;
+   return resultGremlinOutput.map(r => fromGremlinMapToObject<UsersToAddToActiveGroups>(r));
 }
 
 /**

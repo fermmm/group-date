@@ -29,7 +29,10 @@ export const MAX_GROUP_SIZE = 12;
  * If you want to configure the app to have multiple slots with the same group size, use the "amount" property.
  * If the minimum size of a group slot is the minimum size of a possible group in the app don't include
  * the minimumSize property the same applies for the maximumSize property.
+ * It's recommended to order the smaller group slots first. It will start searching the bigger groups first from
+ * the bottom.
  */
+// TODO: Implementar un tiempo sin grupos para cada slot, de manera que no busque grupos chicos hasta que no encuentre grandes
 export const GROUP_SLOTS_CONFIGS = [
    {
       maximumSize: 6,
@@ -51,14 +54,6 @@ export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
  * so only appears to users that don't have a group in a long time, that time is this setting.
  */
 export const SHOW_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
-
-/**
- * The group search algorithm can start searching for small groups first or big ones first, this is important
- * because if small groups are search first that can prevent the big groups from emerging because users are already
- * together in small groups and cannot be together again in a bigger group. Searching big groups first is recommended,
- * because probably big groups are less easy to form and that needs some compensation.
- */
-export const SEARCH_BIG_GROUPS_FIRST = true;
 
 /**
  * TODO: Checkear si esta buena esta setting

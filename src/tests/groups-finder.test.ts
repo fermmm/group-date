@@ -1,5 +1,5 @@
 import 'jest';
-import { fromQueryToGroupCandidate } from '../common-tools/database-tools/data-conversion-tools';
+import { fromQueryToGroupCandidates } from '../common-tools/database-tools/data-conversion-tools';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { connectUsersInChain, createMatchingUsers, matchUserWithUsers } from './tools/groups';
 import { createFakeUser, createFakeUsers } from './tools/users';
@@ -20,7 +20,7 @@ describe('Group Finder', () => {
       // Create another unrelated group to make sure there is no interference:
       const interferenceGroup: User[] = await createMatchingUsers(5);
       // Get the groups
-      const result: UserAndItsMatches[][] = await fromQueryToGroupCandidate(
+      const result: UserAndItsMatches[][] = await fromQueryToGroupCandidates(
          queryToGetGroupCandidates(0, GroupQuality.Good),
       );
 

@@ -8,7 +8,7 @@ import {
 } from '../../tests/tools/groups';
 import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../tests/tools/users';
 import {
-   fromQueryToGroupCandidate,
+   fromQueryToGroupCandidates,
    fromQueryToUserList,
 } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, g, logComplete } from '../../common-tools/database-tools/database-manager';
@@ -51,7 +51,7 @@ export function testingRoutes(router: Router): void {
       // Create another unrelated group to make sure there is no interference:
       // await createMatchingUsers(5);
 
-      const result = await fromQueryToGroupCandidate(queryToGetGroupCandidates(0, GroupQuality.Good));
+      const result = await fromQueryToGroupCandidates(queryToGetGroupCandidates(0, GroupQuality.Good));
       logComplete(result);
 
       // await removeUsers(fakeUsers);

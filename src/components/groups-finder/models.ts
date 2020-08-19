@@ -1,8 +1,28 @@
-/*
- *    // TODO: Problema: Si cambio "Match" por "SeenMatch" al crear el grupo, entonces como entran 
-      nuevos usuarios con el grupo ya creado si no se vuelve a computar, lo que se podría hacer es 
-      crear una nueva búsqueda pero para meter usuarios nuevos en grupos ya creados
- */
+import {
+   fromQueryToGroupCandidates,
+   fromQueryToUsersToAddInActiveGroups,
+} from '../../common-tools/database-tools/data-conversion-tools';
+import { GROUP_SLOTS_CONFIGS } from '../../configurations';
+import { queryToGetGroupCandidates, queryToGetUsersToAddInActiveGroups } from './queries';
+
+// TODO: Implement
+async function searchAndCreateNewGoodQualityGroups(): Promise<void> {
+   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+      await fromQueryToGroupCandidates(queryToGetGroupCandidates(i, GroupQuality.Good));
+   }
+}
+
+// TODO: Implement
+async function searchAndAddUsersToExistingGroups(): Promise<void> {
+   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+      await fromQueryToUsersToAddInActiveGroups(queryToGetUsersToAddInActiveGroups(i));
+   }
+}
+
+export interface UsersToAddToActiveGroups {
+   userId: string;
+   groups: Array<{ groupId: string; membersAndMatches: UserAndItsMatches[] }>;
+}
 
 export interface UserAndItsMatches {
    user: string;
