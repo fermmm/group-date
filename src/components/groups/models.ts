@@ -3,10 +3,6 @@ import * as moment from 'moment';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { v1 as uuidv1 } from 'uuid';
 import {
-   fromQueryToGroup,
-   fromQueryToGroupList,
-} from '../../common-tools/database-tools/data-conversion-tools';
-import {
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
    GROUP_SLOTS_CONFIGS,
    MAX_CHAT_MESSAGES_STORED_ON_SERVER,
@@ -34,6 +30,7 @@ import {
    queryToUpdateGroupProperty,
    queryToVoteDateIdeas,
 } from './queries';
+import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion';
 
 export async function scheduledTasksGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);

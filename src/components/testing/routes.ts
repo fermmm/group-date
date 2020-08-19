@@ -7,10 +7,6 @@ import {
    matchUserWithUsers,
 } from '../../tests/tools/groups';
 import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../tests/tools/users';
-import {
-   fromQueryToGroupCandidates,
-   fromQueryToUserList,
-} from '../../common-tools/database-tools/data-conversion-tools';
 import { __, g, logComplete } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
@@ -20,6 +16,8 @@ import { queryToGetGroupCandidates } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { GroupQuality } from '../groups-finder/models';
+import { fromQueryToGroupCandidates } from '../groups-finder/tools/data-conversion';
+import { fromQueryToUserList } from '../user/tools/data-conversion';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {

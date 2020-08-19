@@ -1,5 +1,4 @@
 import 'jest';
-import { fromQueryToUserList } from '../common-tools/database-tools/data-conversion-tools';
 import {
    dislikedUsersGet,
    notifyAllUsersAboutNewCards,
@@ -8,6 +7,7 @@ import {
 import { queryToOrderResultsByMatchingQuestions } from '../components/cards-game/queries';
 import { queryToGetAllCompleteUsers, queryToRemoveUsers } from '../components/common/queries';
 import { userGet, userPost } from '../components/user/models';
+import { fromQueryToUserList } from '../components/user/tools/data-conversion';
 import { AttractionType, Gender, User, UserPostParams } from '../shared-tools/endpoints-interfaces/user';
 import { amountOfMatchingResponses } from '../shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';

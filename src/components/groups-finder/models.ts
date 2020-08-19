@@ -1,9 +1,6 @@
-import {
-   fromQueryToGroupCandidates,
-   fromQueryToUsersToAddInActiveGroups,
-} from '../../common-tools/database-tools/data-conversion-tools';
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { queryToGetGroupCandidates, queryToGetUsersToAddInActiveGroups } from './queries';
+import { fromQueryToGroupCandidates, fromQueryToUsersToAddInActiveGroups } from './tools/data-conversion';
 
 // TODO: Implement
 async function searchAndCreateNewGoodQualityGroups(): Promise<void> {

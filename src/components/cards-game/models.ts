@@ -1,12 +1,12 @@
 import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { fromQueryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
 import { NOTIFICATION_FREQUENCY_NEW_CARDS } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
 import { retrieveFullyRegisteredUser } from '../common/models';
 import { queryToUpdateUserProps } from '../common/queries';
 import { addNotificationToUser } from '../user/models';
+import { fromQueryToUserList } from '../user/tools/data-conversion';
 import {
    queryToGetAllUsersWantingNewCardsNotification,
    queryToGetCardsRecommendations,

@@ -2,10 +2,6 @@ import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { v1 as uuidv1 } from 'uuid';
 import {
-   fromQueryToChatWithAdmins,
-   fromQueryToChatWithAdminsList,
-} from '../../common-tools/database-tools/data-conversion-tools';
-import {
    AdminChatGetAllParams,
    AdminChatGetParams,
    AdminChatPostParams,
@@ -21,6 +17,7 @@ import {
    queryToGetAllChatsWithAdmins,
    queryToSaveAdminChatMessage,
 } from './queries';
+import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from './tools/data-conversion';
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);

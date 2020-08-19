@@ -1,10 +1,10 @@
 import * as Chance from 'chance';
 import * as moment from 'moment';
 import ora = require('ora');
-import { fromQueryToUser } from '../../common-tools/database-tools/data-conversion-tools';
 import { setAttractionPost, userPost } from '../../components/user/models';
 import { queryToCreateUser } from '../../components/user/queries';
 import { getIncompatibleAnswers, questions as questionsData } from '../../components/user/questions/models';
+import { fromQueryToUser } from '../../components/user/tools/data-conversion';
 import {
    Attraction,
    AttractionType,

@@ -1,10 +1,10 @@
 import { BaseContext } from 'koa';
-import { fromQueryToUser } from '../../common-tools/database-tools/data-conversion-tools';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { FacebookResponse } from '../../shared-tools/endpoints-interfaces/common';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToCreateUser } from '../user/queries';
+import { fromQueryToUser } from '../user/tools/data-conversion';
 import { queryToGetUserByEmail, queryToGetUserByToken, queryToUpdateUserToken } from './queries';
 
 /**

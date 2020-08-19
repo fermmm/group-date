@@ -9,7 +9,6 @@ import * as moment from 'moment';
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { v1 as uuidv1 } from 'uuid';
-import { fromQueryToUserList } from '../../common-tools/database-tools/data-conversion-tools';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
    AttractionType,
@@ -37,6 +36,7 @@ import {
 } from './queries';
 import { questions } from './questions/models';
 import { respondQuestions } from './questions/queries';
+import { fromQueryToUserList } from './tools/data-conversion';
 
 /**
  * This endpoint returns all user props that are missing, only when this endpoint returns empty arrays
