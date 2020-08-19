@@ -1,6 +1,9 @@
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { queryToGetGroupCandidates, queryToGetUsersToAddInActiveGroups } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToUsersToAddInActiveGroups } from './tools/data-conversion';
+import { groupOrderingTest } from './tools/group-candidate-test';
+
+// groupOrderingTest()
 
 // TODO: Implement
 async function searchAndCreateNewGoodQualityGroups(): Promise<void> {

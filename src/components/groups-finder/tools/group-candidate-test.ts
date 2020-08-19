@@ -1,16 +1,22 @@
 import {
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
-} from '../../configurations';
+} from '../../../configurations';
 import {
    getAverageConnectionsAmount,
    getConnectionsCountInequalityLevel,
    getConnectionsCoverageAverage,
    getConnectionsMetaconnectionsDistance,
    removeExceedingConnections,
-} from './group-analysis';
-import { addAUserAndConnectItWithAll, addUsersAndConnectRandomly } from './group-editing';
-import { addUser, addUsers, connectAllWithAll, connectAllWithNeighbors, createGroup } from './group-editing';
+} from './group-candidate-analysis';
+import { addAUserAndConnectItWithAll, addUsersAndConnectRandomly } from './group-candidate-editing';
+import {
+   addUser,
+   addUsers,
+   connectAllWithAll,
+   connectAllWithNeighbors,
+   createGroup,
+} from './group-candidate-editing';
 
 const groupWith2 = createGroup(2);
 const twoForTwo = addUsers(groupWith2, 2, [0, 1]);

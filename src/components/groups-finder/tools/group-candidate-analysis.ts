@@ -1,4 +1,4 @@
-import { replaceNaNInfinity } from './general';
+import { replaceNaNInfinity } from '../../../common-tools/math-tools/general';
 
 /**
  * This function calculates the connections count inequality level with the following logic:

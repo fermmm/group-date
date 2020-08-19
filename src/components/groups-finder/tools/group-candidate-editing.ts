@@ -1,5 +1,5 @@
 import * as Chance from 'chance';
-import { copyGroup } from './group-analysis';
+import { copyGroup } from './group-candidate-analysis';
 
 /**
  * Creates a group as a list of user's connections
