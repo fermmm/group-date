@@ -11,13 +11,13 @@ import { __, g, logComplete } from '../../common-tools/database-tools/database-m
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { queryToGetAllUsers, queryToGetUserById, queryToRemoveUsers } from '../common/queries';
 import { queryToGetGroupCandidates } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { GroupQuality } from '../groups-finder/models';
 import { fromQueryToGroupCandidates } from '../groups-finder/tools/data-conversion';
 import { fromQueryToUserList } from '../user/tools/data-conversion';
+import { queryToRemoveUsers } from '../user/queries';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {

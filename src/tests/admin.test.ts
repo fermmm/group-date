@@ -6,8 +6,8 @@ import {
    convertToAdmin,
    convertToAdminPost,
 } from '../components/admin/models';
-import { retrieveFullyRegisteredUser } from '../components/common/models';
-import { queryToRemoveUsers } from '../components/common/queries';
+import { retrieveFullyRegisteredUser } from '../components/user/models';
+import { queryToRemoveUsers } from '../components/user/queries';
 import { ChatWithAdmins } from '../shared-tools/endpoints-interfaces/admin';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';

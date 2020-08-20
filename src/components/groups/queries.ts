@@ -6,7 +6,7 @@ import { __, column, g, P } from '../../common-tools/database-tools/database-man
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { RELEASE_SLOT_TIME } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
-import { queryToGetUserById } from '../common/queries';
+import { queryToGetUserById } from '../user/queries';
 import { getAllSlotsNames } from './models';
 
 /**

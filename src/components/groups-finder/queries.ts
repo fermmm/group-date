@@ -8,9 +8,9 @@ import {
    MIN_GROUP_SIZE,
    SHOW_BAD_QUALITY_GROUPS_TIME,
 } from '../../configurations';
-import { queryToGetAllCompleteUsers } from '../common/queries';
 import { GroupQuality, SizeRestriction } from './models';
 import * as moment from 'moment';
+import { queryToGetAllCompleteUsers } from '../user/queries';
 
 /**
  * This query returns lists of users arrays where it's users matches between them.

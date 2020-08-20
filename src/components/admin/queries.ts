@@ -3,7 +3,7 @@ import { serializeIfNeeded } from '../../common-tools/database-tools/data-conver
 import { __, column, g } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
-import { queryToGetUserById } from '../common/queries';
+import { queryToGetUserById } from '../user/queries';
 
 export function queryToGetAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
    const projectWithoutUserData: Traversal = __.valueMap().by(__.unfold());

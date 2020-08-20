@@ -10,8 +10,8 @@ import {
 } from '../../shared-tools/endpoints-interfaces/admin';
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { retrieveUser } from '../common/models';
-import { queryToUpdateUserProps } from '../common/queries';
+import { retrieveUser } from '../user/models';
+import { queryToUpdateUserProps } from '../user/queries';
 import {
    queryToGetAdminChatMessages,
    queryToGetAllChatsWithAdmins,

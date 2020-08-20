@@ -1,5 +1,4 @@
 import 'jest';
-import { queryToRemoveUsers } from '../components/common/queries';
 import { createGroup, getSlotIdFromUsersAmount } from '../components/groups/models';
 import {
    addNotificationToUser,
@@ -9,6 +8,7 @@ import {
    profileStatusGet,
    userGet,
 } from '../components/user/models';
+import { queryToRemoveUsers } from '../components/user/queries';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { AttractionType, NotificationType, User } from '../shared-tools/endpoints-interfaces/user';
 import { createMatchingUsers } from './tools/groups';

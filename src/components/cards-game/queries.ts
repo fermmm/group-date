@@ -11,7 +11,7 @@ import {
    QuestionResponse,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { queryToGetAllCompleteUsers, queryToGetUserByToken } from '../common/queries';
+import { queryToGetAllCompleteUsers, queryToGetUserByToken } from '../user/queries';
 import { getQuestionDataById, questions } from '../user/questions/models';
 
 export function queryToGetCardsRecommendations(searcherUser: User): Traversal {

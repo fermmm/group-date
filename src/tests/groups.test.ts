@@ -1,5 +1,4 @@
 import 'jest';
-import { queryToRemoveUsers } from '../components/common/queries';
 import {
    acceptPost,
    chatPost,
@@ -12,6 +11,7 @@ import {
    groupGet,
    userGroupsGet,
 } from '../components/groups/models';
+import { queryToRemoveUsers } from '../components/user/queries';
 import { ExperienceFeedbackType, Group } from '../shared-tools/endpoints-interfaces/groups';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';

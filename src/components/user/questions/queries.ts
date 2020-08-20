@@ -1,7 +1,7 @@
 import { __, column, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
 import { Traversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
-import { queryToGetUserByToken } from '../../common/queries';
+import { queryToGetUserByToken } from '../queries';
 import { getIncompatibleAnswers } from './models';
 
 export async function createQuestions(questions: QuestionData[]): Promise<void> {

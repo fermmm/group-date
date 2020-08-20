@@ -5,8 +5,8 @@ import {
    recommendationsGet,
 } from '../components/cards-game/models';
 import { queryToOrderResultsByMatchingQuestions } from '../components/cards-game/queries';
-import { queryToGetAllCompleteUsers, queryToRemoveUsers } from '../components/common/queries';
 import { userGet, userPost } from '../components/user/models';
+import { queryToRemoveUsers, queryToGetAllCompleteUsers } from '../components/user/queries';
 import { fromQueryToUserList } from '../components/user/tools/data-conversion';
 import { AttractionType, Gender, User, UserPostParams } from '../shared-tools/endpoints-interfaces/user';
 import { amountOfMatchingResponses } from '../shared-tools/user-tools/user-tools';

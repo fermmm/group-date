@@ -19,7 +19,7 @@ import {
    Group,
 } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { retrieveFullyRegisteredUser } from '../common/models';
+import { retrieveFullyRegisteredUser } from '../user/models';
 import { queryToFindSlotsToRelease } from './queries';
 import {
    AddUsersToGroupSettings,
