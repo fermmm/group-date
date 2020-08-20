@@ -1,6 +1,6 @@
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
-import { queryToGetGroupCandidates, queryToGetUsersToAddInActiveGroups } from './queries';
-import { fromQueryToGroupCandidates, fromQueryToUsersToAddInActiveGroups } from './tools/data-conversion';
+import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
+import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
 import { groupOrderingTest } from './tools/group-candidate-test';
 
 // groupOrderingTest()
@@ -15,18 +15,19 @@ async function searchAndCreateNewGoodQualityGroups(): Promise<void> {
 // TODO: Implement
 async function searchAndAddUsersToExistingGroups(): Promise<void> {
    for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
-      await fromQueryToUsersToAddInActiveGroups(queryToGetUsersToAddInActiveGroups(i));
+      await fromQueryToGroupsReceivingNewUsers(queryToGetGroupsReceivingNewUsers(i));
    }
 }
 
-export interface UsersToAddToActiveGroups {
-   userId: string;
-   groups: Array<{ groupId: string; membersAndMatches: UserAndItsMatches[] }>;
+export interface GroupsReceivingNewUsers {
+   groupId: string;
+   usersToAdd: Array<{ userId: string; matchesAmount: number }>;
+   groupMatches: UserAndItsMatches[];
 }
 
 export interface UserAndItsMatches {
    user: string;
-   matches: string;
+   matches: string[];
 }
 
 export interface SizeRestriction {
