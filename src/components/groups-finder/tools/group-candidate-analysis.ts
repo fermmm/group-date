@@ -1,4 +1,6 @@
 import { replaceNaNInfinity } from '../../../common-tools/math-tools/general';
+import { UserWithMatches, GroupCandidate } from '../models';
+import { getUserByIdOnGroupCandidate, disconnectUsers } from './group-candidate-editing';
 
 /**
  * This function calculates the connections count inequality level with the following logic:
@@ -12,8 +14,8 @@ import { replaceNaNInfinity } from '../../../common-tools/math-tools/general';
  *    [3,3,3] returns: 0 (total equality)
  *    [0,5,1] returns: 0.75
  */
-export function getConnectionsCountInequalityLevel(groupAsConnections: number[][]): number {
-   const connectionsCount: number[] = groupAsConnections.map(connections => connections.length);
+export function getConnectionsCountInequalityLevel(group: GroupCandidate): number {
+   const connectionsCount: number[] = group.map(user => user.matches.length);
    const lessEqualCase: number[] = getLessEqualCase(connectionsCount);
 
    const deviation: number = meanAbsoluteDeviation(connectionsCount);
@@ -28,13 +30,15 @@ export function getConnectionsCountInequalityLevel(groupAsConnections: number[][
  * An average of how many connections each user has divided by the total amount of users.
  * Gives an idea of how connected are the users with the rest of the group with a number from 0 to 1.
  */
-export function getConnectionsCoverageAverage(groupAsConnections: number[][]): number {
-   let result: number = 0;
-   groupAsConnections.forEach(v => {
-      // Each user can connect with the total amount of users - 1 (itself)
-      result += v.length / (groupAsConnections.length - 1);
-   });
-   return result / groupAsConnections.length;
+export function getConnectionsCoverageAverage(group: GroupCandidate): number {
+   return (
+      group.reduce(
+         (s, v) =>
+            // Each user can connect with the total amount of users - 1 (itself)
+            (s += v.matches.length / (group.length - 1)),
+         0,
+      ) / group.length
+   );
 }
 
 /**
@@ -46,12 +50,8 @@ export function getConnectionsCoverageAverage(groupAsConnections: number[][]): n
  * because in real life a person has time for a limited amount of people, so with this parameter is possible to
  * get the calculation results more similar to a real life situation.
  */
-export function getAverageConnectionsAmount(groupAsConnections: number[][]): number {
-   let result: number = 0;
-   groupAsConnections.forEach(v => {
-      result += v.length;
-   });
-   return result / groupAsConnections.length;
+export function getAverageConnectionsAmount(group: GroupCandidate): number {
+   return group.reduce((s, v) => (s += v.matches.length), 0) / group.length;
 }
 
 /**
@@ -64,25 +64,25 @@ export function getAverageConnectionsAmount(groupAsConnections: number[][]): num
  * The number goes from 0 to 1. As higher it is the value the worst is the quality of the group.
  * This is the most important indicator of the quality of a group.
  */
-export function getConnectionsMetaconnectionsDistance(groupAsConnections: number[][]): number {
-   let result: number = 0;
-   groupAsConnections.forEach((distance1, i) => {
-      const distance1ConnectionsAmount: number[] = getDistance1UsersConnectionsAmount(groupAsConnections, i);
+export function getConnectionsMetaconnectionsDistance(group: GroupCandidate): number {
+   const result: number = group.reduce((s, distance1) => {
+      const distance1ConnectionsAmount: number[] = getMetaconnectionsAmountInGroupCandidate(group, distance1);
       let distancesForUser: number = 0;
       distance1ConnectionsAmount.forEach(
-         distance2Amount => (distancesForUser += Math.abs(distance1.length - distance2Amount)),
+         distance2Amount => (distancesForUser += Math.abs(distance1.matches.length - distance2Amount)),
       );
-      let distance: number = distancesForUser / distance1.length;
+      let distance: number = distancesForUser / distance1.matches.length;
       /**
        * When a user has 0 connections the result is Infinity. We should not replace that infinity with 0
        * because 0 is the "healthiest" result, that's the opposite of what we have in this case. So in case
        * of no connections the distance is the whole group size.
        */
-      distance = replaceNaNInfinity(distance, groupAsConnections.length);
-      result += distance;
-   });
+      distance = replaceNaNInfinity(distance, group.length);
+      s += distance;
+      return s;
+   }, 0);
 
-   return result / groupAsConnections.length / groupAsConnections.length;
+   return result / group.length / group.length;
 }
 
 function sum(array: number[]): number {
@@ -112,35 +112,35 @@ function meanAbsoluteDeviation(array: number[]): number {
 }
 
 /**
- * The connections amount of all the users at distance 1 of the target user.
+ * Returns a list with the amount of connections that has each of the users at distance 1 from a given user.
  */
-function getDistance1UsersConnectionsAmount(groupAsConnections: number[][], targetUserIndex: number): number[] {
-   const distance1Users: number[] = groupAsConnections[targetUserIndex];
-   return distance1Users.map(userDist1 => groupAsConnections[userDist1].length);
+function getMetaconnectionsAmountInGroupCandidate(
+   group: GroupCandidate,
+   targetUser: UserWithMatches,
+): number[] {
+   return targetUser.matches.map(userDist1Id => getUserByIdOnGroupCandidate(group, userDist1Id).matches.length);
 }
 
 /**
- * In a group as connections removes the exceeding connections of a user when there are more than the
+ * In a group candidate removes the exceeding connections of a user when there are more than the
  * maximum specified.
  */
-export function removeExceedingConnections(
-   groupAsConnections: number[][],
+export function removeExceedingConnectionsOnGroupCandidate(
+   group: GroupCandidate,
    maxConnectionsAllowed: number,
-): number[][] {
-   const result: number[][] = copyGroup(groupAsConnections);
-   result.forEach((userConnections, userIndex) => {
-      if (userConnections.length > maxConnectionsAllowed) {
-         for (let i = userConnections.length - 1; i >= maxConnectionsAllowed; i--) {
-            const otherEndUserConnections: number[] = result[userConnections[i]];
-            otherEndUserConnections.splice(otherEndUserConnections.indexOf(userIndex), 1);
-            userConnections.splice(i, 1);
+): GroupCandidate {
+   const resultGroup: GroupCandidate = copyGroupCandidate(group);
+   resultGroup.forEach((user, i) => {
+      if (user.matches.length > maxConnectionsAllowed) {
+         for (let u = user.matches.length - 1; u >= maxConnectionsAllowed; u--) {
+            const userToDisconnect = getUserByIdOnGroupCandidate(resultGroup, user.matches[u]);
+            disconnectUsers(user, userToDisconnect);
          }
       }
    });
-
-   return result;
+   return resultGroup;
 }
 
-export function copyGroup(groupAsConnections: number[][]): number[][] {
-   return groupAsConnections.map(u => [...u]);
+export function copyGroupCandidate(group: GroupCandidate): GroupCandidate {
+   return group.map(u => ({ userId: u.userId, matches: [...u.matches] }));
 }

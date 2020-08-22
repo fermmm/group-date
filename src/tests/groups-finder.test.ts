@@ -3,7 +3,7 @@ import { User } from '../shared-tools/endpoints-interfaces/user';
 import { connectUsersInChain, createMatchingUsers, matchUserWithUsers } from './tools/groups';
 import { createFakeUser, createFakeUsers } from './tools/users';
 import { queryToGetGroupCandidates } from '../components/groups-finder/queries';
-import { GroupQuality, UserAndItsMatches } from '../components/groups-finder/models';
+import { GroupQuality, UserWithMatches } from '../components/groups-finder/models';
 import { fromQueryToGroupCandidates } from '../components/groups-finder/tools/data-conversion';
 import { queryToRemoveUsers } from '../components/user/queries';
 
@@ -20,7 +20,7 @@ describe('Group Finder', () => {
       // Create another unrelated group to make sure there is no interference:
       const interferenceGroup: User[] = await createMatchingUsers(5);
       // Get the groups
-      const result: UserAndItsMatches[][] = await fromQueryToGroupCandidates(
+      const result: UserWithMatches[][] = await fromQueryToGroupCandidates(
          queryToGetGroupCandidates(0, GroupQuality.Good),
       );
 

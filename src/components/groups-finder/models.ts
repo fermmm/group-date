@@ -3,7 +3,12 @@ import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
 import { groupOrderingTest } from './tools/group-candidate-test';
 
-// groupOrderingTest()
+// TODO: Tal vez convendria implementar un tiempo de espera para ocupar un slot propio de la configuracion del slot
+// Para eso Le puedo poner un timestamp al edge del slot y que no lo libere hasta que no pase cierto tiempo.
+// de lo contrario el primer grupo siempre va a ser uno chico. Aunque si es la primera vez en la app si deberia al menos
+// apurarse con un grupo y que sea chico, pero ya si es el segundo puede esperar un poco
+
+groupOrderingTest();
 
 // TODO: Implement
 async function searchAndCreateNewGoodQualityGroups(): Promise<void> {
@@ -22,13 +27,15 @@ async function searchAndAddUsersToExistingGroups(): Promise<void> {
 export interface GroupsReceivingNewUsers {
    groupId: string;
    usersToAdd: Array<{ userId: string; matchesAmount: number }>;
-   groupMatches: UserAndItsMatches[];
+   groupMatches: UserWithMatches[];
 }
 
-export interface UserAndItsMatches {
-   user: string;
+export interface UserWithMatches {
+   userId: string;
    matches: string[];
 }
+
+export type GroupCandidate = UserWithMatches[];
 
 export interface SizeRestriction {
    minimumSize?: number;

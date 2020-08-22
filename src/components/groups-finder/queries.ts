@@ -222,7 +222,7 @@ function queryToSearchBadQualityMatchingGroups(traversal: Traversal): Traversal 
  * Also ignores groups that are outside the size restrictions selected.
  *
  * To test the query easily:
- * https://gremlify.com/5lgbctob8n4
+ * https://gremlify.com/fzqecgnxi9p
  *
  *
  * @param sizeRestriction Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
@@ -243,7 +243,7 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
          .as('g')
          .unfold()
          .map(
-            __.project('user', 'matches')
+            __.project('userId', 'matches')
                .by(__.values(returnNames ? 'name' : 'userId'))
                .by(
                   __.as('u')
@@ -267,7 +267,7 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
  * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
  *
  * To play with this query:
- * https://gremlify.com/92twmetgmsb
+ * https://gremlify.com/cysfkcn50fu
  */
 function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?: SizeRestriction): Traversal {
    return (
@@ -322,7 +322,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?
             __.select('group')
                .as('group')
                .in_('member')
-               .project('user', 'matches')
+               .project('userId', 'matches')
                .by(__.values('userId'))
                .by(
                   __.both('Match')

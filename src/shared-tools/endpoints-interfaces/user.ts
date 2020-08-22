@@ -1,4 +1,4 @@
-import { ExposedUserPropKey, ExposedUserProps } from '../validators/user';
+import { ExposedUserPropKey, EditableUserProps } from '../validators/user';
 
 export type UserPropsValueTypes = number | string | boolean | string[];
 
@@ -55,7 +55,7 @@ export interface QuestionResponseParams {
 
 export interface UserPostParams {
    token: string;
-   props?: ExposedUserProps;
+   props?: EditableUserProps;
    questions?: QuestionResponseParams[];
 }
 

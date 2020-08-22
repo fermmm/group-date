@@ -13,7 +13,7 @@ import {
    User,
    UserPostParams,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { ExposedUserProps } from '../../shared-tools/validators/user';
+import { EditableUserProps } from '../../shared-tools/validators/user';
 import { fakeCtx } from './replacements';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
@@ -45,7 +45,8 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const token: string = customParams?.token || chance.apple_token();
 
-   const randomProps: ExposedUserProps = {
+   const randomProps: Partial<User> = {
+      userId: chance.apple_token(),
       name: chance.first({ nationality: 'it' }),
       age: chance.integer({ min: 18, max: 55 }),
       targetAgeMin: chance.integer({ min: 18, max: 20 }),

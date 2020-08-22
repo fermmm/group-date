@@ -9,7 +9,7 @@ import {
    SetAttractionParams,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { editableUserPropsList, ExposedUserProps } from '../../shared-tools/validators/user';
+import { editableUserPropsList, EditableUserProps } from '../../shared-tools/validators/user';
 import * as moment from 'moment';
 import { ValueOf } from 'ts-essentials';
 
@@ -138,7 +138,7 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
       .iterate();
 }
 
-export async function queryToSetUserEditableProps(token: string, userProps: ExposedUserProps): Promise<void> {
+export async function queryToSetUserEditableProps(token: string, userProps: EditableUserProps): Promise<void> {
    let query: Traversal = queryToGetUserByToken(token);
 
    editableUserPropsList.forEach(editableUserProp => {

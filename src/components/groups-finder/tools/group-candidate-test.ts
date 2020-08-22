@@ -7,119 +7,119 @@ import {
    getConnectionsCountInequalityLevel,
    getConnectionsCoverageAverage,
    getConnectionsMetaconnectionsDistance,
-   removeExceedingConnections,
+   removeExceedingConnectionsOnGroupCandidate,
 } from './group-candidate-analysis';
-import { addAUserAndConnectItWithAll, addUsersAndConnectRandomly } from './group-candidate-editing';
+import { createFakeUserOnGroupCandidate, createFakeUsersAndConnectRandomly } from './group-candidate-editing';
+import { GroupCandidate } from '../models';
 import {
-   addUser,
-   addUsers,
+   createFakeUsersForGroupCandidate,
    connectAllWithAll,
    connectAllWithNeighbors,
-   createGroup,
+   createGroupCandidate,
 } from './group-candidate-editing';
 
-const groupWith2 = createGroup(2);
-const twoForTwo = addUsers(groupWith2, 2, [0, 1]);
-const groupWith3 = createGroup(3);
-const groupWith4 = createGroup(4);
-const groupWith5 = createGroup(5);
-const groupWith12 = createGroup(12);
+const groupWith2 = createGroupCandidate(2);
+const twoForTwo = createFakeUsersForGroupCandidate(groupWith2, 2, [0, 1]);
+const groupWith3 = createGroupCandidate(3);
+const groupWith4 = createGroupCandidate(4);
+const groupWith5 = createGroupCandidate(5);
+const groupWith12 = createGroupCandidate(12);
 const circleGroupOf12 = connectAllWithNeighbors(groupWith12, true);
-const big = addUsersAndConnectRandomly({
+const big = createFakeUsersAndConnectRandomly({
    amountOfUsers: 12,
    minConnectionsPerUser: 4,
    maxConnectionsPerUser: 9,
 });
 
-const testGroups: Array<{ name: string; values: number[][] } | string> = [
+const testGroups: Array<{ name: string; group: GroupCandidate } | string> = [
    {
       name: '2 for 2',
-      values: twoForTwo,
+      group: twoForTwo,
    },
    {
       name: '2 for 2 + 1 extra bisexual',
-      values: addUser(twoForTwo, [1, 0]),
+      group: createFakeUserOnGroupCandidate(twoForTwo, [1, 0]),
    },
    {
       name: '2 for 3',
-      values: addUsers(groupWith2, 3, [0, 1]),
+      group: createFakeUsersForGroupCandidate(groupWith2, 3, [0, 1]),
    },
    {
       name: '2 for 4',
-      values: addUsers(groupWith2, 4, [0, 1]),
+      group: createFakeUsersForGroupCandidate(groupWith2, 4, [0, 1]),
    },
    {
       name: '2 for 5',
-      values: addUsers(groupWith2, 5, [0, 1]),
+      group: createFakeUsersForGroupCandidate(groupWith2, 5, [0, 1]),
    },
    {
       name: '2 for 6',
-      values: addUsers(groupWith2, 6, [0, 1]),
+      group: createFakeUsersForGroupCandidate(groupWith2, 6, [0, 1]),
    },
    {
       name: '2 for 8',
-      values: addUsers(groupWith2, 8, [0, 1]),
+      group: createFakeUsersForGroupCandidate(groupWith2, 8, [0, 1]),
    },
    '',
    {
       name: '3 for 3',
-      values: addUsers(groupWith3, 3, [0, 1, 2]),
+      group: createFakeUsersForGroupCandidate(groupWith3, 3, [0, 1, 2]),
    },
    {
       name: '3 for 4',
-      values: addUsers(groupWith3, 4, [0, 1, 2]),
+      group: createFakeUsersForGroupCandidate(groupWith3, 4, [0, 1, 2]),
    },
    {
       name: '3 for 5',
-      values: addUsers(groupWith3, 5, [0, 1, 2]),
+      group: createFakeUsersForGroupCandidate(groupWith3, 5, [0, 1, 2]),
    },
    {
       name: '3 for 6',
-      values: addUsers(groupWith3, 6, [0, 1, 2]),
+      group: createFakeUsersForGroupCandidate(groupWith3, 6, [0, 1, 2]),
    },
    {
       name: '3 for 7',
-      values: addUsers(groupWith3, 7, [0, 1, 2]),
+      group: createFakeUsersForGroupCandidate(groupWith3, 7, [0, 1, 2]),
    },
    {
       name: '3 for 8',
-      values: addUsers(groupWith3, 8, [0, 1, 2]),
+      group: createFakeUsersForGroupCandidate(groupWith3, 8, [0, 1, 2]),
    },
    '',
    {
       name: '4 for 5',
-      values: addUsers(groupWith4, 5, [0, 1, 2, 3]),
+      group: createFakeUsersForGroupCandidate(groupWith4, 5, [0, 1, 2, 3]),
    },
    {
       name: '4 for 6',
-      values: addUsers(groupWith4, 6, [0, 1, 2, 3]),
+      group: createFakeUsersForGroupCandidate(groupWith4, 6, [0, 1, 2, 3]),
    },
    {
       name: '4 for 7',
-      values: addUsers(groupWith4, 7, [0, 1, 2, 3]),
+      group: createFakeUsersForGroupCandidate(groupWith4, 7, [0, 1, 2, 3]),
    },
    {
       name: '4 for 8',
-      values: addUsers(groupWith4, 8, [0, 1, 2, 3]),
+      group: createFakeUsersForGroupCandidate(groupWith4, 8, [0, 1, 2, 3]),
    },
    {
       name: '4 for 9',
-      values: addUsers(groupWith4, 9, [0, 1, 2, 3]),
+      group: createFakeUsersForGroupCandidate(groupWith4, 9, [0, 1, 2, 3]),
    },
    '',
    {
       name: '5 All with all',
-      values: connectAllWithAll(groupWith5),
+      group: connectAllWithAll(groupWith5),
    },
    {
       name: '5 All with all + 1 with 2 connections',
-      values: addUser(connectAllWithAll(groupWith5), [0, 2]),
+      group: createFakeUserOnGroupCandidate(connectAllWithAll(groupWith5), [0, 2]),
    },
    '',
    {
       name: '1 user with 12 connections, the rest have from 2 to 6 connections',
-      values: addAUserAndConnectItWithAll(
-         addUsersAndConnectRandomly({
+      group: createFakeUserOnGroupCandidate(
+         createFakeUsersAndConnectRandomly({
             amountOfUsers: 12,
             minConnectionsPerUser: 2,
             maxConnectionsPerUser: 6,
@@ -128,26 +128,27 @@ const testGroups: Array<{ name: string; values: number[][] } | string> = [
    },
    {
       name: '1 user with 12 connections, the rest have 2 other connections',
-      values: addAUserAndConnectItWithAll(circleGroupOf12),
+      group: createFakeUserOnGroupCandidate(circleGroupOf12),
    },
    '',
    {
       name: '12 users with 4 to 9 connections',
-      values: big,
+      group: big,
    },
    {
       name: '12 users with 4 to 9 connections + 1 of 2',
-      values: addUser(big, [0, 1]),
+      group: createFakeUserOnGroupCandidate(big, [0, 1]),
    },
 ];
 
 export function groupOrderingTest() {
    console.log('');
+   console.log('//////////////////////////////////////////////////');
    testGroups.forEach(item => {
       if (typeof item !== 'string') {
-         const group: number[][] = item.values;
-         const groupTrimmed: number[][] = removeExceedingConnections(
-            item.values,
+         const group: GroupCandidate = item.group;
+         const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
+            item.group,
             MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
          );
 
@@ -181,4 +182,6 @@ export function groupOrderingTest() {
          console.log(item);
       }
    });
+   console.log('//////////////////////////////////////////////////');
+   console.log('');
 }

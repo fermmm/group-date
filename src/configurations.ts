@@ -6,8 +6,11 @@ import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * The minimum and maximum size of the groups in the app. There has to be a maximum and it's related with how
- * confortable can be to have a date with too much people.
+ * The minimum and maximum size of the groups in the app.
+ * There maximum and it's related with how confortable can be to have a date with too much people.
+ * The minimum is related to an issue where only half of the users go to the date, so the groups must have
+ * a minimum size of many users since only half of them will meet en person.
+ * For the moment we set it as 3 and see what happens before increasing.
  */
 export const MIN_GROUP_SIZE = 3;
 export const MAX_GROUP_SIZE = 12;
@@ -32,7 +35,6 @@ export const MAX_GROUP_SIZE = 12;
  * It's recommended to order the smaller group slots first. It will start searching the bigger groups first from
  * the bottom.
  */
-// TODO: Implementar un tiempo sin grupos para cada slot, de manera que no busque grupos chicos hasta que no encuentre grandes
 export const GROUP_SLOTS_CONFIGS = [
    {
       maximumSize: 6,
