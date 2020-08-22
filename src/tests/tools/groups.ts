@@ -1,5 +1,5 @@
-import * as Chance from 'chance';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
+import { chance } from './generalTools';
 import { createFakeUsers, setAttractionAllWithAll, setAttractionMatch } from './users';
 
 /**
@@ -19,7 +19,6 @@ export async function createMatchingUsers(
       return users;
    }
 
-   const chance = new Chance(settings.seed || amount);
    for (const user of users) {
       const amountOfUsersToMatch = chance.integer(settings.connectionsPerUser);
       if (amountOfUsersToMatch === 0) {
@@ -40,9 +39,7 @@ export async function matchUserWithUsers(
    user: User,
    usersToMatch: User[],
    amountOfUsersToMatch?: number,
-   seed?: number,
 ): Promise<User[]> {
-   const chance = new Chance(seed || amountOfUsersToMatch);
    amountOfUsersToMatch = amountOfUsersToMatch ?? usersToMatch.length;
    const users: User[] = chance.pickset(usersToMatch, amountOfUsersToMatch);
    await setAttractionMatch(user, users);
@@ -61,7 +58,7 @@ export async function matchUsersWithUsers(
    seed?: number,
 ): Promise<User[]> {
    for (const userFromList1 of usersList1) {
-      await matchUserWithUsers(userFromList1, usersList2, connectionsPerUser, seed);
+      await matchUserWithUsers(userFromList1, usersList2, connectionsPerUser);
    }
    return [...usersList1, ...usersList2];
 }
@@ -85,5 +82,4 @@ export async function connectUsersInChain(users: User[], connectTheEnds: boolean
 
 interface CreateMatchingUsersRandomSettings {
    connectionsPerUser: { min: number; max: number };
-   seed?: number;
 }

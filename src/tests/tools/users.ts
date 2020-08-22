@@ -1,4 +1,3 @@
-import * as Chance from 'chance';
 import * as moment from 'moment';
 import ora = require('ora');
 import { setAttractionPost, userPost } from '../../components/user/models';
@@ -13,7 +12,7 @@ import {
    User,
    UserPostParams,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { EditableUserProps } from '../../shared-tools/validators/user';
+import { chance } from './generalTools';
 import { fakeCtx } from './replacements';
 
 const spinner: ora.Ora = ora({ text: 'Creating fake users...', spinner: 'noise' });
@@ -40,8 +39,6 @@ export async function createFakeUsers(
 let fakeUsersCount = 0;
 
 export async function createFakeUser(customParams?: Partial<UserPostParams>, seed?: number): Promise<User> {
-   const chance = new Chance(seed || fakeUsersCount);
-
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const token: string = customParams?.token || chance.apple_token();
 
@@ -135,8 +132,6 @@ export async function setAttractionAllWithAll(users: User[]): Promise<void> {
 }
 
 export async function createFakeCompatibleUsers(user: User, amount: number, seed?: number): Promise<User[]> {
-   const chance = new Chance(seed || fakeUsersCount);
-
    const compatibleRandomProps: Partial<UserPostParams> = {
       props: {
          age: chance.integer({ min: user.targetAgeMin, max: user.targetAgeMax }),

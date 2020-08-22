@@ -1,7 +1,6 @@
-import * as Chance from 'chance';
 import { GroupCandidate, UserWithMatches } from '../models';
 import { copyGroupCandidate } from './group-candidate-analysis';
-const chance = new Chance(666);
+import { chance } from '../../../tests/tools/generalTools';
 
 /**
  * Creates a group candidate fake user, to use only on tests. Also adds the user to the group and connects other users according to the provided connections array.
