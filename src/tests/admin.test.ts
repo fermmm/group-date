@@ -13,7 +13,7 @@ import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
 import { createFakeUsers } from './tools/users';
 
-describe('Users', () => {
+describe('Admin', () => {
    let fakeUsers: User[];
    let mainUser: User;
    let mainUser2: User;

@@ -43,7 +43,6 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
    const token: string = customParams?.token || chance.apple_token();
 
    const randomProps: Partial<User> = {
-      userId: chance.apple_token(),
       name: chance.first({ nationality: 'it' }),
       age: chance.integer({ min: 18, max: 55 }),
       targetAgeMin: chance.integer({ min: 18, max: 20 }),
@@ -94,12 +93,9 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
       };
    });
 
+   // The user object from this line contains the userId and other props added by the query to create the user.
    let user: Partial<User> = await fromQueryToUser(queryToCreateUser(token, chance.email(), true), true);
    await userPost({ token, props, questions }, fakeCtx);
-
-   // await profileStatusGet({ token }, fakeCtx);
-   // user = await retrieveUser(token, true, fakeCtx);
-   // This replaces profileStatusGet and retrieveUser. It's faster but if there is any problem can be replaced by the commented lines on top
    user = { ...user, ...(props as User), questions, profileCompleted: true, lastLoginDate: moment().unix() };
 
    fakeUsersCount++;
