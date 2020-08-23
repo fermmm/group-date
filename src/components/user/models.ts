@@ -40,7 +40,7 @@ import {
    queryToUpdateUserToken,
 } from './queries';
 import { questions } from './questions/models';
-import { respondQuestions } from './questions/queries';
+import { queryToRespondQuestions } from './questions/queries';
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
 
 /**
@@ -129,7 +129,7 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
    }
 
    if (params.questions != null) {
-      await respondQuestions(params.token, params.questions);
+      await queryToRespondQuestions(params.token, params.questions);
    }
 }
 

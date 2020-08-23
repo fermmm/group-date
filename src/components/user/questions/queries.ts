@@ -1,59 +1,37 @@
-import { __, column, g, retryOnError } from '../../../common-tools/database-tools/database-manager';
-import { Traversal, VertexProperty } from '../../../common-tools/database-tools/gremlin-typing-tools';
+import { __, column, g, retryOnError, P } from '../../../common-tools/database-tools/database-manager';
+import { Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
 import { queryToGetUserByToken } from '../queries';
 import { getIncompatibleAnswers } from './models';
 
-export async function createQuestions(questions: QuestionData[]): Promise<void> {
-   let traversal: Traversal = (g as unknown) as Traversal;
-
-   /**
-    * Add question to the database from the questions list provided (only when it does not
-    * exist already)
-    */
-
-   for (const question of questions) {
-      traversal = traversal
+export async function queryToCreateQuestionsInDatabase(questions: QuestionData[]): Promise<void> {
+   return (
+      g
+         .inject('')
+         // Add questions when not present
+         .sideEffect(
+            __.union(
+               ...questions.map(q =>
+                  __.coalesce(
+                     __.V().has('question', 'questionId', q.questionId),
+                     __.addV('question').property('questionId', q.questionId),
+                  ),
+               ),
+            ),
+         )
+         // Remove from the DB the questions that are not present anymore in the questions list
          .V()
-         .has('question', 'questionId', Number(question.questionId))
-         .fold()
-         .coalesce(__.unfold(), __.addV('question').property('questionId', Number(question.questionId)));
-   }
-   await (traversal as Traversal).iterate();
-
-   /**
-    * Remove questions in the database that are not present in the questions list provided
-    */
-
-   let surplusQuestions = (await g
-      .V()
-      .hasLabel('question')
-      .properties('questionId')
-      .toList()) as VertexProperty[];
-
-   surplusQuestions = surplusQuestions.filter(q => questions.find(v => v.questionId === q.value) == null);
-
-   if (surplusQuestions.length === 0) {
-      return Promise.resolve();
-   }
-
-   let traversal2: Traversal = (g as unknown) as Traversal;
-   for (const question of surplusQuestions) {
-      traversal2 = traversal2
-         .V()
-         .has('question', 'questionId', Number(question.value))
-         .aggregate('x')
-         .cap('x');
-   }
-   await traversal2
-      .unfold()
-      .drop()
-      .iterate();
-
-   return Promise.resolve();
+         .hasLabel('question')
+         .not(__.has('questionId', P.within(...questions.map(q => q.questionId))))
+         .drop()
+         .iterate()
+   );
 }
 
-export async function respondQuestions(token: string, questions: QuestionResponseParams[]): Promise<void> {
+export async function queryToRespondQuestions(
+   token: string,
+   questions: QuestionResponseParams[],
+): Promise<void> {
    let query: Traversal = queryToGetUserByToken(token).as('user');
 
    for (const question of questions) {
@@ -80,7 +58,7 @@ export async function respondQuestions(token: string, questions: QuestionRespons
    return retryOnError(() => query.iterate());
 }
 
-export function addQuestionsRespondedToUserQuery(traversal: Traversal): Traversal {
+export function queryToIncludeQuestionsInUserQuery(traversal: Traversal): Traversal {
    return traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),
@@ -96,4 +74,11 @@ export function addQuestionsRespondedToUserQuery(traversal: Traversal): Traversa
          .by(__.select(column.keys))
          .by(__.select(column.values)),
    );
+}
+
+export function queryToGetQuestionsVerticesIds(): Traversal {
+   return g
+      .V()
+      .hasLabel('question')
+      .values('questionId');
 }

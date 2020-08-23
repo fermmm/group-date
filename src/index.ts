@@ -18,7 +18,7 @@ import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
 import { testingRoutes } from './components/testing/routes';
 import { questions } from './components/user/questions/models';
-import { createQuestions } from './components/user/questions/queries';
+import { queryToCreateQuestionsInDatabase } from './components/user/questions/queries';
 import { userRoutes } from './components/user/routes';
 
 (async () => {
@@ -32,7 +32,7 @@ import { userRoutes } from './components/user/routes';
 
    // Database initialization:
    await waitForDatabase();
-   createQuestions(questions);
+   queryToCreateQuestionsInDatabase(questions);
 
    // Routes:
    handshakeRoutes(router);

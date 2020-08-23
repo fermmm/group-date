@@ -4,14 +4,14 @@ import { retryOnError } from '../../../common-tools/database-tools/database-mana
 import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { removePrivacySensitiveUserProps } from '../../../common-tools/security-tools/security-tools';
 import { User } from '../../../shared-tools/endpoints-interfaces/user';
-import { addQuestionsRespondedToUserQuery } from '../questions/queries';
+import { queryToIncludeQuestionsInUserQuery } from '../questions/queries';
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
  */
 export async function fromQueryToUser(queryOfUser: Traversal, includeQuestions: boolean): Promise<User> {
    if (includeQuestions) {
-      queryOfUser = addQuestionsRespondedToUserQuery(queryOfUser);
+      queryOfUser = queryToIncludeQuestionsInUserQuery(queryOfUser);
    } else {
       queryOfUser = valueMap(queryOfUser);
    }
@@ -30,7 +30,7 @@ export async function fromQueryToUserList(
    includeQuestionsData: boolean = true,
 ): Promise<User[]> {
    if (includeQuestionsData) {
-      queryOfUsers = addQuestionsRespondedToUserQuery(queryOfUsers);
+      queryOfUsers = queryToIncludeQuestionsInUserQuery(queryOfUsers);
    } else {
       queryOfUsers = valueMap(queryOfUsers);
    }
