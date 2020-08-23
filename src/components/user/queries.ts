@@ -122,18 +122,9 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
          .iterate();
    }
 
-   let query: Traversal = (g as unknown) as Traversal;
-
-   for (const user of users) {
-      query = query
-         .V()
-         .has('user', 'userId', user.userId)
-         .aggregate('x')
-         .cap('x');
-   }
-
-   return (query as Traversal)
-      .unfold()
+   return g
+      .V()
+      .union(...users.map(u => __.has('user', 'userId', u.userId)))
       .drop()
       .iterate();
 }
