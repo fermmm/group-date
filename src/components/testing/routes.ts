@@ -14,10 +14,10 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetGroupCandidates } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
-import { GroupQuality } from '../groups-finder/models';
 import { fromQueryToGroupCandidates } from '../groups-finder/tools/data-conversion';
 import { fromQueryToUserList } from '../user/tools/data-conversion';
 import { queryToRemoveUsers } from '../user/queries';
+import { GroupQuality } from '../groups-finder/tools/types';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
@@ -55,50 +55,4 @@ export function testingRoutes(router: Router): void {
       // await removeUsers(fakeUsers);
       ctx.body = `Finished OK`;
    });
-}
-
-async function logUserListNames(query: Traversal) {
-   console.log((await fromQueryToUserList(query)).map(u => u.name));
-}
-
-export function getUserListsDifferences(list1: User[], list2: User[]): User[] {
-   const result: User[] = [];
-   let largest: User[];
-   let smallest: User[];
-   if (list1.length > list2.length) {
-      largest = list1;
-      smallest = list2;
-   } else {
-      largest = list2;
-      smallest = list1;
-   }
-   for (let i = 0; i < largest.length; i++) {
-      const userFromLargest = largest[i];
-      const userFromSmallest = smallest[i];
-      if (userFromSmallest == null) {
-         result.push(userFromLargest);
-         continue;
-      }
-      let foundUser: User = smallest.find(u => u.userId === userFromLargest.userId);
-      if (foundUser == null) {
-         result.push(userFromLargest);
-      }
-      foundUser = largest.find(u => u.userId === userFromSmallest.userId);
-      if (foundUser == null) {
-         result.push(userFromSmallest);
-      }
-   }
-   return result;
-}
-
-/**
- * Returns a number between 0 and 1. 0 = Exactly the same. 1 = Completely different.
- */
-export function getUserListDifferencesProportion(list1: User[], list2: User[]): number {
-   const groupsLength: number = list1.length + list2.length;
-   if (groupsLength === 0) {
-      return 0;
-   }
-   const differencesLength: number = getUserListsDifferences(list1, list2).length;
-   return differencesLength / groupsLength;
 }

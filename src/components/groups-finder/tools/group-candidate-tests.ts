@@ -2,6 +2,7 @@ import {
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
 } from '../../../configurations';
+import { analiceAndFilterGroupCandidates, sortGroupCandidates } from '../models';
 import {
    getAverageConnectionsAmount,
    getConnectionsCountInequalityLevel,
@@ -10,13 +11,13 @@ import {
    removeExceedingConnectionsOnGroupCandidate,
 } from './group-candidate-analysis';
 import { createFakeUserOnGroupCandidate, createFakeUsersAndConnectRandomly } from './group-candidate-editing';
-import { GroupCandidate } from '../models';
 import {
    createFakeUsersForGroupCandidate,
    connectAllWithAll,
    connectAllWithNeighbors,
    createGroupCandidate,
 } from './group-candidate-editing';
+import { GroupCandidate, GroupCandidateAnalyzed } from './types';
 
 const groupWith2 = createGroupCandidate(2);
 const twoForTwo = createFakeUsersForGroupCandidate(groupWith2, 2, [0, 1]);
@@ -141,9 +142,10 @@ const testGroups: Array<{ name: string; group: GroupCandidate } | string> = [
    },
 ];
 
-export function groupOrderingTest() {
+export function groupAnalysisTest() {
    console.log('');
    console.log('//////////////////////////////////////////////////');
+   /*
    testGroups.forEach(item => {
       if (typeof item !== 'string') {
          const group: GroupCandidate = item.group;
@@ -152,14 +154,13 @@ export function groupOrderingTest() {
             MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
          );
 
-         // Este parámetro habla del tamaño del grupo vito desde cada usuario
+         // (Not used) Average amount of connections per user, more is a better group as long as inequality is low 
          const averageConnections: number = getAverageConnectionsAmount(group);
-         // Este parámetro habla sobre la diversidad del grupo, si es 1 son grupos lesbian/gay con bi sin hetero.
-         // Pero también si el valor es menor a 0.45 significa que el grupo esta poco inter-conectado, poco valor
+         // (Not used) If this parameter is very close to 1 the group is no 100% heterosexual because it means everybody likes everybody. Also if the number is too low it means a poorly connected group. 
          const coverage: number = getConnectionsCoverageAverage(group);
-         // Este parámetro habla de la calidad del grupo
+         // This is the best algorithm to measure the group quality
          const connectionsMetaconnectionsDistance: number = getConnectionsMetaconnectionsDistance(groupTrimmed);
-         // Este parámetro también habla de la calidad del grupo
+         // (Not used) This is the second best algorithm to measure the group quality
          const inequality: number = getConnectionsCountInequalityLevel(groupTrimmed);
 
          const groupApproved: boolean =
@@ -182,6 +183,17 @@ export function groupOrderingTest() {
          console.log(item);
       }
    });
+   */
+
+   /*
+   const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(
+      testGroups.flatMap(i => {
+         if(typeof i !== 'string') ? i.group : [])
+      })
+   );
+   
+   sortGroupCandidates(groupsAnalyzed);
+   */
    console.log('//////////////////////////////////////////////////');
    console.log('');
 }

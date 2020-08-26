@@ -1,52 +1,81 @@
-import { GROUP_SLOTS_CONFIGS } from '../../configurations';
+import sort from 'fast-sort';
+import { GROUP_SLOTS_CONFIGS, MAX_CONNECTIONS_METACONNECTIONS_DISTANCE } from '../../configurations';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
-import { groupOrderingTest } from './tools/group-candidate-test';
+import { getConnectionsMetaconnectionsDistance } from './tools/group-candidate-analysis';
+import { groupAnalysisTest } from './tools/group-candidate-tests';
+import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
+import { roundDecimals } from '../../common-tools/math-tools/general';
 
-// TODO: Tal vez convendria implementar un tiempo de espera para ocupar un slot propio de la configuracion del slot
-// Para eso Le puedo poner un timestamp al edge del slot y que no lo libere hasta que no pase cierto tiempo.
-// de lo contrario el primer grupo siempre va a ser uno chico. Aunque si es la primera vez en la app si deberia al menos
-// apurarse con un grupo y que sea chico, pero ya si es el segundo puede esperar un poco
+// TODO: Grupos de mala calidad no deberían recibir usuarios una vez creados, por que si no va a meter gente que esta para grupos de buena calidad
+// TODO:
 
-groupOrderingTest();
+/**
+ * Uncomment this line to see in the console different group analysis approaches and test them.
+ */
+groupAnalysisTest();
 
-// TODO: Implement
-async function searchAndCreateNewGoodQualityGroups(): Promise<void> {
+/**
+ * Searches new groups and creates them. This is the core feature of the app.
+ */
+async function searchAndCreateNewGroups(): Promise<void> {
+   const usersAddedToGroupsIds: Map<string, boolean> = new Map();
+
+   /**
+    * These loops goes in reverse because slots with bigger groups should be evaluated
+    * first to help avoid smaller groups taking over big groups
+    */
+
+   // Find good quality groups
    for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
-      await fromQueryToGroupCandidates(queryToGetGroupCandidates(i, GroupQuality.Good));
+      await createGroupsForSlot(i, GroupQuality.Good, usersAddedToGroupsIds);
+   }
+
+   // Find bad quality groups
+   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+      await createGroupsForSlot(i, GroupQuality.Bad, usersAddedToGroupsIds);
+   }
+
+   // Find users to add to groups that are receiving new users
+   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+      const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
+         queryToGetGroupsReceivingNewUsers(i),
+      );
    }
 }
 
-// TODO: Implement
-async function searchAndAddUsersToExistingGroups(): Promise<void> {
-   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
-      await fromQueryToGroupsReceivingNewUsers(queryToGetGroupsReceivingNewUsers(i));
-   }
+async function createGroupsForSlot(
+   slot: number,
+   quality: GroupQuality,
+   excludeUsers: Map<string, boolean>,
+): Promise<void> {
+   const groups: GroupCandidate[] = await fromQueryToGroupCandidates(queryToGetGroupCandidates(slot, quality));
+   const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(groups);
+   sortGroupCandidates(groupsAnalyzed);
+   await createGroups(groupsAnalyzed, excludeUsers);
 }
 
-export interface GroupsReceivingNewUsers {
-   groupId: string;
-   usersToAdd: Array<{ userId: string; matchesAmount: number }>;
-   groupMatches: UserWithMatches[];
+export function analiceAndFilterGroupCandidates(groups: GroupCandidate[]): GroupCandidateAnalyzed[] {
+   return groups.flatMap(group => {
+      const quality: number = getConnectionsMetaconnectionsDistance(group);
+      const qualityRounded: number = roundDecimals(quality);
+      const groupApproved: boolean = MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= quality;
+
+      if (!groupApproved) {
+         return [];
+      }
+
+      return { group, analysis: { quality, qualityRounded } };
+   });
 }
 
-export interface UserWithMatches {
-   userId: string;
-   matches: string[];
+export function sortGroupCandidates(groups: GroupCandidateAnalyzed[]): void {
+   sort(groups).by([{ asc: u => u.analysis.qualityRounded }, { desc: u => u.group.length }]);
 }
 
-export type GroupCandidate = UserWithMatches[];
-
-export interface SizeRestriction {
-   minimumSize?: number;
-   maximumSize?: number;
-}
-
-export interface GroupSlotConfig extends SizeRestriction {
-   amount: number;
-}
-
-export enum GroupQuality {
-   Bad,
-   Good,
+async function createGroups(
+   groupCandidates: GroupCandidateAnalyzed[],
+   excludeUsers: Map<string, boolean>,
+): Promise<void> {
+   console.log('not implemented');
 }

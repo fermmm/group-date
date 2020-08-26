@@ -3,9 +3,9 @@ import { User } from '../shared-tools/endpoints-interfaces/user';
 import { connectUsersInChain, createMatchingUsers, matchUserWithUsers } from './tools/groups';
 import { createFakeUser, createFakeUsers } from './tools/users';
 import { queryToGetGroupCandidates } from '../components/groups-finder/queries';
-import { GroupQuality, UserWithMatches } from '../components/groups-finder/models';
 import { fromQueryToGroupCandidates } from '../components/groups-finder/tools/data-conversion';
 import { queryToRemoveUsers } from '../components/user/queries';
+import { UserWithMatches, GroupQuality } from '../components/groups-finder/tools/types';
 
 describe('Group Finder', () => {
    test('Finding matches in order works', async () => {

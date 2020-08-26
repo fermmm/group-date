@@ -1,6 +1,6 @@
-import { GroupCandidate, UserWithMatches } from '../models';
 import { copyGroupCandidate } from './group-candidate-analysis';
 import { chance } from '../../../tests/tools/generalTools';
+import { GroupCandidate, UserWithMatches } from './types';
 
 /**
  * Creates a group candidate fake user, to use only on tests. Also adds the user to the group and connects other users according to the provided connections array.

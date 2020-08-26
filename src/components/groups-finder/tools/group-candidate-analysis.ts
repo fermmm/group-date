@@ -1,6 +1,6 @@
 import { replaceNaNInfinity } from '../../../common-tools/math-tools/general';
-import { UserWithMatches, GroupCandidate } from '../models';
 import { getUserByIdOnGroupCandidate, disconnectUsers } from './group-candidate-editing';
+import { GroupCandidate, UserWithMatches } from './types';
 
 /**
  * This function calculates the connections count inequality level with the following logic:
