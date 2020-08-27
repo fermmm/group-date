@@ -145,8 +145,8 @@ const testGroups: Array<{ name: string; group: GroupCandidate } | string> = [
 export function groupAnalysisTest() {
    console.log('');
    console.log('//////////////////////////////////////////////////');
-   /*
-   testGroups.forEach(item => {
+
+   /*testGroups.forEach(item => {
       if (typeof item !== 'string') {
          const group: GroupCandidate = item.group;
          const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
@@ -185,15 +185,22 @@ export function groupAnalysisTest() {
    });
    */
 
-   /*
    const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(
-      testGroups.flatMap(i => {
-         if(typeof i !== 'string') ? i.group : [])
-      })
+      testGroups
+         .filter(e => typeof e !== 'string')
+         .map(e => (e as { name: string; group: GroupCandidate }).group),
    );
-   
+
    sortGroupCandidates(groupsAnalyzed);
-   */
+
+   console.log(
+      groupsAnalyzed.map(g => ({
+         size: g.group.length,
+         qualityR: g.analysis.qualityRounded,
+         quality: g.analysis.quality,
+      })),
+   );
+
    console.log('//////////////////////////////////////////////////');
    console.log('');
 }

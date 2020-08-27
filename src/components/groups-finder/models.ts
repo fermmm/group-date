@@ -1,19 +1,27 @@
 import sort from 'fast-sort';
-import { GROUP_SLOTS_CONFIGS, MAX_CONNECTIONS_METACONNECTIONS_DISTANCE } from '../../configurations';
+import {
+   GROUP_SLOTS_CONFIGS,
+   MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
+   SEARCH_GROUPS_FREQUENCY,
+} from '../../configurations';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
 import { getConnectionsMetaconnectionsDistance } from './tools/group-candidate-analysis';
 import { groupAnalysisTest } from './tools/group-candidate-tests';
 import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
 import { roundDecimals } from '../../common-tools/math-tools/general';
+import { setIntervalAsync } from 'set-interval-async/dynamic';
 
 // TODO: Grupos de mala calidad no deberían recibir usuarios una vez creados, por que si no va a meter gente que esta para grupos de buena calidad
 // TODO:
 
-/**
- * Uncomment this line to see in the console different group analysis approaches and test them.
- */
-groupAnalysisTest();
+export async function scheduledTasksGroupsFinder(): Promise<void> {
+   /**
+    * Uncomment this line to see in the console different group analysis approaches and test them.
+    */
+   groupAnalysisTest();
+   // setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
+}
 
 /**
  * Searches new groups and creates them. This is the core feature of the app.

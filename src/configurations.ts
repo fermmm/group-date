@@ -130,6 +130,7 @@ export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(1);
 export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
 export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
