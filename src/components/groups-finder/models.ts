@@ -2,6 +2,7 @@ import {
    CREATE_BIGGER_GROUPS_FIRST,
    GROUP_SLOTS_CONFIGS,
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
+   MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
@@ -9,6 +10,7 @@ import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from '
 import {
    getAverageConnectionsAmount,
    getConnectionsMetaconnectionsDistance,
+   removeExceedingConnectionsOnGroupCandidate,
 } from './tools/group-candidate-analysis';
 import { groupAnalysisTest } from './tools/group-candidate-tests';
 import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
@@ -24,7 +26,7 @@ export async function scheduledTasksGroupsFinder(): Promise<void> {
     * Uncomment this line to see in the console different group analysis approaches and test them.
     */
    groupAnalysisTest();
-   // setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
+   setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
 }
 
 /**
@@ -68,27 +70,29 @@ async function createGroupsForSlot(
 }
 
 export function analiceAndFilterGroupCandidates(groups: GroupCandidate[]): GroupCandidateAnalyzed[] {
-   return groups.flatMap(group => {
-      /**
-       * The analysis numbers should be rounded to be the same number when are
-       * close, this allows sub-ordering by another parameter.
-       */
+   return groups.reduce<GroupCandidateAnalyzed[]>((result, group) => {
+      const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
+         group,
+         MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
+      );
+
       const quality: number = getConnectionsMetaconnectionsDistance(group);
       const groupApproved: boolean = MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= quality;
 
       if (!groupApproved) {
-         return [];
+         return result;
       }
 
       const qualityRounded: number = roundDecimals(quality);
-      const averageConnectionsAmount: number = getAverageConnectionsAmount(group);
-      const averageConnectionsAmountRounded: number = Math.round(getAverageConnectionsAmount(group));
+      const averageConnectionsAmount: number = getAverageConnectionsAmount(groupTrimmed);
+      const averageConnectionsAmountRounded: number = Math.round(getAverageConnectionsAmount(groupTrimmed));
 
-      return {
+      result.push({
          group,
          analysis: { quality, qualityRounded, averageConnectionsAmount, averageConnectionsAmountRounded },
-      };
-   });
+      });
+      return result;
+   }, []);
 }
 
 export function sortGroupCandidates(groups: GroupCandidateAnalyzed[]): void {

@@ -94,11 +94,11 @@ export const SHOW_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
  */
 export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 
-/*
+/**
  * If a user has more connections than this number the exceeding connections will not be computed in the group quality
  * algorithm.
- * This is important because in real life a person has time for a limited amount of people, so with this parameter is
- * possible to get the calculation results more similar to a real life situation.
+ * This is important because in real life a person has time for a limited amount of people, so by setting this parameter
+ * is possible to get group analysis more similar to a real life situation.
  */
 export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
 

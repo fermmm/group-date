@@ -147,43 +147,42 @@ export function groupAnalysisTest() {
    console.log('//////////////////////////////////////////////////');
 
    testGroups.forEach(item => {
-      if (typeof item !== 'string') {
-         const group: GroupCandidate = item.group;
-
-         // This does not really change much so it's discarded from the final implementation
-         const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
-            item.group,
-            MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
-         );
-
-         // Average amount of connections per user, more is a better group as long as inequality is low
-         const averageConnections: number = getAverageConnectionsAmount(group);
-         // (Not used) If this parameter is very close to 1 the group is no 100% heterosexual because it means everybody likes everybody. Also if the number is too low it means a poorly connected group.
-         const coverage: number = getConnectionsCoverageAverage(group);
-         // This is the best algorithm to measure the group quality
-         const connectionsMetaconnectionsDistance: number = getConnectionsMetaconnectionsDistance(groupTrimmed);
-         // (Not used) This is the second best algorithm to measure the group quality
-         const inequality: number = getConnectionsCountInequalityLevel(groupTrimmed);
-
-         const groupApproved: boolean =
-            MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= connectionsMetaconnectionsDistance;
-
-         console.log('');
-         console.log(item.name);
-         console.log(
-            'Inequality:',
-            Number(inequality.toFixed(2)),
-            'ConCoverage:',
-            Number(coverage.toFixed(2)),
-            'DistConMetaconnection:',
-            Number(connectionsMetaconnectionsDistance.toFixed(2)),
-            'ConAmount:',
-            Number(averageConnections.toFixed(2)),
-            `${groupApproved ? '' : '[Rejected]'}`,
-         );
-      } else {
+      if (typeof item === 'string') {
          console.log(item);
+         return;
       }
+      const group: GroupCandidate = item.group;
+
+      const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
+         item.group,
+         MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
+      );
+
+      // Average amount of connections per user, more is a better group as long as inequality is low
+      const averageConnections: number = getAverageConnectionsAmount(group);
+      // (Not used) If this parameter is very close to 1 the group is no 100% heterosexual because it means everybody likes everybody. Also if the number is too low it means a poorly connected group.
+      const coverage: number = getConnectionsCoverageAverage(group);
+      // This is the best algorithm to measure the group quality
+      const connectionsMetaconnectionsDistance: number = getConnectionsMetaconnectionsDistance(groupTrimmed);
+      // (Not used) This is the second best algorithm to measure the group quality
+      const inequality: number = getConnectionsCountInequalityLevel(groupTrimmed);
+
+      const groupApproved: boolean =
+         MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= connectionsMetaconnectionsDistance;
+
+      console.log('');
+      console.log(item.name);
+      console.log(
+         'Inequality:',
+         Number(inequality.toFixed(2)),
+         'ConCoverage:',
+         Number(coverage.toFixed(2)),
+         'DistConMetaconnection:',
+         Number(connectionsMetaconnectionsDistance.toFixed(2)),
+         'ConAmount:',
+         Number(averageConnections.toFixed(2)),
+         `${groupApproved ? '' : '[Rejected]'}`,
+      );
    });
 
    groupOrderingTest();
@@ -205,7 +204,6 @@ function groupOrderingTest() {
 
    console.log(
       groupsAnalyzed.map((g, i) => ({
-         name: testGroupCleaned.find(e => e.group === g.group).name,
          connAmount: g.analysis.averageConnectionsAmountRounded,
          qualityR: g.analysis.qualityRounded,
          quality: Number(g.analysis.quality.toFixed(3)),
