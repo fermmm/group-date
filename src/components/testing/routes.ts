@@ -9,7 +9,6 @@ import {
 import { createFakeUser, createFakeUsers, setAttractionMatch } from '../../tests/tools/users';
 import { __, g, logComplete } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { setTimeoutAsync } from '../../common-tools/js-tools/js-tools';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { queryToGetGroupCandidates } from '../groups-finder/queries';
 import { matchesGet } from '../user/models';

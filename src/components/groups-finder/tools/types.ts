@@ -19,6 +19,8 @@ export interface GroupCandidateAnalyzed {
 export interface GroupCandidateAnalysis {
    quality: number;
    qualityRounded: number;
+   averageConnectionsAmount: number;
+   averageConnectionsAmountRounded: number;
 }
 
 export interface SizeRestriction {

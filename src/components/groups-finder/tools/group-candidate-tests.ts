@@ -146,17 +146,19 @@ export function groupAnalysisTest() {
    console.log('');
    console.log('//////////////////////////////////////////////////');
 
-   /*testGroups.forEach(item => {
+   testGroups.forEach(item => {
       if (typeof item !== 'string') {
          const group: GroupCandidate = item.group;
+
+         // This does not really change much so it's discarded from the final implementation
          const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
             item.group,
             MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
          );
 
-         // (Not used) Average amount of connections per user, more is a better group as long as inequality is low 
+         // Average amount of connections per user, more is a better group as long as inequality is low
          const averageConnections: number = getAverageConnectionsAmount(group);
-         // (Not used) If this parameter is very close to 1 the group is no 100% heterosexual because it means everybody likes everybody. Also if the number is too low it means a poorly connected group. 
+         // (Not used) If this parameter is very close to 1 the group is no 100% heterosexual because it means everybody likes everybody. Also if the number is too low it means a poorly connected group.
          const coverage: number = getConnectionsCoverageAverage(group);
          // This is the best algorithm to measure the group quality
          const connectionsMetaconnectionsDistance: number = getConnectionsMetaconnectionsDistance(groupTrimmed);
@@ -183,24 +185,30 @@ export function groupAnalysisTest() {
          console.log(item);
       }
    });
-   */
 
-   const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(
-      testGroups
-         .filter(e => typeof e !== 'string')
-         .map(e => (e as { name: string; group: GroupCandidate }).group),
-   );
+   groupOrderingTest();
+   console.log('//////////////////////////////////////////////////');
+   console.log('');
+}
+
+function groupOrderingTest() {
+   const testGroupCleaned = testGroups.filter(e => typeof e !== 'string') as Array<{
+      name: string;
+      group: GroupCandidate;
+   }>;
+
+   const groups = testGroupCleaned.map(e => e.group);
+
+   const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(groups);
 
    sortGroupCandidates(groupsAnalyzed);
 
    console.log(
-      groupsAnalyzed.map(g => ({
-         size: g.group.length,
+      groupsAnalyzed.map((g, i) => ({
+         name: testGroupCleaned.find(e => e.group === g.group).name,
+         connAmount: g.analysis.averageConnectionsAmountRounded,
          qualityR: g.analysis.qualityRounded,
-         quality: g.analysis.quality,
+         quality: Number(g.analysis.quality.toFixed(3)),
       })),
    );
-
-   console.log('//////////////////////////////////////////////////');
-   console.log('');
 }

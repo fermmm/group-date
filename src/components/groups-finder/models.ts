@@ -1,19 +1,23 @@
-import sort from 'fast-sort';
 import {
+   CREATE_BIGGER_GROUPS_FIRST,
    GROUP_SLOTS_CONFIGS,
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
-import { getConnectionsMetaconnectionsDistance } from './tools/group-candidate-analysis';
+import {
+   getAverageConnectionsAmount,
+   getConnectionsMetaconnectionsDistance,
+} from './tools/group-candidate-analysis';
 import { groupAnalysisTest } from './tools/group-candidate-tests';
 import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
 import { roundDecimals } from '../../common-tools/math-tools/general';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
+import { arraySort } from '../../common-tools/js-tools/js-tools';
 
 // TODO: Grupos de mala calidad no deberían recibir usuarios una vez creados, por que si no va a meter gente que esta para grupos de buena calidad
-// TODO:
+// TODO: Remove lower connections users to try to improve groups before sorting
 
 export async function scheduledTasksGroupsFinder(): Promise<void> {
    /**
@@ -65,20 +69,44 @@ async function createGroupsForSlot(
 
 export function analiceAndFilterGroupCandidates(groups: GroupCandidate[]): GroupCandidateAnalyzed[] {
    return groups.flatMap(group => {
+      /**
+       * The analysis numbers should be rounded to be the same number when are
+       * close, this allows sub-ordering by another parameter.
+       */
       const quality: number = getConnectionsMetaconnectionsDistance(group);
-      const qualityRounded: number = roundDecimals(quality);
       const groupApproved: boolean = MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= quality;
 
       if (!groupApproved) {
          return [];
       }
 
-      return { group, analysis: { quality, qualityRounded } };
+      const qualityRounded: number = roundDecimals(quality);
+      const averageConnectionsAmount: number = getAverageConnectionsAmount(group);
+      const averageConnectionsAmountRounded: number = Math.round(getAverageConnectionsAmount(group));
+
+      return {
+         group,
+         analysis: { quality, qualityRounded, averageConnectionsAmount, averageConnectionsAmountRounded },
+      };
    });
 }
 
 export function sortGroupCandidates(groups: GroupCandidateAnalyzed[]): void {
-   sort(groups).by([{ asc: u => u.analysis.qualityRounded }, { desc: u => u.group.length }]);
+   /**
+    * The analysis numbers should be rounded to be the same number when are
+    * close, this allows sub-ordering by another parameter.
+    */
+   if (CREATE_BIGGER_GROUPS_FIRST) {
+      arraySort(groups).by([
+         { desc: group => group.analysis.averageConnectionsAmountRounded },
+         { asc: group => group.analysis.quality },
+      ]);
+   } else {
+      arraySort(groups).by([
+         { asc: group => group.analysis.qualityRounded },
+         { desc: group => group.analysis.averageConnectionsAmount },
+      ]);
+   }
 }
 
 async function createGroups(
