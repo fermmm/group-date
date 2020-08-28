@@ -159,7 +159,7 @@ export function groupAnalysisTest() {
       );
 
       // Average amount of connections per user, more is a better group as long as inequality is low
-      const averageConnections: number = getAverageConnectionsAmount(group);
+      const averageConnections: number = getAverageConnectionsAmount(groupTrimmed);
       // (Not used) If this parameter is very close to 1 the group is no 100% heterosexual because it means everybody likes everybody. Also if the number is too low it means a poorly connected group.
       const coverage: number = getConnectionsCoverageAverage(group);
       // This is the best algorithm to measure the group quality
@@ -204,7 +204,9 @@ function groupOrderingTest() {
 
    console.log(
       groupsAnalyzed.map((g, i) => ({
-         connAmount: g.analysis.averageConnectionsAmountRounded,
+         name: testGroupCleaned.find(e => e.group === g.group)?.name,
+         connAmount: Number(g.analysis.averageConnectionsAmount.toFixed(3)),
+         connAmountR: g.analysis.averageConnectionsAmountRounded,
          qualityR: g.analysis.qualityRounded,
          quality: Number(g.analysis.quality.toFixed(3)),
       })),

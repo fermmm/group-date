@@ -19,7 +19,7 @@ import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { arraySort } from '../../common-tools/js-tools/js-tools';
 
 // TODO: Grupos de mala calidad no deberían recibir usuarios una vez creados, por que si no va a meter gente que esta para grupos de buena calidad
-// TODO: Remove lower connections users to try to improve groups before sorting
+// TODO: Reemplazar grupos rechazados por una version mejorada con menos usuarios
 
 export async function scheduledTasksGroupsFinder(): Promise<void> {
    /**
