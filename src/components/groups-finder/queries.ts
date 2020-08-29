@@ -6,7 +6,7 @@ import {
    MAX_GROUP_SIZE,
    MAX_TIME_GROUPS_RECEIVE_NEW_USERS,
    MIN_GROUP_SIZE,
-   SHOW_BAD_QUALITY_GROUPS_TIME,
+   FORM_BAD_QUALITY_GROUPS_TIME,
 } from '../../configurations';
 import * as moment from 'moment';
 import { queryToGetAllCompleteUsers } from '../user/queries';
@@ -14,14 +14,15 @@ import { GroupQuality, SizeRestriction } from './tools/types';
 
 /**
  * This query returns lists of users arrays where it's users matches between them.
- * This search is required to create new "group candidates". It's the core feature of the app.
+ * This search is required to create new "group candidates" these groups candidates are later converted
+ * into real groups. This is the core feature of the app.
  */
 export function queryToGetGroupCandidates(targetSlotIndex: number, quality: GroupQuality): Traversal {
    let traversal: Traversal;
 
    switch (quality) {
       case GroupQuality.Good:
-         traversal = queryToKeepUsersAllowedToBeOnGroups(targetSlotIndex);
+         traversal = queryToGetUsersAllowedToBeOnGroups(targetSlotIndex);
          traversal = queryToSearchGoodQualityMatchingGroups(traversal);
          break;
       case GroupQuality.Bad:
@@ -36,8 +37,8 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
 }
 
 /**
- * Returns a list of groups that are recently created so they still can receive new users, also details of each group
- * are included.
+ * Returns a list of groups that are recently created so they still can receive new users along with a list of users
+ * that can be added to each group. Also details of each group are included.
  * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
  */
 export function queryToGetGroupsReceivingNewUsers(targetSlotIndex: number): Traversal {
@@ -49,7 +50,7 @@ export function queryToGetGroupsReceivingNewUsers(targetSlotIndex: number): Trav
  * according to the given group slot.
  * If no traversal is provided then it will start with all complete users and then filter that list.
  */
-function queryToKeepUsersAllowedToBeOnGroups(targetSlotIndex: number, traversal?: Traversal): Traversal {
+function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex: number, traversal?: Traversal): Traversal {
    traversal = traversal ?? queryToGetAllCompleteUsers();
    return (
       traversal
@@ -71,8 +72,8 @@ function queryToKeepUsersAllowedToBeOnGroups(targetSlotIndex: number, traversal?
 }
 
 function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Traversal {
-   return queryToKeepUsersAllowedToBeOnGroups(targetSlotIndex).where(
-      __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - SHOW_BAD_QUALITY_GROUPS_TIME)),
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex).where(
+      __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - FORM_BAD_QUALITY_GROUPS_TIME)),
    );
 }
 
@@ -262,8 +263,8 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
 }
 
 /**
- * Returns a list of groups that are recently created so they still can receive new users, also details of each group
- * are included.
+ * Returns a list of groups that are recently created so they still can receive new users along with a list of users
+ * that can be added to each group. Also details of each group are included.
  * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
  *
  * To play with this query:
@@ -276,13 +277,15 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?
          .hasLabel('group')
          // Active groups
          .where(__.has('creationDate', P.gt(moment().unix() - MAX_TIME_GROUPS_RECEIVE_NEW_USERS)))
+         // Groups open for more users (used by bad quality groups which are not open for more users)
+         .where(__.has('openForMoreUsers', true))
          // Groups that has space for more users and match the slot config passed
          .where(
             __.in_('member')
                .count()
                .is(P.lt(MAX_GROUP_SIZE)) // Not groups already full
                .is(P.gte(sizeRestriction.minimumSize)) // Groups bigger than the minimum size in slot
-               .is(P.lte(sizeRestriction.maximumSize)), // Not groups bigger than the target slot size
+               .is(P.lte(sizeRestriction.maximumSize)), // Groups smaller than the maximum size in slot
          )
 
          // Get users to add to these groups
@@ -295,7 +298,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?
                .both('Match')
                .not(__.where(__.out('member').as('group')))
                // Only include users allowed to be in new groups
-               .union(queryToKeepUsersAllowedToBeOnGroups(slotIndex, __))
+               .union(queryToGetUsersAllowedToBeOnGroups(slotIndex, __))
 
                // When the user is found multiple times is because it has multiple matches on the group
                // that is something we need to know, we need to save the repeats count.
@@ -318,7 +321,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?
          .by(__.select('group').values('groupId'))
          .by(__.select('usersToAdd'))
          .by(
-            // Get members of the group and their matches (not including the possible new member)
+            // Get members of the group and their matches (it does not include the possible new member)
             __.select('group')
                .as('group')
                .in_('member')

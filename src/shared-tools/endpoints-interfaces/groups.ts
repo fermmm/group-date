@@ -9,6 +9,7 @@ export interface Group {
    dateIdeasVotes: Record<string, string[]>;
    dayOptions: DayOption[];
    usersThatAccepted: string[];
+   openForMoreUsers: boolean;
    feedback: ExperienceFeedback[];
 }
 

@@ -17,15 +17,17 @@ import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAn
 import { roundDecimals } from '../../common-tools/math-tools/general';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { arraySort } from '../../common-tools/js-tools/js-tools';
+import { createGroup } from '../groups/models';
 
 // TODO: Grupos de mala calidad no deberían recibir usuarios una vez creados, por que si no va a meter gente que esta para grupos de buena calidad
 // TODO: Reemplazar grupos rechazados por una version mejorada con menos usuarios
 
-export async function scheduledTasksGroupsFinder(): Promise<void> {
+export async function initializeGroupsFinder(): Promise<void> {
    /**
     * Uncomment this line to see in the console different group analysis approaches and test them.
     */
-   groupAnalysisTest();
+   // groupAnalysisTest();
+   sortSlotsArray();
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
 }
 
@@ -35,23 +37,18 @@ export async function scheduledTasksGroupsFinder(): Promise<void> {
 async function searchAndCreateNewGroups(): Promise<void> {
    const usersAddedToGroupsIds: Map<string, boolean> = new Map();
 
-   /**
-    * These loops goes in reverse because slots with bigger groups should be evaluated
-    * first to help avoid smaller groups taking over big groups
-    */
-
    // Find good quality groups
-   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
       await createGroupsForSlot(i, GroupQuality.Good, usersAddedToGroupsIds);
    }
 
    // Find bad quality groups
-   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
       await createGroupsForSlot(i, GroupQuality.Bad, usersAddedToGroupsIds);
    }
 
    // Find users to add to groups that are receiving new users
-   for (let i = GROUP_SLOTS_CONFIGS.length - 1; i >= 0; i--) {
+   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
       const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
          queryToGetGroupsReceivingNewUsers(i),
       );
@@ -66,7 +63,7 @@ async function createGroupsForSlot(
    const groups: GroupCandidate[] = await fromQueryToGroupCandidates(queryToGetGroupCandidates(slot, quality));
    const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(groups);
    sortGroupCandidates(groupsAnalyzed);
-   await createGroups(groupsAnalyzed, excludeUsers);
+   await createGroups(groupsAnalyzed, excludeUsers, slot, quality);
 }
 
 export function analiceAndFilterGroupCandidates(groups: GroupCandidate[]): GroupCandidateAnalyzed[] {
@@ -113,9 +110,25 @@ export function sortGroupCandidates(groups: GroupCandidateAnalyzed[]): void {
    }
 }
 
+/**
+ * Sorts slots so the bigger group slots are first, so the big groups gets created first.
+ */
+export function sortSlotsArray(): void {
+   arraySort(GROUP_SLOTS_CONFIGS).by([{ desc: slot => slot.minimumSize ?? 0 }]);
+}
+
 async function createGroups(
    groupCandidates: GroupCandidateAnalyzed[],
    excludeUsers: Map<string, boolean>,
+   slotToUse: number,
+   groupQuality: GroupQuality,
 ): Promise<void> {
-   console.log('not implemented');
+   //TODO: Completar implementacion
+
+   // Bad quality groups cannot receive more users after created, otherwise users capable to be on good groups can be inserted in bad groups
+   const openForMoreUsers = groupQuality === GroupQuality.Good;
+
+   for (const groupCandidate of groupCandidates) {
+      await createGroup({ usersIds: groupCandidate.group.map(u => u.userId), slotToUse }, openForMoreUsers);
+   }
 }

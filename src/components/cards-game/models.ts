@@ -12,7 +12,7 @@ import {
    queryToGetDislikedUsers,
 } from './queries';
 
-export function scheduledTasksCardGame(): void {
+export function initializeCardsGame(): void {
    setIntervalAsync(notifyAllUsersAboutNewCards, NOTIFICATION_FREQUENCY_NEW_CARDS);
 }
 

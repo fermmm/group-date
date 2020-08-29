@@ -10,6 +10,7 @@ import * as path from 'path';
 import * as sharp from 'sharp';
 import { v1 as uuidv1 } from 'uuid';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
+import { createFolderOnRoot } from '../../common-tools/files-tools/files-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
 import { FacebookResponse, TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
@@ -40,8 +41,13 @@ import {
    queryToUpdateUserToken,
 } from './queries';
 import { questions } from './questions/models';
-import { queryToRespondQuestions } from './questions/queries';
+import { queryToCreateQuestionsInDatabase, queryToRespondQuestions } from './questions/queries';
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
+
+export async function initializeUsers(): Promise<void> {
+   await queryToCreateQuestionsInDatabase(questions);
+   createFolderOnRoot('uploads');
+}
 
 /**
  * This endpoint returns all user props that are missing, only when this endpoint returns empty arrays

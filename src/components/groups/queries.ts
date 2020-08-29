@@ -10,9 +10,10 @@ import { queryToGetUserById } from '../user/queries';
 import { getAllSlotsNames } from './models';
 
 /**
- * Creates a group and returns it as a traversal query
+ * Creates a group and returns it as a traversal query.
+ * This function should not be called directly, use createGroup() to create groups.
  */
-export function queryToCreateGroup(dayOptions: DayOption[], initialUsers?: AddUsersToGroupSettings): Traversal {
+export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal {
    let traversal: Traversal = g
       .addV('group')
       .property('groupId', uuidv1())
@@ -24,12 +25,13 @@ export function queryToCreateGroup(dayOptions: DayOption[], initialUsers?: AddUs
          }),
       )
       .property('creationDate', moment().unix())
-      .property('dayOptions', serializeIfNeeded(dayOptions))
+      .property('dayOptions', serializeIfNeeded(params.dayOptions))
       .property('usersThatAccepted', serializeIfNeeded([]))
+      .property('openForMoreUsers', params.openForMoreUsers)
       .property('feedback', serializeIfNeeded([]));
 
-   if (initialUsers != null) {
-      traversal = queryToAddUsersToGroup(traversal, initialUsers);
+   if (params.initialUsers != null) {
+      traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
    }
 
    return traversal;
@@ -197,4 +199,10 @@ export function queryToGetGroupsInFinalFormat(
 export interface AddUsersToGroupSettings {
    usersIds: string[];
    slotToUse: number;
+}
+
+export interface CreateNewGroupParameters {
+   dayOptions: DayOption[];
+   openForMoreUsers: boolean;
+   initialUsers?: AddUsersToGroupSettings;
 }

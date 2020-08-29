@@ -56,7 +56,7 @@ export const GROUP_SLOTS_CONFIGS = [
 export const CREATE_BIGGER_GROUPS_FIRST = true;
 
 /**
- * A slot will be available again after a specific time set in this constant
+ * A group slot will be available again after a specific time set in this constant
  */
 export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
 
@@ -64,7 +64,7 @@ export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
  * Bad quality groups are groups where each user only has 2 matches, these groups are probably less interesting
  * so only appears to users that don't have a group in a long time, that time is this setting.
  */
-export const SHOW_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
+export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
 
 /**
  * This value is equivalent to quality, and it's the minimum quality of groups allowed.
@@ -75,8 +75,8 @@ export const SHOW_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
  * In other words: "How much people I connect with and how much other people I have to "share" my connections".
  * Groups with a value higher than this will not be created and an attempt to fix them will be executed.
  *
- * For a reference this is a list of groups and their values, where "3 for 5" means
- * that 3 users matches with 5 users:
+ * For a reference this is a list of groups and their values, where for example: "3 for 5" means
+ * that "3 users matches with 5 users":
  * 3 for 3: 0
  * 3 for 4: 0.14
  * 3 for 5: 0.25
@@ -95,10 +95,10 @@ export const SHOW_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
 export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 
 /**
- * If a user has more connections than this number the exceeding connections will not be computed in the group quality
- * algorithm.
+ * If a user has more connections than this number the exceeding connections will not be computed in the group analysis
+ * algorithms.
  * This is important because in real life a person has time for a limited amount of people, so by setting this parameter
- * is possible to get group analysis more similar to a real life situation.
+ * is possible to get more real life accurate group analysis.
  */
 export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
 
@@ -115,11 +115,10 @@ export const MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = ONE_MONTH_IN_SECONDS;
 
 /**
  * After a group is created and the members are interacting it can still receive new users until a time passed.
- * Too high times in this setting is dangerous because there is a situation where members are added after a
- * group already met in person, this has serious negative impact since all the matches in the group becomes
- * "seen matches" so "late" users will not see the matching members of the group again.
- * A possible improvement to implement is a way to know if the users met in person and use that instead of
- * a timer to close the group.
+ * Too high times in this setting is dangerous because there is a possible situation where members are added
+ * after a group already met in person, this is serious since late arriving users will not see the matching
+ * members of the group in person and will not form group with them again because the members are now "seen matches".
+ * So it's a good idea to keep this setting low.
  */
 export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
 

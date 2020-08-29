@@ -8,18 +8,16 @@ import * as ratelimit from 'koa-ratelimit';
 import * as serve from 'koa-static';
 import * as ora from 'ora';
 import { waitForDatabase } from './common-tools/database-tools/database-manager';
-import { createFolderOnRoot } from './common-tools/files-tools/files-tools';
 import { rateLimiterConfig } from './common-tools/security-tools/security-tools';
 import { adminRoutes } from './components/admin/routes';
-import { scheduledTasksCardGame } from './components/cards-game/models';
+import { initializeCardsGame } from './components/cards-game/models';
 import { cardsGameRoutes } from './components/cards-game/routes';
-import { scheduledTasksGroupsFinder } from './components/groups-finder/models';
-import { scheduledTasksGroups } from './components/groups/models';
+import { initializeGroupsFinder } from './components/groups-finder/models';
+import { initializeGroups } from './components/groups/models';
 import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
 import { testingRoutes } from './components/testing/routes';
-import { questions } from './components/user/questions/models';
-import { queryToCreateQuestionsInDatabase } from './components/user/questions/queries';
+import { initializeUsers } from './components/user/models';
 import { userRoutes } from './components/user/routes';
 
 (async () => {
@@ -29,11 +27,15 @@ import { userRoutes } from './components/user/routes';
    router.get('/', (ctx, next) => {
       ctx.body = 'Poly Dates server';
    });
-   createFolderOnRoot('uploads');
 
    // Database initialization:
    await waitForDatabase();
-   queryToCreateQuestionsInDatabase(questions);
+
+   // Initializers that contains scheduled tasks and other initialization stuff
+   initializeUsers();
+   initializeGroups();
+   initializeCardsGame();
+   initializeGroupsFinder();
 
    // Routes:
    handshakeRoutes(router);
@@ -43,12 +45,7 @@ import { userRoutes } from './components/user/routes';
    adminRoutes(router);
    testingRoutes(router);
 
-   // Scheduled tasks
-   scheduledTasksCardGame();
-   scheduledTasksGroups();
-   scheduledTasksGroupsFinder();
-
-   // App uses:
+   // Koa middlewares:
    app.use(ratelimit(rateLimiterConfig))
       .use(koaBody({ parsedMethods: ['GET', 'POST'] }))
       .use(router.routes())
@@ -56,6 +53,7 @@ import { userRoutes } from './components/user/routes';
       .use(mount('/images', serve('./uploads/')))
       .listen(process.env.PORT);
 
+   // Final messages
    ora('Application initialized!').succeed();
    ora(`Server running on ${process.env.PORT}!`).succeed();
 })();

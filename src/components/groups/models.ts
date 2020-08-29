@@ -32,7 +32,7 @@ import {
 } from './queries';
 import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion';
 
-export async function scheduledTasksGroups(): Promise<void> {
+export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
 }
 
@@ -40,12 +40,15 @@ export async function scheduledTasksGroups(): Promise<void> {
  * Internal function to create a group (this is not an endpoint)
  * @param initialUsers The initial users to add and the
  */
-export async function createGroup(initialUsers?: AddUsersToGroupSettings): Promise<Group> {
+export async function createGroup(
+   initialUsers?: AddUsersToGroupSettings,
+   openForMoreUsers: boolean = true,
+): Promise<Group> {
    const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS).map(date => ({
       date,
       votersUserId: [],
    }));
-   return fromQueryToGroup(queryToCreateGroup(dayOptions, initialUsers), false);
+   return fromQueryToGroup(queryToCreateGroup({ dayOptions, initialUsers, openForMoreUsers }), false);
 }
 
 /**
