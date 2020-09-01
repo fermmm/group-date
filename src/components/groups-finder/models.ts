@@ -5,6 +5,7 @@ import {
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
+import { firstBy } from 'thenby';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
 import {
@@ -16,17 +17,15 @@ import { groupAnalysisTest } from './tools/group-candidate-tests';
 import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
 import { roundDecimals } from '../../common-tools/math-tools/general';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { arraySort } from '../../common-tools/js-tools/js-tools';
 import { createGroup } from '../groups/models';
 
-// TODO: Grupos de mala calidad no deberían recibir usuarios una vez creados, por que si no va a meter gente que esta para grupos de buena calidad
 // TODO: Reemplazar grupos rechazados por una version mejorada con menos usuarios
 
 export async function initializeGroupsFinder(): Promise<void> {
    /**
     * Uncomment this line to see in the console different group analysis approaches and test them.
     */
-   // groupAnalysisTest();
+   groupAnalysisTest();
    sortSlotsArray();
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
 }
@@ -76,6 +75,7 @@ export function analiceAndFilterGroupCandidates(groups: GroupCandidate[]): Group
       const quality: number = getConnectionsMetaconnectionsDistance(group);
       const groupApproved: boolean = MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= quality;
 
+      // TODO: Aca devolver un grupo arreglado si se puede
       if (!groupApproved) {
          return result;
       }
@@ -97,24 +97,22 @@ export function sortGroupCandidates(groups: GroupCandidateAnalyzed[]): void {
     * The analysis numbers should be rounded to be the same number when are
     * close, this allows sub-ordering by another parameter.
     */
-   if (CREATE_BIGGER_GROUPS_FIRST) {
-      arraySort(groups).by([
-         { desc: group => group.analysis.averageConnectionsAmountRounded },
-         { asc: group => group.analysis.quality },
-      ]);
-   } else {
-      arraySort(groups).by([
-         { asc: group => group.analysis.qualityRounded },
-         { desc: group => group.analysis.averageConnectionsAmount },
-      ]);
-   }
-}
 
-/**
- * Sorts slots so the bigger group slots are first, so the big groups gets created first.
- */
-export function sortSlotsArray(): void {
-   arraySort(GROUP_SLOTS_CONFIGS).by([{ desc: slot => slot.minimumSize ?? 0 }]);
+   if (CREATE_BIGGER_GROUPS_FIRST) {
+      groups.sort(
+         firstBy<GroupCandidateAnalyzed>(g => g.analysis.averageConnectionsAmountRounded, 'desc').thenBy(
+            g => g.analysis.quality,
+            'asc',
+         ),
+      );
+   } else {
+      groups.sort(
+         firstBy<GroupCandidateAnalyzed>(g => g.analysis.qualityRounded, 'asc').thenBy(
+            g => g.analysis.averageConnectionsAmount,
+            'desc',
+         ),
+      );
+   }
 }
 
 async function createGroups(
@@ -123,7 +121,7 @@ async function createGroups(
    slotToUse: number,
    groupQuality: GroupQuality,
 ): Promise<void> {
-   //TODO: Completar implementacion
+   // TODO: Completar implementacion
 
    // Bad quality groups cannot receive more users after created, otherwise users capable to be on good groups can be inserted in bad groups
    const openForMoreUsers = groupQuality === GroupQuality.Good;
@@ -131,4 +129,11 @@ async function createGroups(
    for (const groupCandidate of groupCandidates) {
       await createGroup({ usersIds: groupCandidate.group.map(u => u.userId), slotToUse }, openForMoreUsers);
    }
+}
+
+/**
+ * Sorts slots so the bigger group slots are first, so the big groups gets created first.
+ */
+export function sortSlotsArray(): void {
+   GROUP_SLOTS_CONFIGS.sort(firstBy(s => s.minimumSize ?? 0, 'desc'));
 }
