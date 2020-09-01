@@ -57,11 +57,7 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
     * It's not a Match or SeenMatch
     */
    query = query.not(
-      __.bothE(...allMatchTypes).where(
-         __.bothV()
-            .simplePath()
-            .has('token', searcherUser.token),
-      ),
+      __.bothE(...allMatchTypes).where(__.bothV().simplePath().has('token', searcherUser.token)),
    );
 
    /**

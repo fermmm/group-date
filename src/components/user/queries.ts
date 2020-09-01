@@ -75,13 +75,7 @@ export function hasProfileCompleted(currentTraversal?: Traversal): Traversal {
 }
 
 export async function queryToUpdateUserToken(userEmail: string, newToken: string): Promise<void> {
-   await retryOnError(() =>
-      g
-         .V()
-         .has('user', 'email', userEmail)
-         .property('token', newToken)
-         .next(),
-   );
+   await retryOnError(() => g.V().has('user', 'email', userEmail).property('token', newToken).next());
 
    return Promise.resolve();
 }
@@ -117,9 +111,7 @@ export function queryToGetAllCompleteUsers(): Traversal {
  */
 export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<void> {
    if (users == null) {
-      return queryToGetAllUsers()
-         .drop()
-         .iterate();
+      return queryToGetAllUsers().drop().iterate();
    }
 
    return g
@@ -175,11 +167,7 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
                )
 
                // Also remove the match edge because at this point we don't know if they are going to match
-               .sideEffect(
-                  __.bothE('Match')
-                     .where(__.bothV().as('user'))
-                     .drop(),
-               )
+               .sideEffect(__.bothE('Match').where(__.bothV().as('user')).drop())
 
                // Now we can add the new edges
                .sideEffect(
@@ -192,11 +180,7 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
 
                // If the users like each other add a Match edge
                .choose(
-                  __.outE('Like')
-                     .where(__.inV().as('user'))
-                     .inV()
-                     .outE('Like')
-                     .where(__.inV().as('target')),
+                  __.outE('Like').where(__.inV().as('user')).inV().outE('Like').where(__.inV().as('target')),
                   __.sideEffect(__.addE('Match').from_('user')),
                ),
          )

@@ -65,18 +65,9 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
          .sideEffect(
             __.both('member')
                .bothE('Match')
-               .where(
-                  __.bothV()
-                     .simplePath()
-                     .both('member')
-                     .where(P.eq('group')),
-               )
+               .where(__.bothV().simplePath().both('member').where(P.eq('group')))
                .dedup()
-               .sideEffect(
-                  __.addE('SeenMatch')
-                     .from_(__.inV())
-                     .to(__.outV()),
-               )
+               .sideEffect(__.addE('SeenMatch').from_(__.inV()).to(__.outV()))
                .drop(),
          )
    );
@@ -103,18 +94,12 @@ export function queryToVoteDateIdeas(group: Traversal, userId: string, usersIdsT
       .V()
       .has('userId', userId)
       .as('user')
-      .sideEffect(
-         __.outE('dateIdeaVote')
-            .where(__.inV().as('group'))
-            .drop(),
-      );
+      .sideEffect(__.outE('dateIdeaVote').where(__.inV().as('group')).drop());
 
    usersIdsToVote.forEach(
       ideaUserId =>
          (traversal = traversal.sideEffect(
-            __.addE('dateIdeaVote')
-               .to('group')
-               .property('ideaOfUser', ideaUserId),
+            __.addE('dateIdeaVote').to('group').property('ideaOfUser', ideaUserId),
          )),
    );
 
@@ -165,22 +150,10 @@ export function queryToGetGroupsInFinalFormat(
    if (includeFullDetails) {
       detailsTraversals = [
          // Add the details about the members of the group
-         __.project('members').by(
-            __.in_('member')
-               .valueMap()
-               .by(__.unfold())
-               .fold(),
-         ),
+         __.project('members').by(__.in_('member').valueMap().by(__.unfold()).fold()),
          // Add the details about the usersIds that received a vote to their date idea and who voted
          __.project('dateIdeasVotes').by(
-            __.inE('dateIdeaVote')
-               .group()
-               .by('ideaOfUser')
-               .by(
-                  __.outV()
-                     .values('userId')
-                     .fold(),
-               ),
+            __.inE('dateIdeaVote').group().by('ideaOfUser').by(__.outV().values('userId').fold()),
          ),
       ];
    }

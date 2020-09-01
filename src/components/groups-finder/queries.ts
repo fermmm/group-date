@@ -105,27 +105,12 @@ function queryToSearchGoodQualityMatchingGroups(traversal: Traversal): Traversal
 
          // Find the supported figures made of matched users: triangles and squares
          .union(
-            __.repeat(__.both('Match').simplePath())
-               .times(2)
-               .where(__.both('Match').as('a'))
-               .path()
-               .from_('a'),
-
-            __.repeat(__.both('Match').simplePath())
-               .times(3)
-               .where(__.both('Match').as('a'))
-               .path()
-               .from_('a'),
+            __.repeat(__.both('Match').simplePath()).times(2).where(__.both('Match').as('a')).path().from_('a'),
+            __.repeat(__.both('Match').simplePath()).times(3).where(__.both('Match').as('a')).path().from_('a'),
          )
 
          // Remove duplicate users of the figures
-         .map(
-            __.unfold()
-               .order()
-               .by(t.id)
-               .dedup()
-               .fold(),
-         )
+         .map(__.unfold().order().by(t.id).dedup().fold())
          .dedup()
          .group('m')
          .by(__.range(scope.local, 0, 1))
@@ -149,17 +134,9 @@ function queryToSearchGoodQualityMatchingGroups(traversal: Traversal): Traversal
                // but shapes are removed instead of specific users, this way the group
                // can lose users and lose fewer connections
                .choose(
-                  __.unfold()
-                     .unfold()
-                     .dedup()
-                     .count()
-                     .is(P.gt(MAX_GROUP_SIZE)),
+                  __.unfold().unfold().dedup().count().is(P.gt(MAX_GROUP_SIZE)),
                   __.repeat(__.range(scope.local, 1, -1)).until(
-                     __.unfold()
-                        .unfold()
-                        .dedup()
-                        .count()
-                        .is(P.lte(MAX_GROUP_SIZE)),
+                     __.unfold().unfold().dedup().count().is(P.lte(MAX_GROUP_SIZE)),
                   ),
                )
                .unfold()
@@ -206,13 +183,7 @@ function queryToSearchBadQualityMatchingGroups(traversal: Traversal): Traversal 
          .union(...searches)
 
          // Remove duplicates. Also ordering the users is needed here so dedup recognizes all the groups as the same one
-         .map(
-            __.unfold()
-               .order()
-               .by(t.id)
-               .dedup()
-               .fold(),
-         )
+         .map(__.unfold().order().by(t.id).dedup().fold())
          .dedup()
    );
 }
@@ -327,12 +298,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?
                .in_('member')
                .project('userId', 'matches')
                .by(__.values('userId'))
-               .by(
-                  __.both('Match')
-                     .where(__.out('member').as('group'))
-                     .values('userId')
-                     .fold(),
-               )
+               .by(__.both('Match').where(__.out('member').as('group')).values('userId').fold())
                .fold(),
          )
    );

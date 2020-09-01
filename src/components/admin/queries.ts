@@ -10,11 +10,7 @@ export function queryToGetAdminChatMessages(userId: string, includeUserData: boo
 
    const projectWithUserData: Traversal = __.union(
       projectWithoutUserData,
-      __.project('nonAdminUser').by(
-         __.select('user')
-            .valueMap()
-            .by(__.unfold()),
-      ),
+      __.project('nonAdminUser').by(__.select('user').valueMap().by(__.unfold())),
    )
       .unfold()
       .group()
@@ -36,11 +32,7 @@ export function queryToSaveAdminChatMessage(
       .as('user')
       .coalesce(
          __.out('chatWithAdmins'),
-         __.addV('chatWithAdmins')
-            .as('x')
-            .addE('chatWithAdmins')
-            .from_('user')
-            .select('x'),
+         __.addV('chatWithAdmins').as('x').addE('chatWithAdmins').from_('user').select('x'),
       )
       .property('messages', serializeIfNeeded(updatedMessagesList))
       .property('adminHasResponded', lastMessageIsFromAdmin)
@@ -50,11 +42,7 @@ export function queryToSaveAdminChatMessage(
 export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): Traversal {
    const projectWithUserData: Traversal = __.union(
       __.valueMap().by(__.unfold()),
-      __.project('nonAdminUser').by(
-         __.select('user')
-            .valueMap()
-            .by(__.unfold()),
-      ),
+      __.project('nonAdminUser').by(__.select('user').valueMap().by(__.unfold())),
    )
       .unfold()
       .group()
@@ -68,10 +56,6 @@ export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): 
    }
 
    return traversal.map(
-      __.as('chat')
-         .in_('chatWithAdmins')
-         .as('user')
-         .select('chat')
-         .choose(__.identity(), projectWithUserData),
+      __.as('chat').in_('chatWithAdmins').as('user').select('chat').choose(__.identity(), projectWithUserData),
    );
 }

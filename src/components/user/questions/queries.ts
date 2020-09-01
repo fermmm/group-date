@@ -39,11 +39,7 @@ export async function queryToRespondQuestions(
          .V()
          .has('question', 'questionId', Number(question.questionId))
          .as('question')
-         .sideEffect(
-            __.inE('response')
-               .where(__.outV().as('user'))
-               .drop(),
-         )
+         .sideEffect(__.inE('response').where(__.outV().as('user')).drop())
          .addE('response')
          .from_('user')
          .property('questionId', Number(question.questionId))
@@ -62,12 +58,7 @@ export function queryToIncludeQuestionsInUserQuery(traversal: Traversal): Traver
    return traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),
-         __.project('questions').by(
-            __.outE('response')
-               .valueMap()
-               .by(__.unfold())
-               .fold(),
-         ),
+         __.project('questions').by(__.outE('response').valueMap().by(__.unfold()).fold()),
       )
          .unfold()
          .group()
@@ -77,8 +68,5 @@ export function queryToIncludeQuestionsInUserQuery(traversal: Traversal): Traver
 }
 
 export function queryToGetQuestionsVerticesIds(): Traversal {
-   return g
-      .V()
-      .hasLabel('question')
-      .values('questionId');
+   return g.V().hasLabel('question').values('questionId');
 }
