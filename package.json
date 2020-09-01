@@ -86,7 +86,7 @@
    },
    "husky": {
       "hooks": {
-         "pre-commit": "npm run style",
+         "pre-commit": "npm run prettier-differences",
          "pre-push": "npm run lint"
       }
    }
