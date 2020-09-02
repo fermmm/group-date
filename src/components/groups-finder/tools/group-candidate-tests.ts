@@ -2,7 +2,7 @@ import {
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
 } from '../../../configurations';
-import { analiceAndFilterGroupCandidates, sortGroupCandidates } from '../models';
+import { analiceAndFilterGroupCandidates, GroupsAnalyzedList } from '../models';
 import {
    getAverageConnectionsAmount,
    getConnectionsCountInequalityLevel,
@@ -198,17 +198,15 @@ function groupOrderingTest() {
 
    const groups = testGroupCleaned.map(e => e.group);
 
-   const groupsAnalyzed: GroupCandidateAnalyzed[] = analiceAndFilterGroupCandidates(groups);
+   const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups);
 
-   sortGroupCandidates(groupsAnalyzed);
-
-   console.log(
-      groupsAnalyzed.map((g, i) => ({
+   groupsAnalyzed.forEach(g =>
+      console.log({
          name: testGroupCleaned.find(e => e.group === g.group)?.name,
          connAmount: Number(g.analysis.averageConnectionsAmount.toFixed(3)),
          connAmountR: g.analysis.averageConnectionsAmountRounded,
          qualityR: g.analysis.qualityRounded,
          quality: Number(g.analysis.quality.toFixed(3)),
-      })),
+      }),
    );
 }
