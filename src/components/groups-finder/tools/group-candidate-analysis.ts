@@ -45,10 +45,6 @@ export function getConnectionsCoverageAverage(group: GroupCandidate): number {
  * The sum of the amount of connections each user has divided by the total users.
  * Gives an idea of how valuable is a group for their users in terms of amount of connections.
  * The returned value is not normalized, higher value is better group quality.
- *
- * @param maxConnectionsPerUser More connections than this number in a user will not be computed. This is important
- * because in real life a person has time for a limited amount of people, so with this parameter is possible to
- * get the calculation results more similar to a real life situation.
  */
 export function getAverageConnectionsAmount(group: GroupCandidate): number {
    return group.reduce((s, v) => (s += v.matches.length), 0) / group.length;
