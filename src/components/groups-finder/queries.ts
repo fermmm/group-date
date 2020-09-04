@@ -22,12 +22,10 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
 
    switch (quality) {
       case GroupQuality.Good:
-         traversal = queryToGetUsersAllowedToBeOnGroups(targetSlotIndex);
-         traversal = queryToSearchGoodQualityMatchingGroups(traversal);
+         traversal = queryToSearchGoodQualityMatchingGroups(targetSlotIndex);
          break;
       case GroupQuality.Bad:
-         traversal = queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex);
-         traversal = queryToSearchBadQualityMatchingGroups(traversal);
+         traversal = queryToSearchBadQualityMatchingGroups(targetSlotIndex);
          break;
    }
 
@@ -71,10 +69,26 @@ function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex: number, traversal?:
    );
 }
 
-function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Traversal {
-   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex).where(
+function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number, traversal?: Traversal): Traversal {
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, traversal).where(
       __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - FORM_BAD_QUALITY_GROUPS_TIME)),
    );
+}
+
+/**
+ * Generates an anonymous traversal with a user and returns it's matches as long as the matches are users
+ * allowed to be on groups
+ */
+function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number): Traversal {
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, __.both('Match'));
+}
+
+/**
+ * Generates an anonymous traversal with a user and returns it's matches as long as the matches are users
+ * allowed to be on bad quality groups
+ */
+function queryToGetMatchesAllowedToBeOnBadGroups(targetSlotIndex: number): Traversal {
+   return queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex, __.both('Match'));
 }
 
 /**
@@ -98,15 +112,23 @@ function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number): Travers
  * Old less performing version:
  * https://gremlify.com/id19z50t41i
  */
-function queryToSearchGoodQualityMatchingGroups(traversal: Traversal): Traversal {
+function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traversal {
    return (
-      traversal
+      queryToGetUsersAllowedToBeOnGroups(targetSlotIndex)
          .as('a')
-
-         // Find the supported figures made of matched users: triangles and squares
          .union(
-            __.repeat(__.both('Match').simplePath()).times(2).where(__.both('Match').as('a')).path().from_('a'),
-            __.repeat(__.both('Match').simplePath()).times(3).where(__.both('Match').as('a')).path().from_('a'),
+            // Find triangles made of matches that are allowed to be on group slot
+            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex).simplePath())
+               .times(2)
+               .where(__.both('Match').as('a'))
+               .path()
+               .from_('a'),
+            // Find squares made of matches that are allowed to be on group slot
+            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex).simplePath())
+               .times(3)
+               .where(__.both('Match').as('a'))
+               .path()
+               .from_('a'),
          )
 
          // Remove duplicate users of the figures
@@ -162,12 +184,12 @@ function queryToSearchGoodQualityMatchingGroups(traversal: Traversal): Traversal
  * To test the query easily:
  * https://gremlify.com/o9rye6xy5od
  */
-function queryToSearchBadQualityMatchingGroups(traversal: Traversal): Traversal {
+function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Traversal {
    const searches: Traversal[] = [];
 
    for (let i = 5; i <= MAX_GROUP_SIZE; i++) {
       searches.push(
-         __.repeat(__.both('Match').simplePath())
+         __.repeat(queryToGetMatchesAllowedToBeOnBadGroups(targetSlotIndex).simplePath())
             .times(i - 1)
             .where(__.both('Match').as('a'))
             .path()
@@ -176,7 +198,7 @@ function queryToSearchBadQualityMatchingGroups(traversal: Traversal): Traversal 
    }
 
    return (
-      traversal
+      queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex)
          .as('a')
 
          // Find shapes
