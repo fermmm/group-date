@@ -18,6 +18,11 @@ export const MIN_GROUP_SIZE = 3;
 export const MAX_GROUP_SIZE = 18;
 
 /**
+ * The required amount of matches to have with members of a group in order to become part of it
+ */
+export const MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = 2;
+
+/**
  * The users have a limit in the amount of simultaneous groups they can be members of because being in too
  * many groups at the same time leads to users that will be "too busy" generating groups with absent members.
  *

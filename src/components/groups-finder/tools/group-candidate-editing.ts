@@ -169,6 +169,53 @@ export function connectUsers(user1: UserWithMatches, user2: UserWithMatches): vo
    }
 }
 
+export function removeUsersFromGroupCandidate(group: GroupCandidate, users: UserWithMatches[]): GroupCandidate {
+   const resultGroup: GroupCandidate = copyGroupCandidate(group);
+   users.forEach(user => {
+      // Disconnect the user from it's matches
+      user.matches.forEach(match => disconnectUsers(user, getUserByIdOnGroupCandidate(resultGroup, match)));
+      // Remove the user from the group
+      const userIndex: number = resultGroup.findIndex(u => u.userId === user.userId);
+      resultGroup.splice(userIndex, 1);
+   });
+   return resultGroup;
+}
+
+/**
+ * Removes the users that have less connections than the amount specified in a recursive way:
+ *
+ * Because each removal can generate more users with lower connections the removal will repeat until
+ * there are no more users to remove or the group has no more users.
+ * So the resulting group will only have users with equal or more connections than the amount specified.
+ */
+export function removeUsersRecursivelyByConnectionsAmount(
+   group: GroupCandidate,
+   connectionsAmount: number,
+): GroupCandidate {
+   let resultGroup: GroupCandidate = copyGroupCandidate(group);
+   const iterations: number = resultGroup.length;
+   for (let i = 0; i < iterations; i++) {
+      const usersToRemove = getUsersWithLessConnectionsThan(resultGroup, connectionsAmount);
+      if (usersToRemove.length === 0 || resultGroup.length === 0) {
+         return resultGroup;
+      }
+      resultGroup = removeUsersFromGroupCandidate(resultGroup, usersToRemove);
+   }
+   return resultGroup;
+}
+
+export function getUsersWithLessConnectionsThan(
+   group: GroupCandidate,
+   connectionsAmount: number,
+): UserWithMatches[] {
+   return group.reduce<UserWithMatches[]>((result, user) => {
+      if (user.matches.length < connectionsAmount) {
+         result.push(user);
+      }
+      return result;
+   }, []);
+}
+
 export function disconnectUsers(user1: UserWithMatches, user2: UserWithMatches): void {
    if (user1.matches.indexOf(user2.userId) !== -1) {
       user1.matches.splice(user1.matches.indexOf(user2.userId), 1);

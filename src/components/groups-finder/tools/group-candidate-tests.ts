@@ -198,7 +198,7 @@ function groupOrderingTest() {
 
    const groups = testGroupCleaned.map(e => e.group);
 
-   const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups);
+   const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups, 0);
 
    groupsAnalyzed.forEach(g =>
       console.log({
