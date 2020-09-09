@@ -1,10 +1,7 @@
 import {
    CREATE_BIGGER_GROUPS_FIRST,
    GROUP_SLOTS_CONFIGS,
-   MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
-   MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    MINIMUM_CONNECTIONS_TO_BE_ON_GROUP,
-   MIN_GROUP_SIZE,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
 import * as Collections from 'typescript-collections';
@@ -12,9 +9,9 @@ import { firstBy } from 'thenby';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
 import {
-   getAverageConnectionsAmount,
-   getConnectionsMetaconnectionsDistance,
-   removeExceedingConnectionsOnGroupCandidate,
+   analiceGroupCandidate,
+   groupHasMinimumQuality,
+   groupSizeIsUnderMinimum,
 } from './tools/group-candidate-analysis';
 import { groupAnalysisTest } from './tools/group-candidate-tests';
 import {
@@ -24,12 +21,12 @@ import {
    GroupCandidateAnalyzed,
    UserWithMatches,
 } from './tools/types';
-import { roundDecimals } from '../../common-tools/math-tools/general';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { createGroup } from '../groups/models';
 import {
    removeUsersFromGroupCandidate,
    removeUsersRecursivelyByConnectionsAmount,
+   tryToFixBadQualityGroup,
 } from './tools/group-candidate-editing';
 
 // TODO: Se podria poner la configuracion de duracion del slot por cada slot en lugar de uno general
@@ -114,32 +111,6 @@ export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: 
    return result;
 }
 
-/**
- * Returns an object that contains the group and also contains values that are the result
- * of analyzing different features of the group as quality indicators.
- * "Quality" in a group means the amount of connections and their distribution level.
- */
-function analiceGroupCandidate(group: GroupCandidate): GroupCandidateAnalyzed {
-   const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
-      group,
-      MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
-   );
-
-   const quality: number = getConnectionsMetaconnectionsDistance(group);
-   const qualityRounded: number = roundDecimals(quality);
-   const averageConnectionsAmount: number = getAverageConnectionsAmount(groupTrimmed);
-   const averageConnectionsAmountRounded: number = Math.round(getAverageConnectionsAmount(groupTrimmed));
-
-   return {
-      group,
-      analysis: { quality, qualityRounded, averageConnectionsAmount, averageConnectionsAmountRounded },
-   };
-}
-
-function groupHasMinimumQuality(group: GroupCandidateAnalyzed): boolean {
-   return MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= group.analysis.quality;
-}
-
 function getOrderFunction(): IThenBy<GroupCandidateAnalyzed> {
    /**
     * The analysis numbers should be rounded to be the same number when are
@@ -181,7 +152,7 @@ async function createGroups(
          await createGroup({ usersIds, slotToUse }, openForMoreUsers);
       } else {
          // If the "not available" users amount is too much it can be discarded without trying to fix it
-         if (!groupSizeIsOverMinimum(group.group.length - notAvailableUsersOnGroup.length, slotToUse)) {
+         if (groupSizeIsUnderMinimum(group.group.length - notAvailableUsersOnGroup.length, slotToUse)) {
             continue;
          }
 
@@ -193,7 +164,7 @@ async function createGroups(
           * more users become available to complete the group or it's "eaten" by small group creation algorithm
           * if the remaining users have free small groups slots
           */
-         if (!groupSizeIsOverMinimum(newGroup.length, slotToUse)) {
+         if (groupSizeIsUnderMinimum(newGroup.length, slotToUse)) {
             continue;
          }
 
@@ -206,6 +177,7 @@ async function createGroups(
          }
 
          groupCandidates.add(newGroupAnalyzed);
+         // We increase the iteration of this loop since we added an extra item
          iterations++;
       }
    }
@@ -223,23 +195,8 @@ function getNotAvailableUsersOnGroup(
    }, []);
 }
 
-/**
- * Removes the users with less connections, that tends to improve the group quality. If the quality
- * does not improve or the group is improved but becomes too small for the slot, then null is returned
- */
-function tryToFixBadQualityGroup(group: GroupCandidateAnalyzed, slot: number): GroupCandidateAnalyzed | null {
-   // TODO: Terminar de implementar
-   // const groupAnalysed: GroupCandidateAnalyzed = analiceGroupCandidate(group);
-   // groupHasMinimumQuality(groupAnalysed)
-   return null;
-}
-
 function setUsersAsNotAvailable(usersIds: string[], notAvailableUsers: Set<string>): void {
    usersIds.forEach(u => notAvailableUsers.add(u));
-}
-
-function groupSizeIsOverMinimum(groupSize: number, slotIndex: number): boolean {
-   return groupSize >= (GROUP_SLOTS_CONFIGS[slotIndex].minimumSize ?? MIN_GROUP_SIZE);
 }
 
 /**

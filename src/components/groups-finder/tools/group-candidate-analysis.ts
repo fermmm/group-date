@@ -1,6 +1,12 @@
-import { replaceNaNInfinity } from '../../../common-tools/math-tools/general';
+import { replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
+import {
+   GROUP_SLOTS_CONFIGS,
+   MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
+   MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
+   MIN_GROUP_SIZE,
+} from '../../../configurations';
 import { getUserByIdOnGroupCandidate, disconnectUsers } from './group-candidate-editing';
-import { GroupCandidate, UserWithMatches } from './types';
+import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
 
 /**
  * This function calculates the connections count inequality level with the following logic:
@@ -137,6 +143,36 @@ export function removeExceedingConnectionsOnGroupCandidate(
    return resultGroup;
 }
 
+/**
+ * Returns an object that contains the group and also contains values that are the result
+ * of analyzing different features of the group as quality indicators.
+ * "Quality" in a group means the amount of connections and their distribution level.
+ */
+export function analiceGroupCandidate(group: GroupCandidate): GroupCandidateAnalyzed {
+   const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
+      group,
+      MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
+   );
+
+   const quality: number = getConnectionsMetaconnectionsDistance(group);
+   const qualityRounded: number = roundDecimals(quality);
+   const averageConnectionsAmount: number = getAverageConnectionsAmount(groupTrimmed);
+   const averageConnectionsAmountRounded: number = Math.round(getAverageConnectionsAmount(groupTrimmed));
+
+   return {
+      group,
+      analysis: { quality, qualityRounded, averageConnectionsAmount, averageConnectionsAmountRounded },
+   };
+}
+
 export function copyGroupCandidate(group: GroupCandidate): GroupCandidate {
    return group.map(u => ({ userId: u.userId, matches: [...u.matches] }));
+}
+
+export function groupSizeIsUnderMinimum(groupSize: number, slotIndex: number): boolean {
+   return groupSize < (GROUP_SLOTS_CONFIGS[slotIndex].minimumSize ?? MIN_GROUP_SIZE);
+}
+
+export function groupHasMinimumQuality(group: GroupCandidateAnalyzed): boolean {
+   return MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= group.analysis.quality;
 }

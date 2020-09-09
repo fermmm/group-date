@@ -1,6 +1,12 @@
-import { copyGroupCandidate } from './group-candidate-analysis';
+import {
+   analiceGroupCandidate,
+   copyGroupCandidate,
+   groupHasMinimumQuality,
+   groupSizeIsUnderMinimum,
+} from './group-candidate-analysis';
 import { chance } from '../../../tests/tools/generalTools';
-import { GroupCandidate, UserWithMatches } from './types';
+import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
+import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../../configurations';
 
 /**
  * Creates a group candidate fake user, to use only on tests. Also adds the user to the group and connects other users according to the provided connections array.
@@ -204,6 +210,22 @@ export function removeUsersRecursivelyByConnectionsAmount(
    return resultGroup;
 }
 
+/**
+ * Removes the first user that finds with less connections than the others, if all the users
+ * have the same amount of connections removes the first user of the group.
+ * When removing a user the others can become less connected than the minimum, these users
+ * will be removed too so the minimum connections allowed should be passed to this function.
+ */
+export function removeTheUserWithLessConnections(
+   group: GroupCandidate,
+   minimumConnectionsAllowed: number,
+): GroupCandidate {
+   const lessConnectedUsers: UserWithMatches[] = getUsersWithLessConnections(group);
+   let result: GroupCandidate = removeUsersFromGroupCandidate(group, [lessConnectedUsers[0]]);
+   result = removeUsersRecursivelyByConnectionsAmount(result, minimumConnectionsAllowed);
+   return result;
+}
+
 export function getUsersWithLessConnectionsThan(
    group: GroupCandidate,
    connectionsAmount: number,
@@ -211,6 +233,51 @@ export function getUsersWithLessConnectionsThan(
    return group.reduce<UserWithMatches[]>((result, user) => {
       if (user.matches.length < connectionsAmount) {
          result.push(user);
+      }
+      return result;
+   }, []);
+}
+
+/**
+ * Removes the users with less connections, that tends to improve the group quality. If the quality still
+ * does not get over the minimum allowed or the group becomes too small for the slot, then null is returned
+ */
+export function tryToFixBadQualityGroup(
+   group: GroupCandidateAnalyzed,
+   slot: number,
+): GroupCandidateAnalyzed | null {
+   let result: GroupCandidate = group.group;
+   const iterations = result.length;
+
+   for (let i = 0; i < iterations; i++) {
+      result = removeTheUserWithLessConnections(group.group, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
+      if (groupSizeIsUnderMinimum(result.length, slot)) {
+         return null;
+      }
+      const groupAnalysed: GroupCandidateAnalyzed = analiceGroupCandidate(result);
+      if (groupHasMinimumQuality(groupAnalysed)) {
+         return groupAnalysed;
+      }
+   }
+   return null;
+}
+
+/**
+ * Returns the users with less connections or the first user if all has the same amount of connections
+ */
+export function getUsersWithLessConnections(group: GroupCandidate): UserWithMatches[] {
+   return group.reduce<UserWithMatches[]>((result, user) => {
+      if (result.length === 0) {
+         result = [user];
+         return result;
+      }
+      if (user.matches.length === result[0].matches.length) {
+         result.push(user);
+         return result;
+      }
+      if (user.matches.length < result[0].matches.length) {
+         result = [user];
+         return result;
       }
       return result;
    }, []);
