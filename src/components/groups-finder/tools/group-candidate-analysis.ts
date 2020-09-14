@@ -176,3 +176,34 @@ export function groupSizeIsUnderMinimum(groupSize: number, slotIndex: number): b
 export function groupHasMinimumQuality(group: GroupCandidateAnalyzed): boolean {
    return MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= group.analysis.quality;
 }
+
+export function userIsPresentOnGroup(group: GroupCandidate, userId: string): boolean {
+   return group.findIndex(u => u.userId === userId) !== -1;
+}
+
+/**
+ * Returns a list of strings describing data corruption problems in a group candidate. To be used
+ * when testing code. This checks:
+ *
+ * - All the matches of a user should be present in a group, check for all the users of the group
+ * - Matched users should be present in both matches list, unilateral matches are data corruption
+ * - Users with 0 matches should not be allowed to be on a group
+ */
+export function getDataCorruptionProblemsInGroupCandidate(group: GroupCandidate): string[] {
+   const result = [];
+   group.forEach(u => {
+      if (u.matches.length === 0) {
+         result.push('Has user with 0 matches');
+      }
+      u.matches.forEach(m => {
+         if (!userIsPresentOnGroup(group, m)) {
+            result.push('User has a match that is not present on the group');
+            return;
+         }
+         if (getUserByIdOnGroupCandidate(group, m).matches.findIndex(um => um === u.userId) === -1) {
+            result.push('User has unilateral match');
+         }
+      });
+   });
+   return result;
+}

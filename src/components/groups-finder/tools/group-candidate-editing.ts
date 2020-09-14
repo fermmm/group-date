@@ -1,8 +1,10 @@
 import {
    analiceGroupCandidate,
    copyGroupCandidate,
+   getDataCorruptionProblemsInGroupCandidate,
    groupHasMinimumQuality,
    groupSizeIsUnderMinimum,
+   userIsPresentOnGroup,
 } from './group-candidate-analysis';
 import { chance } from '../../../tests/tools/generalTools';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
@@ -13,17 +15,15 @@ import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../../configurations';
  * Returns a copy of the group containing with the changes.
  * @param connectWith List of users from the provided group to connect with as a list of indexes to find them in the group candidate (not the userId). If null it will connect the fake users will all current users in the group, pass [] to do not connect the new fake users.
  */
-export function createFakeUserOnGroupCandidate(
-   group: GroupCandidate,
-   connectWith: number[] = [],
-): GroupCandidate {
+export function createFakeUserOnGroupCandidate(group: GroupCandidate, connectWith?: number[]): GroupCandidate {
    const resultGroup: GroupCandidate = copyGroupCandidate(group);
 
    connectWith = connectWith ?? getUsersFromGroupCandidateAsIndexList(resultGroup);
    const newUser: UserWithMatches = {
       userId: chance.apple_token(),
-      matches: connectWith.map(i => group[i].userId),
+      matches: connectWith.map(i => resultGroup[i].userId),
    };
+
    newUser.matches.forEach(userMatch =>
       getUserByIdOnGroupCandidate(resultGroup, userMatch).matches.push(newUser.userId),
    );
@@ -177,13 +177,26 @@ export function connectUsers(user1: UserWithMatches, user2: UserWithMatches): vo
 
 export function removeUsersFromGroupCandidate(group: GroupCandidate, users: UserWithMatches[]): GroupCandidate {
    const resultGroup: GroupCandidate = copyGroupCandidate(group);
+
    users.forEach(user => {
       // Disconnect the user from it's matches
-      user.matches.forEach(match => disconnectUsers(user, getUserByIdOnGroupCandidate(resultGroup, match)));
+      user.matches.forEach(matchUserId => {
+         const matchUser = getUserByIdOnGroupCandidate(resultGroup, matchUserId);
+         const indexInMatch = matchUser.matches.indexOf(user.userId);
+         // Remove the user from the matches list of all other users
+         if (indexInMatch !== -1) {
+            matchUser.matches.splice(indexInMatch, 1);
+         }
+      });
+
       // Remove the user from the group
       const userIndex: number = resultGroup.findIndex(u => u.userId === user.userId);
       resultGroup.splice(userIndex, 1);
+
+      // The user should not have any matches becase it was removed from the group
+      user.matches = [];
    });
+
    return resultGroup;
 }
 
@@ -199,6 +212,7 @@ export function removeUsersRecursivelyByConnectionsAmount(
    connectionsAmount: number,
 ): GroupCandidate {
    let resultGroup: GroupCandidate = copyGroupCandidate(group);
+
    const iterations: number = resultGroup.length;
    for (let i = 0; i < iterations; i++) {
       const usersToRemove = getUsersWithLessConnectionsThan(resultGroup, connectionsAmount);
@@ -207,6 +221,7 @@ export function removeUsersRecursivelyByConnectionsAmount(
       }
       resultGroup = removeUsersFromGroupCandidate(resultGroup, usersToRemove);
    }
+
    return resultGroup;
 }
 
@@ -246,11 +261,10 @@ export function tryToFixBadQualityGroup(
    group: GroupCandidateAnalyzed,
    slot: number,
 ): GroupCandidateAnalyzed | null {
-   let result: GroupCandidate = group.group;
+   let result: GroupCandidate = copyGroupCandidate(group.group);
    const iterations = result.length;
-
    for (let i = 0; i < iterations; i++) {
-      result = removeTheUserWithLessConnections(group.group, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
+      result = removeTheUserWithLessConnections(result, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
       if (groupSizeIsUnderMinimum(result.length, slot)) {
          return null;
       }

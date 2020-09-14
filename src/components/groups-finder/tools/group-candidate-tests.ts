@@ -4,6 +4,7 @@ import {
 } from '../../../configurations';
 import { analiceAndFilterGroupCandidates, GroupsAnalyzedList } from '../models';
 import {
+   getDataCorruptionProblemsInGroupCandidate,
    getAverageConnectionsAmount,
    getConnectionsCountInequalityLevel,
    getConnectionsCoverageAverage,
@@ -152,7 +153,6 @@ export function groupAnalysisTest() {
          return;
       }
       const group: GroupCandidate = item.group;
-
       const groupTrimmed: GroupCandidate = removeExceedingConnectionsOnGroupCandidate(
          item.group,
          MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
@@ -183,6 +183,9 @@ export function groupAnalysisTest() {
          Number(averageConnections.toFixed(2)),
          `${groupApproved ? '' : '[Rejected]'}`,
       );
+      if (getDataCorruptionProblemsInGroupCandidate(group).length > 0) {
+         console.log('GROUP ERROR: ' + getDataCorruptionProblemsInGroupCandidate(group));
+      }
    });
 
    groupOrderingTest();
@@ -200,13 +203,16 @@ function groupOrderingTest() {
 
    const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups, 0);
 
-   groupsAnalyzed.forEach(g =>
+   groupsAnalyzed.forEach(g => {
       console.log({
          name: testGroupCleaned.find(e => e.group === g.group)?.name,
          connAmount: Number(g.analysis.averageConnectionsAmount.toFixed(3)),
          connAmountR: g.analysis.averageConnectionsAmountRounded,
          qualityR: g.analysis.qualityRounded,
          quality: Number(g.analysis.quality.toFixed(3)),
-      }),
-   );
+      });
+      if (getDataCorruptionProblemsInGroupCandidate(g.group).length > 0) {
+         console.log('GROUP ERROR: ' + getDataCorruptionProblemsInGroupCandidate(g.group));
+      }
+   });
 }
