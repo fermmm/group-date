@@ -31,6 +31,7 @@ import {
    queryToVoteDateIdeas,
 } from './queries';
 import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion';
+import { GroupQuality } from '../groups-finder/tools/types';
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -42,13 +43,13 @@ export async function initializeGroups(): Promise<void> {
  */
 export async function createGroup(
    initialUsers?: AddUsersToGroupSettings,
-   openForMoreUsers: boolean = true,
+   initialQuality?: GroupQuality,
 ): Promise<Group> {
    const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS).map(date => ({
       date,
       votersUserId: [],
    }));
-   return fromQueryToGroup(queryToCreateGroup({ dayOptions, initialUsers, openForMoreUsers }), false);
+   return fromQueryToGroup(queryToCreateGroup({ dayOptions, initialUsers, initialQuality }), false);
 }
 
 /**

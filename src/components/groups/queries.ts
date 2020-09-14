@@ -6,6 +6,7 @@ import { __, column, g, P } from '../../common-tools/database-tools/database-man
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { RELEASE_SLOT_TIME } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
+import { GroupQuality } from '../groups-finder/tools/types';
 import { queryToGetUserById } from '../user/queries';
 import { getAllSlotsNames } from './models';
 
@@ -27,7 +28,7 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property('creationDate', moment().unix())
       .property('dayOptions', serializeIfNeeded(params.dayOptions))
       .property('usersThatAccepted', serializeIfNeeded([]))
-      .property('openForMoreUsers', params.openForMoreUsers)
+      .property('initialQuality', params.initialQuality ?? GroupQuality.Good)
       .property('feedback', serializeIfNeeded([]));
 
    if (params.initialUsers != null) {
@@ -176,6 +177,6 @@ export interface AddUsersToGroupSettings {
 
 export interface CreateNewGroupParameters {
    dayOptions: DayOption[];
-   openForMoreUsers: boolean;
+   initialQuality: GroupQuality;
    initialUsers?: AddUsersToGroupSettings;
 }

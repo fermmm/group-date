@@ -33,6 +33,8 @@ export interface GroupSlotConfig extends SizeRestriction {
 }
 
 export enum GroupQuality {
-   Bad,
-   Good,
+   Good = 'good',
+   Bad = 'bad',
 }
+
+export const GroupQualityValues = Object.values(GroupQuality);

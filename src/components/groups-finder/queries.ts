@@ -39,8 +39,11 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
  * that can be added to each group. Also details of each group are included.
  * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
  */
-export function queryToGetGroupsReceivingNewUsers(targetSlotIndex: number): Traversal {
-   return queryToFindUsersToAddInActiveGroups(targetSlotIndex, GROUP_SLOTS_CONFIGS[targetSlotIndex]);
+export function queryToGetGroupsReceivingNewUsers(
+   targetSlotIndex: number,
+   targetQuality: GroupQuality,
+): Traversal {
+   return queryToFindUsersToAddInActiveGroups(targetSlotIndex, targetQuality);
 }
 
 /**
@@ -48,47 +51,43 @@ export function queryToGetGroupsReceivingNewUsers(targetSlotIndex: number): Trav
  * according to the given group slot.
  * If no traversal is provided then it will start with all complete users and then filter that list.
  */
-function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex: number, traversal?: Traversal): Traversal {
+function queryToGetUsersAllowedToBeOnGroups(
+   targetSlotIndex: number,
+   quality: GroupQuality,
+   traversal?: Traversal,
+): Traversal {
    traversal = traversal ?? queryToGetAllCompleteUsers();
-   return (
-      traversal
-         // Only users with not too many groups already active can be part of new group searches
-         .where(
-            __.outE('slot' + targetSlotIndex)
-               .count()
-               .is(P.lt(GROUP_SLOTS_CONFIGS[targetSlotIndex].amount)),
-         )
+   traversal = traversal
+      // Only users with not too many groups already active can be part of new group searches
+      .where(
+         __.outE('slot' + targetSlotIndex)
+            .count()
+            .is(P.lt(GROUP_SLOTS_CONFIGS[targetSlotIndex].amount)),
+      )
 
-         // Don't introduce inactive users into the groups candidates.
-         // Inactive means many time without login and no new users notifications pending
-         .not(
-            __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
-               .and()
-               .has('sendNewUsersNotification', 0),
-         )
-   );
-}
+      // Don't introduce inactive users into the groups candidates.
+      // Inactive means many time without login and no new users notifications pending
+      .not(
+         __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
+            .and()
+            .has('sendNewUsersNotification', 0),
+      );
 
-function queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex: number, traversal?: Traversal): Traversal {
-   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, traversal).where(
-      __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - FORM_BAD_QUALITY_GROUPS_TIME)),
-   );
+   if (quality === GroupQuality.Bad) {
+      traversal = traversal.where(
+         __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - FORM_BAD_QUALITY_GROUPS_TIME)),
+      );
+   }
+
+   return traversal;
 }
 
 /**
  * Generates an anonymous traversal with a user and returns it's matches as long as the matches are users
  * allowed to be on groups
  */
-function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number): Traversal {
-   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, __.both('Match'));
-}
-
-/**
- * Generates an anonymous traversal with a user and returns it's matches as long as the matches are users
- * allowed to be on bad quality groups
- */
-function queryToGetMatchesAllowedToBeOnBadGroups(targetSlotIndex: number): Traversal {
-   return queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex, __.both('Match'));
+function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number, quality: GroupQuality): Traversal {
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, quality, __.both('Match'));
 }
 
 /**
@@ -114,17 +113,17 @@ function queryToGetMatchesAllowedToBeOnBadGroups(targetSlotIndex: number): Trave
  */
 function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traversal {
    return (
-      queryToGetUsersAllowedToBeOnGroups(targetSlotIndex)
+      queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
          .as('a')
          .union(
             // Find triangles made of matches that are allowed to be on group slot
-            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex).simplePath())
+            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).simplePath())
                .times(2)
                .where(__.both('Match').as('a'))
                .path()
                .from_('a'),
             // Find squares made of matches that are allowed to be on group slot
-            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex).simplePath())
+            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).simplePath())
                .times(3)
                .where(__.both('Match').as('a'))
                .path()
@@ -175,8 +174,7 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
 }
 
 /**
- * Receives a traversal with all the users allowed to be in this bad quality groups and returns
- * arrays of matching users that are not so well connected.
+ * This query searches for matching users that are not so well connected so they can form a bad quality group.
  *
  * These groups are "circles" of users with 2 connections each, can be visualized as a round of
  * people.
@@ -189,7 +187,7 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
 
    for (let i = 5; i <= MAX_GROUP_SIZE; i++) {
       searches.push(
-         __.repeat(queryToGetMatchesAllowedToBeOnBadGroups(targetSlotIndex).simplePath())
+         __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Bad).simplePath())
             .times(i - 1)
             .where(__.both('Match').as('a'))
             .path()
@@ -198,7 +196,7 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
    }
 
    return (
-      queryToGetUsersAllowedToBeOnBadGroups(targetSlotIndex)
+      queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Bad)
          .as('a')
 
          // Find shapes
@@ -219,20 +217,20 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
  * https://gremlify.com/fzqecgnxi9p
  *
  *
- * @param sizeRestriction Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
+ * @param slotSize Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
  * @param returnNames Default = false. If set to true returns user names instead of userId. Useful for debugging.
  */
 function queryToAddDetailsAndIgnoreInvalidSizes(
    traversal: Traversal,
-   sizeRestriction?: SizeRestriction,
+   slotSize?: SizeRestriction,
    returnNames: boolean = false,
 ): Traversal {
    return traversal.map(
       __.where(
          __.count(scope.local)
             .is(P.gte(MIN_GROUP_SIZE))
-            .is(P.gte(sizeRestriction?.minimumSize ?? 0))
-            .is(P.lte(sizeRestriction?.maximumSize ?? 1000000)),
+            .is(P.gte(slotSize?.minimumSize ?? 0))
+            .is(P.lte(slotSize?.maximumSize ?? 1000000)),
       )
          .as('g')
          .unfold()
@@ -263,22 +261,22 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
  * To play with this query:
  * https://gremlify.com/cysfkcn50fu
  */
-function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?: SizeRestriction): Traversal {
+function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQuality): Traversal {
    return (
       g
          .V()
          .hasLabel('group')
          // Active groups
          .where(__.has('creationDate', P.gt(moment().unix() - MAX_TIME_GROUPS_RECEIVE_NEW_USERS)))
-         // Groups open for more users (used by bad quality groups which are not open for more users)
-         .where(__.has('openForMoreUsers', true))
+         // Groups of the target quality. This prevents occupying slots of good quality capable users with low quality groups
+         .where(__.has('initialQuality', quality))
          // Groups that has space for more users and match the slot config passed
          .where(
             __.in_('member')
                .count()
                .is(P.lt(MAX_GROUP_SIZE)) // Not groups already full
-               .is(P.gte(sizeRestriction.minimumSize)) // Groups bigger than the minimum size in slot
-               .is(P.lte(sizeRestriction.maximumSize)), // Groups smaller than the maximum size in slot
+               .is(P.gte(GROUP_SLOTS_CONFIGS[slotIndex].minimumSize)) // Groups bigger than the minimum size in slot
+               .is(P.lte(GROUP_SLOTS_CONFIGS[slotIndex].maximumSize)), // Groups smaller than the maximum size in slot
          )
 
          // Get users to add to these groups
@@ -291,7 +289,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, sizeRestriction?
                .both('Match')
                .not(__.where(__.out('member').as('group')))
                // Only include users allowed to be in new groups
-               .union(queryToGetUsersAllowedToBeOnGroups(slotIndex, __))
+               .union(queryToGetUsersAllowedToBeOnGroups(slotIndex, quality, __))
 
                // When the user is found multiple times is because it has multiple matches on the group
                // that is something we need to know, we need to save the repeats count.

@@ -23,6 +23,7 @@ import {
 } from './tools/types';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { createGroup } from '../groups/models';
+import { GroupQualityValues } from './tools/types';
 import {
    removeUsersFromGroupCandidate,
    removeUsersRecursivelyByConnectionsAmount,
@@ -45,7 +46,6 @@ import {
 
 export async function initializeGroupsFinder(): Promise<void> {
    groupAnalysisTest(); // Uncomment this line to see in the console different group analysis approaches and test them.
-   sortSlotsArray();
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
 }
 
@@ -59,25 +59,22 @@ async function searchAndCreateNewGroups(): Promise<void> {
     */
    const notAvailableUsers: Set<string> = new Set();
 
-   // Find good quality groups
-   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
-      await createGroupsForSlot(i, GroupQuality.Good, notAvailableUsers);
+   for (const quality of GroupQualityValues) {
+      for (const slotIndex of slotsIndexesOrdered()) {
+         await createGroupsForSlot(slotIndex, quality, notAvailableUsers);
+      }
    }
 
-   // Find bad quality groups
-   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
-      await createGroupsForSlot(i, GroupQuality.Bad, notAvailableUsers);
-   }
-
-   // Find users to add to groups that are receiving new users
-   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
-      const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
-         queryToGetGroupsReceivingNewUsers(i),
-      );
-      // TODO: Terminar esto, no se deberia aregar usuarios a un grupo si estos disminuyen su calidad
-      // los grupos fueron creados por ser mejores que otros, no tendria sentido arruinarlos
-      // se podria evaluar el impacto de cada usuario o de cada par de usuarios o algo asi por que uno
-      // solo puede disminuir la calidad pero combinado con otro aumentarla
+   for (const quality of GroupQualityValues) {
+      for (const slotIndex of slotsIndexesOrdered()) {
+         // TODO: Terminar esto, no se deberia aregar usuarios a un grupo si estos disminuyen su calidad
+         // los grupos fueron creados por ser mejores que otros, no tendria sentido arruinarlos
+         // se podria evaluar el impacto de cada usuario o de cada par de usuarios o algo asi por que uno
+         // solo puede disminuir la calidad pero combinado con otro aumentarla
+         const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
+            queryToGetGroupsReceivingNewUsers(slotIndex, quality),
+         );
+      }
    }
 }
 
@@ -97,14 +94,12 @@ export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: 
 
    groups.forEach(group => {
       let groupAnalysed: GroupCandidateAnalyzed = analiceGroupCandidate(group);
-
       if (!groupHasMinimumQuality(groupAnalysed)) {
          groupAnalysed = tryToFixBadQualityGroup(groupAnalysed, slot);
          if (groupAnalysed == null) {
             return;
          }
       }
-
       result.add(groupAnalysed);
    });
 
@@ -137,8 +132,6 @@ async function createGroups(
    slotToUse: number,
    groupQuality: GroupQuality,
 ): Promise<void> {
-   // TODO: Reemplazar esto por un paramentro de calidad que se guarda en el vertex asi puedo agregar usuarios a los grupos de mala calidad, usuarios para agregar en esos grupos
-   const openForMoreUsers: boolean = groupQuality === GroupQuality.Good;
    let iterations: number = groupCandidates.size();
 
    for (let i = 0; i < iterations; i++) {
@@ -149,7 +142,7 @@ async function createGroups(
       if (notAvailableUsersOnGroup.length === 0) {
          const usersIds: string[] = group.group.map(u => u.userId);
          setUsersAsNotAvailable(usersIds, notAvailableUsers);
-         await createGroup({ usersIds, slotToUse }, openForMoreUsers);
+         await createGroup({ usersIds, slotToUse }, groupQuality);
       } else {
          // If the "not available" users amount is too much it can be discarded without trying to fix it
          if (groupSizeIsUnderMinimum(group.group.length - notAvailableUsersOnGroup.length, slotToUse)) {
@@ -202,8 +195,11 @@ function setUsersAsNotAvailable(usersIds: string[], notAvailableUsers: Set<strin
 /**
  * Sorts slots so the bigger group slots are first, so the big groups gets created first.
  */
-function sortSlotsArray(): void {
-   GROUP_SLOTS_CONFIGS.sort(firstBy(s => s.minimumSize ?? 0, 'desc'));
+function slotsIndexesOrdered(): number[] {
+   const slotsSorted = [...GROUP_SLOTS_CONFIGS];
+   const slotsWithIndex = slotsSorted.map((s, i) => ({ slot: s, index: i }));
+   slotsWithIndex.sort(firstBy(s => s.slot.minimumSize ?? 0, 'desc'));
+   return slotsWithIndex.map(s => s.index);
 }
 
 export type GroupsAnalyzedList = Collections.BSTreeKV<GroupCandidateAnalyzed, GroupCandidateAnalyzed>;
