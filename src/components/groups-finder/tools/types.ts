@@ -1,7 +1,7 @@
 export interface GroupsReceivingNewUsers {
    groupId: string;
-   usersToAdd: Array<{ userId: string; matchesAmount: number }>;
    groupMatches: UserWithMatches[];
+   usersToAdd: UserWithMatches[];
 }
 
 export interface UserWithMatches {

@@ -11,6 +11,7 @@ import {
 import * as moment from 'moment';
 import { queryToGetAllCompleteUsers } from '../user/queries';
 import { GroupQuality, SizeRestriction } from './tools/types';
+import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../configurations';
 
 /**
  * This query returns lists of users arrays where it's users matches between them.
@@ -259,7 +260,7 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
  * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
  *
  * To play with this query:
- * https://gremlify.com/cysfkcn50fu
+ * https://gremlify.com/wf8855i8h7
  */
 function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQuality): Traversal {
    return (
@@ -280,7 +281,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQu
          )
 
          // Get users to add to these groups
-         .project('group', 'usersToAdd', 'groupMatches')
+         .project('group', 'usersToAdd')
          .by()
          .by(
             // Find matches of the member group that are not members of the group
@@ -290,17 +291,16 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQu
                .not(__.where(__.out('member').as('group')))
                // Only include users allowed to be in new groups
                .union(queryToGetUsersAllowedToBeOnGroups(slotIndex, quality, __))
-
-               // When the user is found multiple times is because it has multiple matches on the group
-               // that is something we need to know, we need to save the repeats count.
-               .groupCount()
-               .by('userId')
+               // Find the matches that the user has inside the group
+               .group()
+               .by(__.values('userId'))
+               .by(__.both('Match').where(__.out('member').as('group')).dedup().values('userId').fold())
                .unfold()
-               .project('userId', 'matchesAmount')
+               .project('userId', 'matches')
                .by(column.keys)
                .by(column.values)
-               // Discard users with only one match
-               .where(__.select('matchesAmount').is(P.gte(2)))
+               // Discard users with not enough connections amount
+               .where(__.select('matches').count(scope.local).is(P.gte(MINIMUM_CONNECTIONS_TO_BE_ON_GROUP)))
                .fold(),
          )
          // Discard groups with no users to add

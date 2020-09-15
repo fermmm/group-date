@@ -59,6 +59,7 @@ async function searchAndCreateNewGroups(): Promise<void> {
     */
    const notAvailableUsers: Set<string> = new Set();
 
+   // For each quality and slot create a group search
    for (const quality of GroupQualityValues) {
       for (const slotIndex of slotsIndexesOrdered()) {
          await createGroupsForSlot(slotIndex, quality, notAvailableUsers);
