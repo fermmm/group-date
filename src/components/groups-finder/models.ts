@@ -22,27 +22,20 @@ import {
    UserWithMatches,
 } from './tools/types';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { createGroup } from '../groups/models';
+import { addUsersToGroup, createGroup } from '../groups/models';
 import { GroupQualityValues } from './tools/types';
 import {
    removeUsersFromGroupCandidate,
    removeUsersRecursivelyByConnectionsAmount,
    tryToFixBadQualityGroup,
 } from './tools/group-candidate-editing';
+import { objectsContentIsEqual } from '../../common-tools/js-tools/js-tools';
+import { addUserToGroupCandidate } from './tools/group-candidate-editing';
 
 // TODO: Se podria poner la configuracion de duracion del slot por cada slot en lugar de uno general
 // de esa manera se podria generar grupos grandes un poco mas seguido ya que tardan mas en formarse y
 // hay menos, cosa de que se libere mas gente para grupos grandes mas rapido, favoreciendolos y no
 // dejandolos para que se los coman los grupos chicos
-
-// TODO: Supongamos que un usuario recien registrado puede en un dia generar un grupo grande por que matcha rapido
-// entonces dependiendo de la hora a la que se ejecuta el algoritmo va a estar en un grupo grande o en un grupo chico
-// eso es muy arbitrario, habria que esperar un tiempo hasta que el usuario empieza a poder formar grupo
-// Aunque tambien seria arbitrario por que depende la hora puede pertenecer a un grupo o no por que por ahi ya cierra
-
-// TODO: Cuando escriba los test hay que tener en cuenta que pasa mientras los usuarios van matcheando
-// si se permite esperar a que los usuarios vayan matcheando gradualmente y formen un grupo grande o no
-// TODO: Cuando escriba los test tengo que testar que un usuario sin slots disponibles no pueda entrar a un grupo
 
 export async function initializeGroupsFinder(): Promise<void> {
    groupAnalysisTest(); // Uncomment this line to see in the console different group analysis approaches and test them.
@@ -51,30 +44,23 @@ export async function initializeGroupsFinder(): Promise<void> {
 
 /**
  * Searches new groups and creates them. This is the core feature of the app.
+ * Also searches for users available to be added to recently created groups that are still open for more users.
  */
 async function searchAndCreateNewGroups(): Promise<void> {
-   /*
-    * We need to store users added to any of this new groups to not add them again in another one since there
-    * is a limit on the amount of groups a user can be part of
-    */
+   // When a user become part of a group becomes unavailable, we need to remember these users to not include them in the following iterations.
    const notAvailableUsers: Set<string> = new Set();
 
-   // For each quality and slot create a group search
+   // For each quality and slot search for users that can form a group and create the groups
    for (const quality of GroupQualityValues) {
       for (const slotIndex of slotsIndexesOrdered()) {
          await createGroupsForSlot(slotIndex, quality, notAvailableUsers);
       }
    }
 
+   // For each quality and slot search for users available to be added to recently created groups that are still open for more users.
    for (const quality of GroupQualityValues) {
       for (const slotIndex of slotsIndexesOrdered()) {
-         // TODO: Terminar esto, no se deberia aregar usuarios a un grupo si estos disminuyen su calidad
-         // los grupos fueron creados por ser mejores que otros, no tendria sentido arruinarlos
-         // se podria evaluar el impacto de cada usuario o de cada par de usuarios o algo asi por que uno
-         // solo puede disminuir la calidad pero combinado con otro aumentarla
-         const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
-            queryToGetGroupsReceivingNewUsers(slotIndex, quality),
-         );
+         await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers);
       }
    }
 }
@@ -90,8 +76,8 @@ async function createGroupsForSlot(
 }
 
 export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: number): GroupsAnalyzedList {
-   // From this point we use a BST for better performance because many times we are going to be adding elements that should be ordered
-   const result = new Collections.BSTreeKV(getOrderFunction());
+   // Group candidates are stored using a Binary Search Tree (BST) for better performance because many times we are going to be adding elements that should be ordered by quality
+   const result = new Collections.BSTreeKV(getSortFunction());
 
    groups.forEach(group => {
       let groupAnalysed: GroupCandidateAnalyzed = analiceGroupCandidate(group);
@@ -107,7 +93,7 @@ export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: 
    return result;
 }
 
-function getOrderFunction(): IThenBy<GroupCandidateAnalyzed> {
+function getSortFunction(): IThenBy<GroupCandidateAnalyzed> {
    /**
     * The analysis numbers should be rounded to be the same number when are
     * close, this allows sub-ordering by another parameter.
@@ -150,18 +136,21 @@ async function createGroups(
             continue;
          }
 
+         // Create a new group candidate removing unavailable users
          let newGroup: GroupCandidate = removeUsersFromGroupCandidate(group.group, notAvailableUsersOnGroup);
+         // After users are removed other users should also be removed if their connections amount are too low
          newGroup = removeUsersRecursivelyByConnectionsAmount(newGroup, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
 
          /**
-          * After removing non available users if the group is not big enough it's ignored to be on hold until
-          * more users become available to complete the group or it's "eaten" by small group creation algorithm
-          * if the remaining users have free small groups slots
+          * After removing non available users if the group is not big enough it's ignored.
+          * In the future more users might become available to complete the group or it will be "eaten" by
+          * small group creation algorithm if the remaining users have free slots for small groups
           */
          if (groupSizeIsUnderMinimum(newGroup.length, slotToUse)) {
             continue;
          }
 
+         // Check the quality of the group after removing unavailable users
          let newGroupAnalyzed = analiceGroupCandidate(newGroup);
          if (!groupHasMinimumQuality(newGroupAnalyzed)) {
             newGroupAnalyzed = tryToFixBadQualityGroup(newGroupAnalyzed, slotToUse);
@@ -170,10 +159,58 @@ async function createGroups(
             }
          }
 
+         /*
+            At this point the new group is safe to be added to the list being iterated here in it's 
+            corresponding order to be checked again in one of the next iterations of this for-loop
+         */
          groupCandidates.add(newGroupAnalyzed);
-         // We increase the iteration of this loop since we added an extra item
+
+         // We increase the iteration of this for-loop since we added an extra item
          iterations++;
       }
+   }
+}
+
+async function addMoreUsersToRecentGroups(
+   slotIndex: number,
+   quality: GroupQuality,
+   notAvailableUsers: Set<string>,
+): Promise<void> {
+   const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
+      queryToGetGroupsReceivingNewUsers(slotIndex, quality),
+   );
+
+   for (const groupReceiving of groupsReceivingUsers) {
+      const groupsWithNewUser = new Collections.BSTreeKV(getSortFunction());
+      const groupsWithNewUserUser: Map<GroupCandidateAnalyzed, string> = new Map();
+
+      for (const userToAdd of groupReceiving.usersToAdd) {
+         if (notAvailableUsers.has(userToAdd.userId)) {
+            continue;
+         }
+
+         const groupAnalyzed: GroupCandidateAnalyzed = analiceGroupCandidate(groupReceiving.groupMatches);
+         const groupWithNewUser = addUserToGroupCandidate(groupReceiving.groupMatches, userToAdd);
+         const groupWithNewUserAnalyzed: GroupCandidateAnalyzed = analiceGroupCandidate(groupWithNewUser);
+
+         // If the group quality decreases when adding the new user then ignore the user
+         if (compareGroups(groupWithNewUserAnalyzed, groupAnalyzed) === groupAnalyzed) {
+            continue;
+         }
+
+         // Store the group containing the new user in a BST ordered by group quality
+         groupsWithNewUser.add(groupWithNewUserAnalyzed);
+         // Relate the group with the user to be retrieved later using this map
+         groupsWithNewUserUser.set(groupWithNewUserAnalyzed, userToAdd.userId);
+      }
+
+      /**
+       * This is adding only one user per group because adding another one requires to evaluate the impact of the
+       * addition considering the other new users and that requires more of this iterations.
+       */
+      const bestGroupWithNewUser: GroupCandidateAnalyzed = groupsWithNewUser.minimum();
+      const bestUserToAdd: string = groupsWithNewUserUser.get(bestGroupWithNewUser);
+      await addUsersToGroup(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
    }
 }
 
@@ -194,7 +231,23 @@ function setUsersAsNotAvailable(usersIds: string[], notAvailableUsers: Set<strin
 }
 
 /**
- * Sorts slots so the bigger group slots are first, so the big groups gets created first.
+ * Compares the analysis of 2 groups and returns the one with best quality. If both groups have exactly the
+ * same quality it returns the first one.
+ */
+export function compareGroups(
+   group1: GroupCandidateAnalyzed,
+   group2: GroupCandidateAnalyzed,
+): GroupCandidateAnalyzed {
+   if (objectsContentIsEqual(group1.analysis, group2.analysis)) {
+      return group1;
+   }
+   const result = [group1, group2];
+   result.sort(getSortFunction());
+   return result[0];
+}
+
+/**
+ * Sorts slots so the bigger group slots first.
  */
 function slotsIndexesOrdered(): number[] {
    const slotsSorted = [...GROUP_SLOTS_CONFIGS];

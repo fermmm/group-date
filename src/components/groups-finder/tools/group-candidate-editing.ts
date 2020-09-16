@@ -32,6 +32,19 @@ export function createFakeUserOnGroupCandidate(group: GroupCandidate, connectWit
 }
 
 /**
+ * Returns a new group candidate with the user added. The other users will connect with the new user
+ * according to the matches of the new user, in other words ensures the connections are bi-directional.
+ */
+export function addUserToGroupCandidate(group: GroupCandidate, user: UserWithMatches): GroupCandidate {
+   const resultGroup: GroupCandidate = copyGroupCandidate(group);
+   user.matches.forEach(userMatch =>
+      getUserByIdOnGroupCandidate(resultGroup, userMatch).matches.push(user.userId),
+   );
+   resultGroup.push(user);
+   return resultGroup;
+}
+
+/**
  * Creates a group candidate. Only to be used in tests.
  * @param amountOfInitialUsers Unconnected users to create as the initial users
  */

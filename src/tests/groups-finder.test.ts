@@ -7,6 +7,10 @@ import { fromQueryToGroupCandidates } from '../components/groups-finder/tools/da
 import { queryToRemoveUsers } from '../components/user/queries';
 import { UserWithMatches, GroupQuality } from '../components/groups-finder/tools/types';
 
+// TODO: Cuando escriba los test hay que tener en cuenta que pasa mientras los usuarios van matcheando
+// si se permite esperar a que los usuarios vayan matcheando gradualmente y formen un grupo grande o no
+// TODO: Cuando escriba los test tengo que testar que un usuario sin slots disponibles no pueda entrar a un grupo
+
 describe('Group Finder', () => {
    test('Finding matches in order works', async () => {
       // Create a chain group of 3 + 2 fully connected users + 1 single matching user

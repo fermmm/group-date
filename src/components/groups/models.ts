@@ -70,7 +70,7 @@ export async function getGroupById(
 }
 
 /**
- * Internal function to add users to a group (this is not an endpoint)
+ * Add users to a group (this is not an endpoint)
  */
 export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSettings): Promise<void> {
    await queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate();

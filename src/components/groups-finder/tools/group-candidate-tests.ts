@@ -2,7 +2,7 @@ import {
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
 } from '../../../configurations';
-import { analiceAndFilterGroupCandidates, GroupsAnalyzedList } from '../models';
+import { analiceAndFilterGroupCandidates, GroupsAnalyzedList, compareGroups } from '../models';
 import {
    getDataCorruptionProblemsInGroupCandidate,
    getAverageConnectionsAmount,
@@ -18,7 +18,7 @@ import {
    connectAllWithNeighbors,
    createGroupCandidate,
 } from './group-candidate-editing';
-import { GroupCandidate, GroupCandidateAnalyzed } from './types';
+import { GroupCandidate } from './types';
 
 const groupWith2 = createGroupCandidate(2);
 const twoForTwo = createFakeUsersForGroupCandidate(groupWith2, 2, [0, 1]);
