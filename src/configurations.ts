@@ -66,6 +66,12 @@ export const GROUP_SLOTS_CONFIGS = [
 export const CREATE_BIGGER_GROUPS_FIRST = true;
 
 /**
+ * When a small group is still accepting new users it can become big, more than what the slot allows.
+ * If this is set to fase a group stops receiving more users when the size is bigger han the slot max size.
+ */
+export const ALLOW_SMALL_GROUPS_BECOME_BIG = true;
+
+/**
  * Bad quality groups are groups where each user only has 2 matches, these groups are probably less interesting
  * so only appears to users that don't have a group in a long time, that time is this setting.
  */

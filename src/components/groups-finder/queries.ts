@@ -7,6 +7,7 @@ import {
    MAX_TIME_GROUPS_RECEIVE_NEW_USERS,
    MIN_GROUP_SIZE,
    FORM_BAD_QUALITY_GROUPS_TIME,
+   ALLOW_SMALL_GROUPS_BECOME_BIG,
 } from '../../configurations';
 import * as moment from 'moment';
 import { queryToGetAllCompleteUsers } from '../user/queries';
@@ -230,8 +231,8 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
       __.where(
          __.count(scope.local)
             .is(P.gte(MIN_GROUP_SIZE))
-            .is(P.gte(slotSize?.minimumSize ?? 0))
-            .is(P.lte(slotSize?.maximumSize ?? 1000000)),
+            .is(P.gte(slotSize?.minimumSize ?? MIN_GROUP_SIZE))
+            .is(P.lte(slotSize?.maximumSize ?? MAX_GROUP_SIZE)),
       )
          .as('g')
          .unfold()
@@ -276,8 +277,14 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQu
             __.in_('member')
                .count()
                .is(P.lt(MAX_GROUP_SIZE)) // Not groups already full
-               .is(P.gte(GROUP_SLOTS_CONFIGS[slotIndex].minimumSize)) // Groups bigger than the minimum size in slot
-               .is(P.lte(GROUP_SLOTS_CONFIGS[slotIndex].maximumSize)), // Groups smaller than the maximum size in slot
+               .is(P.gte(GROUP_SLOTS_CONFIGS[slotIndex].minimumSize ?? MIN_GROUP_SIZE)) // Groups bigger than the minimum size in slot
+               .is(
+                  P.lte(
+                     ALLOW_SMALL_GROUPS_BECOME_BIG
+                        ? MAX_GROUP_SIZE
+                        : GROUP_SLOTS_CONFIGS[slotIndex].maximumSize ?? MAX_GROUP_SIZE,
+                  ),
+               ),
          )
 
          // Get users to add to these groups
