@@ -254,14 +254,6 @@ export function getSlotIdFromUsersAmount(amount: number): number {
    return GROUP_SLOTS_CONFIGS.findIndex(slot => amount >= slot.minimumSize && amount <= slot.maximumSize);
 }
 
-export function getAllSlotsNames(): string[] {
-   const result: string[] = [];
-   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
-      result.push('slot' + i);
-   }
-   return result;
-}
-
 interface GetGroupByIdOptions {
    includeFullDetails?: boolean;
    onlyIfAMemberHasUserId?: string;

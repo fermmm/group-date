@@ -8,7 +8,6 @@ import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { GroupQuality } from '../groups-finder/tools/types';
 import { queryToGetUserById } from '../user/queries';
-import { getAllSlotsNames } from './models';
 
 /**
  * Creates a group and returns it as a traversal query.
