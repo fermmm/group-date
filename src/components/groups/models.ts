@@ -202,7 +202,6 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
    }
 }
 
-// TODO: Testear y escribir test de esta query
 export async function findSlotsToRelease(): Promise<void> {
    return await queryToFindSlotsToRelease().iterate();
 }

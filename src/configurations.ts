@@ -23,33 +23,38 @@ export const MAX_GROUP_SIZE = 18;
 export const MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = 2;
 
 /**
- * The users have a limit in the amount of simultaneous groups they can be members of because being in too
- * many groups at the same time leads to users that will be "too busy" generating groups with absent members.
+ * The users need to have a limit in the amount of simultaneous groups they can be members of because being in too
+ * many groups at the same time potentially leads to users that will be "too busy" generating absent members.
  *
- * This limitation works with a "group slot" system: Each user has a limited number of group slots, each slot
- * is reserved for a specific group size.
+ * This problem is solved with a limitation of groups using a slot system: Each user has a limited number of
+ * "group slots", each slot is reserved for a specific group size. Currently there are 2 slots, one for small
+ * groups and one for big groups.
  *
- * This slot-size feature it's implemented because different kind of groups is a good reason for having 2 groups
- * at the same time, or more, but still limited.
- * Also this feature solves another problem: The bigger groups takes more time to form so they should have a
- * reserved slot available for the moment the group is formed.
- * Slots gets released after some configurable time.
+ * This "slot for a size" feature it's implemented because being in different kind of groups is a good reason
+ * to make the limitation more flexible to 2 groups at the same time, or more, but still limited.
+ * Also solves another problem: The bigger groups takes more time to form so they should have a reserved slot
+ * available for the moment the group is formed.
+ * Slots gets available again after a configurable time, in theory this should be the average time the users
+ * take to finally meet.
  *
  * Parameters:
  *
  *    @param minimumSize default = MIN_GROUP_SIZE setting
  *    @param maximumSize default = MAX_GROUP_SIZE setting
- *    @param amount If you want to configure the app to have multiple slots with the same group size, use the "amount"
- *            property, don't duplicate slots
+ *    @param amount If you want to configure the app to have multiple slots with the same group size, use this
+ *                  property, don't duplicate slots
+ *    @param releaseTime A group slot will be available again after a specific time set in this constant
  */
 export const GROUP_SLOTS_CONFIGS = [
    {
       maximumSize: 6,
       amount: 1,
+      releaseTime: WEEK_IN_SECONDS * 3,
    },
    {
       minimumSize: 7,
       amount: 1,
+      releaseTime: WEEK_IN_SECONDS * 2,
    },
 ];
 
@@ -59,11 +64,6 @@ export const GROUP_SLOTS_CONFIGS = [
  * Quality means more matches between members and better distribution of them.
  */
 export const CREATE_BIGGER_GROUPS_FIRST = true;
-
-/**
- * A group slot will be available again after a specific time set in this constant
- */
-export const RELEASE_SLOT_TIME = WEEK_IN_SECONDS * 3;
 
 /**
  * Bad quality groups are groups where each user only has 2 matches, these groups are probably less interesting

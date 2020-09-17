@@ -4,7 +4,7 @@ import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { RELEASE_SLOT_TIME } from '../../configurations';
+import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { GroupQuality } from '../groups-finder/tools/types';
 import { queryToGetUserById } from '../user/queries';
@@ -76,15 +76,19 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
 
 /**
  * Finds group slots that can be released and releases them. Removed the slot edge.
+ * You can play with this query here: https://gremlify.com/t0km39qnpm
  */
 export function queryToFindSlotsToRelease(): Traversal {
    return g
       .E()
-      .hasLabel(...getAllSlotsNames())
-      .where(
-         __.inV()
-            .values('creationDate')
-            .is(P.lt(moment().unix() - RELEASE_SLOT_TIME)),
+      .union(
+         ...GROUP_SLOTS_CONFIGS.map((slot, i) =>
+            __.hasLabel('slot' + i).where(
+               __.inV()
+                  .values('creationDate')
+                  .is(P.lt(moment().unix() - slot.releaseTime)),
+            ),
+         ),
       )
       .drop();
 }

@@ -32,11 +32,6 @@ import {
 import { objectsContentIsEqual } from '../../common-tools/js-tools/js-tools';
 import { addUserToGroupCandidate } from './tools/group-candidate-editing';
 
-// TODO: Se podria poner la configuracion de duracion del slot por cada slot en lugar de uno general
-// de esa manera se podria generar grupos grandes un poco mas seguido ya que tardan mas en formarse y
-// hay menos, cosa de que se libere mas gente para grupos grandes mas rapido, favoreciendolos y no
-// dejandolos para que se los coman los grupos chicos
-
 export async function initializeGroupsFinder(): Promise<void> {
    groupAnalysisTest(); // Uncomment this line to see in the console different group analysis approaches and test them.
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
@@ -143,8 +138,9 @@ async function createGroups(
 
          /**
           * After removing non available users if the group is not big enough it's ignored.
-          * In the future more users might become available to complete the group or it will be "eaten" by
-          * small group creation algorithm if the remaining users have free slots for small groups
+          * In the future more users might become available to complete the group or it will
+          * be "eaten" by small group creations if the remaining users have free slots for
+          * small groups
           */
          if (groupSizeIsUnderMinimum(newGroup.length, slotToUse)) {
             continue;
