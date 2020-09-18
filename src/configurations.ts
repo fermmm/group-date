@@ -1,5 +1,6 @@
 import { hoursToMilliseconds } from './common-tools/js-tools/js-tools';
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
+import { Slot } from './components/groups-finder/tools/types';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  GROUPS  ////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ export const MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = 2;
  *                  property, don't duplicate slots
  *    @param releaseTime A group slot will be available again after a specific time set in this constant
  */
-export const GROUP_SLOTS_CONFIGS = [
+export const GROUP_SLOTS_CONFIGS: Slot[] = [
    {
       maximumSize: 6,
       amount: 1,

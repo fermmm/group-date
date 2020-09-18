@@ -31,7 +31,7 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
          break;
    }
 
-   traversal = queryToAddDetailsAndIgnoreInvalidSizes(traversal, GROUP_SLOTS_CONFIGS[targetSlotIndex], true);
+   traversal = queryToAddDetailsAndIgnoreInvalidSizes(traversal, GROUP_SLOTS_CONFIGS[targetSlotIndex]);
 
    return traversal;
 }
@@ -222,11 +222,7 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
  * @param slotSize Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
  * @param returnNames Default = false. If set to true returns user names instead of userId. Useful for debugging.
  */
-function queryToAddDetailsAndIgnoreInvalidSizes(
-   traversal: Traversal,
-   slotSize?: SizeRestriction,
-   returnNames: boolean = false,
-): Traversal {
+function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?: SizeRestriction): Traversal {
    return traversal.map(
       __.where(
          __.count(scope.local)
@@ -238,13 +234,13 @@ function queryToAddDetailsAndIgnoreInvalidSizes(
          .unfold()
          .map(
             __.project('userId', 'matches')
-               .by(__.values(returnNames ? 'name' : 'userId'))
+               .by(__.values('userId'))
                .by(
                   __.as('u')
                      .select('g')
                      .unfold()
                      .where(__.both('Match').where(P.eq('u'))) // Get the matches of the user within the group
-                     .values(returnNames ? 'name' : 'userId')
+                     .values('userId')
                      .fold(),
                ),
          )

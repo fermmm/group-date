@@ -28,8 +28,9 @@ export interface SizeRestriction {
    maximumSize?: number;
 }
 
-export interface GroupSlotConfig extends SizeRestriction {
+export interface Slot extends SizeRestriction {
    amount: number;
+   releaseTime: number;
 }
 
 export enum GroupQuality {

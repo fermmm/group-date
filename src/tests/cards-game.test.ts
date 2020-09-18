@@ -14,6 +14,7 @@ import { fakeCtx } from './tools/replacements';
 import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
 import { createFakeCompatibleUsers, createFakeUser, createFakeUsers, setAttraction } from './tools/users';
 
+// TODO: Habria que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seenmatch
 describe('Cards game', () => {
    let fakeData: Array<Partial<UserPostParams>>;
    let fakeUsers: User[] = [];

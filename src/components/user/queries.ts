@@ -16,7 +16,8 @@ import { ValueOf } from 'ts-essentials';
 export function queryToCreateUser(
    token: string,
    email: string,
-   setProfileCompletedForTesting = false,
+   setProfileCompletedForTesting?: boolean,
+   customUserIdForTesting?: string,
 ): Traversal {
    return queryToGetUserByToken(token)
       .fold()
@@ -24,9 +25,9 @@ export function queryToCreateUser(
          __.unfold(),
          __.addV('user')
             .property('token', token)
-            .property('userId', uuidv1())
+            .property('userId', customUserIdForTesting ?? uuidv1())
             .property('email', email)
-            .property('profileCompleted', setProfileCompletedForTesting)
+            .property('profileCompleted', setProfileCompletedForTesting ?? false)
             .property('sendNewUsersNotification', 0)
             .property('lastGroupJoinedDate', moment().unix())
             .property('notifications', '[]'),

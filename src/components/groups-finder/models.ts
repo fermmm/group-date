@@ -13,7 +13,6 @@ import {
    groupHasMinimumQuality,
    groupSizeIsUnderMinimum,
 } from './tools/group-candidate-analysis';
-import { groupAnalysisTest } from './tools/group-candidate-tests';
 import {
    GroupCandidate,
    GroupQuality,
@@ -31,9 +30,9 @@ import {
 } from './tools/group-candidate-editing';
 import { objectsContentIsEqual } from '../../common-tools/js-tools/js-tools';
 import { addUserToGroupCandidate } from './tools/group-candidate-editing';
+import { Group } from '../../shared-tools/endpoints-interfaces/groups';
 
 export async function initializeGroupsFinder(): Promise<void> {
-   groupAnalysisTest(); // Uncomment this line to see in the console different group analysis approaches and test them.
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
 }
 
@@ -41,7 +40,7 @@ export async function initializeGroupsFinder(): Promise<void> {
  * Searches new groups and creates them. This is the core feature of the app.
  * Also searches for users available to be added to recently created groups that are still open for more users.
  */
-async function searchAndCreateNewGroups(): Promise<void> {
+export async function searchAndCreateNewGroups(): Promise<void> {
    // When a user become part of a group becomes unavailable, we need to remember these users to not include them in the following iterations.
    const notAvailableUsers: Set<string> = new Set();
 
@@ -113,7 +112,8 @@ async function createGroups(
    notAvailableUsers: Set<string>,
    slotToUse: number,
    groupQuality: GroupQuality,
-): Promise<void> {
+): Promise<Group[]> {
+   const groupsCreated: Group[] = [];
    let iterations: number = groupCandidates.size();
 
    for (let i = 0; i < iterations; i++) {
@@ -124,7 +124,8 @@ async function createGroups(
       if (notAvailableUsersOnGroup.length === 0) {
          const usersIds: string[] = group.group.map(u => u.userId);
          setUsersAsNotAvailable(usersIds, notAvailableUsers);
-         await createGroup({ usersIds, slotToUse }, groupQuality);
+         const groupCreated: Group = await createGroup({ usersIds, slotToUse }, groupQuality);
+         groupsCreated.push(groupCreated);
       } else {
          // If the "not available" users amount is too much it can be discarded without trying to fix it
          if (groupSizeIsUnderMinimum(group.group.length - notAvailableUsersOnGroup.length, slotToUse)) {
@@ -165,13 +166,21 @@ async function createGroups(
          iterations++;
       }
    }
+
+   return groupsCreated;
 }
 
+/**
+ * Adds more users to groups recently created that are still receiving users. Only adds the users if the addition
+ * does not have a negative impact on the quality of the group.
+ * Returns a list of group ids with the groups that were modified.
+ */
 async function addMoreUsersToRecentGroups(
    slotIndex: number,
    quality: GroupQuality,
    notAvailableUsers: Set<string>,
-): Promise<void> {
+): Promise<string[]> {
+   const groupsModified: string[] = [];
    const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
       queryToGetGroupsReceivingNewUsers(slotIndex, quality),
    );
@@ -207,7 +216,10 @@ async function addMoreUsersToRecentGroups(
       const bestGroupWithNewUser: GroupCandidateAnalyzed = groupsWithNewUser.minimum();
       const bestUserToAdd: string = groupsWithNewUserUser.get(bestGroupWithNewUser);
       await addUsersToGroup(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
+      groupsModified.push(groupReceiving.groupId);
    }
+
+   return groupsModified;
 }
 
 function getNotAvailableUsersOnGroup(

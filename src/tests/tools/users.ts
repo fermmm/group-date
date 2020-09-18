@@ -38,9 +38,10 @@ export async function createFakeUsers(
 
 let fakeUsersCount = 0;
 
-export async function createFakeUser(customParams?: Partial<UserPostParams>, seed?: number): Promise<User> {
+export async function createFakeUser(customParams?: FakeUserParams, seed?: number): Promise<User> {
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
-   const token: string = customParams?.token || chance.apple_token();
+   const token: string = customParams?.token ?? chance.apple_token();
+   const userId: string = customParams?.userId;
 
    const randomProps: Partial<User> = {
       name: chance.first({ nationality: 'it' }),
@@ -94,7 +95,10 @@ export async function createFakeUser(customParams?: Partial<UserPostParams>, see
    });
 
    // The user object from this line contains the userId and other props added by the query to create the user.
-   let user: Partial<User> = await fromQueryToUser(queryToCreateUser(token, chance.email(), true), true);
+   let user: Partial<User> = await fromQueryToUser(
+      queryToCreateUser(token, chance.email(), true, userId),
+      true,
+   );
    await userPost({ token, props, questions }, fakeCtx);
    user = { ...user, ...(props as User), questions, profileCompleted: true, lastLoginDate: moment().unix() };
 
@@ -169,4 +173,8 @@ function getGendersLikedByUser(user: User): Gender[] {
    }
 
    return result;
+}
+
+export interface FakeUserParams extends Partial<UserPostParams> {
+   userId?: string;
 }

@@ -2,7 +2,11 @@ import {
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
 } from '../../../configurations';
-import { analiceAndFilterGroupCandidates, GroupsAnalyzedList, compareGroups } from '../models';
+import {
+   analiceAndFilterGroupCandidates,
+   GroupsAnalyzedList,
+   compareGroups,
+} from '../../../components/groups-finder/models';
 import {
    getDataCorruptionProblemsInGroupCandidate,
    getAverageConnectionsAmount,
@@ -10,24 +14,25 @@ import {
    getConnectionsCoverageAverage,
    getConnectionsMetaconnectionsDistance,
    removeExceedingConnectionsOnGroupCandidate,
-} from './group-candidate-analysis';
-import { createFakeUserOnGroupCandidate, createFakeUsersAndConnectRandomly } from './group-candidate-editing';
+} from '../../../components/groups-finder/tools/group-candidate-analysis';
+import { GroupCandidate } from '../../../components/groups-finder/tools/types';
 import {
-   createFakeUsersForGroupCandidate,
-   connectAllWithAll,
-   connectAllWithNeighbors,
    createGroupCandidate,
-} from './group-candidate-editing';
-import { GroupCandidate } from './types';
+   createMultipleFakeUsersForGroupCandidate,
+   connectAllWithNeighbors,
+   createMultipleFakeUsersAndConnectRandomly,
+   createFakeUserOnGroupCandidate,
+   connectAllWithAll,
+} from './group-candidate-test-editing';
 
 const groupWith2 = createGroupCandidate(2);
-const twoForTwo = createFakeUsersForGroupCandidate(groupWith2, 2, [0, 1]);
+const twoForTwo = createMultipleFakeUsersForGroupCandidate(groupWith2, 2, [0, 1]);
 const groupWith3 = createGroupCandidate(3);
 const groupWith4 = createGroupCandidate(4);
 const groupWith5 = createGroupCandidate(5);
 const groupWith12 = createGroupCandidate(12);
 const circleGroupOf12 = connectAllWithNeighbors(groupWith12, true);
-const big = createFakeUsersAndConnectRandomly({
+const big = createMultipleFakeUsersAndConnectRandomly({
    amountOfUsers: 12,
    minConnectionsPerUser: 4,
    maxConnectionsPerUser: 9,
@@ -44,71 +49,75 @@ const testGroups: Array<{ name: string; group: GroupCandidate } | string> = [
    },
    {
       name: '2 for 3',
-      group: createFakeUsersForGroupCandidate(groupWith2, 3, [0, 1]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith2, 3, [0, 1]),
    },
    {
       name: '2 for 4',
-      group: createFakeUsersForGroupCandidate(groupWith2, 4, [0, 1]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith2, 4, [0, 1]),
    },
    {
       name: '2 for 5',
-      group: createFakeUsersForGroupCandidate(groupWith2, 5, [0, 1]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith2, 5, [0, 1]),
    },
    {
       name: '2 for 6',
-      group: createFakeUsersForGroupCandidate(groupWith2, 6, [0, 1]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith2, 6, [0, 1]),
    },
    {
       name: '2 for 8',
-      group: createFakeUsersForGroupCandidate(groupWith2, 8, [0, 1]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith2, 8, [0, 1]),
    },
    '',
    {
       name: '3 for 3',
-      group: createFakeUsersForGroupCandidate(groupWith3, 3, [0, 1, 2]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith3, 3, [0, 1, 2]),
    },
    {
       name: '3 for 4',
-      group: createFakeUsersForGroupCandidate(groupWith3, 4, [0, 1, 2]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith3, 4, [0, 1, 2]),
    },
    {
       name: '3 for 5',
-      group: createFakeUsersForGroupCandidate(groupWith3, 5, [0, 1, 2]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith3, 5, [0, 1, 2]),
    },
    {
       name: '3 for 6',
-      group: createFakeUsersForGroupCandidate(groupWith3, 6, [0, 1, 2]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith3, 6, [0, 1, 2]),
    },
    {
       name: '3 for 7',
-      group: createFakeUsersForGroupCandidate(groupWith3, 7, [0, 1, 2]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith3, 7, [0, 1, 2]),
    },
    {
       name: '3 for 8',
-      group: createFakeUsersForGroupCandidate(groupWith3, 8, [0, 1, 2]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith3, 8, [0, 1, 2]),
    },
    '',
    {
       name: '4 for 5',
-      group: createFakeUsersForGroupCandidate(groupWith4, 5, [0, 1, 2, 3]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith4, 5, [0, 1, 2, 3]),
    },
    {
       name: '4 for 6',
-      group: createFakeUsersForGroupCandidate(groupWith4, 6, [0, 1, 2, 3]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith4, 6, [0, 1, 2, 3]),
    },
    {
       name: '4 for 7',
-      group: createFakeUsersForGroupCandidate(groupWith4, 7, [0, 1, 2, 3]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith4, 7, [0, 1, 2, 3]),
    },
    {
       name: '4 for 8',
-      group: createFakeUsersForGroupCandidate(groupWith4, 8, [0, 1, 2, 3]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith4, 8, [0, 1, 2, 3]),
    },
    {
       name: '4 for 9',
-      group: createFakeUsersForGroupCandidate(groupWith4, 9, [0, 1, 2, 3]),
+      group: createMultipleFakeUsersForGroupCandidate(groupWith4, 9, [0, 1, 2, 3]),
    },
    '',
+   {
+      name: '3 All with all',
+      group: createMultipleFakeUsersForGroupCandidate(groupWith2, 1, [0, 1]),
+   },
    {
       name: '5 All with all',
       group: connectAllWithAll(groupWith5),
@@ -121,7 +130,7 @@ const testGroups: Array<{ name: string; group: GroupCandidate } | string> = [
    {
       name: '1 user with 12 connections, the rest have from 2 to 6 connections',
       group: createFakeUserOnGroupCandidate(
-         createFakeUsersAndConnectRandomly({
+         createMultipleFakeUsersAndConnectRandomly({
             amountOfUsers: 12,
             minConnectionsPerUser: 2,
             maxConnectionsPerUser: 6,

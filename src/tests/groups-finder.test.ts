@@ -1,36 +1,65 @@
 import 'jest';
 import { User } from '../shared-tools/endpoints-interfaces/user';
-import { connectUsersInChain, createMatchingUsers, matchUserWithUsers } from './tools/groups';
-import { createFakeUser, createFakeUsers } from './tools/users';
-import { queryToGetGroupCandidates } from '../components/groups-finder/queries';
-import { fromQueryToGroupCandidates } from '../components/groups-finder/tools/data-conversion';
 import { queryToRemoveUsers } from '../components/user/queries';
-import { UserWithMatches, GroupQuality } from '../components/groups-finder/tools/types';
+import {
+   callGroupSearchMultipleTimes,
+   createUsersFromGroupCandidate,
+   getGroupsOfGroupCandidateMembers,
+} from './tools/group-finder/user-creation-tools';
+import {
+   connectAllWithAll,
+   createFakeUserOnGroupCandidate,
+   createGroupCandidate,
+} from './tools/group-finder/group-candidate-test-editing';
+import { MIN_GROUP_SIZE } from '../configurations';
 
-// TODO: Cuando escriba los test hay que tener en cuenta que pasa mientras los usuarios van matcheando
-// si se permite esperar a que los usuarios vayan matcheando gradualmente y formen un grupo grande o no
-// TODO: Cuando escriba los test tengo que testar que un usuario sin slots disponibles no pueda entrar a un grupo
+/**
+ * Ciclo de vida de un grupo chico:
+ *    - [Hecho] Un usuario que hace match con 1 o con 2 en V, no debería formar grupo
+ *    - [Hecho] Cuando los usuarios conectan en 3 deberían formar grupo
+ *    - Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
+ *    - Testear ambas opciones de ALLOW_SMALL_GROUPS_BECOME_BIG agregando mas usuarios al grupo
+ *    - Simular paso del tiempo y asegurarse que no acepta mas usuarios
+ *    - Crear matches para formar otro grupo que no se debería formar por que a los usuarios no les queda un slot
+ *
+ * Ciclo de vida de un grupo grande:
+ *    - Agregar usuarios para formar un grupo mas grande y ejecutar la busqueda con cada cambio para asegurarse que no pase nada raro en el proceso de matching
+ *    - Checkear que los usuarios que ya habian formado un grupo chico en el test anterior no vuelvan a estar juntos en el grande
+ *    - Crear 3 grupos grandes, uno que es demasiado malo y deberia ser filtrado, y 2 que uno es mejor que el otro y el segundo no se puede formar si el primero se forma por que los usuarios quedan ocupados
+ *    - Crear un grupo mas grande que el limite maximo de los grupos y checkear que el temaño este ok
+ *
+ * Checkeos finales:
+ *    - Checkear que los slots se liberan simulando el paso del tiempo
+ *    - Hacer un snapshot con los resultados del archivo group-candidates-ordering.ts
+ */
 
 describe('Group Finder', () => {
-   test('Finding matches in order works', async () => {
-      // Create a chain group of 3 + 2 fully connected users + 1 single matching user
-      const fakeUsers: User[] = await createFakeUsers(3);
-      await connectUsersInChain(fakeUsers);
-      const moreConnectedUsers: User[] = await createMatchingUsers(2);
-      await matchUserWithUsers(moreConnectedUsers[0], fakeUsers);
-      await matchUserWithUsers(moreConnectedUsers[1], fakeUsers);
-      const singleConnectionUser: User = await createFakeUser();
-      await matchUserWithUsers(singleConnectionUser, [moreConnectedUsers[0]]);
-      // Create another unrelated group to make sure there is no interference:
-      const interferenceGroup: User[] = await createMatchingUsers(5);
-      // Get the groups
-      const result: UserWithMatches[][] = await fromQueryToGroupCandidates(
-         queryToGetGroupCandidates(0, GroupQuality.Good),
-      );
+   const usersCreated: User[] = [];
+   let smallGroup = createGroupCandidate(MIN_GROUP_SIZE - 1);
 
-      expect(result.length).toBeGreaterThan(0);
+   test('Matching users below minimum amount does not form a group', async () => {
+      smallGroup = connectAllWithAll(smallGroup);
+      const users = await createUsersFromGroupCandidate(smallGroup);
+      usersCreated.push(...users);
 
-      // Remove the users added
-      await queryToRemoveUsers([...fakeUsers, ...moreConnectedUsers, ...interferenceGroup]);
+      await callGroupSearchMultipleTimes();
+
+      const groupsCreated = await getGroupsOfGroupCandidateMembers(smallGroup);
+      expect(groupsCreated).toHaveLength(0);
+   });
+
+   test('Matching in minimum amount creates a group', async () => {
+      smallGroup = createFakeUserOnGroupCandidate(smallGroup);
+      const users = await createUsersFromGroupCandidate(smallGroup);
+      usersCreated.push(...users);
+
+      await callGroupSearchMultipleTimes();
+
+      const groupsCreated = await getGroupsOfGroupCandidateMembers(smallGroup);
+      expect(groupsCreated).toHaveLength(1);
+   });
+
+   afterAll(async () => {
+      await queryToRemoveUsers(usersCreated);
    });
 });

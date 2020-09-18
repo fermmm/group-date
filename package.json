@@ -13,7 +13,7 @@
       "start": "node --inspect=localhost:5858 --nolazy -r ts-node/register src/index.ts",
       "dev": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && nodemon --watch",
       "dev-win": "./vendor/gremlin-local-server/bin/gremlin-server.bat restart && nodemon --watch",
-      "test": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --verbose --runInBand",
+      "test": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --verbose --runInBand --forceExit",
       "test:coverage": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --coverage",
       "test:watch": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --watch --runInBand",
       "prettier": "prettier --write \"src/**/*.ts\"",
