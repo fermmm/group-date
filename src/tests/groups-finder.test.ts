@@ -9,12 +9,14 @@ import {
 import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-editing';
 import { MIN_GROUP_SIZE } from '../configurations';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
+import { queryToRemoveGroups } from '../components/groups/queries';
 
 /**
  * Ciclo de vida de un grupo chico:
  *    - [Hecho] Un usuario que hace match con 1 o con 2 en V, no debería formar grupo
  *    - [Hecho] Cuando los usuarios conectan en 3 deberían formar grupo
- *    - [] Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
+ *    - [Hecho] Un usuario que matchea puede ser agregado al grupo
+ *    - [Hecho] Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
  *    - Testear ambas opciones de ALLOW_SMALL_GROUPS_BECOME_BIG agregando mas usuarios al grupo
  *    - Simular paso del tiempo y asegurarse que no acepta mas usuarios
  *    - Crear matches para formar otro grupo que no se debería formar por que a los usuarios no les queda un slot
@@ -64,7 +66,36 @@ describe('Group Finder', () => {
       expect(groups).toHaveLength(1);
    });
 
+   test('Adicional user matching can enter the group even after creation', async () => {
+      smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
+      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      usersCreated.push(...users);
+
+      await callGroupCreationMultipleTimes();
+
+      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      groupsCreated.push(...groups);
+
+      expect(groups).toHaveLength(1);
+      expect(groups[0].members).toHaveLength(4);
+   });
+
+   test('Users that decrease the quality of an existing group when joining should not join', async () => {
+      smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: [0, 1] });
+      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      usersCreated.push(...users);
+
+      await callGroupCreationMultipleTimes();
+
+      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      groupsCreated.push(...groups);
+
+      expect(groups).toHaveLength(1);
+      expect(groups[0].members).toHaveLength(4);
+   });
+
    afterAll(async () => {
       await queryToRemoveUsers(usersCreated);
+      await queryToRemoveGroups(groupsCreated);
    });
 });

@@ -1,12 +1,5 @@
-import {
-   MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
-   MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
-} from '../../../configurations';
-import {
-   analiceAndFilterGroupCandidates,
-   GroupsAnalyzedList,
-   compareGroups,
-} from '../../../components/groups-finder/models';
+import { MAX_CONNECTIONS_POSSIBLE_IN_REALITY } from '../../../configurations';
+import { analiceAndFilterGroupCandidates, GroupsAnalyzedList } from '../../../components/groups-finder/models';
 import {
    getDataCorruptionProblemsInGroupCandidate,
    getAverageConnectionsAmount,
@@ -14,8 +7,10 @@ import {
    getConnectionsCoverageAverage,
    getConnectionsMetaconnectionsDistance,
    removeExceedingConnectionsOnGroupCandidate,
+   analiceGroupCandidate,
 } from '../../../components/groups-finder/tools/group-candidate-analysis';
 import { GroupCandidate } from '../../../components/groups-finder/tools/types';
+import { groupHasMinimumQuality } from '../../../components/groups-finder/tools/group-candidate-analysis';
 import {
    createGroupCandidate,
    createAndAddMultipleUsers,
@@ -179,11 +174,10 @@ export function logGroupsTest() {
       // (Not used) This is the second best algorithm to measure the group quality
       const inequality: number = getConnectionsCountInequalityLevel(groupTrimmed);
 
-      const groupApproved: boolean =
-         MAX_CONNECTIONS_METACONNECTIONS_DISTANCE >= connectionsMetaconnectionsDistance;
+      const groupApproved: boolean = groupHasMinimumQuality(analiceGroupCandidate(group));
 
       console.log('');
-      console.log(item.name);
+      console.log(`${item.name} ${groupApproved ? '' : '[BAD QUALITY]'}`);
       console.log(
          'Inequality:',
          Number(inequality.toFixed(2)),
@@ -193,7 +187,6 @@ export function logGroupsTest() {
          Number(connectionsMetaconnectionsDistance.toFixed(2)),
          'ConAmount:',
          Number(averageConnections.toFixed(2)),
-         `${groupApproved ? '' : '[Rejected]'}`,
       );
       if (getDataCorruptionProblemsInGroupCandidate(group).length > 0) {
          console.log('GROUP ERROR: ' + getDataCorruptionProblemsInGroupCandidate(group));
@@ -212,7 +205,6 @@ function groupOrderingTest() {
    }>;
 
    const groups = testGroupCleaned.map(e => e.group);
-
    const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups, 0);
 
    console.log('');

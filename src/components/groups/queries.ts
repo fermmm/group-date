@@ -173,6 +173,22 @@ export function queryToGetGroupsInFinalFormat(
    return traversal;
 }
 
+/**
+ * Only used in tests.
+ * If no user list is provided all groups on the database are removed.
+ */
+export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
+   if (groups == null) {
+      return g.V().hasLabel('group').drop().iterate();
+   }
+
+   return g
+      .V()
+      .union(...groups.map(group => __.has('group', 'groupId', group.groupId)))
+      .drop()
+      .iterate();
+}
+
 export interface AddUsersToGroupSettings {
    usersIds: string[];
    slotToUse: number;

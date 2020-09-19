@@ -257,7 +257,7 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
  * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
  *
  * To play with this query:
- * https://gremlify.com/xbadxu2k0gl
+ * https://gremlify.com/3hrqz4ijyvt
  */
 function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQuality): Traversal {
    return (
@@ -321,7 +321,7 @@ function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQu
                .in_('member')
                .project('userId', 'matches')
                .by(__.values('userId'))
-               .by(__.both('Match').where(__.out('member').as('group')).values('userId').fold())
+               .by(__.both('SeenMatch').where(__.out('member').as('group')).values('userId').fold())
                .fold(),
          )
    );

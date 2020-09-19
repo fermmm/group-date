@@ -87,28 +87,35 @@ export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: 
    return result;
 }
 
-function getSortFunction(): IThenBy<GroupCandidateAnalyzed> {
+/**
+ * @param alsoSortByAnalysisId When passed to a BST this must be set to true. Default = true
+ */
+export function getSortFunction(alsoSortByAnalysisId: boolean = true): IThenBy<GroupCandidateAnalyzed> {
    /**
     * The analysis numbers should be rounded to be the same number when are
     * close, this allows sub-ordering by another parameter.
-    * analysisId is required by BST to not take same analysis numbers as the same object,
-    * BST does not allow duplications.
     */
+   let result: IThenBy<GroupCandidateAnalyzed>;
    if (CREATE_BIGGER_GROUPS_FIRST) {
       // prettier-ignore
-      return (
-         firstBy<GroupCandidateAnalyzed>(g => g.analysis.averageConnectionsAmountRounded, 'desc')
+      result = firstBy<GroupCandidateAnalyzed>(g => g.analysis.averageConnectionsAmountRounded, 'desc')
          .thenBy<GroupCandidateAnalyzed>(g => g.analysis.quality, 'asc')
-         .thenBy<GroupCandidateAnalyzed>(g => g.analysisId)
-      );
    } else {
       // prettier-ignore
-      return (
-         firstBy<GroupCandidateAnalyzed>(g => g.analysis.qualityRounded, 'asc')
+      result = firstBy<GroupCandidateAnalyzed>(g => g.analysis.qualityRounded, 'asc')
          .thenBy<GroupCandidateAnalyzed>(g => g.analysis.averageConnectionsAmount, 'desc')
-         .thenBy<GroupCandidateAnalyzed>(g => g.analysisId)
-      )
    }
+
+   /**
+    * analysisId is required by the Binary Search Tree to not take same analysis numbers as the same object,
+    * BST does not allow duplications and when the sort function returns the same order for 2 elements then
+    * the BST considers them as the same element, so an Id to still get a different order is required.
+    */
+   if (alsoSortByAnalysisId) {
+      result = result.thenBy<GroupCandidateAnalyzed>(g => g.analysisId);
+   }
+
+   return result;
 }
 
 async function createGroups(
@@ -203,7 +210,7 @@ async function addMoreUsersToRecentGroups(
          const groupWithNewUserAnalyzed: GroupCandidateAnalyzed = analiceGroupCandidate(groupWithNewUser);
 
          // If the group quality decreases when adding the new user then ignore the user
-         if (compareGroups(groupWithNewUserAnalyzed, groupAnalyzed) === groupAnalyzed) {
+         if (getBestGroup(groupWithNewUserAnalyzed, groupAnalyzed) === groupAnalyzed) {
             continue;
          }
 
@@ -219,8 +226,10 @@ async function addMoreUsersToRecentGroups(
        */
       const bestGroupWithNewUser: GroupCandidateAnalyzed = groupsWithNewUser.minimum();
       const bestUserToAdd: string = groupsWithNewUserUser.get(bestGroupWithNewUser);
-      await addUsersToGroup(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
-      groupsModified.push(groupReceiving.groupId);
+      if (bestUserToAdd != null) {
+         await addUsersToGroup(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
+         groupsModified.push(groupReceiving.groupId);
+      }
    }
 
    return groupsModified;
@@ -246,7 +255,7 @@ function setUsersAsNotAvailable(usersIds: string[], notAvailableUsers: Set<strin
  * Compares the analysis of 2 groups and returns the one with best quality. If both groups have exactly the
  * same quality it returns the first one.
  */
-export function compareGroups(
+export function getBestGroup(
    group1: GroupCandidateAnalyzed,
    group2: GroupCandidateAnalyzed,
 ): GroupCandidateAnalyzed {
@@ -254,7 +263,7 @@ export function compareGroups(
       return group1;
    }
    const result = [group1, group2];
-   result.sort(getSortFunction());
+   result.sort(getSortFunction(false));
    return result[0];
 }
 
