@@ -8,7 +8,6 @@ import * as koaBody from 'koa-body';
 import * as moment from 'moment';
 import * as path from 'path';
 import * as sharp from 'sharp';
-import { v1 as uuidv1 } from 'uuid';
 import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
 import { createFolderOnRoot } from '../../common-tools/files-tools/files-tools';
 import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
@@ -43,6 +42,7 @@ import {
 import { questions } from './questions/models';
 import { queryToCreateQuestionsInDatabase, queryToRespondQuestions } from './questions/queries';
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
+import { generateId } from '../../common-tools/string-tools/string-tools';
 
 export async function initializeUsers(): Promise<void> {
    await queryToCreateQuestionsInDatabase(questions);
@@ -221,7 +221,7 @@ export async function addNotificationToUser(
 
    user.notifications.push({
       ...notification,
-      notificationId: uuidv1(),
+      notificationId: generateId(),
       date: moment().unix(),
    });
 

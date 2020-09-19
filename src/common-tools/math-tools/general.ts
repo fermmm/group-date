@@ -18,3 +18,7 @@ export function replaceNaNInfinity(numberToCheck: number, replaceBy: number): nu
 export function roundDecimals(value: number): number {
    return Math.round(value * 10) / 10;
 }
+
+export function generateNumberId(): number {
+   return Math.trunc(Math.random() * 1000000000000000);
+}

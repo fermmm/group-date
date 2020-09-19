@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 import { MarkRequired } from 'ts-essentials';
-import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
@@ -8,6 +7,7 @@ import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
 import { GroupQuality } from '../groups-finder/tools/types';
 import { queryToGetUserById } from '../user/queries';
+import { generateId } from '../../common-tools/string-tools/string-tools';
 
 /**
  * Creates a group and returns it as a traversal query.
@@ -16,7 +16,7 @@ import { queryToGetUserById } from '../user/queries';
 export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal {
    let traversal: Traversal = g
       .addV('group')
-      .property('groupId', uuidv1())
+      .property('groupId', generateId())
       .property(
          'chat',
          serializeIfNeeded<GroupChat>({

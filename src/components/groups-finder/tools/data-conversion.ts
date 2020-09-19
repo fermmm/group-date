@@ -2,6 +2,7 @@ import { fromGremlinMapToObject } from '../../../common-tools/database-tools/dat
 import { retryOnError } from '../../../common-tools/database-tools/database-manager';
 import { Traversal, GremlinValueType } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { GroupCandidate, UserWithMatches, GroupsReceivingNewUsers } from './types';
+import { generateId } from '../../../common-tools/string-tools/string-tools';
 
 /**
  * Converts a gremlin query that should return a list of group candidates (groups of users) into the corresponding serialized objects.
@@ -11,7 +12,7 @@ export async function fromQueryToGroupCandidates(query: Traversal): Promise<Grou
       Array<Map<keyof UserWithMatches, string>>
    >;
    return resultGremlinOutput.map(groupAsMap => {
-      return groupAsMap.map(g => fromGremlinMapToObject<UserWithMatches>(g));
+      return { groupId: generateId(), users: groupAsMap.map(g => fromGremlinMapToObject<UserWithMatches>(g)) };
    });
 }
 

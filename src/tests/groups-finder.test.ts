@@ -2,22 +2,19 @@ import 'jest';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { queryToRemoveUsers } from '../components/user/queries';
 import {
-   callGroupSearchMultipleTimes,
-   createUsersFromGroupCandidate,
-   getGroupsOfGroupCandidateMembers,
+   callGroupCreationMultipleTimes,
+   createFullUsersFromGroupCandidate,
+   retrieveFinalGroupsOf,
 } from './tools/group-finder/user-creation-tools';
-import {
-   connectAllWithAll,
-   createFakeUserOnGroupCandidate,
-   createGroupCandidate,
-} from './tools/group-finder/group-candidate-test-editing';
+import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-editing';
 import { MIN_GROUP_SIZE } from '../configurations';
+import { Group } from '../shared-tools/endpoints-interfaces/groups';
 
 /**
  * Ciclo de vida de un grupo chico:
  *    - [Hecho] Un usuario que hace match con 1 o con 2 en V, no debería formar grupo
  *    - [Hecho] Cuando los usuarios conectan en 3 deberían formar grupo
- *    - Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
+ *    - [] Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
  *    - Testear ambas opciones de ALLOW_SMALL_GROUPS_BECOME_BIG agregando mas usuarios al grupo
  *    - Simular paso del tiempo y asegurarse que no acepta mas usuarios
  *    - Crear matches para formar otro grupo que no se debería formar por que a los usuarios no les queda un slot
@@ -35,28 +32,36 @@ import { MIN_GROUP_SIZE } from '../configurations';
 
 describe('Group Finder', () => {
    const usersCreated: User[] = [];
-   let smallGroup = createGroupCandidate(MIN_GROUP_SIZE - 1);
+   const groupsCreated: Group[] = [];
+
+   let smallGroup = GroupCandTestTools.createGroupCandidate({
+      amountOfInitialUsers: MIN_GROUP_SIZE - 1,
+      connectAllWithAll: true,
+   });
 
    test('Matching users below minimum amount does not form a group', async () => {
-      smallGroup = connectAllWithAll(smallGroup);
-      const users = await createUsersFromGroupCandidate(smallGroup);
+      const users = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);
 
-      await callGroupSearchMultipleTimes();
+      await callGroupCreationMultipleTimes();
 
-      const groupsCreated = await getGroupsOfGroupCandidateMembers(smallGroup);
-      expect(groupsCreated).toHaveLength(0);
+      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      groupsCreated.push(...groups);
+
+      expect(groups).toHaveLength(0);
    });
 
    test('Matching in minimum amount creates a group', async () => {
-      smallGroup = createFakeUserOnGroupCandidate(smallGroup);
-      const users = await createUsersFromGroupCandidate(smallGroup);
+      smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
+      const users = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);
 
-      await callGroupSearchMultipleTimes();
+      await callGroupCreationMultipleTimes();
 
-      const groupsCreated = await getGroupsOfGroupCandidateMembers(smallGroup);
-      expect(groupsCreated).toHaveLength(1);
+      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      groupsCreated.push(...groups);
+
+      expect(groups).toHaveLength(1);
    });
 
    afterAll(async () => {

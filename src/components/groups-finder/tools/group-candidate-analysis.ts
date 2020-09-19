@@ -1,11 +1,11 @@
-import { replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
+import { generateNumberId, replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
 import {
    GROUP_SLOTS_CONFIGS,
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    MIN_GROUP_SIZE,
 } from '../../../configurations';
-import { getUserByIdOnGroupCandidate, disconnectUsers } from './group-candidate-editing';
+import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
 
 /**
@@ -21,7 +21,7 @@ import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types
  *    [0,5,1] returns: 0.75
  */
 export function getConnectionsCountInequalityLevel(group: GroupCandidate): number {
-   const connectionsCount: number[] = group.map(user => user.matches.length);
+   const connectionsCount: number[] = group.users.map(user => user.matches.length);
    const lessEqualCase: number[] = getLessEqualCase(connectionsCount);
 
    const deviation: number = meanAbsoluteDeviation(connectionsCount);
@@ -38,12 +38,12 @@ export function getConnectionsCountInequalityLevel(group: GroupCandidate): numbe
  */
 export function getConnectionsCoverageAverage(group: GroupCandidate): number {
    return (
-      group.reduce(
-         (s, v) =>
+      group.users.reduce(
+         (s, u) =>
             // Each user can connect with the total amount of users - 1 (itself)
-            (s += v.matches.length / (group.length - 1)),
+            (s += u.matches.length / (group.users.length - 1)),
          0,
-      ) / group.length
+      ) / group.users.length
    );
 }
 
@@ -53,7 +53,7 @@ export function getConnectionsCoverageAverage(group: GroupCandidate): number {
  * The returned value is not normalized, higher value is better group quality.
  */
 export function getAverageConnectionsAmount(group: GroupCandidate): number {
-   return group.reduce((s, v) => (s += v.matches.length), 0) / group.length;
+   return group.users.reduce((s, v) => (s += v.matches.length), 0) / group.users.length;
 }
 
 /**
@@ -67,7 +67,7 @@ export function getAverageConnectionsAmount(group: GroupCandidate): number {
  * This is the most important indicator of the quality of a group.
  */
 export function getConnectionsMetaconnectionsDistance(group: GroupCandidate): number {
-   const result: number = group.reduce((s, distance1) => {
+   const result: number = group.users.reduce((s, distance1) => {
       const distance1ConnectionsAmount: number[] = getMetaconnectionsAmountInGroupCandidate(group, distance1);
       let distancesForUser: number = 0;
       distance1ConnectionsAmount.forEach(
@@ -79,12 +79,12 @@ export function getConnectionsMetaconnectionsDistance(group: GroupCandidate): nu
        * because 0 is the "healthiest" result, that's the opposite of what we have in this case. So in case
        * of no connections the distance is the whole group size.
        */
-      distance = replaceNaNInfinity(distance, group.length);
+      distance = replaceNaNInfinity(distance, group.users.length);
       s += distance;
       return s;
    }, 0);
 
-   return result / group.length / group.length;
+   return result / group.users.length / group.users.length;
 }
 
 function sum(array: number[]): number {
@@ -132,7 +132,7 @@ export function removeExceedingConnectionsOnGroupCandidate(
    maxConnectionsAllowed: number,
 ): GroupCandidate {
    const resultGroup: GroupCandidate = copyGroupCandidate(group);
-   resultGroup.forEach((user, i) => {
+   resultGroup.users.forEach((user, i) => {
       if (user.matches.length > maxConnectionsAllowed) {
          for (let u = user.matches.length - 1; u >= maxConnectionsAllowed; u--) {
             const userToDisconnect = getUserByIdOnGroupCandidate(resultGroup, user.matches[u]);
@@ -162,11 +162,8 @@ export function analiceGroupCandidate(group: GroupCandidate): GroupCandidateAnal
    return {
       group,
       analysis: { quality, qualityRounded, averageConnectionsAmount, averageConnectionsAmountRounded },
+      analysisId: generateNumberId(), // Required by BST to not take same analysis numbers as the same object
    };
-}
-
-export function copyGroupCandidate(group: GroupCandidate): GroupCandidate {
-   return group.map(u => ({ userId: u.userId, matches: [...u.matches] }));
 }
 
 export function groupSizeIsUnderMinimum(groupSize: number, slotIndex: number): boolean {
@@ -178,7 +175,7 @@ export function groupHasMinimumQuality(group: GroupCandidateAnalyzed): boolean {
 }
 
 export function userIsPresentOnGroup(group: GroupCandidate, userId: string): boolean {
-   return group.findIndex(u => u.userId === userId) !== -1;
+   return group.users.findIndex(u => u.userId === userId) !== -1;
 }
 
 /**
@@ -191,7 +188,7 @@ export function userIsPresentOnGroup(group: GroupCandidate, userId: string): boo
  */
 export function getDataCorruptionProblemsInGroupCandidate(group: GroupCandidate): string[] {
    const result = [];
-   group.forEach(u => {
+   group.users.forEach(u => {
       if (u.matches.length === 0) {
          result.push('Has user with 0 matches');
       }

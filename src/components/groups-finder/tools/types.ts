@@ -1,19 +1,23 @@
-export interface GroupsReceivingNewUsers {
-   groupId: string;
-   groupMatches: UserWithMatches[];
-   usersToAdd: UserWithMatches[];
-}
-
 export interface UserWithMatches {
    userId: string;
    matches: string[];
 }
 
-export type GroupCandidate = UserWithMatches[];
+export interface GroupCandidate {
+   groupId: string;
+   users: UserWithMatches[];
+}
 
 export interface GroupCandidateAnalyzed {
    group: GroupCandidate;
    analysis: GroupCandidateAnalysis;
+   analysisId: number;
+}
+
+export interface GroupsReceivingNewUsers {
+   groupId: string;
+   users: UserWithMatches[];
+   usersToAdd: UserWithMatches[];
 }
 
 export interface GroupCandidateAnalysis {

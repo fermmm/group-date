@@ -1,7 +1,6 @@
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { v1 as uuidv1 } from 'uuid';
 import {
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
    GROUP_SLOTS_CONFIGS,
@@ -32,6 +31,7 @@ import {
 } from './queries';
 import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion';
 import { GroupQuality } from '../groups-finder/tools/types';
+import { generateId } from '../../common-tools/string-tools/string-tools';
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -170,7 +170,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    });
 
    group.chat.messages.push({
-      chatMessageId: uuidv1(),
+      chatMessageId: generateId(),
       messageText: params.message,
       time: moment().unix(),
       authorUserId: user.userId,

@@ -7,17 +7,21 @@ import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces
 import { fakeCtx } from '../replacements';
 import { createFakeUser } from '../users';
 
-export async function createUsersFromGroupCandidate(group: GroupCandidate): Promise<User[]> {
+/**
+ * Converts group candidate users into full users connected between them with a Match as they
+ * are connected in the group candidate.
+ */
+export async function createFullUsersFromGroupCandidate(group: GroupCandidate): Promise<User[]> {
    const usersCreated: User[] = [];
 
    // Create the users
-   for (const user of group) {
+   for (const user of group.users) {
       // We set the userId and token to the same string for easy access in the future
       usersCreated.push(await createFakeUser({ userId: user.userId, token: user.userId }));
    }
 
    // Once all users are created we can connect the users
-   for (const user of group) {
+   for (const user of group.users) {
       await setAttractionPost(
          {
             token: user.userId,
@@ -30,15 +34,16 @@ export async function createUsersFromGroupCandidate(group: GroupCandidate): Prom
    return usersCreated;
 }
 
-export async function callGroupSearchMultipleTimes(): Promise<void> {
+export async function callGroupCreationMultipleTimes(): Promise<void> {
    for (let i = 0; i < 3; i++) {
       await searchAndCreateNewGroups();
    }
 }
 
-export async function getGroupsOfGroupCandidateMembers(
-   groupCandidateUsers: UserWithMatches[],
-): Promise<Group[]> {
+/**
+ * Gets the final groups created with users from a group candidate.
+ */
+export async function retrieveFinalGroupsOf(groupCandidateUsers: UserWithMatches[]): Promise<Group[]> {
    const result: Group[] = [];
    for (const user of groupCandidateUsers) {
       // userId and token are the same in these tests

@@ -91,18 +91,22 @@ function getSortFunction(): IThenBy<GroupCandidateAnalyzed> {
    /**
     * The analysis numbers should be rounded to be the same number when are
     * close, this allows sub-ordering by another parameter.
+    * analysisId is required by BST to not take same analysis numbers as the same object,
+    * BST does not allow duplications.
     */
    if (CREATE_BIGGER_GROUPS_FIRST) {
       // prettier-ignore
       return (
          firstBy<GroupCandidateAnalyzed>(g => g.analysis.averageConnectionsAmountRounded, 'desc')
          .thenBy<GroupCandidateAnalyzed>(g => g.analysis.quality, 'asc')
+         .thenBy<GroupCandidateAnalyzed>(g => g.analysisId)
       );
    } else {
       // prettier-ignore
       return (
          firstBy<GroupCandidateAnalyzed>(g => g.analysis.qualityRounded, 'asc')
          .thenBy<GroupCandidateAnalyzed>(g => g.analysis.averageConnectionsAmount, 'desc')
+         .thenBy<GroupCandidateAnalyzed>(g => g.analysisId)
       )
    }
 }
@@ -122,13 +126,13 @@ async function createGroups(
       const notAvailableUsersOnGroup: UserWithMatches[] = getNotAvailableUsersOnGroup(group, notAvailableUsers);
 
       if (notAvailableUsersOnGroup.length === 0) {
-         const usersIds: string[] = group.group.map(u => u.userId);
+         const usersIds: string[] = group.group.users.map(u => u.userId);
          setUsersAsNotAvailable(usersIds, notAvailableUsers);
          const groupCreated: Group = await createGroup({ usersIds, slotToUse }, groupQuality);
          groupsCreated.push(groupCreated);
       } else {
          // If the "not available" users amount is too much it can be discarded without trying to fix it
-         if (groupSizeIsUnderMinimum(group.group.length - notAvailableUsersOnGroup.length, slotToUse)) {
+         if (groupSizeIsUnderMinimum(group.group.users.length - notAvailableUsersOnGroup.length, slotToUse)) {
             continue;
          }
 
@@ -143,7 +147,7 @@ async function createGroups(
           * be "eaten" by small group creations if the remaining users have free slots for
           * small groups
           */
-         if (groupSizeIsUnderMinimum(newGroup.length, slotToUse)) {
+         if (groupSizeIsUnderMinimum(newGroup.users.length, slotToUse)) {
             continue;
          }
 
@@ -194,8 +198,8 @@ async function addMoreUsersToRecentGroups(
             continue;
          }
 
-         const groupAnalyzed: GroupCandidateAnalyzed = analiceGroupCandidate(groupReceiving.groupMatches);
-         const groupWithNewUser = addUserToGroupCandidate(groupReceiving.groupMatches, userToAdd);
+         const groupAnalyzed: GroupCandidateAnalyzed = analiceGroupCandidate(groupReceiving);
+         const groupWithNewUser = addUserToGroupCandidate(groupReceiving, userToAdd);
          const groupWithNewUserAnalyzed: GroupCandidateAnalyzed = analiceGroupCandidate(groupWithNewUser);
 
          // If the group quality decreases when adding the new user then ignore the user
@@ -226,7 +230,7 @@ function getNotAvailableUsersOnGroup(
    group: GroupCandidateAnalyzed,
    notAvailableUsers: Set<string>,
 ): UserWithMatches[] {
-   return group.group.reduce<UserWithMatches[]>((result, user) => {
+   return group.group.users.reduce<UserWithMatches[]>((result, user) => {
       if (notAvailableUsers.has(user.userId)) {
          result.push(user);
       }

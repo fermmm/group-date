@@ -1,4 +1,3 @@
-import { v1 as uuidv1 } from 'uuid';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, P, retryOnError, g } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
@@ -12,6 +11,7 @@ import {
 import { editableUserPropsList, EditableUserProps } from '../../shared-tools/validators/user';
 import * as moment from 'moment';
 import { ValueOf } from 'ts-essentials';
+import { generateId } from '../../common-tools/string-tools/string-tools';
 
 export function queryToCreateUser(
    token: string,
@@ -25,7 +25,7 @@ export function queryToCreateUser(
          __.unfold(),
          __.addV('user')
             .property('token', token)
-            .property('userId', customUserIdForTesting ?? uuidv1())
+            .property('userId', customUserIdForTesting ?? generateId())
             .property('email', email)
             .property('profileCompleted', setProfileCompletedForTesting ?? false)
             .property('sendNewUsersNotification', 0)

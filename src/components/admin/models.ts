@@ -1,6 +1,5 @@
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
-import { v1 as uuidv1 } from 'uuid';
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -18,6 +17,7 @@ import {
    queryToSaveAdminChatMessage,
 } from './queries';
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from './tools/data-conversion';
+import { generateId } from '../../common-tools/string-tools/string-tools';
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
@@ -36,7 +36,7 @@ export async function adminChatPost(params: AdminChatPostParams, ctx: BaseContex
 
    currentChat.push({
       messageText: params.messageText,
-      chatMessageId: uuidv1(),
+      chatMessageId: generateId(),
       time: moment().unix(),
       authorUserId: callerUser.isAdmin ? '' : callerUser.userId,
    });

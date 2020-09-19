@@ -1,11 +1,18 @@
 import {
    analiceGroupCandidate,
-   copyGroupCandidate,
    groupHasMinimumQuality,
    groupSizeIsUnderMinimum,
 } from './group-candidate-analysis';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
 import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../../configurations';
+import { generateId } from '../../../common-tools/string-tools/string-tools';
+
+export function copyGroupCandidate(group: GroupCandidate, keepSameId: boolean = true): GroupCandidate {
+   return {
+      groupId: keepSameId ? group.groupId : generateId(),
+      users: group.users.map(u => ({ userId: u.userId, matches: [...u.matches] })),
+   };
+}
 
 /**
  * Returns a new group candidate with the user added. The other users will connect with the new user
@@ -16,26 +23,26 @@ export function addUserToGroupCandidate(group: GroupCandidate, user: UserWithMat
    user.matches.forEach(userMatch =>
       getUserByIdOnGroupCandidate(resultGroup, userMatch).matches.push(user.userId),
    );
-   resultGroup.push(user);
+   resultGroup.users.push(user);
    return resultGroup;
 }
 
 export function getUserByIdOnGroupCandidate(groupCandidate: GroupCandidate, userId: string): UserWithMatches {
-   return groupCandidate.find(u => u.userId === userId);
+   return groupCandidate.users.find(u => u.userId === userId);
 }
 
 /**
  * Gets the users of a group candidate but only the ids
  */
 export function getUsersFromGroupCandidateAsIdList(groupCandidate: GroupCandidate): string[] {
-   return groupCandidate.map(u => u.userId);
+   return groupCandidate.users.map(u => u.userId);
 }
 
 /**
  * Gets the users of a group candidate but only indexes to find them in the group candidate
  */
 export function getUsersFromGroupCandidateAsIndexList(groupCandidate: GroupCandidate): number[] {
-   return groupCandidate.map((u, i) => i);
+   return groupCandidate.users.map((u, i) => i);
 }
 
 /**
@@ -70,8 +77,8 @@ export function removeUsersFromGroupCandidate(group: GroupCandidate, users: User
       });
 
       // Remove the user from the group
-      const userIndex: number = resultGroup.findIndex(u => u.userId === user.userId);
-      resultGroup.splice(userIndex, 1);
+      const userIndex: number = resultGroup.users.findIndex(u => u.userId === user.userId);
+      resultGroup.users.splice(userIndex, 1);
 
       // The user should not have any matches becase it was removed from the group
       user.matches = [];
@@ -93,10 +100,10 @@ export function removeUsersRecursivelyByConnectionsAmount(
 ): GroupCandidate {
    let resultGroup: GroupCandidate = copyGroupCandidate(group);
 
-   const iterations: number = resultGroup.length;
+   const iterations: number = resultGroup.users.length;
    for (let i = 0; i < iterations; i++) {
       const usersToRemove = getUsersWithLessConnectionsThan(resultGroup, connectionsAmount);
-      if (usersToRemove.length === 0 || resultGroup.length === 0) {
+      if (usersToRemove.length === 0 || resultGroup.users.length === 0) {
          return resultGroup;
       }
       resultGroup = removeUsersFromGroupCandidate(resultGroup, usersToRemove);
@@ -125,7 +132,7 @@ export function getUsersWithLessConnectionsThan(
    group: GroupCandidate,
    connectionsAmount: number,
 ): UserWithMatches[] {
-   return group.reduce<UserWithMatches[]>((result, user) => {
+   return group.users.reduce<UserWithMatches[]>((result, user) => {
       if (user.matches.length < connectionsAmount) {
          result.push(user);
       }
@@ -142,10 +149,10 @@ export function tryToFixBadQualityGroup(
    slot: number,
 ): GroupCandidateAnalyzed | null {
    let result: GroupCandidate = copyGroupCandidate(group.group);
-   const iterations = result.length;
+   const iterations = result.users.length;
    for (let i = 0; i < iterations; i++) {
       result = removeTheUserWithLessConnections(result, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
-      if (groupSizeIsUnderMinimum(result.length, slot)) {
+      if (groupSizeIsUnderMinimum(result.users.length, slot)) {
          return null;
       }
       const groupAnalysed: GroupCandidateAnalyzed = analiceGroupCandidate(result);
@@ -160,7 +167,7 @@ export function tryToFixBadQualityGroup(
  * Returns the users with less connections or the first user if all has the same amount of connections
  */
 export function getUsersWithLessConnections(group: GroupCandidate): UserWithMatches[] {
-   return group.reduce<UserWithMatches[]>((result, user) => {
+   return group.users.reduce<UserWithMatches[]>((result, user) => {
       if (result.length === 0) {
          result = [user];
          return result;
