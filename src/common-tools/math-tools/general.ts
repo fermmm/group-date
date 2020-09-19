@@ -19,6 +19,11 @@ export function roundDecimals(value: number): number {
    return Math.round(value * 10) / 10;
 }
 
+let generateNumberIdLast = 0;
+/**
+ * Generates a consecutive number with random decimals, so in case of server restarting the number is
+ * still not the same
+ */
 export function generateNumberId(): number {
-   return Math.trunc(Math.random() * 1000000000000000);
+   return generateNumberIdLast++ + Math.random();
 }
