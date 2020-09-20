@@ -80,7 +80,7 @@ export function removeUsersFromGroupCandidate(group: GroupCandidate, users: User
       });
 
       // Remove the user from the group
-      const userIndex: number = resultGroup.users.findIndex(u => u.userId === user.userId);
+      const userIndex: number = resultGroup.users.findIndex(usr => usr.userId === user.userId);
       resultGroup.users.splice(userIndex, 1);
 
       // The user should not have any matches becase it was removed from the group
