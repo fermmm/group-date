@@ -65,7 +65,10 @@ export function connectUsers(user1: UserWithMatches, user2: UserWithMatches): vo
 export function removeUsersFromGroupCandidate(group: GroupCandidate, users: UserWithMatches[]): GroupCandidate {
    const resultGroup: GroupCandidate = copyGroupCandidate(group);
 
-   users.forEach(user => {
+   users.forEach(u => {
+      // Get the user to be removed but take the reference from the new copy of the group
+      const user = getUserByIdOnGroupCandidate(resultGroup, u.userId);
+
       // Disconnect the user from it's matches
       user.matches.forEach(matchUserId => {
          const matchUser = getUserByIdOnGroupCandidate(resultGroup, matchUserId);
