@@ -124,12 +124,13 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
                .where(__.both('Match').as('a'))
                .path()
                .from_('a'),
+            // TODO: Si descomento uno de los 2 bloques da timeout parece que si todos se gustan se genera un problema de performance
             // Find squares made of matches that are allowed to be on group slot
-            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).simplePath())
+            /*__.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).simplePath())
                .times(3)
                .where(__.both('Match').as('a'))
                .path()
-               .from_('a'),
+               .from_('a'),*/
          )
 
          // Remove duplicate users of the figures
@@ -144,10 +145,10 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
          .group('m')
          .by(__.union(__.limit(scope.local, 1), __.tail(scope.local, 1)).fold())
 
-         // Combine the grouped figures
+         // // Combine the grouped figures
          .cap('m')
          .unfold()
-
+         /*
          .map(
             __.select(column.values)
                .unfold()
@@ -170,7 +171,7 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
                .order()
                .by(t.id)
                .fold(),
-         )
+         )*/
          .dedup()
    );
 }
@@ -227,8 +228,8 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
       __.where(
          __.count(scope.local)
             .is(P.gte(MIN_GROUP_SIZE))
-            .is(P.gte(slotSize?.minimumSize ?? MIN_GROUP_SIZE))
-            .is(P.lte(slotSize?.maximumSize ?? MAX_GROUP_SIZE)),
+            .is(P.gte(slotSize?.minimumSize ?? 0))
+            .is(P.lte(slotSize?.maximumSize ?? 99999)),
       )
          .as('g')
          .unfold()

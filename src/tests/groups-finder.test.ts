@@ -7,9 +7,10 @@ import {
    retrieveFinalGroupsOf,
 } from './tools/group-finder/user-creation-tools';
 import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-editing';
-import { MIN_GROUP_SIZE } from '../configurations';
+import { MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../configurations';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { queryToRemoveGroups } from '../components/groups/queries';
+import { g } from '../common-tools/database-tools/database-manager';
 
 /**
  * Ciclo de vida de un grupo chico:
@@ -91,6 +92,26 @@ describe('Group Finder', () => {
       groupsCreated.push(...groups);
 
       expect(groups).toHaveLength(1);
+      expect(groups[0].members).toHaveLength(4);
+   });
+
+   test('Addition users added to a group cannot be higher than maximum configured', async () => {
+      // smallGroup = GroupCandTestTools.createAndAddMultipleUsers(smallGroup, 30, 'all'); // 13 no tira error
+      smallGroup = GroupCandTestTools.createAndAddMultipleUsers(
+         GroupCandTestTools.createGroupCandidate({ amountOfInitialUsers: 0, connectAllWithAll: false }),
+         30,
+         'all',
+      ); // 13 no tira error
+
+      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      usersCreated.push(...users);
+
+      await callGroupCreationMultipleTimes();
+      // await g.V().hasLabel('user').as('a').both('Match').both('Match').simplePath().path().toList();
+
+      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      groupsCreated.push(...groups);
+
       expect(groups[0].members).toHaveLength(4);
    });
 
