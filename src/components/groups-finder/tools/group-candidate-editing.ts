@@ -173,8 +173,8 @@ export function limitGroupToMaximumSizeIfNeeded(
 /**
  * Removes one user from the group multiple times until the provided callback returns true,
  * More than one user could be removed at a time if removing a user generates another with
- * less connections than the minimum allowed. 
-
+ * less connections than the minimum allowed.
+ *
  * @param group The group to copy and return with users removed
  * @param slot The slot used
  * @param untilCallback A callback that passes the group with one or more less user each time and should return a boolean indicating to stop.
