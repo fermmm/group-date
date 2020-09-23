@@ -60,6 +60,14 @@ export const GROUP_SLOTS_CONFIGS: Slot[] = [
 ];
 
 /**
+ * If this is set to true, groups containing square shapes will be copied and the square shapes will be removed
+ * in the copy. Later both versions of the groups are evaluated against each other to see which is better to be
+ * finally created. If you consider that one type of group is better than the other and cannot be combined then
+ * consider setting this to true.
+ */
+export const EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = false;
+
+/**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
  * Quality means more matches between members and better distribution of them.

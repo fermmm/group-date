@@ -1,3 +1,4 @@
+import { Group } from '../../shared-tools/endpoints-interfaces/groups';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { chance } from './generalTools';
 import { createFakeUsers, setAttractionAllWithAll, setAttractionMatch } from './users';
@@ -78,6 +79,16 @@ export async function connectUsersInChain(users: User[], connectTheEnds: boolean
          await setAttractionMatch(users[i], [users[0]]);
       }
    }
+}
+
+export function getBiggestGroup(groupCandidates: Group[]): Group {
+   return groupCandidates.reduce<Group>((result, group) => {
+      if (result == null || group.members.length > result.members.length) {
+         return group;
+      }
+
+      return result;
+   }, null);
 }
 
 interface CreateMatchingUsersRandomSettings {

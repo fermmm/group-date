@@ -1,7 +1,7 @@
 import {
    CREATE_BIGGER_GROUPS_FIRST,
    GROUP_SLOTS_CONFIGS,
-   MINIMUM_CONNECTIONS_TO_BE_ON_GROUP,
+   MAX_GROUP_SIZE,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
 import * as Collections from 'typescript-collections';
@@ -24,9 +24,9 @@ import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { addUsersToGroup, createGroup } from '../groups/models';
 import { GroupQualityValues } from './tools/types';
 import {
-   removeUsersFromGroupCandidate,
-   removeUsersRecursivelyByConnectionsAmount,
-   tryToFixBadQualityGroup,
+   limitGroupToMaximumSizeIfNeeded,
+   removeUnavailableUsersFromGroup,
+   tryToFixBadQualityGroupIfNeeded,
 } from './tools/group-candidate-editing';
 import { objectsContentIsEqual } from '../../common-tools/js-tools/js-tools';
 import { addUserToGroupCandidate } from './tools/group-candidate-editing';
@@ -75,12 +75,12 @@ export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: 
 
    groups.forEach(group => {
       let groupAnalysed: GroupCandidateAnalyzed = analiceGroupCandidate(group);
-      if (!groupHasMinimumQuality(groupAnalysed)) {
-         groupAnalysed = tryToFixBadQualityGroup(groupAnalysed, slot);
-         if (groupAnalysed == null) {
-            return;
-         }
+
+      groupAnalysed = tryToFixBadQualityGroupIfNeeded(groupAnalysed, slot);
+      if (groupAnalysed == null) {
+         return;
       }
+
       result.add(groupAnalysed);
    });
 
@@ -128,41 +128,34 @@ async function createGroups(
    let iterations: number = groupCandidates.size();
 
    for (let i = 0; i < iterations; i++) {
-      const group: GroupCandidateAnalyzed = groupCandidates.minimum();
+      let group: GroupCandidateAnalyzed = groupCandidates.minimum();
       groupCandidates.remove(group);
       const notAvailableUsersOnGroup: UserWithMatches[] = getNotAvailableUsersOnGroup(group, notAvailableUsers);
 
-      if (notAvailableUsersOnGroup.length === 0) {
+      /**
+       * If everything is fine with the group candidate then create the final group, if not, try to fix it and
+       * add the fixed copy to groupCandidates BST list so it gets ordered by quality again and evaluated again.
+       */
+      if (notAvailableUsersOnGroup.length === 0 && group.group.users.length <= MAX_GROUP_SIZE) {
          const usersIds: string[] = group.group.users.map(u => u.userId);
          setUsersAsNotAvailable(usersIds, notAvailableUsers);
          const groupCreated: Group = await createGroup({ usersIds, slotToUse }, groupQuality);
          groupsCreated.push(groupCreated);
       } else {
-         // If the "not available" users amount is too much it can be discarded without trying to fix it
-         if (groupSizeIsUnderMinimum(group.group.users.length - notAvailableUsersOnGroup.length, slotToUse)) {
+         group = removeUnavailableUsersFromGroup(group, notAvailableUsersOnGroup, slotToUse);
+         if (group == null) {
             continue;
          }
 
-         // Create a new group candidate removing unavailable users
-         let newGroup: GroupCandidate = removeUsersFromGroupCandidate(group.group, notAvailableUsersOnGroup);
-         // After users are removed other users should also be removed if their connections amount are too low
-         newGroup = removeUsersRecursivelyByConnectionsAmount(newGroup, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
-
-         /**
-          * After removing non available users if the group is not big enough it's ignored.
-          * In the future more users might become available to complete the group or it will
-          * be "eaten" by small group creations if the remaining users have free slots for
-          * small groups
-          */
-         if (groupSizeIsUnderMinimum(newGroup.users.length, slotToUse)) {
+         group = limitGroupToMaximumSizeIfNeeded(group, slotToUse);
+         if (group == null) {
             continue;
          }
 
-         // Check the quality of the group after removing unavailable users
-         let newGroupAnalyzed = analiceGroupCandidate(newGroup);
-         if (!groupHasMinimumQuality(newGroupAnalyzed)) {
-            newGroupAnalyzed = tryToFixBadQualityGroup(newGroupAnalyzed, slotToUse);
-            if (newGroupAnalyzed == null) {
+         // Check the quality of the group after all the changes
+         if (!groupHasMinimumQuality(group)) {
+            group = tryToFixBadQualityGroupIfNeeded(group, slotToUse);
+            if (group == null) {
                continue;
             }
          }
@@ -171,7 +164,7 @@ async function createGroups(
             At this point the new group is safe to be added to the list being iterated here in it's 
             corresponding order to be checked again in one of the next iterations of this for-loop
          */
-         groupCandidates.add(newGroupAnalyzed);
+         groupCandidates.add(group);
 
          // We increase the iteration of this for-loop since we added an extra item
          iterations++;

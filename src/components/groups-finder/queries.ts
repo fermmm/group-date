@@ -8,11 +8,21 @@ import {
    MIN_GROUP_SIZE,
    FORM_BAD_QUALITY_GROUPS_TIME,
    ALLOW_SMALL_GROUPS_BECOME_BIG,
+   EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES,
 } from '../../configurations';
 import * as moment from 'moment';
 import { queryToGetAllCompleteUsers } from '../user/queries';
 import { GroupQuality, SizeRestriction } from './tools/types';
 import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../configurations';
+
+// TODO: Ahora la query no alimina usuarios que sobran para generar grupos menores que el maximo, ahora lo tiene que
+// hacer TS, implementarlo.
+
+// TODO: Estas queries tardan y bajo estrés pueden tardar mas del limite configurado en gremlin y tirar error por eso
+// Si aumentamos el limite entonces una query que tarda mucho por que hay un error no va a tirar el error y va a
+// tildarse toda la aplicación. De todas maneras una query que queda tildada por un error es algo que hay que atender
+// lo mas rápido posible y si es mas visible al nivel de tildar todo podria ser hasta mejor. De todos modos algo hay
+// que hacer.
 
 /**
  * This query returns lists of users arrays where it's users matches between them.
@@ -93,85 +103,80 @@ function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number, quality: 
 }
 
 /**
- * This query finds users that matches together forming a group, it's the core of the app.
+ * This query finds users that matches together forming a group, it's the core query of the app.
  * Returns arrays of matching users.
  *
- * Users can be in a group when the following requirements are fulfilled:
+ * Users are grouped together following this logic:
  *
- * 1. A match that has at least 1 match in common can be together in a group (also with the 1+ match in common)
- * 2. If a user of distance 2 has at least 2 matches in common then they can be together in the group (also with the 2+ matches in common)
- *
- * These 2 rules can also be thought of as figures in the graph:
- *    Rule 1 forms a triangle shape and rule 2 forms a square shape.
- *
- * The query meets the objective by finding this figures and then combining them when they have at least 2 users in common, this is another
- * way of thinking these 2 rules and it's the way the query works, so well connected groups of users are found.
+ * 1. A match and all the other matches in common (triangle shapes in a graph).
+ * 2. A user that has at least 2 matches in common (square shapes in a graph).
  *
  * To test the query easily:
- * https://gremlify.com/5lgbctob8n4
+ * https://gremlify.com/c7iupqleohb
  *
- * Old less performing version:
- * https://gremlify.com/id19z50t41i
+ * Old version with horrible performance:
+ * https://gremlify.com/5lgbctob8n4
  */
 function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traversal {
    return (
       queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
-         .as('a')
-         .union(
-            // Find triangles made of matches that are allowed to be on group slot
-            __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).simplePath())
-               .times(2)
-               .where(__.both('Match').as('a'))
-               .path()
-               .from_('a'),
-            // TODO: Si descomento uno de los 2 bloques da timeout parece que si todos se gustan se genera un problema de performance
-            // Find squares made of matches that are allowed to be on group slot
-            /*__.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).simplePath())
-               .times(3)
-               .where(__.both('Match').as('a'))
-               .path()
-               .from_('a'),*/
+         .as('u')
+         // Find groups
+         .flatMap(
+            queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
+               // This avoids repetitions by avoiding same resulting inverse comparisons
+               .where(P.without('evaluated'))
+               .flatMap(
+                  __.union(
+                     // Find groups of connected triangles and couples (couples are useful to form squares)
+                     queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).where(
+                        __.both('Match').as('u'),
+                     ),
+
+                     // With the search below the starting user and the match are not added so we add it here
+                     __.identity(),
+                     __.select('u')
+                        // Now that we are selecting the parent user we take the opportunity to add it to the "evaluated" list
+                        .sideEffect(__.store('evaluated')),
+                  )
+                     // Order the group members so later dedup() does not take different order in members as a different group
+                     .order()
+                     .by(t.id)
+                     .fold(),
+               ),
          )
-
-         // Remove duplicate users of the figures
-         .map(__.unfold().order().by(t.id).dedup().fold())
          .dedup()
-         .group('m')
-         .by(__.range(scope.local, 0, 1))
-         .group('m')
-         .by(__.range(scope.local, 1, 2))
-         .group('m')
-         .by(__.range(scope.local, 2, 3))
-         .group('m')
-         .by(__.union(__.limit(scope.local, 1), __.tail(scope.local, 1)).fold())
 
-         // // Combine the grouped figures
-         .cap('m')
-         .unfold()
-         /*
-         .map(
-            __.select(column.values)
-               .unfold()
-               .dedup()
-               .fold()
-               // Here we remove users if the group is larger than the maximum allowed
-               // but shapes are removed instead of specific users, this way the group
-               // can lose users and lose fewer connections
-               .choose(
-                  __.unfold().unfold().dedup().count().is(P.gt(MAX_GROUP_SIZE)),
-                  __.repeat(__.range(scope.local, 1, -1)).until(
-                     __.unfold().unfold().dedup().count().is(P.lte(MAX_GROUP_SIZE)),
-                  ),
+         // Make a copy of the group (or merge) but this time include "square" shapes formed with 2 matching
+         // users from the group and 2 matching users from outside of the group, this allows square
+         // shapes, which is a characteristic of groups with heterosexual members and also in other attraction cases.
+         .flatMap(
+            __.union(
+               EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES ? __.identity() : __.union(),
+               __.union(
+                  __.identity().unfold(),
+                  __.identity()
+                     .as('group')
+                     .unfold()
+                     .as('groupMember')
+
+                     // Get match outside the group (union is used only to be able to call a function)
+                     .union(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good))
+                     .not(__.where(P.within('group')))
+
+                     // But only matches that forms a square with 2 members of the group
+                     .where(
+                        queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
+                           .not(__.where(P.within('group')))
+                           .where(__.both('Match').where(P.within('group')).where(P.neq('groupMember'))),
+                     ),
                )
-               .unfold()
-               .unfold()
-               .dedup()
-               // In all the groups we need to order the users in the same way so the next dedup
-               // recognizes all the groups as the same group
-               .order()
-               .by(t.id)
-               .fold(),
-         )*/
+                  // Order the group members so later dedup() does not take different order in members as a different group
+                  .order()
+                  .by(t.id)
+                  .fold(),
+            ),
+         )
          .dedup()
    );
 }

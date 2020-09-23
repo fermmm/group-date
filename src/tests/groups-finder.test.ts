@@ -10,7 +10,7 @@ import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-e
 import { MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../configurations';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { queryToRemoveGroups } from '../components/groups/queries';
-import { g } from '../common-tools/database-tools/database-manager';
+import { getBiggestGroup } from './tools/groups';
 
 /**
  * Ciclo de vida de un grupo chico:
@@ -43,12 +43,12 @@ describe('Group Finder', () => {
    });
 
    test('Matching users below minimum amount does not form a group', async () => {
-      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);
 
       await callGroupCreationMultipleTimes();
 
-      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
       groupsCreated.push(...groups);
 
       expect(groups).toHaveLength(0);
@@ -56,12 +56,12 @@ describe('Group Finder', () => {
 
    test('Matching in minimum amount creates a group', async () => {
       smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
-      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);
 
       await callGroupCreationMultipleTimes();
 
-      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
       groupsCreated.push(...groups);
 
       expect(groups).toHaveLength(1);
@@ -69,12 +69,12 @@ describe('Group Finder', () => {
 
    test('Adicional user matching can enter the group even after creation', async () => {
       smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
-      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);
 
       await callGroupCreationMultipleTimes();
 
-      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
       groupsCreated.push(...groups);
 
       expect(groups).toHaveLength(1);
@@ -88,31 +88,25 @@ describe('Group Finder', () => {
 
       await callGroupCreationMultipleTimes();
 
-      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
       groupsCreated.push(...groups);
 
       expect(groups).toHaveLength(1);
       expect(groups[0].members).toHaveLength(4);
    });
 
-   test('Addition users added to a group cannot be higher than maximum configured', async () => {
-      // smallGroup = GroupCandTestTools.createAndAddMultipleUsers(smallGroup, 30, 'all'); // 13 no tira error
-      smallGroup = GroupCandTestTools.createAndAddMultipleUsers(
-         GroupCandTestTools.createGroupCandidate({ amountOfInitialUsers: 0, connectAllWithAll: false }),
-         30,
-         'all',
-      ); // 13 no tira error
+   test('Additional users added to a group cannot be higher than maximum configured', async () => {
+      smallGroup = GroupCandTestTools.createAndAddMultipleUsers(smallGroup, 30, 'all');
 
-      const users = await createFullUsersFromGroupCandidate(smallGroup);
+      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);
 
       await callGroupCreationMultipleTimes();
-      // await g.V().hasLabel('user').as('a').both('Match').both('Match').simplePath().path().toList();
 
-      const groups = await retrieveFinalGroupsOf(smallGroup.users);
+      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
       groupsCreated.push(...groups);
 
-      expect(groups[0].members).toHaveLength(4);
+      expect(getBiggestGroup(groups).members.length).toBeLessThanOrEqual(MAX_GROUP_SIZE);
    });
 
    afterAll(async () => {
