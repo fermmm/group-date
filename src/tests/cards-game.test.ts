@@ -11,12 +11,20 @@ import { fromQueryToUserList } from '../components/user/tools/data-conversion';
 import { AttractionType, Gender, User, UserPostParams } from '../shared-tools/endpoints-interfaces/user';
 import { amountOfMatchingResponses } from '../shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
-import { fakeUsersMatchesFakeData } from './tools/reusable-tests';
-import { createFakeCompatibleUsers, createFakeUser, createFakeUsers, setAttraction } from './tools/users';
+import { createdUsersMatchesFakeData } from './tools/reusable-tests';
+import {
+   createFakeCompatibleUsers,
+   createFakeUser,
+   createFakeUsers,
+   generateRandomUserProps,
+   setAttraction,
+} from './tools/users';
+import { UserWithMatches } from '../components/groups-finder/tools/types';
+import { DeepPartial } from 'ts-essentials';
 
 // TODO: Habria que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seenmatch
 describe('Cards game', () => {
-   let fakeData: Array<Partial<UserPostParams>>;
+   let fakeData: Array<DeepPartial<User>>;
    let fakeUsers: User[] = [];
    let searcherUser: User;
    let compatibleUser: User;
@@ -24,27 +32,26 @@ describe('Cards game', () => {
    let recommendations: User[];
 
    beforeAll(async () => {
-      const searcherParams: Partial<UserPostParams> = {
-         props: {
-            name: 'searcherParams',
-            profileDescription: '',
-            gender: Gender.Man,
-            age: 32,
-            height: 265,
-            locationLat: -34.608404,
-            locationLon: -58.387697,
-            targetAgeMin: 20,
-            targetAgeMax: 38,
-            targetDistance: 30,
-            pictures: ['http://test.com/image.jpg'],
-            dateIdeaName: 'holis.',
-            dateIdeaAddress: '1324 holis',
-            likesWomanTrans: false,
-            likesManTrans: false,
-            likesWoman: true,
-            likesMan: false,
-            likesOtherGenders: true,
-         },
+      const searcherParams: DeepPartial<User> = {
+         ...generateRandomUserProps(),
+         name: 'searcherParams',
+         profileDescription: '',
+         gender: Gender.Man,
+         age: 32,
+         height: 265,
+         locationLat: -34.608404,
+         locationLon: -58.387697,
+         targetAgeMin: 20,
+         targetAgeMax: 38,
+         targetDistance: 30,
+         pictures: ['http://test.com/image.jpg'],
+         dateIdeaName: 'holis.',
+         dateIdeaAddress: '1324 holis',
+         likesWomanTrans: false,
+         likesManTrans: false,
+         likesWoman: true,
+         likesMan: false,
+         likesOtherGenders: true,
          questions: [
             {
                questionId: 0,
@@ -69,22 +76,21 @@ describe('Cards game', () => {
          ],
       };
 
-      const compatibleParams: Partial<UserPostParams> = {
-         props: {
-            name: 'compatibleParams',
-            gender: Gender.Woman,
-            likesMan: true,
-            likesWoman: false,
-            likesManTrans: false,
-            likesWomanTrans: false,
-            likesOtherGenders: false,
-            age: 30,
-            targetAgeMin: 20,
-            targetAgeMax: 40,
-            targetDistance: 25,
-            locationLat: -34.597917,
-            locationLon: -58.412001,
-         },
+      const compatibleParams: DeepPartial<User> = {
+         name: 'compatibleParams',
+         gender: Gender.Woman,
+         likesMan: true,
+         likesWoman: false,
+         likesManTrans: false,
+         likesWomanTrans: false,
+         likesOtherGenders: false,
+         age: 30,
+         targetAgeMin: 20,
+         targetAgeMax: 40,
+         targetDistance: 25,
+         locationLat: -34.597917,
+         locationLon: -58.412001,
+
          questions: [
             {
                questionId: 0,
@@ -109,80 +115,69 @@ describe('Cards game', () => {
          ],
       };
 
-      const compatibleParams2: Partial<UserPostParams> = {
+      const compatible: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'compatibleParams2',
-            locationLat: -34.608204,
-            locationLon: -58.502031,
-            likesWoman: true,
-         },
+      };
+
+      const compatible2: DeepPartial<User> = {
+         ...generateRandomUserProps(),
+         ...compatibleParams,
+         name: 'compatibleParams2',
+         locationLat: -34.608204,
+         locationLon: -58.502031,
+         likesWoman: true,
          questions: searcherParams.questions,
       };
 
-      const distanceIncompatibleParams: Partial<UserPostParams> = {
+      const distanceIncompatibleParams: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'distanceIncompatibleParams',
-            locationLat: -34.566223,
-            locationLon: -59.11482,
-         },
+         name: 'distanceIncompatibleParams',
+         locationLat: -34.566223,
+         locationLon: -59.11482,
       };
 
-      const sexIncompatibleParams: Partial<UserPostParams> = {
+      const sexIncompatibleParams: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'sexIncompatibleParams',
-            gender: Gender.Man,
-         },
+         name: 'sexIncompatibleParams',
+         gender: Gender.Man,
       };
 
-      const sexIncompatibleParams2: Partial<UserPostParams> = {
+      const sexIncompatibleParams2: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'sexIncompatibleParams2',
-            likesMan: false,
-         },
+         name: 'sexIncompatibleParams2',
+         likesMan: false,
       };
 
-      const ageIncompatibleParams: Partial<UserPostParams> = {
+      const ageIncompatibleParams: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'ageIncompatibleParams',
-            age: 40,
-         },
+         name: 'ageIncompatibleParams',
+         age: 40,
       };
 
-      const ageIncompatibleParams2: Partial<UserPostParams> = {
+      const ageIncompatibleParams2: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'ageIncompatibleParams2',
-            age: 18,
-         },
+         name: 'ageIncompatibleParams2',
+         age: 18,
       };
 
-      const ageIncompatibleParams3: Partial<UserPostParams> = {
+      const ageIncompatibleParams3: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'ageIncompatibleParams3',
-            targetAgeMin: 18,
-            targetAgeMax: 25,
-         },
+         name: 'ageIncompatibleParams3',
+         targetAgeMin: 18,
+         targetAgeMax: 25,
       };
 
-      const questionsIncompatibleParams: Partial<UserPostParams> = {
+      const questionsIncompatibleParams: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'questionsIncompatibleParams',
-         },
+         name: 'questionsIncompatibleParams',
          questions: [
             {
                questionId: 0,
@@ -207,12 +202,10 @@ describe('Cards game', () => {
          ],
       };
 
-      const questionsIncompatibleParams2: Partial<UserPostParams> = {
+      const questionsIncompatibleParams2: DeepPartial<User> = {
+         ...generateRandomUserProps(),
          ...compatibleParams,
-         props: {
-            ...compatibleParams.props,
-            name: 'questionsIncompatibleParams2',
-         },
+         name: 'questionsIncompatibleParams2',
          questions: [
             {
                questionId: 0,
@@ -239,8 +232,8 @@ describe('Cards game', () => {
 
       fakeData = [
          searcherParams,
-         compatibleParams,
-         compatibleParams2,
+         compatible,
+         compatible2,
          distanceIncompatibleParams,
          sexIncompatibleParams,
          sexIncompatibleParams2,
@@ -252,7 +245,7 @@ describe('Cards game', () => {
       ];
 
       for (const data of fakeData) {
-         fakeUsers.push(await createFakeUser(data));
+         fakeUsers.push(await createFakeUser(data as User));
       }
 
       searcherUser = fakeUsers[0];
@@ -261,7 +254,7 @@ describe('Cards game', () => {
    });
 
    test('Test will be done correctly', () => {
-      fakeUsersMatchesFakeData(fakeUsers, fakeData);
+      createdUsersMatchesFakeData(fakeUsers, fakeData, true);
    });
 
    test('Recommendations works', async () => {
@@ -344,6 +337,8 @@ describe('Cards game', () => {
    });
 
    test('Users gets notified of new cards when they request for it', async () => {
+      await queryToRemoveUsers(fakeUsers);
+
       let mainUser = await createFakeUser();
       const fakeCompatibleUsers = await createFakeCompatibleUsers(mainUser, 10);
 

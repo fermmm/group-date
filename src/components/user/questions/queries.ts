@@ -1,7 +1,6 @@
-import { __, column, g, retryOnError, P } from '../../../common-tools/database-tools/database-manager';
+import { __, column, g, P } from '../../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
-import { queryToGetUserByToken } from '../queries';
 import { getIncompatibleAnswers } from './models';
 
 export async function queryToCreateQuestionsInDatabase(questions: QuestionData[]): Promise<void> {
@@ -28,30 +27,31 @@ export async function queryToCreateQuestionsInDatabase(questions: QuestionData[]
    );
 }
 
-export async function queryToRespondQuestions(
-   token: string,
-   questions: QuestionResponseParams[],
-): Promise<void> {
-   let query: Traversal = queryToGetUserByToken(token).as('user');
+/**
+ * Receives a query that has a user, adds the questions responded and returns the user.
+ */
+export function queryToRespondQuestions(query: Traversal, questions: QuestionResponseParams[]): Traversal {
+   query = query.as('user');
 
    for (const question of questions) {
-      query = query
-         .V()
-         .has('question', 'questionId', Number(question.questionId))
-         .as('question')
-         .sideEffect(__.inE('response').where(__.outV().as('user')).drop())
-         .addE('response')
-         .from_('user')
-         .property('questionId', Number(question.questionId))
-         .property('answerId', Number(question.answerId))
-         .property('useAsFilter', Boolean(question.useAsFilter))
-         .property(
-            'incompatibleAnswers',
-            `[${getIncompatibleAnswers(question.questionId, question.answerId) || ''}]`,
-         );
+      query = query.sideEffect(
+         __.V()
+            .has('question', 'questionId', Number(question.questionId))
+            .as('question')
+            .sideEffect(__.inE('response').where(__.outV().as('user')).drop())
+            .addE('response')
+            .from_('user')
+            .property('questionId', Number(question.questionId))
+            .property('answerId', Number(question.answerId))
+            .property('useAsFilter', Boolean(question.useAsFilter))
+            .property(
+               'incompatibleAnswers',
+               `[${getIncompatibleAnswers(question.questionId, question.answerId) || ''}]`,
+            ),
+      );
    }
 
-   return retryOnError(() => query.iterate());
+   return query;
 }
 
 export function queryToIncludeQuestionsInUserQuery(traversal: Traversal): Traversal {

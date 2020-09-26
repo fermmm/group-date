@@ -35,7 +35,7 @@ import {
    queryToGetUserByEmail,
    queryToGetUserByToken,
    queryToSetAttraction,
-   queryToSetUserEditableProps,
+   queryToSetUserProps,
    queryToUpdateUserProps,
    queryToUpdateUserToken,
 } from './queries';
@@ -43,6 +43,8 @@ import { questions } from './questions/models';
 import { queryToCreateQuestionsInDatabase, queryToRespondQuestions } from './questions/queries';
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
 import { generateId } from '../../common-tools/string-tools/string-tools';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { retryOnError } from '../../common-tools/database-tools/database-manager';
 
 export async function initializeUsers(): Promise<void> {
    await queryToCreateQuestionsInDatabase(questions);
@@ -125,18 +127,22 @@ export async function userGet(params: TokenParameter, ctx: BaseContext): Promise
  * This endpoint should be used to send the user props and questions.
  */
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
+   let query: Traversal = queryToGetUserByToken(params.token);
+
    if (params.props != null) {
       const validationResult: true | ValidationError[] = validateUserProps(params.props);
       if (validationResult !== true) {
          ctx.throw(400, JSON.stringify(validationResult));
       }
 
-      await queryToSetUserEditableProps(params.token, params.props);
+      query = queryToSetUserProps(query, params.props);
    }
 
    if (params.questions != null) {
-      await queryToRespondQuestions(params.token, params.questions);
+      query = queryToRespondQuestions(query, params.questions);
    }
+
+   await retryOnError(() => query.iterate());
 }
 
 /**

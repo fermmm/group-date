@@ -13,7 +13,7 @@ import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { AttractionType, NotificationType, User } from '../shared-tools/endpoints-interfaces/user';
 import { createMatchingUsers } from './tools/groups';
 import { fakeCtx } from './tools/replacements';
-import { createFakeUser, createFakeUsers, setAttraction } from './tools/users';
+import { createFakeUser, setAttraction } from './tools/users';
 
 describe('Users', () => {
    let matchingUsersCouple1: User[];

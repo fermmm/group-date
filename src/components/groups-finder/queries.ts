@@ -15,15 +15,6 @@ import { queryToGetAllCompleteUsers } from '../user/queries';
 import { GroupQuality, SizeRestriction } from './tools/types';
 import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../configurations';
 
-// TODO: Ahora la query no alimina usuarios que sobran para generar grupos menores que el maximo, ahora lo tiene que
-// hacer TS, implementarlo.
-
-// TODO: Estas queries tardan y bajo estrés pueden tardar mas del limite configurado en gremlin y tirar error por eso
-// Si aumentamos el limite entonces una query que tarda mucho por que hay un error no va a tirar el error y va a
-// tildarse toda la aplicación. De todas maneras una query que queda tildada por un error es algo que hay que atender
-// lo mas rápido posible y si es mas visible al nivel de tildar todo podria ser hasta mejor. De todos modos algo hay
-// que hacer.
-
 /**
  * This query returns lists of users arrays where it's users matches between them.
  * This search is required to create new "group candidates" these groups candidates are later converted

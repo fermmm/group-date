@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { KM_IN_GPS_FORMAT, ONE_MONTH_IN_SECONDS } from '../../common-tools/math-tools/constants';
+import { KM_IN_GPS_FORMAT } from '../../common-tools/math-tools/constants';
 import { CARDS_GAME_MAX_RESULTS_PER_REQUEST, MAXIMUM_INACTIVITY_FOR_CARDS } from '../../configurations';
 import {
    allAttractionTypes,
@@ -169,7 +169,11 @@ export function queryToGetDislikedUsers(token: string, searcherUser: User): Trav
    /**
     * Filter inactive accounts
     */
-   query = query.not(__.has('lastLoginDate', P.lt(moment().unix() - ONE_MONTH_IN_SECONDS)));
+   query = query.not(
+      __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_CARDS))
+         .and()
+         .has('sendNewUsersNotification', 0),
+   );
 
    /**
     * Order the results

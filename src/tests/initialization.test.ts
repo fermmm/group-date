@@ -11,6 +11,7 @@ describe('Initialization', () => {
    let questionsInDbIds: number[];
 
    test('Questions are created in database', async () => {
+      await queryToCreateQuestionsInDatabase(questions);
       questionsIds = questions.map(q => q.questionId);
       questionsInDbIds = (await queryToGetQuestionsVerticesIds().toList()) as number[];
       expect(questionsInDbIds).toIncludeSameMembers(questionsIds);

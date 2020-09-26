@@ -1,6 +1,6 @@
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, P, retryOnError, g } from '../../common-tools/database-tools/database-manager';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { Traversal, GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    allAttractionTypes,
    allMatchTypes,
@@ -18,8 +18,9 @@ export function queryToCreateUser(
    email: string,
    setProfileCompletedForTesting?: boolean,
    customUserIdForTesting?: string,
+   currentTraversal?: Traversal,
 ): Traversal {
-   return queryToGetUserByToken(token)
+   return queryToGetUserByToken(token, currentTraversal)
       .fold()
       .coalesce(
          __.unfold(),
@@ -31,7 +32,8 @@ export function queryToCreateUser(
             .property('sendNewUsersNotification', 0)
             .property('lastGroupJoinedDate', moment().unix())
             .property('notifications', '[]'),
-      );
+      )
+      .unfold();
 }
 
 export function queryToGetUserByToken(token: string, currentTraversal?: Traversal): Traversal {
@@ -122,16 +124,20 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
       .iterate();
 }
 
-export async function queryToSetUserEditableProps(token: string, userProps: EditableUserProps): Promise<void> {
-   let query: Traversal = queryToGetUserByToken(token);
-
+/**
+ * Receives a query that returns a user and adds properties to it.
+ * @param query A query with one user vertex
+ */
+export function queryToSetUserProps(query: Traversal, userProps: EditableUserProps): Traversal {
    editableUserPropsList.forEach(editableUserProp => {
-      if (userProps[editableUserProp] != null) {
-         query = query.property(editableUserProp, serializeIfNeeded(userProps[editableUserProp]));
+      if (userProps[editableUserProp] == null) {
+         return;
       }
+
+      query = query.property(editableUserProp, serializeIfNeeded(userProps[editableUserProp]));
    });
 
-   return retryOnError(() => query.iterate());
+   return query;
 }
 
 /**
