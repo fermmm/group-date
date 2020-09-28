@@ -12,6 +12,12 @@ import {
    createAndAddMultipleUsers,
 } from '../../tests/tools/group-finder/group-candidate-test-editing';
 import { logGroupsTest } from '../../tests/tools/group-finder/group-candidates-ordering';
+import { createFakeUser, createFakeUsersFast } from '../../tests/tools/users';
+import { QuestionResponseParams, User } from '../../shared-tools/endpoints-interfaces/user';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { getIncompatibleAnswersRecord, getIncompatibleAnswers } from '../user/questions/models';
+import { g, P, __ } from '../../common-tools/database-tools/database-manager';
+import { valueMap } from '../../common-tools/database-tools/common-queries';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
@@ -19,16 +25,52 @@ export function testingRoutes(router: Router): void {
       // const fakeUsers = await createFakeUsers(3);
       // const mainUser = fakeUsers[0];
 
-      /*
-      let groupWith12 = createGroupCandidate(12);
-      groupWith12 = connectAllWithNeighbors(groupWith12, true);
-      groupWith12 = createFakeUserOnGroupCandidate(groupWith12);
+      console.log(await g.V().hasLabel('user').toList());
+      const user: User = await createFakeUsersFast(1)[0];
 
-      await createFullUsersFromGroupCandidate(groupWith12);
-      await callGroupSearchMultipleTimes();
-      console.log((await getGroupsOfGroupCandidateMembers(groupWith12)).map(g => g.groupId));
-*/
-      logGroupsTest();
+      console.log(
+         await queryToRespondQuestions([
+            {
+               token: user.token,
+               responses: [
+                  {
+                     questionId: 0,
+                     answerId: 0,
+                     useAsFilter: true,
+                  },
+               ],
+            },
+         ]).toList(),
+      );
+
       ctx.body = `Finished OK`;
    });
+}
+
+export function queryToRespondQuestions(responses: MultipleUsersQuestionsResponses[]): Traversal {
+   const incompatibleAnswers = getIncompatibleAnswersRecord();
+
+   return g
+      .inject([{ incompatibleAnswers, responses }])
+      .unfold()
+      .sideEffect(__.select('incompatibleAnswers').store('incompatibleAnswers'))
+      .select('responses')
+      .unfold()
+      .map(
+         // Only the combination of select().as().select() works here:
+         __.select('token')
+            .as('token')
+            // has() doesn't work here but hasLabel() + has() works:
+            .V()
+            .hasLabel('user')
+            .has('token', __.select('token'))
+            // Remove edge if already exists:
+            .sideEffect()
+            .select('responses'),
+      );
+}
+
+export interface MultipleUsersQuestionsResponses {
+   token: string;
+   responses: QuestionResponseParams[];
 }

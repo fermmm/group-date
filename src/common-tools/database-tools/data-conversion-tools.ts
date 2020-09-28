@@ -50,3 +50,11 @@ export function serializeIfNeeded<T>(value: T): SupportedGremlinTypes {
 
    return (value as unknown) as SupportedGremlinTypes;
 }
+
+export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, GremlinValueType> {
+   const result: Record<keyof T, GremlinValueType> = {} as Record<keyof T, GremlinValueType>;
+   Object.keys(object).forEach(key => {
+      result[key] = serializeIfNeeded(object[key]);
+   });
+   return result;
+}

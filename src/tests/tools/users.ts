@@ -1,7 +1,10 @@
 import * as moment from 'moment';
 import ora = require('ora');
-import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
-import { __, g } from '../../common-tools/database-tools/database-manager';
+import {
+   serializeAllValuesIfNeeded,
+   serializeIfNeeded,
+} from '../../common-tools/database-tools/data-conversion-tools';
+import { __, g, scope, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal, GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { setAttractionPost, userPost } from '../../components/user/models';
 import { queryToCreateUser } from '../../components/user/queries';
@@ -13,7 +16,6 @@ import {
    Gender,
    QuestionResponse,
    User,
-   UserPostParams,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProps } from '../../shared-tools/validators/user';
 import { chance } from './generalTools';
@@ -25,9 +27,12 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
    const users: User[] = [];
    const finalParams = { ...customParams };
 
-   // userId and token should be null here otherwise instead of creating each user it will replace the first one
-   delete finalParams?.userId;
-   delete finalParams?.token;
+   if (amount > 1) {
+      // userId, token and email should be null here otherwise instead of creating each user it will replace the first one
+      delete finalParams?.userId;
+      delete finalParams?.token;
+      delete finalParams?.email;
+   }
 
    for (let i = 0; i < amount; i++) {
       users.push(await createFakeUser(finalParams));
@@ -42,13 +47,23 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
 // para poder borrarlos sin tener que hacer variables en los tests
 export async function createFakeUsersFast(amount: number, customParams?: Partial<User>): Promise<User[]> {
    const users: User[] = [];
+   const finalParams = { ...(customParams ?? {}) };
+
+   if (amount > 1) {
+      // userId, token and email should be null here otherwise instead of creating each user it will replace the first one
+      delete finalParams?.userId;
+      delete finalParams?.token;
+      delete finalParams?.email;
+   }
 
    for (let i = 0; i < amount; i++) {
-      users.push(generateRandomUserProps(customParams));
+      users.push(generateRandomUserProps(finalParams));
    }
-   fakeUsersCreated.push(...users);
 
-   return await fromQueryToUserList(queryToCreateManyUsersAtOnce(users), false);
+   const result: User[] = await fromQueryToUserList(queryToCreateManyUsersAtOnce(users), false);
+   fakeUsersCreated.push(...result);
+
+   return result;
 }
 
 export async function createFakeUser(customParams?: Partial<User>): Promise<User> {
@@ -203,21 +218,33 @@ function getGendersLikedByUser(user: User): Gender[] {
 }
 
 function queryToCreateManyUsersAtOnce(usersData: Array<Partial<User>>): Traversal {
-   const propsReadyForDB: Partial<Record<keyof User, GremlinValueType>> = {};
-
-   usersData.forEach(userData => {
-      Object.keys(userData).forEach(key => {
-         propsReadyForDB[key] = serializeIfNeeded(userData[key]);
-      });
+   const userDataReadyForDB = usersData.map(userData => {
+      const result = serializeAllValuesIfNeeded(userData);
+      delete result.questions;
+      return result;
    });
 
-   delete propsReadyForDB.questions;
-
-   let propsT: Traversal = __.addV('user');
-   Object.keys(propsReadyForDB[0]).forEach(d => (propsT = propsT.property(d, __.select(d))));
+   let creationTraversal: Traversal = __.addV('user');
+   Object.keys(userDataReadyForDB[0]).forEach(
+      key => (creationTraversal = creationTraversal.property(key, __.select(key))),
+   );
 
    return g
-      .inject(propsReadyForDB)
+      .withSideEffect('nothing', [])
+      .inject(userDataReadyForDB)
       .unfold()
-      .map(__.coalesce(__.V().has('user', 'token', __.select('token')), propsT));
+      .map(
+         __.as('userData')
+            .select('token')
+            .as('token')
+            .select('userData')
+            .choose(
+               __.V()
+                  .hasLabel('user')
+                  .has('token', __.where(P.eq('token'))),
+               __.select('nothing'),
+               creationTraversal,
+            ),
+      )
+      .unfold();
 }

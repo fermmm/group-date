@@ -104,10 +104,20 @@ export const questions: QuestionData[] = [
    groupSexQuestion,
    companyQuestion,
 ];
+
 const questionsById: QuestionData[] = createQuestionsByIdArray();
+const incompatibleAnswersRecord: Record<number, Record<number, number[]>> = createIncompatibleAnswersRecord();
 
 export function getQuestionDataById(id: number): QuestionData {
    return questionsById[id];
+}
+
+/**
+ * You can access an array with the incompatible answers like:
+ * getIncompatibleAnswersRecord()[questionId][answerId] has, for example: [2,3,5]
+ */
+export function getIncompatibleAnswersRecord(): Record<number, Record<number, number[]>> {
+   return incompatibleAnswersRecord;
 }
 
 export function getIncompatibleAnswers(questionId: number, responseId: number): number[] | null {
@@ -133,5 +143,13 @@ export function getIncompatibleAnswers(questionId: number, responseId: number): 
 function createQuestionsByIdArray(): QuestionData[] {
    const result: QuestionData[] = [];
    questions.forEach(question => (result[question.questionId] = question));
+   return result;
+}
+
+function createIncompatibleAnswersRecord(): Record<number, Record<number, number[]>> {
+   const result: Record<number, Record<number, number[]>> = {};
+   questions.forEach(question => {
+      result[question.questionId] = question.incompatibilitiesBetweenAnswers ?? [];
+   });
    return result;
 }

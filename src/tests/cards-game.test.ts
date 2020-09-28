@@ -19,7 +19,6 @@ import {
    generateRandomUserProps,
    setAttraction,
 } from './tools/users';
-import { UserWithMatches } from '../components/groups-finder/tools/types';
 import { DeepPartial } from 'ts-essentials';
 
 // TODO: Habria que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seenmatch
