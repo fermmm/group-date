@@ -11,6 +11,7 @@ import {
    groupGet,
    userGroupsGet,
 } from '../components/groups/models';
+import { queryToRemoveGroups } from '../components/groups/queries';
 import { queryToRemoveUsers } from '../components/user/queries';
 import { ExperienceFeedbackType, Group } from '../shared-tools/endpoints-interfaces/groups';
 import { User } from '../shared-tools/endpoints-interfaces/user';
@@ -217,5 +218,6 @@ describe('Groups', () => {
 
    afterAll(async () => {
       await queryToRemoveUsers(fakeUsers);
+      await queryToRemoveGroups([group, group2]);
    });
 });

@@ -175,7 +175,7 @@ export function queryToGetGroupsInFinalFormat(
 
 /**
  * Only used in tests.
- * If no user list is provided all groups on the database are removed.
+ * If no group list is provided all groups on the database are removed.
  */
 export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
    if (groups == null) {

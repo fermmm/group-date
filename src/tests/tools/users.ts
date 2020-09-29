@@ -1,20 +1,14 @@
 import * as moment from 'moment';
 import ora = require('ora');
-import {
-   serializeAllValuesIfNeeded,
-   serializeIfNeeded,
-} from '../../common-tools/database-tools/data-conversion-tools';
-import { __, g, scope, P } from '../../common-tools/database-tools/database-manager';
-import { Traversal, GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { setAttractionPost, userPost } from '../../components/user/models';
 import { queryToCreateUser } from '../../components/user/queries';
 import { getIncompatibleAnswers, questions as questionsData } from '../../components/user/questions/models';
-import { fromQueryToUser, fromQueryToUserList } from '../../components/user/tools/data-conversion';
 import {
    Attraction,
    AttractionType,
    Gender,
    QuestionResponse,
+   QuestionResponseParams,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
 import { EditableUserProps } from '../../shared-tools/validators/user';
@@ -41,75 +35,46 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
    return users;
 }
 
-// TODO: Crear una funcion para contestar preguntas masivamente
-// TODO: Crear una funcion para establecer matches masivamente
-// TODO: Crear variables globales que guardan los usuarios fake credos y los grupos fake creados
-// para poder borrarlos sin tener que hacer variables en los tests
-export async function createFakeUsersFast(amount: number, customParams?: Partial<User>): Promise<User[]> {
-   const users: User[] = [];
-   const finalParams = { ...(customParams ?? {}) };
-
-   if (amount > 1) {
-      // userId, token and email should be null here otherwise instead of creating each user it will replace the first one
-      delete finalParams?.userId;
-      delete finalParams?.token;
-      delete finalParams?.email;
-   }
-
-   for (let i = 0; i < amount; i++) {
-      users.push(generateRandomUserProps(finalParams));
-   }
-
-   const result: User[] = await fromQueryToUserList(queryToCreateManyUsersAtOnce(users), false);
-   fakeUsersCreated.push(...result);
-
-   return result;
-}
-
 export async function createFakeUser(customParams?: Partial<User>): Promise<User> {
-   const props: User = generateRandomUserProps(customParams);
+   const userProps: User = generateRandomUserProps(customParams);
 
-   let customParamsQuestions: QuestionResponse[] = [];
-   if (customParams?.questions != null) {
-      customParamsQuestions = customParams.questions.map(q => ({
-         ...q,
-         incompatibleAnswers: getIncompatibleAnswers(q.questionId, q.answerId) ?? [],
-      }));
-   }
-
-   const questions: QuestionResponse[] = questionsData.map(question => {
-      const questionFoundOnParams = customParamsQuestions.find(q => q.questionId === question.questionId);
-      if (questionFoundOnParams) {
-         return questionFoundOnParams;
-      }
-
-      const answer = chance.pickone(question.answers).answerId;
-
-      return {
-         questionId: question.questionId,
-         answerId: answer,
-         useAsFilter: chance.bool(),
-         incompatibleAnswers: getIncompatibleAnswers(question.questionId, answer) ?? [],
-      };
-   });
-
-   // The user object from this line contains the userId and other props added by the query to create the user.
-   let user: Partial<User> = await fromQueryToUser(
-      queryToCreateUser(props.token, props.email, true, props.userId),
-      true,
+   await queryToCreateUser(userProps.token, userProps.email, true, userProps.userId).iterate();
+   await userPost(
+      { token: userProps.token, props: userProps as EditableUserProps, questions: userProps.questions },
+      fakeCtx,
    );
 
-   await userPost({ token: props.token, props: props as EditableUserProps, questions }, fakeCtx);
-   user = { ...user, ...(props as User), questions, profileCompleted: true };
-
-   fakeUsersCreated.push(user as User);
-
-   return user as User;
+   fakeUsersCreated.push(userProps);
+   return userProps;
 }
 
-export function generateRandomUserProps(customParams?: Partial<User>): User {
-   const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
+/**
+ * @param customProps Provide user props that should not be random here.
+ */
+export function generateRandomUserProps(customProps?: Partial<User>): User {
+   // Add random questions responses when there are not provided
+   const questions: QuestionResponse[] = questionsData.map(question => {
+      const questionFoundOnParams = customProps?.questions?.find(q => q.questionId === question.questionId);
 
+      if (questionFoundOnParams != null) {
+         return {
+            ...questionFoundOnParams,
+            incompatibleAnswers:
+               getIncompatibleAnswers(questionFoundOnParams.questionId, questionFoundOnParams.answerId) ?? [],
+         };
+      } else {
+         const answer = chance.pickone(question.answers).answerId;
+
+         return {
+            questionId: question.questionId,
+            answerId: answer,
+            useAsFilter: chance.bool(),
+            incompatibleAnswers: getIncompatibleAnswers(question.questionId, answer) ?? [],
+         };
+      }
+   });
+
+   const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
       token: chance.apple_token(),
@@ -143,7 +108,7 @@ export function generateRandomUserProps(customParams?: Partial<User>): User {
       lastGroupJoinedDate: moment().unix(),
    };
 
-   return { ...randomProps, ...(customParams ?? {}) };
+   return { ...randomProps, ...(customProps ?? {}), questions };
 }
 
 export async function setAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
@@ -217,34 +182,7 @@ function getGendersLikedByUser(user: User): Gender[] {
    return result;
 }
 
-function queryToCreateManyUsersAtOnce(usersData: Array<Partial<User>>): Traversal {
-   const userDataReadyForDB = usersData.map(userData => {
-      const result = serializeAllValuesIfNeeded(userData);
-      delete result.questions;
-      return result;
-   });
-
-   let creationTraversal: Traversal = __.addV('user');
-   Object.keys(userDataReadyForDB[0]).forEach(
-      key => (creationTraversal = creationTraversal.property(key, __.select(key))),
-   );
-
-   return g
-      .withSideEffect('nothing', [])
-      .inject(userDataReadyForDB)
-      .unfold()
-      .map(
-         __.as('userData')
-            .select('token')
-            .as('token')
-            .select('userData')
-            .choose(
-               __.V()
-                  .hasLabel('user')
-                  .has('token', __.where(P.eq('token'))),
-               __.select('nothing'),
-               creationTraversal,
-            ),
-      )
-      .unfold();
+export interface UserResponses {
+   token: string;
+   responses: QuestionResponseParams[];
 }
