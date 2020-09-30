@@ -140,58 +140,53 @@ export function queryToSetUserProps(query: Traversal, userProps: EditableUserPro
    return query;
 }
 
-/**
- * To play with this query: https://gremlify.com/chrl4ahk3t
- */
 export function queryToSetAttraction(params: SetAttractionParams): Traversal {
-   const usersToSetAttractionTraversals: Traversal[] = params.attractions.map(p =>
-      __.has('user', 'userId', p.userId),
-   );
-   const isUserToLikeCheckTraversals: Traversal[] = params.attractions.flatMap(p =>
-      p.attractionType === AttractionType.Like ? __.values('userId').is(P.eq(p.userId)) : [],
-   );
+   const traversalInit = g.withSideEffect('injectedData', params.attractions);
+   return hasProfileCompleted(queryToGetUserByToken(params.token, (traversalInit as unknown) as Traversal))
+      .as('user')
+      .select('injectedData')
+      .unfold()
+      .map(
+         // Prepare the as()
+         __.as('attractionData')
+            .select('attractionType')
+            .as('attractionType')
+            .select('attractionData')
+            .select('userId')
+            .as('targetUserId')
 
-   return (
-      hasProfileCompleted(queryToGetUserByToken(params.token))
-         .as('user')
-         .V()
-         .union(...usersToSetAttractionTraversals)
+            // Get the target user
+            .V()
+            .hasLabel('user')
+            .has('userId', __.where(P.eq('targetUserId')))
 
-         // This prevents self like
-         .not(__.has('token', params.token))
+            // This prevents self like
+            .not(__.has('token', params.token))
 
-         // On seen matches is not possible to edit the attraction anymore
-         .not(__.both('SeenMatch').where(P.eq('user')))
+            // On seen matches is not possible to edit the attraction anymore
+            .not(__.both('SeenMatch').where(P.eq('user')))
 
-         .map(
-            __.as('target')
+            .as('targetUser')
 
-               // Removes all edges pointing to the target user that are labeled as any attraction type
-               .sideEffect(
-                  __.inE(...allAttractionTypes)
-                     .where(__.outV().as('user'))
-                     .drop(),
-               )
+            // Removes all edges pointing to the target user that are labeled as any attraction type
+            .sideEffect(
+               __.inE(...allAttractionTypes)
+                  .where(__.outV().as('user'))
+                  .drop(),
+            )
 
-               // Also remove the match edge because at this point we don't know if they are going to match
-               .sideEffect(__.bothE('Match').where(__.bothV().as('user')).drop())
+            // Also remove the match edge because at this point we don't know if they are going to match
+            .sideEffect(__.bothE('Match').where(__.bothV().as('user')).drop())
 
-               // Now we can add the new edges
-               .sideEffect(
-                  __.choose(
-                     __.union(...isUserToLikeCheckTraversals),
-                     __.addE('Like').from_('user'),
-                     __.addE('Dislike').from_('user'),
-                  ),
-               )
+            // Now we can add the new edge
+            .sideEffect(__.addE(__.select('attractionType')).from_('user'))
 
-               // If the users like each other add a Match edge
-               .choose(
-                  __.outE('Like').where(__.inV().as('user')).inV().outE('Like').where(__.inV().as('target')),
-                  __.sideEffect(__.addE('Match').from_('user')),
-               ),
-         )
-   );
+            // If the users like each other add a Match edge
+            .choose(
+               __.and(__.out('Like').where(P.eq('user')), __.in_('Like').where(P.eq('user'))),
+               __.sideEffect(__.addE('Match').from_('user')),
+            ),
+      );
 }
 
 export function queryToGetMatches(token: string): Traversal {

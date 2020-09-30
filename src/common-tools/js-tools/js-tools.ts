@@ -40,3 +40,54 @@ export function objectsContentIsEqual<T>(object1: T, object2: T): boolean {
 
    return true;
 }
+
+/**
+ * Divides a number called "total" into chunks with the desired size and executes a callback
+ * for each chunk, the callback sends the current chunk size.
+ * For example:
+ * total = 106 and chunkSize = 50
+ * will call the callback 3 times callback(50), callback(50) and callback(6)
+ * The callback can be async and one will be executed when the previous finished successfully.
+ * This tool can be useful to divide workload.
+ */
+export async function numberChunksCallback(
+   total: number,
+   chunkSize: number,
+   callback: (chunk: number) => void | Promise<void>,
+): Promise<void> {
+   if (total <= chunkSize) {
+      await callback(total);
+      return;
+   }
+
+   const chunksAmount: number = Math.ceil(total / chunkSize);
+   let unitsDone: number = 0;
+
+   for (let i = 0; i < chunksAmount; i++) {
+      if (i < chunksAmount - 1) {
+         // All chunks except the last one has the chunkSize
+         unitsDone += chunkSize;
+         await callback(chunkSize);
+         continue;
+      }
+
+      // In the last call send the remaining units
+      await callback(total - unitsDone);
+   }
+}
+
+/**
+ * Divides an array into smaller chunks arrays and executes a provided callback for each chunk passing the chunk
+ * in the callback. The callback can be async. It's useful to call a resource multiple times dividing the workload.
+ */
+export async function divideArrayCallback<T>(
+   array: T[],
+   chunkSize: number,
+   callback: (chunk: T[]) => void | Promise<void>,
+): Promise<void> {
+   let i: number = 0;
+   await numberChunksCallback(array.length, chunkSize, async currentChunk => {
+      await callback(array.slice(i, i + currentChunk));
+      i += currentChunk;
+   });
+}

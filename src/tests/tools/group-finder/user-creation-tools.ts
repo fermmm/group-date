@@ -20,6 +20,7 @@ export async function createFullUsersFromGroupCandidate(group: GroupCandidate): 
       usersCreated.push(await createFakeUser({ userId: user.userId, token: user.userId }));
    }
 
+   console.time('setAttractionPost');
    // Once all users are created we can connect the users
    for (const user of group.users) {
       await setAttractionPost(
@@ -30,6 +31,7 @@ export async function createFullUsersFromGroupCandidate(group: GroupCandidate): 
          fakeCtx,
       );
    }
+   console.timeEnd('setAttractionPost');
 
    return usersCreated;
 }

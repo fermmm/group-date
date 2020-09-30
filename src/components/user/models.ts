@@ -45,6 +45,7 @@ import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { retryOnError } from '../../common-tools/database-tools/database-manager';
+import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
 
 export async function initializeUsers(): Promise<void> {
    await queryToCreateQuestionsInDatabase(questions);
@@ -243,7 +244,10 @@ export async function addNotificationToUser(
  * Endpoint to set attraction (like or dislike a user)
  */
 export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
-   return await queryToSetAttraction(params).iterate();
+   const attractions = params.attractions;
+   await divideArrayCallback(attractions, 15, async attractionsChunk => {
+      await queryToSetAttraction({ token: params.token, attractions: attractionsChunk }).iterate();
+   });
 }
 
 /**

@@ -1,43 +1,38 @@
 /**
  * This version of createFakeUsers creates many users on the same database request but seems to
- * be a limit in the amount of data per request when using inject(), the solution is to call many
- * requests of 40 users each. I compared the performance and it's not much better than one request
- * per user so I save in this file the code and the queries I did for this approach, just in case
- * I need something from here in the future.
+ * be a limit in the amount of data per request, if this limit is passed the request never responds.
+ * The solution is to call many requests of 40 users each. I compared the performance and it's not
+ * much better than one request per user so I save in this file the code and the queries I did for
+ * this approach, just in case I need something from here in the future.
  */
 
-import { serializeAllValuesIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
+import { queryToCreateVerticesFromObjects } from '../../common-tools/database-tools/common-queries';
 import { __, g, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { numberChunksCallback } from '../../common-tools/js-tools/js-tools';
 import { getIncompatibleAnswers } from '../../components/user/questions/models';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { generateRandomUserProps } from './users';
+
 const fakeUsersCreated: User[] = [];
 
 async function createFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
-   const usersPerRequest: number = 40;
-   const requestsAmount: number = Math.ceil(amount / usersPerRequest);
    const usersCreated: User[] = [];
 
-   for (let i = 1; i < requestsAmount; i++) {
-      if (i < requestsAmount) {
-         // Create the maximum users per request
-         usersCreated.push(...(await createMultipleFakeUsers(usersPerRequest, customParams)));
-         continue;
-      }
-      // In the last request create the remaining users
-      usersCreated.push(...(await createMultipleFakeUsers(amount - usersCreated.length, customParams)));
-   }
+   numberChunksCallback(amount, 40, async amountForRequest => {
+      usersCreated.push(...(await generateAndCreateFakeUsers(amountForRequest, customParams)));
+   });
 
    return usersCreated;
 }
 
 async function createFakeUser(customParams?: Partial<User>): Promise<User> {
-   return (await createMultipleFakeUsers(1, customParams))[0];
+   return (await generateAndCreateFakeUsers(1, customParams))[0];
 }
 
-async function createMultipleFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
+async function generateAndCreateFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
    const users: User[] = [];
+   const usersWithoutQuestions: User[] = [];
    const finalParams = { ...(customParams ?? {}) };
 
    if (amount > 1) {
@@ -48,47 +43,19 @@ async function createMultipleFakeUsers(amount: number, customParams?: Partial<Us
    }
 
    for (let i = 0; i < amount; i++) {
-      users.push(generateRandomUserProps(finalParams));
+      const usr = generateRandomUserProps(finalParams);
+      const usrWithoutQuestions = { ...usr };
+      delete usrWithoutQuestions.questions;
+      usersWithoutQuestions.push(usrWithoutQuestions);
+      users.push(usr);
    }
 
-   await queryToCreateMultipleUsers(users).iterate();
+   await queryToCreateVerticesFromObjects(usersWithoutQuestions, 'user', 'userId').iterate();
    await queryToSaveQuestionsResponsesForMultipleUsers(users).iterate();
 
    fakeUsersCreated.push(...users);
 
    return users;
-}
-
-function queryToCreateMultipleUsers(usersData: Array<Partial<User>>): Traversal {
-   const userDataReadyForDB = usersData.map(userData => {
-      const result = serializeAllValuesIfNeeded(userData);
-      delete result.questions;
-      return result;
-   });
-
-   let creationTraversal: Traversal = __.addV('user');
-   Object.keys(userDataReadyForDB[0]).forEach(
-      key => (creationTraversal = creationTraversal.property(key, __.select(key))),
-   );
-
-   return g
-      .withSideEffect('nothing', [])
-      .inject(userDataReadyForDB)
-      .unfold()
-      .map(
-         __.as('userData')
-            .select('token')
-            .as('token')
-            .select('userData')
-            .choose(
-               __.V()
-                  .hasLabel('user')
-                  .has('token', __.where(P.eq('token'))),
-               __.select('nothing'),
-               creationTraversal,
-            ),
-      )
-      .unfold();
 }
 
 function queryToSaveQuestionsResponsesForMultipleUsers(users: User[]): Traversal {
