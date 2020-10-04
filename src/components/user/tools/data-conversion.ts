@@ -1,6 +1,6 @@
 import { valueMap } from '../../../common-tools/database-tools/common-queries';
 import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
-import { retryOnError } from '../../../common-tools/database-tools/database-manager';
+import { sendQuery } from '../../../common-tools/database-tools/database-manager';
 import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { removePrivacySensitiveUserProps } from '../../../common-tools/security-tools/security-tools';
 import { User } from '../../../shared-tools/endpoints-interfaces/user';
@@ -15,7 +15,7 @@ export async function fromQueryToUser(queryOfUser: Traversal, includeQuestions: 
    } else {
       queryOfUser = valueMap(queryOfUser);
    }
-   return fromGremlinMapToUser((await retryOnError(() => queryOfUser.next())).value);
+   return fromGremlinMapToUser((await sendQuery(() => queryOfUser.next())).value);
 }
 
 /**
@@ -34,7 +34,7 @@ export async function fromQueryToUserList(
    } else {
       queryOfUsers = valueMap(queryOfUsers);
    }
-   const resultGremlinOutput = (await retryOnError(() => queryOfUsers.toList())) as Array<
+   const resultGremlinOutput = (await sendQuery(() => queryOfUsers.toList())) as Array<
       Map<keyof User, GremlinValueType>
    >;
    return resultGremlinOutput.map(userFromQuery => {

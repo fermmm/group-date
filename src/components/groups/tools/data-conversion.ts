@@ -1,4 +1,4 @@
-import { retryOnError } from '../../../common-tools/database-tools/database-manager';
+import { sendQuery } from '../../../common-tools/database-tools/database-manager';
 import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import {
    removePrivacySensitiveGroupProps,
@@ -19,7 +19,7 @@ export async function fromQueryToGroup(
    includeFullDetails: boolean = true,
 ): Promise<Group> {
    return fromGremlinMapToGroup(
-      (await retryOnError(() => queryToGetGroupsInFinalFormat(queryOfGroup, includeFullDetails).next())).value,
+      (await sendQuery(() => queryToGetGroupsInFinalFormat(queryOfGroup, includeFullDetails).next())).value,
       protectPrivacy,
    );
 }
@@ -32,7 +32,7 @@ export async function fromQueryToGroupList(
    protectPrivacy: boolean = true,
    includeFullDetails: boolean = true,
 ): Promise<Group[]> {
-   const resultGremlinOutput = (await retryOnError(() =>
+   const resultGremlinOutput = (await sendQuery(() =>
       queryToGetGroupsInFinalFormat(queryOfGroups, includeFullDetails).toList(),
    )) as Array<Map<keyof Group, GremlinValueType>>;
 

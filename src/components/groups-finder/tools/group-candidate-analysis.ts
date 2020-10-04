@@ -1,3 +1,4 @@
+import { objectsContentIsEqual } from '../../../common-tools/js-tools/js-tools';
 import { generateNumberId, replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
 import {
    GROUP_SLOTS_CONFIGS,
@@ -5,6 +6,7 @@ import {
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    MIN_GROUP_SIZE,
 } from '../../../configurations';
+import { getSortFunction } from '../models';
 import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
 
@@ -203,4 +205,20 @@ export function getDataCorruptionProblemsInGroupCandidate(group: GroupCandidate)
       });
    });
    return result;
+}
+
+/**
+ * Compares the analysis of 2 groups and returns the one with best quality. If both groups have exactly the
+ * same quality it returns the first one.
+ */
+export function getBestGroup(
+   group1: GroupCandidateAnalyzed,
+   group2: GroupCandidateAnalyzed,
+): GroupCandidateAnalyzed {
+   if (objectsContentIsEqual(group1.analysis, group2.analysis)) {
+      return group1;
+   }
+   const result = [group1, group2];
+   result.sort(getSortFunction(false));
+   return result[0];
 }

@@ -1,3 +1,4 @@
+import { executePromises } from '../../../common-tools/js-tools/js-tools';
 import { searchAndCreateNewGroups } from '../../../components/groups-finder/models';
 import { GroupCandidate, UserWithMatches } from '../../../components/groups-finder/tools/types';
 import { userGroupsGet } from '../../../components/groups/models';
@@ -6,38 +7,37 @@ import { Group } from '../../../shared-tools/endpoints-interfaces/groups';
 import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from '../replacements';
 import { createFakeUser } from '../users';
+import { createFakeUser2 } from '../_old';
 
 /**
- * Converts group candidate users into full users connected between them with a Match as they
+ * Converts group candidate users into full users connected between them as they
  * are connected in the group candidate.
  */
 export async function createFullUsersFromGroupCandidate(group: GroupCandidate): Promise<User[]> {
    const usersCreated: User[] = [];
+   const creationPromises = group.users.map(u => async () =>
+      usersCreated.push(await createFakeUser2({ userId: u.userId, token: u.userId })),
+   );
 
-   // Create the users
-   for (const user of group.users) {
-      // We set the userId and token to the same string for easy access in the future
-      usersCreated.push(await createFakeUser({ userId: user.userId, token: user.userId }));
-   }
-
-   console.time('setAttractionPost');
    // Once all users are created we can connect the users
-   for (const user of group.users) {
+   const attractionPromises = group.users.map(user => async () =>
       await setAttractionPost(
          {
             token: user.userId,
             attractions: user.matches.map(userId => ({ userId, attractionType: AttractionType.Like })),
          },
          fakeCtx,
-      );
-   }
-   console.timeEnd('setAttractionPost');
+      ),
+   );
+
+   await executePromises(creationPromises, true);
+   await executePromises(attractionPromises, true);
 
    return usersCreated;
 }
 
-export async function callGroupCreationMultipleTimes(): Promise<void> {
-   for (let i = 0; i < 3; i++) {
+export async function callGroupCreationMultipleTimes(times: number = 3): Promise<void> {
+   for (let i = 0; i < times; i++) {
       await searchAndCreateNewGroups();
    }
 }

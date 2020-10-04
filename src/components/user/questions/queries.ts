@@ -1,10 +1,10 @@
-import { __, column, g, P } from '../../../common-tools/database-tools/database-manager';
+import { __, column, g, P, sendQuery } from '../../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
 import { getIncompatibleAnswers } from './models';
 
 export async function queryToCreateQuestionsInDatabase(questions: QuestionData[]): Promise<void> {
-   return (
+   return sendQuery(() =>
       g
          .inject('')
          // Add questions when not present
@@ -23,7 +23,7 @@ export async function queryToCreateQuestionsInDatabase(questions: QuestionData[]
          .hasLabel('question')
          .not(__.has('questionId', P.within(...questions.map(q => q.questionId))))
          .drop()
-         .iterate()
+         .iterate(),
    );
 }
 

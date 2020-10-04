@@ -32,6 +32,7 @@ import {
 import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion';
 import { GroupQuality } from '../groups-finder/tools/types';
 import { generateId } from '../../common-tools/string-tools/string-tools';
+import { sendQuery } from '../../common-tools/database-tools/database-manager';
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -73,7 +74,7 @@ export async function getGroupById(
  * Add users to a group (this is not an endpoint)
  */
 export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSettings): Promise<void> {
-   await queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate();
+   await sendQuery(() => queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate());
 }
 
 /**

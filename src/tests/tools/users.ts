@@ -1,5 +1,6 @@
 import * as moment from 'moment';
 import ora = require('ora');
+import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { setAttractionPost, userPost } from '../../components/user/models';
 import { queryToCreateUser } from '../../components/user/queries';
 import { getIncompatibleAnswers, questions as questionsData } from '../../components/user/questions/models';
@@ -38,7 +39,7 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
 export async function createFakeUser(customParams?: Partial<User>): Promise<User> {
    const userProps: User = generateRandomUserProps(customParams);
 
-   await queryToCreateUser(userProps.token, userProps.email, true, userProps.userId).iterate();
+   await sendQuery(() => queryToCreateUser(userProps.token, userProps.email, true, userProps.userId).iterate());
    await userPost(
       { token: userProps.token, props: userProps as EditableUserProps, questions: userProps.questions },
       fakeCtx,

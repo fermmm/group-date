@@ -44,7 +44,7 @@ import { queryToCreateQuestionsInDatabase, queryToRespondQuestions } from './que
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { retryOnError } from '../../common-tools/database-tools/database-manager';
+import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
 
 export async function initializeUsers(): Promise<void> {
@@ -68,7 +68,7 @@ export async function profileStatusGet(
       missingQuestionsId: getMissingQuestions(user),
    };
 
-   queryToUpdateUserProps(user.token, [
+   await queryToUpdateUserProps(user.token, [
       {
          key: 'profileCompleted',
          value: result.missingEditableUserProps.length === 0 && result.missingQuestionsId.length === 0,
@@ -143,7 +143,7 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       query = queryToRespondQuestions(query, params.questions);
    }
 
-   await retryOnError(() => query.iterate());
+   await sendQuery(() => query.iterate());
 }
 
 /**
@@ -245,8 +245,11 @@ export async function addNotificationToUser(
  */
 export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
    const attractions = params.attractions;
-   await divideArrayCallback(attractions, 15, async attractionsChunk => {
-      await queryToSetAttraction({ token: params.token, attractions: attractionsChunk }).iterate();
+
+   await divideArrayCallback(attractions, 50, async attractionsChunk => {
+      await sendQuery(() =>
+         queryToSetAttraction({ token: params.token, attractions: attractionsChunk }).iterate(),
+      );
    });
 }
 

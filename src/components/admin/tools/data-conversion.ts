@@ -1,5 +1,5 @@
 import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
-import { retryOnError } from '../../../common-tools/database-tools/database-manager';
+import { sendQuery } from '../../../common-tools/database-tools/database-manager';
 import { Traversal, GremlinValueType } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { removePrivacySensitiveUserProps } from '../../../common-tools/security-tools/security-tools';
 import { ChatWithAdmins } from '../../../shared-tools/endpoints-interfaces/admin';
@@ -13,7 +13,7 @@ export async function fromQueryToChatWithAdmins(
    query: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<ChatWithAdmins> {
-   return fromGremlinMapToChatWithAdmins((await retryOnError(() => query.next())).value, protectPrivacy);
+   return fromGremlinMapToChatWithAdmins((await sendQuery(() => query.next())).value, protectPrivacy);
 }
 
 /**
@@ -23,7 +23,7 @@ export async function fromQueryToChatWithAdminsList(
    query: Traversal,
    protectPrivacy: boolean = true,
 ): Promise<ChatWithAdmins[]> {
-   const resultGremlinOutput = (await retryOnError(() => query.toList())) as Array<
+   const resultGremlinOutput = (await sendQuery(() => query.toList())) as Array<
       Map<keyof ChatWithAdmins, GremlinValueType>
    >;
    return resultGremlinOutput.map(queryElement => {

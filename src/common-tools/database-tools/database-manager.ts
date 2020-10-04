@@ -1,6 +1,11 @@
 import * as gremlin from 'gremlin';
 import * as ora from 'ora';
 import { Traversal } from './gremlin-typing-tools';
+import { retryPromise } from '../js-tools/js-tools';
+import {
+   LOG_ERROR_AFTER_DB_RETRY_TAKES_MORE_TIME_THAN,
+   MAX_TIME_TO_WAIT_ON_DATABASE_RETRY,
+} from '../../configurations';
 
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
@@ -33,11 +38,10 @@ export async function waitForDatabase(silent: boolean = false): Promise<void> {
       await waitForDatabase(true);
       spinner?.succeed('Database running!');
       resolvePromise();
-   }, 1000);
+   }, 300);
 
    spinner?.start();
-   g.V()
-      .limit(1)
+   g.inject(0)
       .toList()
       .then(() => {
          clearTimeout(timeout);
@@ -53,32 +57,34 @@ export async function waitForDatabase(silent: boolean = false): Promise<void> {
 }
 
 /**
- * Executes the query promise and retry once, if at the second try is still throwing an error
- * then lets the error to be thrown as usual.
- * This solves the "ConcurrentModificationException" error that happens when gremlin has
- * too many modifications requests in a short period of time and requires a retry sometimes.
+ * Executes the query promise and retries if returns an error. If still returns an error after some time then
+ * returns the error of the last try.
+ * This is required because of the "ConcurrentModificationException" internal error of a Gremlin database,
+ * this error happens because the database accepts more requests even when did not finish a modification of
+ * a previous request, so when a request tries to write or read the same information still being saved by a
+ * previous request there is a "collision" that generates this error and one or more a retries are needed to
+ * solve the problem, it uses the "Exponential Backoff" approach.
  *
- * @param query The query wrapped into a arrow function like this: () => g.V().toList()
+ * @param query The query wrapped into a arrow function like this: retryOnError(() => g.V().toList())
+ * @param logResult Default = false. Executes a console.log() with the query response that is configured to show more information than the default console.log()
  */
-export async function retryOnError<T>(query: () => Promise<T>, logResult: boolean = false): Promise<T> {
-   try {
-      if (logResult) {
-         const profileData = await query();
-         logComplete(profileData);
-         return profileData;
-      } else {
-         return await query();
-      }
-   } catch (error) {
-      try {
-         return await query();
-      } catch (error) {
-         console.error(error);
-         throw new Error(error);
-      }
-   }
-}
+export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean = false): Promise<T> {
+   let result: T;
 
-export function logComplete<T>(obj: T): void {
-   console.dir(obj, { colors: true, depth: 1000 });
+   try {
+      result = await query();
+   } catch (error) {
+      result = await retryPromise(
+         query,
+         MAX_TIME_TO_WAIT_ON_DATABASE_RETRY,
+         LOG_ERROR_AFTER_DB_RETRY_TAKES_MORE_TIME_THAN,
+         1,
+      );
+   }
+
+   if (logResult) {
+      console.dir(result, { colors: true, depth: 1000 });
+   }
+
+   return result;
 }

@@ -8,11 +8,7 @@ import * as Collections from 'typescript-collections';
 import { firstBy } from 'thenby';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
-import {
-   analiceGroupCandidate,
-   groupHasMinimumQuality,
-   groupSizeIsUnderMinimum,
-} from './tools/group-candidate-analysis';
+import { analiceGroupCandidate, getBestGroup, groupHasMinimumQuality } from './tools/group-candidate-analysis';
 import {
    GroupCandidate,
    GroupQuality,
@@ -28,7 +24,6 @@ import {
    removeUnavailableUsersFromGroup,
    tryToFixBadQualityGroupIfNeeded,
 } from './tools/group-candidate-editing';
-import { objectsContentIsEqual } from '../../common-tools/js-tools/js-tools';
 import { addUserToGroupCandidate } from './tools/group-candidate-editing';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
 
@@ -242,22 +237,6 @@ function getNotAvailableUsersOnGroup(
 
 function setUsersAsNotAvailable(usersIds: string[], notAvailableUsers: Set<string>): void {
    usersIds.forEach(u => notAvailableUsers.add(u));
-}
-
-/**
- * Compares the analysis of 2 groups and returns the one with best quality. If both groups have exactly the
- * same quality it returns the first one.
- */
-export function getBestGroup(
-   group1: GroupCandidateAnalyzed,
-   group2: GroupCandidateAnalyzed,
-): GroupCandidateAnalyzed {
-   if (objectsContentIsEqual(group1.analysis, group2.analysis)) {
-      return group1;
-   }
-   const result = [group1, group2];
-   result.sort(getSortFunction(false));
-   return result[0];
 }
 
 /**

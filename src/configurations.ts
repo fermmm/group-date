@@ -1,4 +1,4 @@
-import { hoursToMilliseconds } from './common-tools/js-tools/js-tools';
+import { hoursToMilliseconds } from './common-tools/math-tools/general';
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
 
@@ -161,3 +161,6 @@ export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
 export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST: number = 70;
+
+export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY: number = 2048;
+export const LOG_ERROR_AFTER_DB_RETRY_TAKES_MORE_TIME_THAN: number = 1024;

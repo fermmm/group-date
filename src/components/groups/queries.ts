@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { MarkRequired } from 'ts-essentials';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
-import { __, column, g, P } from '../../common-tools/database-tools/database-manager';
+import { __, column, g, P, sendQuery } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { GROUP_SLOTS_CONFIGS } from '../../configurations';
 import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
@@ -136,7 +136,7 @@ export function queryToUpdateGroupProperty(
       traversal = traversal.property(key, serializeIfNeeded(group[key]));
    }
 
-   return traversal.iterate();
+   return sendQuery(() => traversal.iterate());
 }
 
 /**
@@ -182,11 +182,13 @@ export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
       return g.V().hasLabel('group').drop().iterate();
    }
 
-   return g
-      .V()
-      .union(...groups.map(group => __.has('group', 'groupId', group.groupId)))
-      .drop()
-      .iterate();
+   return sendQuery(() =>
+      g
+         .V()
+         .union(...groups.map(group => __.has('group', 'groupId', group.groupId)))
+         .drop()
+         .iterate(),
+   );
 }
 
 export interface AddUsersToGroupSettings {

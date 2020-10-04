@@ -1,5 +1,5 @@
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
-import { __, P, retryOnError, g } from '../../common-tools/database-tools/database-manager';
+import { __, P, sendQuery, g } from '../../common-tools/database-tools/database-manager';
 import { Traversal, GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    allAttractionTypes,
@@ -12,6 +12,7 @@ import { editableUserPropsList, EditableUserProps } from '../../shared-tools/val
 import * as moment from 'moment';
 import { ValueOf } from 'ts-essentials';
 import { generateId } from '../../common-tools/string-tools/string-tools';
+import { time } from '../../common-tools/js-tools/js-tools';
 
 export function queryToCreateUser(
    token: string,
@@ -78,16 +79,14 @@ export function hasProfileCompleted(currentTraversal?: Traversal): Traversal {
 }
 
 export async function queryToUpdateUserToken(userEmail: string, newToken: string): Promise<void> {
-   await retryOnError(() => g.V().has('user', 'email', userEmail).property('token', newToken).next());
-
-   return Promise.resolve();
+   await sendQuery(() => g.V().has('user', 'email', userEmail).property('token', newToken).next());
 }
 
 export async function queryToUpdateUserProps(
    token: string,
    props: Array<{ key: keyof User; value: ValueOf<User> }>,
 ): Promise<void> {
-   await retryOnError(() => {
+   await sendQuery(() => {
       let query = queryToGetUserByToken(token);
 
       for (const prop of props) {
@@ -96,8 +95,6 @@ export async function queryToUpdateUserProps(
 
       return query.next();
    });
-
-   return Promise.resolve();
 }
 
 export function queryToGetAllUsers(): Traversal {
@@ -114,14 +111,19 @@ export function queryToGetAllCompleteUsers(): Traversal {
  */
 export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<void> {
    if (users == null) {
-      return queryToGetAllUsers().drop().iterate();
+      await sendQuery(() => queryToGetAllUsers().drop().iterate());
+   } else {
+      await sendQuery(() =>
+         g
+            .V()
+            .union(...users.map(u => __.has('user', 'userId', u.userId)))
+            .drop()
+            .iterate(),
+      );
    }
 
-   return g
-      .V()
-      .union(...users.map(u => __.has('user', 'userId', u.userId)))
-      .drop()
-      .iterate();
+   // This helps a little to mitigate NegativeArraySizeException Gremlin Server bug
+   await time(500);
 }
 
 /**

@@ -7,7 +7,7 @@
  */
 
 import { queryToCreateVerticesFromObjects } from '../../common-tools/database-tools/common-queries';
-import { __, g, P } from '../../common-tools/database-tools/database-manager';
+import { __, g, P, sendQuery } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { numberChunksCallback } from '../../common-tools/js-tools/js-tools';
 import { getIncompatibleAnswers } from '../../components/user/questions/models';
@@ -16,7 +16,7 @@ import { generateRandomUserProps } from './users';
 
 const fakeUsersCreated: User[] = [];
 
-async function createFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
+export async function createFakeUsers2(amount: number, customParams?: Partial<User>): Promise<User[]> {
    const usersCreated: User[] = [];
 
    numberChunksCallback(amount, 40, async amountForRequest => {
@@ -26,7 +26,7 @@ async function createFakeUsers(amount: number, customParams?: Partial<User>): Pr
    return usersCreated;
 }
 
-async function createFakeUser(customParams?: Partial<User>): Promise<User> {
+export async function createFakeUser2(customParams?: Partial<User>): Promise<User> {
    return (await generateAndCreateFakeUsers(1, customParams))[0];
 }
 
@@ -50,8 +50,8 @@ async function generateAndCreateFakeUsers(amount: number, customParams?: Partial
       users.push(usr);
    }
 
-   await queryToCreateVerticesFromObjects(usersWithoutQuestions, 'user', 'userId').iterate();
-   await queryToSaveQuestionsResponsesForMultipleUsers(users).iterate();
+   sendQuery(() => queryToCreateVerticesFromObjects(usersWithoutQuestions, 'user', 'userId').iterate());
+   sendQuery(() => queryToSaveQuestionsResponsesForMultipleUsers(users).iterate());
 
    fakeUsersCreated.push(...users);
 

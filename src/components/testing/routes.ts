@@ -8,24 +8,25 @@ import {
 import { createFullUsersFromGroupCandidate } from '../../tests/tools/group-finder/user-creation-tools';
 import { createFakeUsers } from '../../tests/tools/users';
 import { queryToRemoveUsers, queryToSetAttraction } from '../user/queries';
+import { setIntervalAsync } from 'set-interval-async/dynamic';
+import { time } from '../../common-tools/js-tools/js-tools';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      console.time('Total time elapsed');
       await queryToRemoveUsers();
+      console.time('Done. Total time elapsed');
 
       const smallGroup = createAndAddMultipleUsers(
          createGroupCandidate({
             amountOfInitialUsers: MIN_GROUP_SIZE - 1,
             connectAllWithAll: true,
          }),
-         300,
+         200,
          'all',
       );
-      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
+      await createFullUsersFromGroupCandidate(smallGroup);
 
-      console.log('ALL DONE');
-      console.timeEnd('Total time elapsed');
-      ctx.body = `Finished OK`;
+      console.timeEnd('Done. Total time elapsed');
+      // ctx.body = `Finished OK`;
    });
 }

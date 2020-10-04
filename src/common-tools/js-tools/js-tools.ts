@@ -1,5 +1,20 @@
-export function hoursToMilliseconds(hours: number): number {
-   return hours * 60 * 60 * 1000;
+/**
+ * Wraps a setTimeout into this async function to be used with "async await" syntax.
+ *
+ * @param timeInMilliseconds Time to pass to setTimeout
+ * @param idGetter Default = null. This function will be executed passing the id of the setTimeout in case you need to cancel it.
+ */
+export async function time(
+   timeInMilliseconds: number,
+   idGetter: (id: ReturnType<typeof setTimeout>) => void = null,
+): Promise<void> {
+   return new Promise(resolve => {
+      if (idGetter == null) {
+         setTimeout(resolve, timeInMilliseconds);
+      } else {
+         idGetter(setTimeout(resolve, timeInMilliseconds));
+      }
+   });
 }
 
 /**
@@ -90,4 +105,66 @@ export async function divideArrayCallback<T>(
       await callback(array.slice(i, i + currentChunk));
       i += currentChunk;
    });
+}
+
+/**
+ * Executes an array of promises one after the other unless "simultaneously" parameter is set to true
+ * The promises must be wrapped in a function.
+ *
+ * @param promises An array of promises wrapped in a function
+ * @param simultaneously  default = false. If this is true it only calls Promise.all(promises)
+ */
+export async function executePromises<T = void>(
+   promises: Array<() => Promise<T>>,
+   simultaneously: boolean = false,
+): Promise<T[]> {
+   if (simultaneously === true) {
+      return await Promise.all(promises.map(pf => pf()));
+   }
+
+   const result: T[] = [];
+   for (const promise of promises) {
+      result.push(await promise());
+   }
+   return result;
+}
+
+/**
+ * Executes an async function. If the promise returns error waits some time and try again.
+ * You can configure the time between retries and the maximum time spent retrying.
+ * Returns the first non-error response. If it's still failing when reaching the maximum time
+ * of retries then returns the promise error.
+ * The time between retries is not constant, it will double the time on each retry, because
+ * if a promise returns error because the resource is busy it means we have to wait more time
+ * and not spam the resource. This pattern is called "Exponential Backoff".
+ *
+ * @param promise The async function to try
+ * @param maxTimeOnARetry Time in milliseconds. Default = 4096. On each retry the wait time will be multiplied by 2, when this multiplication reaches the number specified in this parameter then returns the error returned on the last try.
+ * @param consoleLogWhenReachingTime Time in milliseconds. Default = null. Prints the error in a console.log without stopping the retries when the wait time of a retry reaches this number. Pass null to disable.
+ * @param startingWaitTime Time in milliseconds. Default = 1. This time will be multiplied by 2 on each retry, when this multiplication reaches maxTimeOnARetry parameter then returns the error returned on the last try.
+ */
+export async function retryPromise<T>(
+   promise: () => Promise<T>,
+   maxTimeOnARetry: number = 4096,
+   consoleLogWhenReachingTime: number = null,
+   startingWaitTime: number = 1,
+): Promise<T> {
+   await time(startingWaitTime);
+   try {
+      return await promise();
+   } catch (error) {
+      if (consoleLogWhenReachingTime != null && startingWaitTime >= consoleLogWhenReachingTime) {
+         console.log(
+            `Error: ${
+               error?.statusAttributes?.get('exceptions') ?? error
+            } after retrying for ${startingWaitTime}ms`,
+         );
+         consoleLogWhenReachingTime = null;
+      }
+      if (startingWaitTime < maxTimeOnARetry) {
+         return await retryPromise(promise, maxTimeOnARetry, consoleLogWhenReachingTime, startingWaitTime * 2);
+      } else {
+         return error;
+      }
+   }
 }
