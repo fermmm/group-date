@@ -1,9 +1,8 @@
 /**
  * This version of createFakeUsers creates many users on the same database request but seems to
  * be a limit in the amount of data per request, if this limit is passed the request never responds.
- * The solution is to call many requests of 40 users each. I compared the performance and it's not
- * much better than one request per user so I save in this file the code and the queries I did for
- * this approach, just in case I need something from here in the future.
+ * The solution is to call many requests of 40 users each. Performance and it's not much better than
+ * one request per user but it seems to have less ConcurrentModificationException issues.
  */
 
 import { queryToCreateVerticesFromObjects } from '../../common-tools/database-tools/common-queries';

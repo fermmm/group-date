@@ -7,7 +7,7 @@ import { Group } from '../../../shared-tools/endpoints-interfaces/groups';
 import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from '../replacements';
 import { createFakeUser } from '../users';
-import { createFakeUser2 } from '../_old';
+import { createFakeUser2 } from '../_experimental';
 
 /**
  * Converts group candidate users into full users connected between them as they
