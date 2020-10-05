@@ -217,7 +217,7 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
  * be handled outside of Gremlin.
  *
  * To test the query easily:
- * https://gremlify.com/fzqecgnxi9p
+ * https://gremlify.com/h1t3sapjlkc
  *
  *
  * @param slotSize Size restriction. This is not to limit the group size, it's for ignoring groups with sizes outside the limits passed.
@@ -238,15 +238,15 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
                .by(__.values('userId'))
                .by(
                   __.as('u')
-                     .select('g')
-                     .unfold()
-                     .where(__.both('Match').where(P.eq('u'))) // Get the matches of the user within the group
+                     .both('Match')
+                     .where(P.within('g')) // Get the matches of the user within the group
                      .values('userId')
                      .fold(),
                ),
          )
-         .order()
-         .by(__.select('matches').count(scope.local), order.desc) // Order the users by their amount of matches
+         // This could be useful in the future to improve performance on JS side:
+         // .order()
+         // .by(__.select('matches').count(scope.local), order.desc) // Order the users by their amount of matches
          .fold()
          .choose(__.count(scope.local).is(P.eq(0)), __.unfold()), // Remove empty arrays caused by the group size restrictions
    );

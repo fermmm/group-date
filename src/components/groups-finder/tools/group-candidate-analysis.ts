@@ -10,7 +10,6 @@ import {
 import { getSortFunction, GroupsAnalyzedList } from '../models';
 import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
-import * as Collections from 'typescript-collections';
 import { checkTypeByMember } from '../../../common-tools/ts-tools/ts-tools';
 
 /**
@@ -196,42 +195,44 @@ export function userIsPresentOnGroup(group: GroupCandidate, userId: string): boo
  */
 export function getDataCorruptionProblemsInGroupCandidate(
    group: GroupCandidate | GroupCandidateAnalyzed,
+   maxUsersAllowed: number = null,
 ): string[] {
    const result = [];
 
    const gr: GroupCandidate = checkTypeByMember<GroupCandidateAnalyzed>(group, 'group') ? group.group : group;
 
-   // TODO: Remove this later
-   if (gr.users.length > 110) {
-      result.push('Group has too many users');
+   if (maxUsersAllowed != null && gr.users.length > maxUsersAllowed) {
+      result.push(
+         `Group has too many users: Users amount: ${gr.users.length} max users to throw this error: ${maxUsersAllowed} groupId: ${gr.groupId}`,
+      );
    }
 
    gr.users.forEach(u => {
       if (u.matches.length === 0) {
-         result.push('Has user with 0 matches');
+         result.push(`Has user with 0 matches: ${u.userId}`);
       }
 
       if (u.matches.length > gr.users.length) {
-         result.push('User has more matches than members in the group');
+         result.push(`User has more matches than members in the group: ${u.userId}`);
       }
 
       const evaluated: Set<string> = new Set();
       u.matches.forEach(m => {
          if (evaluated.has(m)) {
-            result.push('User has a repeated match');
+            result.push(`User has a repeated match: User: ${u.userId} Match repeated: ${m}`);
          }
          evaluated.add(m);
 
          if (u.userId === m) {
-            result.push('User has himself on the matches list');
+            result.push(`User has himself on the matches list: ${u.userId}`);
          }
 
          if (!userIsPresentOnGroup(gr, m)) {
-            result.push('User has a match that is not present on the group');
+            result.push(`User has a match that is not present on the group: ${m}`);
             return;
          }
          if (getUserByIdOnGroupCandidate(gr, m).matches.findIndex(um => um === u.userId) === -1) {
-            result.push('User has unilateral match');
+            result.push(`User has unilateral match, the user: ${u.userId} is not in the matches of ${m}`);
          }
       });
    });

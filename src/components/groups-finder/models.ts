@@ -2,13 +2,19 @@ import {
    CREATE_BIGGER_GROUPS_FIRST,
    GROUP_SLOTS_CONFIGS,
    MAX_GROUP_SIZE,
+   REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
 import * as Collections from 'typescript-collections';
 import { firstBy } from 'thenby';
 import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
-import { analiceGroupCandidate, getBestGroup, groupHasMinimumQuality } from './tools/group-candidate-analysis';
+import {
+   analiceGroupCandidate,
+   getBestGroup,
+   getDataCorruptionProblemsInMultipleGroupCandidates,
+   groupHasMinimumQuality,
+} from './tools/group-candidate-analysis';
 import {
    GroupCandidate,
    GroupQuality,
@@ -60,7 +66,9 @@ async function createGroupsForSlot(
    notAvailableUsers: Set<string>,
 ): Promise<void> {
    const groups: GroupCandidate[] = await fromQueryToGroupCandidates(queryToGetGroupCandidates(slot, quality));
-   const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups, slot);
+   checkForDataCorruption('queryToGetGroupCandidates()', groups);
+
+   const groupsAnalyzed = analiceAndFilterGroupCandidates(groups, slot);
    await createGroups(groupsAnalyzed, notAvailableUsers, slot, quality);
 }
 
@@ -124,6 +132,9 @@ async function createGroups(
 
    for (let i = 0; i < iterations; i++) {
       let group: GroupCandidateAnalyzed = groupCandidates.minimum();
+      if (group == null) {
+         break;
+      }
       groupCandidates.remove(group);
       const notAvailableUsersOnGroup: UserWithMatches[] = getNotAvailableUsersOnGroup(group, notAvailableUsers);
 
@@ -247,6 +258,16 @@ function slotsIndexesOrdered(): number[] {
    const slotsWithIndex = slotsSorted.map((s, i) => ({ slot: s, index: i }));
    slotsWithIndex.sort(firstBy(s => s.slot.minimumSize ?? 0, 'desc'));
    return slotsWithIndex.map(s => s.index);
+}
+
+function checkForDataCorruption(consoleReportId: string, groups: GroupCandidate[] | GroupsAnalyzedList) {
+   if (REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER) {
+      const problems = getDataCorruptionProblemsInMultipleGroupCandidates(groups);
+      if (problems.length > 0) {
+         console.log(`ERROR: ${consoleReportId} Returned corrupted data:`);
+         console.log(getDataCorruptionProblemsInMultipleGroupCandidates(groups));
+      }
+   }
 }
 
 export type GroupsAnalyzedList = Collections.BSTreeKV<GroupCandidateAnalyzed, GroupCandidateAnalyzed>;
