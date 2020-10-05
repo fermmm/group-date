@@ -15,6 +15,7 @@ import {
 import { EditableUserProps } from '../../shared-tools/validators/user';
 import { chance } from './generalTools';
 import { fakeCtx } from './replacements';
+import { generateId } from '../../common-tools/string-tools/string-tools';
 
 const fakeUsersCreated: User[] = [];
 
@@ -78,8 +79,8 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
-      token: chance.apple_token(),
-      userId: chance.apple_token(),
+      token: generateId(),
+      userId: generateId(),
       email: chance.email(),
       age: chance.integer({ min: 18, max: 55 }),
       targetAgeMin: chance.integer({ min: 18, max: 20 }),

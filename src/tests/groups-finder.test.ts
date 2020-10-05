@@ -96,7 +96,7 @@ describe('Group Finder', () => {
    });
 
    test('Additional users added to a group cannot be higher than maximum configured', async () => {
-      // TODO: Si pongo 300 nunca devuelve nada pero tampoco usa ni la ram ni el CPU, parece mas un bug
+      // TODO: Si pongo 300 es demasiado
       // smallGroup = GroupCandTestTools.createAndAddMultipleUsers(smallGroup, 300, 'all');
 
       const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);

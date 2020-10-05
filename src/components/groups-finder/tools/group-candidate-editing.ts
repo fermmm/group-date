@@ -75,11 +75,11 @@ export function removeUsersFromGroupCandidate(
    group: GroupCandidate,
    usersToRemove: UserWithMatches[],
 ): GroupCandidate {
-   if (usersToRemove.length === 0) {
-      return group;
-   }
-
    const resultGroup: GroupCandidate = copyGroupCandidate(group);
+
+   if (usersToRemove.length === 0) {
+      return resultGroup;
+   }
 
    usersToRemove.forEach(u => {
       // Get the user to be removed but take the reference from the new copy of the group
@@ -90,9 +90,7 @@ export function removeUsersFromGroupCandidate(
          const matchUser = getUserByIdOnGroupCandidate(resultGroup, matchUserId);
          const indexInMatch = matchUser.matches.indexOf(user.userId);
          // Remove the user from the matches list of all other users
-         if (indexInMatch !== -1) {
-            matchUser.matches.splice(indexInMatch, 1);
-         }
+         matchUser.matches.splice(indexInMatch, 1);
       });
 
       // Remove the user from the group
@@ -191,6 +189,7 @@ export function removeUsersWithLessConnectionsUntil(
    const iterations = result.users.length;
    for (let i = 0; i < iterations; i++) {
       result = removeTheUserWithLessConnections(result, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
+
       if (groupSizeIsUnderMinimum(result.users.length, slot)) {
          return null;
       }
@@ -214,6 +213,7 @@ export function removeUnavailableUsersFromGroup(
 
    // Create a new group candidate removing unavailable users
    let newGroup: GroupCandidate = removeUsersFromGroupCandidate(group.group, notAvailableUsersOnGroup);
+
    // After users are removed other users should also be removed if their connections amount are too low
    newGroup = removeUsersRecursivelyByConnectionsAmount(newGroup, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
 

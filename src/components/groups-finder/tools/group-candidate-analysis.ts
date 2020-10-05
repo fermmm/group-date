@@ -1,3 +1,4 @@
+import { BSTreeKV } from 'typescript-collections';
 import { objectsContentIsEqual } from '../../../common-tools/js-tools/js-tools';
 import { generateNumberId, replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
 import {
@@ -6,9 +7,11 @@ import {
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    MIN_GROUP_SIZE,
 } from '../../../configurations';
-import { getSortFunction } from '../models';
+import { getSortFunction, GroupsAnalyzedList } from '../models';
 import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
+import * as Collections from 'typescript-collections';
+import { checkTypeByMember } from '../../../common-tools/ts-tools/ts-tools';
 
 /**
  * This function calculates the connections count inequality level with the following logic:
@@ -187,23 +190,66 @@ export function userIsPresentOnGroup(group: GroupCandidate, userId: string): boo
  * - All the matches of a user should be present in a group, check for all the users of the group
  * - Matched users should be present in both matches list, unilateral matches are data corruption
  * - Users with 0 matches should not be allowed to be on a group
+ * - Users should not have the same match more than once
+ * - Users should not have more matches than the amount of members in the group
+ * - A user cannot have his own id on the matches list
  */
-export function getDataCorruptionProblemsInGroupCandidate(group: GroupCandidate): string[] {
+export function getDataCorruptionProblemsInGroupCandidate(
+   group: GroupCandidate | GroupCandidateAnalyzed,
+): string[] {
    const result = [];
-   group.users.forEach(u => {
+
+   const gr: GroupCandidate = checkTypeByMember<GroupCandidateAnalyzed>(group, 'group') ? group.group : group;
+
+   // TODO: Remove this later
+   if (gr.users.length > 110) {
+      result.push('Group has too many users');
+   }
+
+   gr.users.forEach(u => {
       if (u.matches.length === 0) {
          result.push('Has user with 0 matches');
       }
+
+      if (u.matches.length > gr.users.length) {
+         result.push('User has more matches than members in the group');
+      }
+
+      const evaluated: Set<string> = new Set();
       u.matches.forEach(m => {
-         if (!userIsPresentOnGroup(group, m)) {
+         if (evaluated.has(m)) {
+            result.push('User has a repeated match');
+         }
+         evaluated.add(m);
+
+         if (u.userId === m) {
+            result.push('User has himself on the matches list');
+         }
+
+         if (!userIsPresentOnGroup(gr, m)) {
             result.push('User has a match that is not present on the group');
             return;
          }
-         if (getUserByIdOnGroupCandidate(group, m).matches.findIndex(um => um === u.userId) === -1) {
+         if (getUserByIdOnGroupCandidate(gr, m).matches.findIndex(um => um === u.userId) === -1) {
             result.push('User has unilateral match');
          }
       });
    });
+   return result;
+}
+
+export function getDataCorruptionProblemsInMultipleGroupCandidates(
+   groups: GroupCandidate[] | GroupsAnalyzedList,
+): string[][] {
+   const result: string[][] = [];
+
+   groups.forEach((g: GroupCandidate | GroupCandidateAnalyzed) => {
+      const problems = getDataCorruptionProblemsInGroupCandidate(g);
+      if (problems.length > 0) {
+         result.push(problems);
+      }
+   });
+
    return result;
 }
 

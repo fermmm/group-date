@@ -210,7 +210,11 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
 /**
  * Receives a traversal with a list of users arrays and for each user adds it's matches within the group. This extra
  * info is required by the group quality analyzer.
- * Also ignores groups that are outside the size restrictions selected.
+ * Groups sizes below minimum group size are discarded here.
+ * Groups sizes over maximum slot size are ignored if there is a bigger slot available.
+ * The query makes no action when the group is bigger than MAX_GROUP_SIZE, cutting the group must be done correctly
+ * by the JS logic because the inconsistency left after removing a user (like a user with a single match left) must
+ * be handled outside of Gremlin.
  *
  * To test the query easily:
  * https://gremlify.com/fzqecgnxi9p

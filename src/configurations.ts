@@ -40,8 +40,8 @@ export const MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = 2;
  *
  * Parameters:
  *
- *    @param minimumSize default = MIN_GROUP_SIZE setting
- *    @param maximumSize default = MAX_GROUP_SIZE setting
+ *    @param minimumSize Don't set this value if the slot is the one handling the smaller groups.
+ *    @param maximumSize Don't set this value if the slot is the one handling the bigger groups.
  *    @param amount If you want to configure the app to have multiple slots with the same group size, use this
  *                  property, don't duplicate slots
  *    @param releaseTime A group slot will be available again after a specific time set in this constant
@@ -163,4 +163,3 @@ export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST: number = 70;
 
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY: number = 2048;
-export const LOG_ERROR_AFTER_DB_RETRY_TAKES_MORE_TIME_THAN: number = 1024;

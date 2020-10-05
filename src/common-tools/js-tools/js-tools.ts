@@ -146,25 +146,16 @@ export async function executePromises<T = void>(
 export async function retryPromise<T>(
    promise: () => Promise<T>,
    maxTimeOnARetry: number = 4096,
-   consoleLogWhenReachingTime: number = null,
    startingWaitTime: number = 1,
 ): Promise<T> {
    await time(startingWaitTime);
    try {
       return await promise();
    } catch (error) {
-      if (consoleLogWhenReachingTime != null && startingWaitTime >= consoleLogWhenReachingTime) {
-         console.log(
-            `Error: ${
-               error?.statusAttributes?.get('exceptions') ?? error
-            } after retrying for ${startingWaitTime}ms`,
-         );
-         consoleLogWhenReachingTime = null;
-      }
       if (startingWaitTime < maxTimeOnARetry) {
-         return await retryPromise(promise, maxTimeOnARetry, consoleLogWhenReachingTime, startingWaitTime * 2);
+         return await retryPromise(promise, maxTimeOnARetry, startingWaitTime * 2);
       } else {
-         return error;
+         return await promise();
       }
    }
 }

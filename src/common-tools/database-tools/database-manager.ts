@@ -2,10 +2,7 @@ import * as gremlin from 'gremlin';
 import * as ora from 'ora';
 import { Traversal } from './gremlin-typing-tools';
 import { retryPromise } from '../js-tools/js-tools';
-import {
-   LOG_ERROR_AFTER_DB_RETRY_TAKES_MORE_TIME_THAN,
-   MAX_TIME_TO_WAIT_ON_DATABASE_RETRY,
-} from '../../configurations';
+import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY } from '../../configurations';
 
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
@@ -74,12 +71,15 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
    try {
       result = await query();
    } catch (error) {
-      result = await retryPromise(
-         query,
-         MAX_TIME_TO_WAIT_ON_DATABASE_RETRY,
-         LOG_ERROR_AFTER_DB_RETRY_TAKES_MORE_TIME_THAN,
-         1,
-      );
+      try {
+         result = await query();
+      } catch (error) {
+         try {
+            result = await retryPromise(query, MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);
+         } catch (error) {
+            console.log(`Error: ${error?.statusAttributes?.get('exceptions') ?? error}`);
+         }
+      }
    }
 
    if (logResult) {
