@@ -15,21 +15,34 @@ import { generateRandomUserProps } from './users';
 
 const fakeUsersCreated: User[] = [];
 
-export async function createFakeUsers2(amount: number, customParams?: Partial<User>): Promise<User[]> {
+export async function createFakeUsers2(
+   amount: number,
+   customParams?: Partial<User>,
+   useMultithreading: boolean = false,
+): Promise<User[]> {
    const usersCreated: User[] = [];
 
    numberChunksCallback(amount, 40, async amountForRequest => {
-      usersCreated.push(...(await generateAndCreateFakeUsers(amountForRequest, customParams)));
+      usersCreated.push(
+         ...(await generateAndCreateFakeUsers(amountForRequest, customParams, useMultithreading)),
+      );
    });
 
    return usersCreated;
 }
 
-export async function createFakeUser2(customParams?: Partial<User>): Promise<User> {
-   return (await generateAndCreateFakeUsers(1, customParams))[0];
+export async function createFakeUser2(
+   customParams?: Partial<User>,
+   useMultithreading: boolean = false,
+): Promise<User> {
+   return (await generateAndCreateFakeUsers(1, customParams, useMultithreading))[0];
 }
 
-async function generateAndCreateFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
+async function generateAndCreateFakeUsers(
+   amount: number,
+   customParams?: Partial<User>,
+   useMultithreading: boolean = false,
+): Promise<User[]> {
    const users: User[] = [];
    const usersWithoutQuestions: User[] = [];
    const finalParams = { ...(customParams ?? {}) };
@@ -49,7 +62,13 @@ async function generateAndCreateFakeUsers(amount: number, customParams?: Partial
       users.push(usr);
    }
 
-   await sendQuery(() => queryToCreateVerticesFromObjects(usersWithoutQuestions, 'user').iterate());
+   await sendQuery(() =>
+      queryToCreateVerticesFromObjects(
+         usersWithoutQuestions,
+         'user',
+         !useMultithreading ? 'userId' : null, // Checking for duplication is not supported in multithreading
+      ).iterate(),
+   );
    await sendQuery(() => queryToSaveQuestionsResponsesForMultipleUsers(users).iterate());
 
    fakeUsersCreated.push(...users);

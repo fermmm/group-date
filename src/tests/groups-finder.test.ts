@@ -2,7 +2,7 @@ import 'jest';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { queryToRemoveUsers } from '../components/user/queries';
 import {
-   callGroupCreationMultipleTimes,
+   callGroupFinder,
    createFullUsersFromGroupCandidate,
    retrieveFinalGroupsOf,
 } from './tools/group-finder/user-creation-tools';
@@ -11,6 +11,7 @@ import { MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../configurations';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { queryToRemoveGroups } from '../components/groups/queries';
 import { getBiggestGroup } from './tools/groups';
+import { getAllFakeUsersCreated } from './tools/users';
 
 /**
  * Ciclo de vida de un grupo chico:
@@ -37,82 +38,87 @@ describe('Group Finder', () => {
    const usersCreated: User[] = [];
    const groupsCreated: Group[] = [];
 
-   let smallGroup = GroupCandTestTools.createGroupCandidate({
-      amountOfInitialUsers: MIN_GROUP_SIZE - 1,
-      connectAllWithAll: true,
-   });
-
    test('Matching users below minimum amount does not form a group', async () => {
-      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
-      usersCreated.push(...users);
+      const groupCandidate = GroupCandTestTools.createGroupCandidate({
+         amountOfInitialUsers: MIN_GROUP_SIZE - 1,
+         connectAllWithAll: true,
+      });
+      createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
 
-      await callGroupCreationMultipleTimes();
-
-      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
-      groupsCreated.push(...groups);
-
-      expect(groups).toHaveLength(0);
+      expect(await retrieveFinalGroupsOf(groupCandidate.users)).toHaveLength(0);
    });
 
    test('Matching in minimum amount creates a group', async () => {
-      smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
-      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
-      usersCreated.push(...users);
+      const groupCandidate = GroupCandTestTools.createGroupCandidate({
+         amountOfInitialUsers: MIN_GROUP_SIZE,
+         connectAllWithAll: true,
+      });
+      createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
 
-      await callGroupCreationMultipleTimes();
-
-      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
-      groupsCreated.push(...groups);
-
+      const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
       expect(groups).toHaveLength(1);
+      expect(groups[0].members).toHaveLength(MIN_GROUP_SIZE);
    });
 
    test('Additional user matching can enter the group even after creation', async () => {
-      smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
-      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
-      usersCreated.push(...users);
+      let groupCandidate = GroupCandTestTools.createGroupCandidate({
+         amountOfInitialUsers: MIN_GROUP_SIZE,
+         connectAllWithAll: true,
+      });
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
 
-      await callGroupCreationMultipleTimes();
+      groupCandidate = GroupCandTestTools.createAndAddOneUser({ group: groupCandidate, connectWith: 'all' });
+      await createFullUsersFromGroupCandidate(groupCandidate);
 
-      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
-      groupsCreated.push(...groups);
+      await callGroupFinder();
+
+      const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
 
       expect(groups).toHaveLength(1);
-      expect(groups[0].members).toHaveLength(4);
+      expect(groups[0].members).toHaveLength(MIN_GROUP_SIZE + 1);
    });
-   /*
+
    test('Users that decrease the quality of an existing group when joining should not join', async () => {
-      smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: [0, 1] });
-      const users = await createFullUsersFromGroupCandidate(smallGroup);
-      usersCreated.push(...users);
+      let groupCandidate = GroupCandTestTools.createGroupCandidate({
+         amountOfInitialUsers: 4,
+         connectAllWithAll: true,
+      });
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
 
-      await callGroupCreationMultipleTimes();
+      groupCandidate = GroupCandTestTools.createAndAddOneUser({ group: groupCandidate, connectWith: [0, 1] });
 
-      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
-      groupsCreated.push(...groups);
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
+
+      const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
 
       expect(groups).toHaveLength(1);
       expect(groups[0].members).toHaveLength(4);
    });
 
    test('Additional users added to a group cannot be higher than maximum configured', async () => {
-      // TODO: Si pongo 300 es demasiado
-      // smallGroup = GroupCandTestTools.createAndAddMultipleUsers(smallGroup, 300, 'all');
+      let groupCandidate = GroupCandTestTools.createGroupCandidate({
+         amountOfInitialUsers: 4,
+         connectAllWithAll: true,
+      });
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
 
-      const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
-      usersCreated.push(...users);
+      groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, MAX_GROUP_SIZE + 5, 'all');
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
 
-      await callGroupCreationMultipleTimes();
-
-      const groups: Group[] = await retrieveFinalGroupsOf(smallGroup.users);
-      groupsCreated.push(...groups);
+      const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
 
       expect(getBiggestGroup(groups).members.length).toBeLessThanOrEqual(MAX_GROUP_SIZE);
    });
 
-   afterAll(async () => {
-      await queryToRemoveUsers(usersCreated);
-      await queryToRemoveGroups(groupsCreated);
+   afterEach(async () => {
+      await queryToRemoveGroups();
+      await queryToRemoveUsers();
    });
-   */
 });

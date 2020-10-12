@@ -196,7 +196,7 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
             .and(
                __.out('Like').where(P.eq('user')),
                __.in_('Like').where(P.eq('user')),
-               __.not(__.both('Match')),
+               __.not(__.both('Match').where(P.eq('user'))),
             )
             .addE('Match')
             .from_('user'),

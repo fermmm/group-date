@@ -12,11 +12,16 @@ import { ENABLE_DATABASE_MULTITHREADING } from '../../../configurations';
 /**
  * Converts group candidate users into full users connected between them as they
  * are connected in the group candidate.
+ *
+ * @param useMultithreading When this is true users are created without checking for duplication be aware of that
  */
-export async function createFullUsersFromGroupCandidate(group: GroupCandidate): Promise<User[]> {
+export async function createFullUsersFromGroupCandidate(
+   group: GroupCandidate,
+   useMultithreading: boolean = false,
+): Promise<User[]> {
    const usersCreated: User[] = [];
    const creationPromises = group.users.map(u => async () =>
-      usersCreated.push(await createFakeUser2({ userId: u.userId, token: u.userId })),
+      usersCreated.push(await createFakeUser2({ userId: u.userId, token: u.userId }, useMultithreading)),
    );
 
    // Once all users are created we can connect the users
@@ -30,14 +35,14 @@ export async function createFullUsersFromGroupCandidate(group: GroupCandidate): 
       ),
    );
 
-   await executePromises(creationPromises, ENABLE_DATABASE_MULTITHREADING);
+   await executePromises(creationPromises, useMultithreading);
    // This is not thread safe in any DB for the moment
    await executePromises(attractionPromises, false);
 
    return usersCreated;
 }
 
-export async function callGroupCreationMultipleTimes(times: number = 3): Promise<void> {
+export async function callGroupFinder(times: number = 3): Promise<void> {
    for (let i = 0; i < times; i++) {
       await searchAndCreateNewGroups();
    }

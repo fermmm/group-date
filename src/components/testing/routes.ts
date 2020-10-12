@@ -7,7 +7,7 @@ import {
    createGroupCandidate,
 } from '../../tests/tools/group-finder/group-candidate-test-editing';
 import {
-   callGroupCreationMultipleTimes,
+   callGroupFinder,
    createFullUsersFromGroupCandidate,
 } from '../../tests/tools/group-finder/user-creation-tools';
 import { queryToRemoveUsers } from '../user/queries';
@@ -32,7 +32,7 @@ export function testingRoutes(router: Router): void {
       // await time(2000);
 
       // console.log('Group creation');
-      await callGroupCreationMultipleTimes(1);
+      await callGroupFinder(1);
 
       console.log((await g.V().hasLabel('group').toList()).length);
 
