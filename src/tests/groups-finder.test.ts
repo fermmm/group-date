@@ -80,7 +80,7 @@ describe('Group Finder', () => {
       expect(groups).toHaveLength(1);
       expect(groups[0].members).toHaveLength(4);
    });
-
+   /*
    test('Users that decrease the quality of an existing group when joining should not join', async () => {
       smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: [0, 1] });
       const users = await createFullUsersFromGroupCandidate(smallGroup);
@@ -114,4 +114,5 @@ describe('Group Finder', () => {
       await queryToRemoveUsers(usersCreated);
       await queryToRemoveGroups(groupsCreated);
    });
+   */
 });

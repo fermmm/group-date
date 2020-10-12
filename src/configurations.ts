@@ -182,4 +182,4 @@ export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
  * See:
  * https://stackoverflow.com/questions/64147336/gremlin-concurrentmodificationexception-and-performance
  */
-export const ENABLE_DATABASE_MULTITHREADING = true;
+export const ENABLE_DATABASE_MULTITHREADING = false;

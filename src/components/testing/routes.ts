@@ -1,30 +1,43 @@
 import * as Router from '@koa/router';
+import { g } from '../../common-tools/database-tools/database-manager';
+import { time } from '../../common-tools/js-tools/js-tools';
 import { MIN_GROUP_SIZE } from '../../configurations';
-import { User, AttractionType } from '../../shared-tools/endpoints-interfaces/user';
 import {
    createAndAddMultipleUsers,
    createGroupCandidate,
 } from '../../tests/tools/group-finder/group-candidate-test-editing';
-import { createFullUsersFromGroupCandidate } from '../../tests/tools/group-finder/user-creation-tools';
-import { createFakeUsers } from '../../tests/tools/users';
-import { queryToRemoveUsers, queryToSetAttraction } from '../user/queries';
-import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { time } from '../../common-tools/js-tools/js-tools';
+import {
+   callGroupCreationMultipleTimes,
+   createFullUsersFromGroupCandidate,
+} from '../../tests/tools/group-finder/user-creation-tools';
+import { queryToRemoveUsers } from '../user/queries';
+import { generateId } from '../../common-tools/string-tools/string-tools';
+import { generateRandomUserProps } from '../../tests/tools/users';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
-      await queryToRemoveUsers();
+      // await queryToRemoveUsers();
       console.time('Done. Total time elapsed');
 
       const smallGroup = createAndAddMultipleUsers(
          createGroupCandidate({
-            amountOfInitialUsers: MIN_GROUP_SIZE - 1,
+            amountOfInitialUsers: 0,
             connectAllWithAll: true,
          }),
-         200,
+         15,
          'all',
       );
       await createFullUsersFromGroupCandidate(smallGroup);
+
+      // await time(2000);
+
+      // console.log('Group creation');
+      await callGroupCreationMultipleTimes(1);
+
+      console.log((await g.V().hasLabel('group').toList()).length);
+
+      // console.log((await g.V().hasLabel('user').both('Match').toList()).length);
+      // console.log((await queryToSearchGoodQualityMatchingGroups(1).toList()).length);
 
       console.timeEnd('Done. Total time elapsed');
       // ctx.body = `Finished OK`;
