@@ -113,11 +113,18 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
    if (users == null) {
       await sendQuery(() => queryToGetAllUsers().drop().iterate());
    } else {
+      const ids: string[] = users.map(u => u.userId);
       await sendQuery(() =>
          g
-            .V()
-            .union(...users.map(u => __.has('user', 'userId', u.userId)))
-            .drop()
+            .inject(ids)
+            .unfold()
+            .map(
+               __.as('targetUserId')
+                  .V()
+                  .hasLabel('user')
+                  .has('userId', __.where(P.eq('targetUserId')))
+                  .drop(),
+            )
             .iterate(),
       );
    }
@@ -181,13 +188,18 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
             .sideEffect(__.bothE('Match').where(__.bothV().as('user')).drop())
 
             // Now we can add the new edge
-            .sideEffect(__.addE(__.select('attractionType')).from_('user'))
+            .addE(__.select('attractionType'))
+            .from_('user')
 
             // If the users like each other add a Match edge
-            .choose(
-               __.and(__.out('Like').where(P.eq('user')), __.in_('Like').where(P.eq('user'))),
-               __.sideEffect(__.addE('Match').from_('user')),
-            ),
+            .select('targetUser')
+            .and(
+               __.out('Like').where(P.eq('user')),
+               __.in_('Like').where(P.eq('user')),
+               __.not(__.both('Match')),
+            )
+            .addE('Match')
+            .from_('user'),
       );
 }
 

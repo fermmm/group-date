@@ -67,7 +67,7 @@ describe('Group Finder', () => {
       expect(groups).toHaveLength(1);
    });
 
-   test('Adicional user matching can enter the group even after creation', async () => {
+   test('Additional user matching can enter the group even after creation', async () => {
       smallGroup = GroupCandTestTools.createAndAddOneUser({ group: smallGroup, connectWith: 'all' });
       const users: User[] = await createFullUsersFromGroupCandidate(smallGroup);
       usersCreated.push(...users);

@@ -19,7 +19,7 @@ export function valueMap(traversal: Traversal): Traversal {
 export function queryToCreateVerticesFromObjects<T>(
    objects: T[],
    verticesLabel: string,
-   duplicationAvoidanceProperty: keyof T,
+   duplicationAvoidanceProperty?: keyof T,
    serializeProperties: boolean = true,
 ): Traversal {
    let objectsReadyForDB: Array<Record<keyof T, GremlinValueType>> | T[];
@@ -31,22 +31,26 @@ export function queryToCreateVerticesFromObjects<T>(
       key => (creationTraversal = creationTraversal.property(key, __.select(key))),
    );
 
-   return g
-      .withSideEffect('nothing', [])
-      .inject(objectsReadyForDB)
-      .unfold()
-      .map(
-         __.as('data')
-            .select(duplicationAvoidanceProperty)
-            .as('dap')
-            .select('data')
-            .choose(
-               __.V()
-                  .hasLabel(verticesLabel)
-                  .has(duplicationAvoidanceProperty, __.where(P.eq('dap'))),
-               __.select('nothing'),
-               creationTraversal,
-            ),
-      )
-      .unfold();
+   if (duplicationAvoidanceProperty == null) {
+      return g.inject(objectsReadyForDB).unfold().map(creationTraversal);
+   } else {
+      return g
+         .withSideEffect('nothing', [])
+         .inject(objectsReadyForDB)
+         .unfold()
+         .map(
+            __.as('data')
+               .select(duplicationAvoidanceProperty)
+               .as('dap')
+               .select('data')
+               .choose(
+                  __.V()
+                     .hasLabel(verticesLabel)
+                     .has(duplicationAvoidanceProperty, __.where(P.eq('dap'))),
+                  __.select('nothing'),
+                  creationTraversal,
+               ),
+         )
+         .unfold();
+   }
 }

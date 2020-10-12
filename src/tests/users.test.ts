@@ -1,5 +1,6 @@
 import 'jest';
 import { createGroup, getSlotIdFromUsersAmount } from '../components/groups/models';
+import { queryToRemoveGroups } from '../components/groups/queries';
 import {
    addNotificationToUser,
    attractionsReceivedGet,
@@ -21,12 +22,14 @@ describe('Users', () => {
    let matchingUsersCouple3: User[];
    let matching10: User[];
    let matching10Group: Group;
+   let testProtagonist: User;
 
    beforeAll(async () => {
       matchingUsersCouple1 = await createMatchingUsers(2);
       matchingUsersCouple2 = await createMatchingUsers(2);
       matchingUsersCouple3 = await createMatchingUsers(2);
       matching10 = await createMatchingUsers(10);
+      testProtagonist = await createFakeUser();
    });
 
    test('Fake users profile is completed', async () => {
@@ -54,8 +57,6 @@ describe('Users', () => {
    });
 
    test('Attraction works', async () => {
-      const testProtagonist: User = await createFakeUser();
-
       // Self liking should be not possible
       await setAttraction(testProtagonist, [testProtagonist], AttractionType.Like);
       expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(0);
@@ -115,6 +116,8 @@ describe('Users', () => {
          ...matchingUsersCouple2,
          ...matchingUsersCouple3,
          ...matching10,
+         testProtagonist,
       ]);
+      await queryToRemoveGroups([matching10Group]);
    });
 });

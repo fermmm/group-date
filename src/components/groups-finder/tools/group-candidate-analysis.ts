@@ -192,6 +192,7 @@ export function userIsPresentOnGroup(group: GroupCandidate, userId: string): boo
  * - Users should not have the same match more than once
  * - Users should not have more matches than the amount of members in the group
  * - A user cannot have his own id on the matches list
+ * - A user or a match cannot be more than once
  */
 export function getDataCorruptionProblemsInGroupCandidate(
    group: GroupCandidate | GroupCandidateAnalyzed,
@@ -207,7 +208,17 @@ export function getDataCorruptionProblemsInGroupCandidate(
       );
    }
 
+   const evaluatedUser: Set<string> = new Set();
    gr.users.forEach(u => {
+      if (evaluatedUser.has(u.userId)) {
+         result.push(`User is repeated: ${u.userId}`);
+      }
+      evaluatedUser.add(u.userId);
+
+      if (u.matches == null) {
+         result.push(`User matches array is null: ${u.userId}`);
+      }
+
       if (u.matches.length === 0) {
          result.push(`Has user with 0 matches: ${u.userId}`);
       }
@@ -216,12 +227,12 @@ export function getDataCorruptionProblemsInGroupCandidate(
          result.push(`User has more matches than members in the group: ${u.userId}`);
       }
 
-      const evaluated: Set<string> = new Set();
+      const evaluatedMatch: Set<string> = new Set();
       u.matches.forEach(m => {
-         if (evaluated.has(m)) {
+         if (evaluatedMatch.has(m)) {
             result.push(`User has a repeated match: User: ${u.userId} Match repeated: ${m}`);
          }
-         evaluated.add(m);
+         evaluatedMatch.add(m);
 
          if (u.userId === m) {
             result.push(`User has himself on the matches list: ${u.userId}`);

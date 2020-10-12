@@ -7,6 +7,7 @@ import { Group } from '../../../shared-tools/endpoints-interfaces/groups';
 import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from '../replacements';
 import { createFakeUser2 } from '../_experimental';
+import { ENABLE_DATABASE_MULTITHREADING } from '../../../configurations';
 
 /**
  * Converts group candidate users into full users connected between them as they
@@ -29,8 +30,9 @@ export async function createFullUsersFromGroupCandidate(group: GroupCandidate): 
       ),
    );
 
-   await executePromises(creationPromises, true);
-   await executePromises(attractionPromises, true);
+   await executePromises(creationPromises, ENABLE_DATABASE_MULTITHREADING);
+   // This is not thread safe in any DB for the moment
+   await executePromises(attractionPromises, false);
 
    return usersCreated;
 }

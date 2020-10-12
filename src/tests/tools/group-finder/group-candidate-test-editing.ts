@@ -46,7 +46,7 @@ export function createAndAddOneUser(props: {
       props.connectWith === 'all' ? getUsersFromGroupCandidateAsIndexList(resultGroup) : props.connectWith;
 
    const newUser: UserWithMatches = {
-      userId: chance.apple_token(),
+      userId: generateId(),
       matches: connectWith.map(i => resultGroup.users[i].userId),
    };
 

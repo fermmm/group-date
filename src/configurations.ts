@@ -166,10 +166,20 @@ export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = true;
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(1);
+export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
 export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
 export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
-export const CARDS_GAME_MAX_RESULTS_PER_REQUEST: number = 70;
+export const CARDS_GAME_MAX_RESULTS_PER_REQUEST = 70;
+export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
 
-export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY: number = 2048;
+/**
+ * The database used in this project to run the tests "Gremlin Server" uses the "TinkerGraph" graph. This graph
+ * is designed only to be used for testing and learning, it's is not designed to support multithreading, so tests
+ * may fail randomly and database may return corrupted data when multiple queries are sent at the same time
+ * (when this setting is true). You can use it to test the multithreading capability of another Gremlin compatible
+ * graph like the ones used in production: JanusGraph, Neptune, CosmosDB, etc.
+ * See:
+ * https://stackoverflow.com/questions/64147336/gremlin-concurrentmodificationexception-and-performance
+ */
+export const ENABLE_DATABASE_MULTITHREADING = true;

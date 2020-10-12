@@ -182,11 +182,18 @@ export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
       return g.V().hasLabel('group').drop().iterate();
    }
 
-   return sendQuery(() =>
+   const ids: string[] = groups.map(u => u.groupId);
+   return await sendQuery(() =>
       g
-         .V()
-         .union(...groups.map(group => __.has('group', 'groupId', group.groupId)))
-         .drop()
+         .inject(ids)
+         .unfold()
+         .map(
+            __.as('targetGroupId')
+               .V()
+               .hasLabel('group')
+               .has('groupId', __.where(P.eq('targetGroupId')))
+               .drop(),
+         )
          .iterate(),
    );
 }
