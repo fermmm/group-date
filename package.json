@@ -27,7 +27,7 @@
       "@types/chance": "^1.0.9",
       "@types/formidable": "^1.0.31",
       "@types/gremlin": "^3.4.3",
-      "@types/jest": "^23.3.2",
+      "@types/jest": "^26.0.14",
       "@types/koa": "^2.11.1",
       "@types/koa-mount": "^4.0.0",
       "@types/koa-ratelimit": "^4.2.0",
@@ -37,7 +37,8 @@
       "@types/sharp": "^0.24.0",
       "@types/uuid": "^7.0.2",
       "husky": "^1.1.0",
-      "jest": "^24.9.0",
+      "jest": "^26.5.3",
+      "jest-date-mock": "^1.0.8",
       "jest-extended": "^0.11.5",
       "nodemon": "^2.0.2",
       "prettier": "^2.1.1",
@@ -79,6 +80,7 @@
       ],
       "testTimeout": 60000,
       "globalSetup": "./src/tests/tools/initializer.ts",
+      "setupFiles": ["jest-date-mock"],
       "setupFilesAfterEnv": [
          "jest-extended"
       ]
