@@ -20,6 +20,7 @@ import { GroupCandidate } from '../components/groups-finder/tools/types';
 import { queryToRemoveGroups } from '../components/groups/queries';
 import { queryToRemoveUsers } from '../components/user/queries';
 import { getAllTestUsersCreated } from './tools/users';
+import { firstBy } from 'thenby';
 
 /**
  * Ciclo de vida de un grupo chico:
@@ -146,10 +147,14 @@ describe('Group Finder', () => {
    test('Users should not have more groups than what the slots allows', async () => {
       const testUserId: string = 'testUser';
 
-      const maxGroupsAllowed = GROUP_SLOTS_CONFIGS.reduce((amount, slot) => {
-         amount += slot.amount ?? 1;
-         return amount;
-      }, 0);
+      const groupsAllowedBySize: number[] = GROUP_SLOTS_CONFIGS.map(slot => {
+         const result: number[] = [];
+         for (let i = 0; i < slot.amount ?? 1; i++) {
+            result.push(slot.maximumSize ?? MAX_GROUP_SIZE);
+         }
+         return result;
+      }).flat();
+      groupsAllowedBySize.sort(firstBy(s => s));
 
       // This map creates group candidates with each slot using the amount value
       const groupCandidates = GROUP_SLOTS_CONFIGS.map(slot => {
@@ -184,9 +189,16 @@ describe('Group Finder', () => {
 
       const testUserGroups: Group[] = await retrieveFinalGroupsOf([testUserId]);
       const allGroups: Group[] = await retrieveFinalGroupsOf(groupCandidates.map(g => g.users).flat());
+      testUserGroups.sort(firstBy(g => g.members.length));
 
-      expect(testUserGroups).toHaveLength(maxGroupsAllowed);
+      // The amount of groups for the users is correct:
+      expect(testUserGroups).toHaveLength(groupsAllowedBySize.length);
       expect(allGroups).toHaveLength(groupCandidates.length);
+
+      // The user has big and small groups according to slots
+      for (let i = 0; i < testUserGroups.length; i++) {
+         expect(testUserGroups[i].members).toHaveLength(groupsAllowedBySize[i]);
+      }
    });
 
    afterEach(async () => {

@@ -91,6 +91,16 @@ export function getBiggestGroup(groupCandidates: Group[]): Group {
    }, null);
 }
 
+export function getSmallerGroup(groupCandidates: Group[]): Group {
+   return groupCandidates.reduce<Group>((result, group) => {
+      if (result == null || group.members.length < result.members.length) {
+         return group;
+      }
+
+      return result;
+   }, null);
+}
+
 interface CreateMatchingUsersRandomSettings {
    connectionsPerUser: { min: number; max: number };
 }
