@@ -91,7 +91,7 @@ function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number, quality: 
  * 2. A user that has at least 2 matches in common (square shapes in a graph).
  *
  * To test the query easily:
- * https://gremlify.com/c7iupqleohb
+ * https://gremlify.com/28ks1qe9obji
  *
  * Old version with horrible performance:
  * https://gremlify.com/5lgbctob8n4
@@ -150,6 +150,7 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
                            .where(__.both('Match').where(P.within('group')).where(P.neq('groupMember'))),
                      ),
                )
+                  .dedup()
                   // Order the group members so later dedup() does not take different order in members as a different group
                   .order()
                   .by(t.id)

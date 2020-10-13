@@ -18,7 +18,7 @@ export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
       // await queryToRemoveUsers();
       console.time('Done. Total time elapsed');
-
+      /*
       const smallGroup = createAndAddMultipleUsers(
          createGroupCandidate({
             amountOfInitialUsers: 0,
@@ -28,7 +28,9 @@ export function testingRoutes(router: Router): void {
          'all',
       );
       await createFullUsersFromGroupCandidate(smallGroup);
+*/
 
+      /*
       // await time(2000);
 
       // console.log('Group creation');
@@ -41,5 +43,6 @@ export function testingRoutes(router: Router): void {
 
       console.timeEnd('Done. Total time elapsed');
       // ctx.body = `Finished OK`;
+      */
    });
 }

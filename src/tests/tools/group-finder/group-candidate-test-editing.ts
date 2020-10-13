@@ -32,6 +32,46 @@ export function createGroupCandidate(props: {
    return resultGroup;
 }
 
+export function createGroupCandidateWithCustomIds(props: {
+   usersIds: string[];
+   connectAllWithAll: boolean;
+}): GroupCandidate {
+   let resultGroup: GroupCandidate = {
+      groupId: generateId(),
+      users: [],
+   };
+
+   props.usersIds.forEach(
+      userId =>
+         (resultGroup = createAndAddOneUser({
+            group: resultGroup,
+            connectWith: props.connectAllWithAll ? 'all' : [],
+            userId,
+         })),
+   );
+
+   return resultGroup;
+}
+
+export function addUsersToGroupWithCustomIds(props: {
+   group: GroupCandidate;
+   usersIds: string[];
+   connectWith: 'all' | number[];
+}): GroupCandidate {
+   let resultGroup: GroupCandidate = copyGroupCandidate(props.group);
+
+   props.usersIds.forEach(
+      userId =>
+         (resultGroup = createAndAddOneUser({
+            group: resultGroup,
+            connectWith: props.connectWith,
+            userId,
+         })),
+   );
+
+   return resultGroup;
+}
+
 /**
  * Creates a group candidate fake user. Also adds the user to the group and connects other users according to the provided connections array.
  * Returns a copy of the group containing with the changes.

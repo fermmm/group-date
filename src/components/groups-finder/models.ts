@@ -25,7 +25,6 @@ import {
 } from './tools/types';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { addUsersToGroup, createGroup } from '../groups/models';
-import { GroupQualityValues } from './tools/types';
 import {
    limitGroupToMaximumSizeIfNeeded,
    removeUnavailableUsersFromGroup,
