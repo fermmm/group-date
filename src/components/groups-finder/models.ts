@@ -67,7 +67,7 @@ export async function searchAndCreateNewGroups(): Promise<Group[]> {
    // For each quality and slot search for users available to be added to recently created groups that are still open for more users.
    for (const quality of qualitiesToSearch) {
       for (const slotIndex of slotsIndexesOrdered()) {
-         // await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers);
+         await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers);
       }
    }
 
@@ -242,6 +242,7 @@ async function addMoreUsersToRecentGroups(
       if (bestUserToAdd != null) {
          await addUsersToGroup(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
          groupsModified.push(groupReceiving.groupId);
+         notAvailableUsers.add(bestUserToAdd);
       }
    }
 

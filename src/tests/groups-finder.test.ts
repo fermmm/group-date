@@ -1,6 +1,5 @@
 import 'jest';
 import * as JestDateMock from 'jest-date-mock';
-import { queryToRemoveUsers } from '../components/user/queries';
 import {
    callGroupFinder,
    createFullUsersFromGroupCandidate,
@@ -15,12 +14,12 @@ import {
    MIN_GROUP_SIZE,
 } from '../configurations';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
-import { queryToRemoveGroups } from '../components/groups/queries';
 import { getBiggestGroup } from './tools/groups';
-import { getAllTestUsersCreated } from './tools/users';
 import { hoursToMilliseconds } from '../common-tools/math-tools/general';
-import { generateId } from '../common-tools/string-tools/string-tools';
 import { GroupCandidate } from '../components/groups-finder/tools/types';
+import { queryToRemoveGroups } from '../components/groups/queries';
+import { queryToRemoveUsers } from '../components/user/queries';
+import { getAllTestUsersCreated } from './tools/users';
 
 /**
  * Ciclo de vida de un grupo chico:
@@ -29,7 +28,7 @@ import { GroupCandidate } from '../components/groups-finder/tools/types';
  *    - [Hecho] Un usuario que matchea puede ser agregado al grupo
  *    - [Hecho] Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
  *    - [Hecho] Simular paso del tiempo y asegurarse que no acepta mas usuarios
- *    - Crear matches para formar otro grupo que no se debería formar por que a los usuarios no les queda un slot
+ *    - [Hecho] Crear matches para formar otro grupo que no se debería formar por que a los usuarios no les queda un slot
  *
  * Ciclo de vida de un grupo grande:
  *    - Agregar usuarios para formar un grupo mas grande y ejecutar la busqueda con cada cambio para asegurarse que no pase nada raro en el proceso de matching
@@ -145,7 +144,7 @@ describe('Group Finder', () => {
    });
 
    test('Users should not have more groups than what the slots allows', async () => {
-      const testUserId: string = generateId();
+      const testUserId: string = 'testUser';
 
       const maxGroupsAllowed = GROUP_SLOTS_CONFIGS.reduce((amount, slot) => {
          amount += slot.amount ?? 1;

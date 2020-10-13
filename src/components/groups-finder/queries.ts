@@ -38,18 +38,6 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
 }
 
 /**
- * Returns a list of groups that are recently created so they still can receive new users along with a list of users
- * that can be added to each group. Also details of each group are included.
- * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
- */
-export function queryToGetGroupsReceivingNewUsers(
-   targetSlotIndex: number,
-   targetQuality: GroupQuality,
-): Traversal {
-   return queryToFindUsersToAddInActiveGroups(targetSlotIndex, targetQuality);
-}
-
-/**
  * Receives a traversal with a list of users and only keeps the ones allowed to be on a new group
  * according to the given group slot.
  * If no traversal is provided then it will start with all complete users and then filter that list.
@@ -260,7 +248,7 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
  * To play with this query:
  * https://gremlify.com/3hrqz4ijyvt
  */
-function queryToFindUsersToAddInActiveGroups(slotIndex: number, quality: GroupQuality): Traversal {
+export function queryToGetGroupsReceivingNewUsers(slotIndex: number, quality: GroupQuality): Traversal {
    return (
       g
          .V()
