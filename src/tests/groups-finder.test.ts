@@ -1,17 +1,26 @@
 import 'jest';
-import { User } from '../shared-tools/endpoints-interfaces/user';
+import * as JestDateMock from 'jest-date-mock';
 import { queryToRemoveUsers } from '../components/user/queries';
 import {
    callGroupFinder,
    createFullUsersFromGroupCandidate,
+   getAllTestGroupsCreated,
    retrieveFinalGroupsOf,
 } from './tools/group-finder/user-creation-tools';
 import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-editing';
-import { MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../configurations';
+import {
+   GROUP_SLOTS_CONFIGS,
+   MAX_GROUP_SIZE,
+   MAX_TIME_GROUPS_RECEIVE_NEW_USERS,
+   MIN_GROUP_SIZE,
+} from '../configurations';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { queryToRemoveGroups } from '../components/groups/queries';
 import { getBiggestGroup } from './tools/groups';
-import { getAllFakeUsersCreated } from './tools/users';
+import { getAllTestUsersCreated } from './tools/users';
+import { hoursToMilliseconds } from '../common-tools/math-tools/general';
+import { generateId } from '../common-tools/string-tools/string-tools';
+import { GroupCandidate } from '../components/groups-finder/tools/types';
 
 /**
  * Ciclo de vida de un grupo chico:
@@ -19,8 +28,7 @@ import { getAllFakeUsersCreated } from './tools/users';
  *    - [Hecho] Cuando los usuarios conectan en 3 deberían formar grupo
  *    - [Hecho] Un usuario que matchea puede ser agregado al grupo
  *    - [Hecho] Cuando 2 usuarios podrían ingresar al grupo creado pero uno disminuye su calidad solo deberia entrar el que la aumenta
- *    - Testear ambas opciones de ALLOW_SMALL_GROUPS_BECOME_BIG agregando mas usuarios al grupo
- *    - Simular paso del tiempo y asegurarse que no acepta mas usuarios
+ *    - [Hecho] Simular paso del tiempo y asegurarse que no acepta mas usuarios
  *    - Crear matches para formar otro grupo que no se debería formar por que a los usuarios no les queda un slot
  *
  * Ciclo de vida de un grupo grande:
@@ -35,15 +43,12 @@ import { getAllFakeUsersCreated } from './tools/users';
  */
 
 describe('Group Finder', () => {
-   const usersCreated: User[] = [];
-   const groupsCreated: Group[] = [];
-
    test('Matching users below minimum amount does not form a group', async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MIN_GROUP_SIZE - 1,
          connectAllWithAll: true,
       });
-      createFullUsersFromGroupCandidate(groupCandidate);
+      await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
 
       expect(await retrieveFinalGroupsOf(groupCandidate.users)).toHaveLength(0);
@@ -54,7 +59,7 @@ describe('Group Finder', () => {
          amountOfInitialUsers: MIN_GROUP_SIZE,
          connectAllWithAll: true,
       });
-      createFullUsersFromGroupCandidate(groupCandidate);
+      await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
 
       const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
@@ -117,8 +122,76 @@ describe('Group Finder', () => {
       expect(getBiggestGroup(groups).members.length).toBeLessThanOrEqual(MAX_GROUP_SIZE);
    });
 
+   test('Additional users are not added after too much time', async () => {
+      let groupCandidate = GroupCandTestTools.createGroupCandidate({
+         amountOfInitialUsers: 4,
+         connectAllWithAll: true,
+      });
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
+
+      // Simulate time passing
+      JestDateMock.advanceBy(MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + hoursToMilliseconds(1));
+
+      groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, 2, 'all');
+      await createFullUsersFromGroupCandidate(groupCandidate);
+      await callGroupFinder();
+      JestDateMock.clear();
+
+      const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
+
+      expect(groups).toHaveLength(1);
+      expect(groups[0].members).toHaveLength(4);
+   });
+
+   test('Users should not have more groups than what the slots allows', async () => {
+      const testUserId: string = generateId();
+
+      const maxGroupsAllowed = GROUP_SLOTS_CONFIGS.reduce((amount, slot) => {
+         amount += slot.amount ?? 1;
+         return amount;
+      }, 0);
+
+      // This map creates group candidates with each slot using the amount value
+      const groupCandidates = GROUP_SLOTS_CONFIGS.map(slot => {
+         const result: GroupCandidate[] = [];
+         // We create one more group than what is allowed
+         const groupsToCreate: number = (slot.amount ?? 1) + 1;
+
+         for (let i = 0; i < groupsToCreate; i++) {
+            const groupCandidate = GroupCandTestTools.createGroupCandidate({
+               amountOfInitialUsers: (slot.maximumSize ?? MAX_GROUP_SIZE) - 1,
+               connectAllWithAll: true,
+            });
+            // We add the user to each group
+            result.push(
+               GroupCandTestTools.createAndAddOneUser({
+                  group: groupCandidate,
+                  connectWith: 'all',
+                  userId: testUserId,
+               }),
+            );
+         }
+         return result;
+      }).flat();
+
+      // Create the full users
+      for (const groupCandidate of groupCandidates) {
+         await createFullUsersFromGroupCandidate(groupCandidate);
+      }
+
+      // Create the group
+      await callGroupFinder();
+
+      const testUserGroups: Group[] = await retrieveFinalGroupsOf([testUserId]);
+      const allGroups: Group[] = await retrieveFinalGroupsOf(groupCandidates.map(g => g.users).flat());
+
+      expect(testUserGroups).toHaveLength(maxGroupsAllowed);
+      expect(allGroups).toHaveLength(groupCandidates.length);
+   });
+
    afterEach(async () => {
-      await queryToRemoveGroups();
-      await queryToRemoveUsers();
+      await queryToRemoveGroups(getAllTestGroupsCreated());
+      await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });

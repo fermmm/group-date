@@ -40,13 +40,14 @@ export function createGroupCandidate(props: {
 export function createAndAddOneUser(props: {
    group: GroupCandidate;
    connectWith: number[] | 'all';
+   userId?: string;
 }): GroupCandidate {
    const resultGroup: GroupCandidate = copyGroupCandidate(props.group);
    const connectWith =
       props.connectWith === 'all' ? getUsersFromGroupCandidateAsIndexList(resultGroup) : props.connectWith;
 
    const newUser: UserWithMatches = {
-      userId: generateId(),
+      userId: props.userId ?? generateId(),
       matches: connectWith.map(i => resultGroup.users[i].userId),
    };
 

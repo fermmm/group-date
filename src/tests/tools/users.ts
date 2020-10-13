@@ -158,7 +158,7 @@ export async function createFakeCompatibleUsers(user: User, amount: number): Pro
    return createFakeUsers(amount, props);
 }
 
-export function getAllFakeUsersCreated(): User[] {
+export function getAllTestUsersCreated(): User[] {
    return fakeUsersCreated;
 }
 

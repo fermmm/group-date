@@ -9,6 +9,8 @@ import { fakeCtx } from '../replacements';
 import { createFakeUser2 } from '../_experimental';
 import { ENABLE_DATABASE_MULTITHREADING } from '../../../configurations';
 
+const testGroupsCreated: Group[] = [];
+
 /**
  * Converts group candidate users into full users connected between them as they
  * are connected in the group candidate.
@@ -42,20 +44,27 @@ export async function createFullUsersFromGroupCandidate(
    return usersCreated;
 }
 
-export async function callGroupFinder(times: number = 3): Promise<void> {
+export async function callGroupFinder(times: number = 3): Promise<Group[]> {
+   let groupsCreated: Group[] = [];
    for (let i = 0; i < times; i++) {
-      await searchAndCreateNewGroups();
+      groupsCreated = [...groupsCreated, ...(await searchAndCreateNewGroups())];
    }
+   testGroupsCreated.push(...testGroupsCreated);
+   return groupsCreated;
 }
 
 /**
- * Gets the final groups created with users from a group candidate.
+ * Gets the final groups created with users from a group candidate or a string list with ids.
  */
-export async function retrieveFinalGroupsOf(groupCandidateUsers: UserWithMatches[]): Promise<Group[]> {
+export async function retrieveFinalGroupsOf(
+   groupCandidateUsers: UserWithMatches[] | string[],
+): Promise<Group[]> {
    const result: Group[] = [];
    for (const user of groupCandidateUsers) {
+      const token: string = typeof user === 'string' ? user : user.userId;
+
       // userId and token are the same in these tests
-      const userGroups = await userGroupsGet({ token: user.userId }, fakeCtx);
+      const userGroups = await userGroupsGet({ token }, fakeCtx);
       userGroups.forEach(userGroup => {
          if (result.find(g => g.groupId === userGroup.groupId) == null) {
             result.push(userGroup);
@@ -63,4 +72,8 @@ export async function retrieveFinalGroupsOf(groupCandidateUsers: UserWithMatches
       });
    }
    return result;
+}
+
+export function getAllTestGroupsCreated(): Group[] {
+   return testGroupsCreated;
 }

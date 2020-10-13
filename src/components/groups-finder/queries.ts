@@ -1,4 +1,4 @@
-import { __, column, order, P, scope, t, g } from '../../common-tools/database-tools/database-manager';
+import { __, column, P, scope, t, g } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    GROUP_SLOTS_CONFIGS,
