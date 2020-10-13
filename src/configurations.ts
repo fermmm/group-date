@@ -60,6 +60,15 @@ export const GROUP_SLOTS_CONFIGS: Slot[] = [
 ];
 
 /**
+ * NOT TESTED FEATURE, NOT READY FOR PRODUCTION: It probably doesn't work or has bad performance.
+ *
+ * When users are not in groups for a long time they can be allowed to be on "bad quality groups".
+ * Bad quality group is a group where all members only have 2 matches forming rectangle or circle
+ * shapes in a graph.
+ */
+export const SEARCH_BAD_QUALITY_GROUPS = false;
+
+/**
  * If this is set to true, groups containing square shapes will be copied and the square shapes will be removed
  * in the copy. Later both versions of the groups are evaluated against each other to see which is better to be
  * finally created. If you consider that one type of group is better than the other and cannot be combined then

@@ -3,6 +3,7 @@ import {
    GROUP_SLOTS_CONFIGS,
    MAX_GROUP_SIZE,
    REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER,
+   SEARCH_BAD_QUALITY_GROUPS,
    SEARCH_GROUPS_FREQUENCY,
 } from '../../configurations';
 import * as Collections from 'typescript-collections';
@@ -41,35 +42,48 @@ export async function initializeGroupsFinder(): Promise<void> {
  * Searches new groups and creates them. This is the core feature of the app.
  * Also searches for users available to be added to recently created groups that are still open for more users.
  */
-export async function searchAndCreateNewGroups(): Promise<void> {
+export async function searchAndCreateNewGroups(): Promise<Group[]> {
    // When a user become part of a group becomes unavailable, we need to remember these users to not include them in the following iterations.
    const notAvailableUsers: Set<string> = new Set();
+   let groupsCreated: Group[] = [];
+
+   // Prepare qualities to search
+   const qualitiesToSearch: GroupQuality[] = [];
+   qualitiesToSearch.push(GroupQuality.Good);
+   if (SEARCH_BAD_QUALITY_GROUPS) {
+      qualitiesToSearch.push(GroupQuality.Bad);
+   }
 
    // For each quality and slot search for users that can form a group and create the groups
-   for (const quality of GroupQualityValues) {
+   for (const quality of qualitiesToSearch) {
       for (const slotIndex of slotsIndexesOrdered()) {
-         await createGroupsForSlot(slotIndex, quality, notAvailableUsers);
+         groupsCreated = [
+            ...groupsCreated,
+            ...(await createGroupsForSlot(slotIndex, quality, notAvailableUsers)),
+         ];
       }
    }
 
    // For each quality and slot search for users available to be added to recently created groups that are still open for more users.
-   for (const quality of GroupQualityValues) {
+   for (const quality of qualitiesToSearch) {
       for (const slotIndex of slotsIndexesOrdered()) {
-         await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers);
+         // await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers);
       }
    }
+
+   return groupsCreated;
 }
 
 async function createGroupsForSlot(
    slot: number,
    quality: GroupQuality,
    notAvailableUsers: Set<string>,
-): Promise<void> {
+): Promise<Group[]> {
    const groups: GroupCandidate[] = await fromQueryToGroupCandidates(queryToGetGroupCandidates(slot, quality));
    checkForDataCorruption('queryToGetGroupCandidates()', groups);
 
    const groupsAnalyzed = analiceAndFilterGroupCandidates(groups, slot);
-   await createGroups(groupsAnalyzed, notAvailableUsers, slot, quality);
+   return await createGroups(groupsAnalyzed, notAvailableUsers, slot, quality);
 }
 
 export function analiceAndFilterGroupCandidates(groups: GroupCandidate[], slot: number): GroupsAnalyzedList {
