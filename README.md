@@ -1,10 +1,10 @@
 # Polyamory group dating app server
 
-This is the server code for a group dating app, it's similar to Tinder but in this case when many people likes each other forming a group this enables a group chat so users can organize a group date. This is useful to experiment what polyamory enables, it's the most polyamory dating app possible. Only group dating with a minimum of 3 members is supported in the code.
+This is the server code for a group dating app, it's similar to Tinder but in this case when many people likes each other forming a group this enables a group chat so users can organize a group date. This is useful to experiment what polyamory enables, it's the most polyamory dating app possible. Only group dating with a minimum of 3 members is supported in the code, no couple dating supported.
 
-This project uses: Node.js + Koa.js + TypeScript + "Tinkerpop3 Gremlin" for the database.
-
-You need to be an experience developer and know how to code in these technologies to modify the project. To create your own version of the project you don't need to know how to code but you may need to have some programmer to guide you.
+> This project uses: **Node.js + Koa.js + TypeScript + "Tinkerpop3 Gremlin" for the database.**
+>
+> You need to be an experience developer and know how to code in these technologies to modify the project. To create your own version of the project you don't need to know how to code but you may need to have a programmer to guide you.
 
 You can run all in local for development or host it on a hosting provider that supports Node.js and a graph database hosting that supports Gremlin queries, for example: AWS Elastic Beanstalk + AWS Neptune (recommended) or Azure App Engine + Cosmos DB.
 
