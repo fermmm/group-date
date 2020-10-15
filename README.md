@@ -1,6 +1,4 @@
-# Polyamory group dating app server
-
-This is the server code for a group dating app, it's similar to Tinder but in this case when many people likes each other forming a group this enables a group chat so users can organize a group date. This is useful to experiment what polyamory enables, it's the most polyamory dating app possible. Only group dating with a minimum of 3 members is supported in the code, no couple dating supported.
+# Poly
 
 > This project uses: **Node.js + Koa.js + TypeScript + "Tinkerpop3 Gremlin" for the database.**
 >
