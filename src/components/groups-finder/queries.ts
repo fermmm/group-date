@@ -9,6 +9,7 @@ import {
    FORM_BAD_QUALITY_GROUPS_TIME,
    ALLOW_SMALL_GROUPS_BECOME_BIG,
    EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES,
+   ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS,
 } from '../../configurations';
 import * as moment from 'moment';
 import { queryToGetAllCompleteUsers } from '../user/queries';
@@ -218,7 +219,13 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
          __.count(scope.local)
             .is(P.gte(MIN_GROUP_SIZE))
             .is(P.gte(slotSize?.minimumSize ?? 0))
-            .is(P.lte(slotSize?.maximumSize ?? 99999)),
+            .is(
+               P.lte(
+                  ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS === false && slotSize?.maximumSize != null
+                     ? slotSize.maximumSize
+                     : 99999,
+               ),
+            ),
       )
          .as('g')
          .unfold()

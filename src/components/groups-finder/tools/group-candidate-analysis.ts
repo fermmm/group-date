@@ -1,4 +1,3 @@
-import { BSTreeKV } from 'typescript-collections';
 import { objectsContentIsEqual } from '../../../common-tools/js-tools/js-tools';
 import { generateNumberId, replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
 import {
@@ -6,8 +5,9 @@ import {
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    MIN_GROUP_SIZE,
+   REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER,
 } from '../../../configurations';
-import { getSortFunction, GroupsAnalyzedList } from '../models';
+import { getSortFunction, GroupsAnalyzedSorted } from '../models';
 import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
 import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
 import { checkTypeByMember } from '../../../common-tools/ts-tools/ts-tools';
@@ -251,7 +251,7 @@ export function getDataCorruptionProblemsInGroupCandidate(
 }
 
 export function getDataCorruptionProblemsInMultipleGroupCandidates(
-   groups: GroupCandidate[] | GroupsAnalyzedList,
+   groups: GroupCandidate[] | GroupsAnalyzedSorted,
 ): string[][] {
    const result: string[][] = [];
 
@@ -279,4 +279,14 @@ export function getBestGroup(
    const result = [group1, group2];
    result.sort(getSortFunction(false));
    return result[0];
+}
+
+export function reportPossibleDataCorruption(groups: GroupCandidate[] | GroupsAnalyzedSorted) {
+   if (REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER) {
+      const problems = getDataCorruptionProblemsInMultipleGroupCandidates(groups);
+      if (problems.length > 0) {
+         console.log(`Database problem! Returned corrupted data in group candidates:`);
+         console.log(getDataCorruptionProblemsInMultipleGroupCandidates(groups));
+      }
+   }
 }

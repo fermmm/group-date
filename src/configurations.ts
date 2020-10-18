@@ -69,31 +69,74 @@ export const GROUP_SLOTS_CONFIGS: Slot[] = [
 export const SEARCH_BAD_QUALITY_GROUPS = false;
 
 /**
- * If this is set to true, groups containing square shapes will be copied and the square shapes will be removed
- * in the copy. Later both versions of the groups are evaluated against each other to see which is better to be
- * finally created. If you consider that one type of group is better than the other and cannot be combined then
- * consider setting this to true.
+ * NOT TESTED FEATURE, NOT READY FOR PRODUCTION: It probably doesn't work or has bad performance.
+ *
+ * Bad quality groups are groups where each user only has 2 matches, these groups are probably less interesting
+ * so only appears to users that don't have a group in a long time, that time is this setting.
+ *
+ * This option is only enabled if SEARCH_BAD_QUALITY_GROUPS = true
  */
-export const EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = false;
+export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
+
+/**
+ * After a group is created and the members are interacting it can still receive new users until a time passed.
+ * Too high times in this setting is dangerous because there is a possible situation where members are added
+ * after a group already met in person, this is serious since late arriving users will not see the matching
+ * members of the group in person and will not form group with them again because the members are now "seen matches".
+ * So it's a good idea to keep this setting low.
+ */
+export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
 
 /**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
  * Quality means more matches between members and better distribution of them.
  */
-export const CREATE_BIGGER_GROUPS_FIRST = true;
+export const CREATE_BIGGER_GROUPS_FIRST: boolean = true;
+
+/**
+ * When searching for small groups and finds a big group:
+ * true = Use the small group slot to store the big group
+ * false = Discard the big group until all users has a big group slot
+ */
+export const ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS: boolean = true;
 
 /**
  * When a small group is still accepting new users it can become big, more than what the slot allows.
  * If this is set to fase a group stops receiving more users when the size is bigger han the slot max size.
  */
-export const ALLOW_SMALL_GROUPS_BECOME_BIG = true;
+export const ALLOW_SMALL_GROUPS_BECOME_BIG: boolean = true;
 
 /**
- * Bad quality groups are groups where each user only has 2 matches, these groups are probably less interesting
- * so only appears to users that don't have a group in a long time, that time is this setting.
+ * If a user has more connections than this number the exceeding connections will not be computed in the group analysis
+ * algorithms.
+ * This is important because in real life a person has time for a limited amount of people, so by setting this parameter
+ * is possible to get more real life accurate group analysis.
  */
-export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
+export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
+
+/**
+ * Maximum amount of options to vote the day of the date.
+ */
+export const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
+
+/**
+ * Maximum time (in seconds) since last login allowed, after this inactivity time the user is no longer part of
+ * new groups searching until next login.
+ */
+export const MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = ONE_MONTH_IN_SECONDS;
+
+/**
+ * If this is set to true, groups containing square shapes will be copied and the square shapes will be removed
+ * in the copy. Later both versions of the groups are evaluated against each other to see which is better to be
+ * finally created. If you consider that one type of group is better than the other and cannot be combined then
+ * consider setting this to true.
+ */
+export const EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES: boolean = false;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////  GROUP QUALITY ANALYSIS  /////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * This value is equivalent to quality, and it's the minimum quality of groups allowed.
@@ -123,34 +166,6 @@ export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
  */
 export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 
-/**
- * If a user has more connections than this number the exceeding connections will not be computed in the group analysis
- * algorithms.
- * This is important because in real life a person has time for a limited amount of people, so by setting this parameter
- * is possible to get more real life accurate group analysis.
- */
-export const MAX_CONNECTIONS_POSSIBLE_IN_REALITY = 6;
-
-/**
- * Maximum amount of options to vote the day of the date.
- */
-export const MAX_WEEKEND_DAYS_VOTE_OPTIONS = 12;
-
-/**
- * Maximum time (in seconds) since last login allowed, after this inactivity time the user is no longer part of
- * new groups searching until next login.
- */
-export const MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = ONE_MONTH_IN_SECONDS;
-
-/**
- * After a group is created and the members are interacting it can still receive new users until a time passed.
- * Too high times in this setting is dangerous because there is a possible situation where members are added
- * after a group already met in person, this is serious since late arriving users will not see the matching
- * members of the group in person and will not form group with them again because the members are now "seen matches".
- * So it's a good idea to keep this setting low.
- */
-export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  CARDS RECOMMENDATIONS  /////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +184,7 @@ export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
  * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
  * trust that the query is working correctly.
  */
-export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = true;
+export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
@@ -191,4 +206,4 @@ export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
  * See:
  * https://stackoverflow.com/questions/64147336/gremlin-concurrentmodificationexception-and-performance
  */
-export const ENABLE_DATABASE_MULTITHREADING = false;
+export const ENABLE_DATABASE_MULTITHREADING: boolean = false;

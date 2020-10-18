@@ -87,7 +87,7 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
    }
 
    if (logResult) {
-      console.dir(result, { colors: true, depth: 1000 });
+      consoleLog(result);
    }
 
    return result;

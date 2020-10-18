@@ -1,5 +1,8 @@
 import { MAX_CONNECTIONS_POSSIBLE_IN_REALITY } from '../../../configurations';
-import { analiceAndFilterGroupCandidates, GroupsAnalyzedList } from '../../../components/groups-finder/models';
+import {
+   analiceFilterAndSortGroupCandidates,
+   GroupsAnalyzedSorted,
+} from '../../../components/groups-finder/models';
 import {
    getDataCorruptionProblemsInGroupCandidate,
    getAverageConnectionsAmount,
@@ -27,6 +30,7 @@ const groupWith4 = createGroupCandidate({ amountOfInitialUsers: 4, connectAllWit
 const groupWith5 = createGroupCandidate({ amountOfInitialUsers: 5, connectAllWithAll: false });
 const groupWith12 = createGroupCandidate({ amountOfInitialUsers: 12, connectAllWithAll: false });
 const circleGroupOf12 = connectMembersWithNeighbors(groupWith12, true);
+
 const big = createAndAddMultipleUsersRandomlyConnected({
    amountOfUsers: 12,
    minConnectionsPerUser: 4,
@@ -205,7 +209,7 @@ function groupOrderingTest() {
    }>;
 
    const groups = testGroupCleaned.map(e => e.group);
-   const groupsAnalyzed: GroupsAnalyzedList = analiceAndFilterGroupCandidates(groups, 0);
+   const groupsAnalyzed: GroupsAnalyzedSorted = analiceFilterAndSortGroupCandidates(groups, 0);
 
    console.log('');
    console.log('Removed groups: ' + (testGroupCleaned.length - groupsAnalyzed.toArray().length));

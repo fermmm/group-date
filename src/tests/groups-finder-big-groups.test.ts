@@ -1,5 +1,4 @@
 import 'jest';
-import * as JestDateMock from 'jest-date-mock';
 import {
    callGroupFinder,
    createFullUsersFromGroupCandidate,
@@ -7,19 +6,21 @@ import {
    retrieveFinalGroupsOf,
 } from './tools/group-finder/user-creation-tools';
 import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-editing';
-import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE, MIN_GROUP_SIZE } from '../configurations';
+import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE } from '../configurations';
 import { queryToRemoveGroups } from '../components/groups/queries';
 import { queryToRemoveUsers } from '../components/user/queries';
 import { getAllTestUsersCreated } from './tools/users';
 import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { firstBy } from 'thenby';
 import {
-   addUsersToGroupWithCustomIds,
    createAndAddMultipleUsers,
    createGroupCandidate,
    createGroupCandidateWithCustomIds,
 } from './tools/group-finder/group-candidate-test-editing';
 import { GroupCandidate } from '../components/groups-finder/tools/types';
+import { tryToFixBadQualityGroupIfNeeded } from '../components/groups-finder/tools/group-candidate-editing';
+import { slotsIndexesOrdered } from '../components/groups-finder/models';
+import { analiceGroupCandidate } from '../components/groups-finder/tools/group-candidate-analysis';
 
 /**
  * TODO: Checkeos finales:
@@ -101,7 +102,7 @@ describe('Group Finder: Big groups', () => {
       expect(createdGroups[0].groupId !== createdGroups[1].groupId).toBeTrue();
    });
 
-   test('Too bad quality groups does not get created', async () => {
+   test('Too bad quality groups gets fixed before creation and not ruined when adding more users afterwards', async () => {
       const groupWith2 = createGroupCandidate({ amountOfInitialUsers: 2, connectAllWithAll: false });
       const badGroupCandidate = createAndAddMultipleUsers(groupWith2, 8, [0, 1]);
 
@@ -109,10 +110,16 @@ describe('Group Finder: Big groups', () => {
       await callGroupFinder();
 
       const groups: Group[] = await retrieveFinalGroupsOf(badGroupCandidate.users);
-      expect(groups).toHaveLength(0);
+
+      const badGroupCandidateFixed = tryToFixBadQualityGroupIfNeeded(
+         analiceGroupCandidate(badGroupCandidate),
+         slotsIndexesOrdered().reverse()[0],
+      );
+
+      expect(groups).toHaveLength(1);
+      expect(groups[0].members.length).toBeLessThanOrEqual(badGroupCandidateFixed.group.users.length);
    });
 
-   // TODO: Que este test falle muestra un problema en el algoritmo
    test('From 2 groups that shares users only the best quality one is created', async () => {
       const slotsOrdered = [...GROUP_SLOTS_CONFIGS];
       slotsOrdered.sort(firstBy(s => s.minimumSize ?? 0));
@@ -150,7 +157,7 @@ describe('Group Finder: Big groups', () => {
       await callGroupFinder();
 
       /**
-       * Get the users that should not have a group to ensure that
+       * Get the users that should not have a group and check they don't have it
        */
       const usersThatShouldNotHaveGroup = badGroupCandidate.users.reduce((p, v) => {
          if (v.userId !== groupWith2.users[0].userId && v.userId !== groupWith2.users[1].userId) {
@@ -160,11 +167,12 @@ describe('Group Finder: Big groups', () => {
       }, []);
 
       const groups: Group[] = await retrieveFinalGroupsOf(usersThatShouldNotHaveGroup);
+
       expect(groups).toHaveLength(0);
    });
 
    afterEach(async () => {
-      // await queryToRemoveGroups(getAllTestGroupsCreated());
-      // await queryToRemoveUsers(getAllTestUsersCreated());
+      await queryToRemoveGroups(getAllTestGroupsCreated());
+      await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });

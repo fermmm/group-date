@@ -20,7 +20,7 @@
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
       "lint": "tslint \"src/**/*.ts\"",
       "install-visualizer": "git submodule init && git submodule update && cd gremlin-visualizer && npm install",
-      "visualizer": "cd gremlin-visualizer && npm start"
+      "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm start"
    },
    "devDependencies": {
       "@types/app-root-path": "^1.2.4",
@@ -80,7 +80,9 @@
       ],
       "testTimeout": 60000,
       "globalSetup": "./src/tests/tools/initializer.ts",
-      "setupFiles": ["jest-date-mock"],
+      "setupFiles": [
+         "jest-date-mock"
+      ],
       "setupFilesAfterEnv": [
          "jest-extended"
       ]

@@ -13,11 +13,13 @@ import {
 import { queryToRemoveUsers } from '../user/queries';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { generateRandomUserProps } from '../../tests/tools/users';
+import { logGroupsTest } from '../../tests/tools/group-finder/group-candidates-ordering';
 
 export function testingRoutes(router: Router): void {
    router.get('/testing', async ctx => {
       // await queryToRemoveUsers();
       console.time('Done. Total time elapsed');
+      logGroupsTest();
       /*
       const smallGroup = createAndAddMultipleUsers(
          createGroupCandidate({

@@ -1,3 +1,5 @@
+import * as util from 'util';
+
 /**
  * Wraps a setTimeout into this async function to be used with "async await" syntax.
  *
@@ -140,7 +142,6 @@ export async function executePromises<T = void>(
  *
  * @param promise The async function to try
  * @param maxTimeOnARetry Time in milliseconds. Default = 4096. On each retry the wait time will be multiplied by 2, when this multiplication reaches the number specified in this parameter then returns the error returned on the last try.
- * @param consoleLogWhenReachingTime Time in milliseconds. Default = null. Prints the error in a console.log without stopping the retries when the wait time of a retry reaches this number. Pass null to disable.
  * @param startingWaitTime Time in milliseconds. Default = 1. This time will be multiplied by 2 on each retry, when this multiplication reaches maxTimeOnARetry parameter then returns the error returned on the last try.
  */
 export async function retryPromise<T>(
@@ -158,4 +159,15 @@ export async function retryPromise<T>(
          return await promise();
       }
    }
+}
+
+/**
+ * Calls console.log() with colors and more levels of data (without showing [Object])
+ */
+function consoleComplete<T>(obj: T): void {
+   console.log(util.inspect(obj, false, null, true));
+}
+globalThis.consoleLog = consoleComplete;
+declare global {
+   var consoleLog: typeof consoleComplete;
 }
