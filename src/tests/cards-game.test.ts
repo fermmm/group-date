@@ -17,6 +17,7 @@ import {
    createFakeUser,
    createFakeUsers,
    generateRandomUserProps,
+   getAllTestUsersCreated,
    setAttraction,
 } from './tools/users';
 import { DeepPartial } from 'ts-essentials';
@@ -367,7 +368,7 @@ describe('Cards game', () => {
       await queryToRemoveUsers(fakeCompatibleUsers);
    });
 
-   afterAll(async () => {
-      await queryToRemoveUsers(fakeUsers);
+   afterEach(async () => {
+      await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });

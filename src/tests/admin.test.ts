@@ -11,7 +11,7 @@ import { queryToRemoveUsers } from '../components/user/queries';
 import { ChatWithAdmins } from '../shared-tools/endpoints-interfaces/admin';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
-import { createFakeUsers } from './tools/users';
+import { createFakeUsers, getAllTestUsersCreated } from './tools/users';
 
 describe('Admin', () => {
    let fakeUsers: User[];
@@ -88,7 +88,7 @@ describe('Admin', () => {
       expect(chats.length).toBe(1);
    });
 
-   afterAll(async () => {
-      await queryToRemoveUsers(fakeUsers);
+   afterEach(async () => {
+      await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });

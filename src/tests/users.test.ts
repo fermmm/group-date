@@ -14,7 +14,7 @@ import { Group } from '../shared-tools/endpoints-interfaces/groups';
 import { AttractionType, NotificationType, User } from '../shared-tools/endpoints-interfaces/user';
 import { createMatchingUsers } from './tools/groups';
 import { fakeCtx } from './tools/replacements';
-import { createFakeUser, setAttraction } from './tools/users';
+import { createFakeUser, getAllTestUsersCreated, setAttraction } from './tools/users';
 
 describe('Users', () => {
    let matchingUsersCouple1: User[];
@@ -111,13 +111,7 @@ describe('Users', () => {
    });
 
    afterAll(async () => {
-      await queryToRemoveUsers([
-         ...matchingUsersCouple1,
-         ...matchingUsersCouple2,
-         ...matchingUsersCouple3,
-         ...matching10,
-         testProtagonist,
-      ]);
+      await queryToRemoveUsers(getAllTestUsersCreated());
       await queryToRemoveGroups([matching10Group]);
    });
 });

@@ -16,7 +16,7 @@ import { queryToRemoveUsers } from '../components/user/queries';
 import { ExperienceFeedbackType, Group } from '../shared-tools/endpoints-interfaces/groups';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from './tools/replacements';
-import { createFakeUsers } from './tools/users';
+import { createFakeUsers, getAllTestUsersCreated } from './tools/users';
 
 describe('Groups', () => {
    let group: Group;
@@ -217,7 +217,7 @@ describe('Groups', () => {
    });
 
    afterAll(async () => {
-      await queryToRemoveUsers(fakeUsers);
+      await queryToRemoveUsers(getAllTestUsersCreated());
       await queryToRemoveGroups([group, group2]);
    });
 });
