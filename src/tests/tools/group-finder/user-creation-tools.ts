@@ -49,7 +49,7 @@ export async function callGroupFinder(times: number = 3): Promise<Group[]> {
    for (let i = 0; i < times; i++) {
       groupsCreated = [...groupsCreated, ...(await searchAndCreateNewGroups())];
    }
-   testGroupsCreated.push(...testGroupsCreated);
+   testGroupsCreated.push(...groupsCreated);
    return groupsCreated;
 }
 

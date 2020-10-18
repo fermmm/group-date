@@ -88,7 +88,7 @@ describe('Admin', () => {
       expect(chats.length).toBe(1);
    });
 
-   afterEach(async () => {
+   afterAll(async () => {
       await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });

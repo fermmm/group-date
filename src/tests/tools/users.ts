@@ -16,6 +16,7 @@ import { EditableUserProps } from '../../shared-tools/validators/user';
 import { chance } from './generalTools';
 import { fakeCtx } from './replacements';
 import { generateId } from '../../common-tools/string-tools/string-tools';
+import { getAllTestUsersCreatedExperimental } from './_experimental';
 
 const fakeUsersCreated: User[] = [];
 
@@ -159,7 +160,7 @@ export async function createFakeCompatibleUsers(user: User, amount: number): Pro
 }
 
 export function getAllTestUsersCreated(): User[] {
-   return fakeUsersCreated;
+   return [...fakeUsersCreated, ...getAllTestUsersCreatedExperimental()];
 }
 
 function getGendersLikedByUser(user: User): Gender[] {

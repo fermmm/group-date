@@ -53,6 +53,56 @@ export async function initializeUsers(): Promise<void> {
 }
 
 /**
+ * Tries to get the user using the Facebook token and if the user does not exist it creates it.
+ * It does the following in order:
+ *
+ * 1. If the database finds the user with the provided token returns the user and that's all
+ * 2. If the token does not exist in database then sends the token to Facebook to try to get the user email
+ * 3. If Facebook does not return the email of the user it means the token is invalid: throws error (ctx.throw)
+ * 4. If using the email the database finds a user then replaces token cached and returns the user
+ * 5. If not, it means we are dealing with a new user, so it creates it with the email and token and returns it
+ *
+ * @param token Token from the Facebook login in the client application
+ */
+export async function retrieveUser(
+   token: string,
+   includeQuestionsData: boolean,
+   ctx: BaseContext,
+): Promise<Partial<User>> {
+   let user: Partial<User> = null;
+
+   user = await fromQueryToUser(queryToGetUserByToken(token), includeQuestionsData);
+
+   if (user != null) {
+      return user;
+   }
+
+   const userDataFromFacebook: HttpRequestResponse<FacebookResponse> = await httpRequest({
+      url: `https://graph.facebook.com/me?fields=email&access_token=${token}`,
+   });
+
+   if (userDataFromFacebook.success === false) {
+      ctx.throw(400, userDataFromFacebook.error.message);
+   }
+
+   if (!userDataFromFacebook.content || !userDataFromFacebook.content.email) {
+      ctx.throw(400, 'Facebook error 01');
+   }
+
+   user = await fromQueryToUser(
+      queryToGetUserByEmail(userDataFromFacebook.content.email),
+      includeQuestionsData,
+   );
+
+   if (user != null) {
+      await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
+      return user;
+   }
+
+   return fromQueryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeQuestionsData);
+}
+
+/**
  * This endpoint returns all user props that are missing, only when this endpoint returns empty arrays
  * the user can proceed with the endpoints not related with registration.
  * If the user does not exist this endpoint creates it and it should be used also for the user creation.
@@ -144,57 +194,6 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
    }
 
    await sendQuery(() => query.iterate());
-}
-
-/**
- * Tries to get the user using the Facebook token and if the user does not exist it creates it.
- * It does the following in order:
- *
- * 1. If the database finds the user with the provided token returns the user and that's all
- * 2. If the token does not exist in database then sends the token to Facebook to try to get the user email
- * 3. If Facebook does not return the email of the user it means the token is invalid: throws error (ctx.throw)
- * 4. If using the email the database finds a user then replaces token cached and returns the user
- * 5. If not, it means we are dealing with a new user, so it creates it with the email and token and returns it
- *
- * @param token Token from the Facebook login in the client application
- * @param ctx
- */
-export async function retrieveUser(
-   token: string,
-   includeQuestionsData: boolean,
-   ctx: BaseContext,
-): Promise<Partial<User>> {
-   let user: Partial<User> = null;
-
-   user = await fromQueryToUser(queryToGetUserByToken(token), includeQuestionsData);
-
-   if (user != null) {
-      return user;
-   }
-
-   const userDataFromFacebook: HttpRequestResponse<FacebookResponse> = await httpRequest({
-      url: `https://graph.facebook.com/me?fields=email&access_token=${token}`,
-   });
-
-   if (userDataFromFacebook.success === false) {
-      ctx.throw(400, userDataFromFacebook.error.message);
-   }
-
-   if (!userDataFromFacebook.content || !userDataFromFacebook.content.email) {
-      ctx.throw(400, 'Facebook error 01');
-   }
-
-   user = await fromQueryToUser(
-      queryToGetUserByEmail(userDataFromFacebook.content.email),
-      includeQuestionsData,
-   );
-
-   if (user != null) {
-      await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
-      return user;
-   }
-
-   return fromQueryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeQuestionsData);
 }
 
 /**

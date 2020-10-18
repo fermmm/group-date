@@ -128,3 +128,7 @@ function queryToSaveQuestionsResponsesForMultipleUsers(users: User[]): Traversal
             ),
       );
 }
+
+export function getAllTestUsersCreatedExperimental(): User[] {
+   return fakeUsersCreated;
+}

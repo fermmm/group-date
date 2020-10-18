@@ -368,7 +368,7 @@ describe('Cards game', () => {
       await queryToRemoveUsers(fakeCompatibleUsers);
    });
 
-   afterEach(async () => {
+   afterAll(async () => {
       await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });
