@@ -185,6 +185,7 @@ export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
  * trust that the query is working correctly.
  */
 export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
+export const REPORT_DATABASE_RETRYING: boolean = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
@@ -198,12 +199,14 @@ export const CARDS_GAME_MAX_RESULTS_PER_REQUEST = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
 
 /**
- * The database used in this project to run the tests "Gremlin Server" uses the "TinkerGraph" graph. This graph
- * is designed only to be used for testing and learning, it's is not designed to support multithreading, so tests
- * may fail randomly and database may return corrupted data when multiple queries are sent at the same time
- * (when this setting is true). You can use it to test the multithreading capability of another Gremlin compatible
- * graph like the ones used in production: JanusGraph, Neptune, CosmosDB, etc.
- * See:
- * https://stackoverflow.com/questions/64147336/gremlin-concurrentmodificationexception-and-performance
+ * NOT RECOMMENDED. This is faster but when the group finding takes too much time Gremlin fails with a timeout error.
+ * If this is false the group finding sends many queries, takes much more time but it's safe.
  */
-export const ENABLE_DATABASE_MULTITHREADING: boolean = false;
+export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
+
+/**
+ * This sends all all the group finder queries at the same time, 100% of CPU is used on the database but finishes a
+ * little faster. Could be useful in a multi instance configuration.
+ * Only has effect if SINGLE_QUERY_GROUP_FINDER = false
+ */
+export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;

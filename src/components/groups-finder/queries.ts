@@ -21,15 +21,19 @@ import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../configurations';
  * This search is required to create new "group candidates" these groups candidates are later converted
  * into real groups. This is the core feature of the app.
  */
-export function queryToGetGroupCandidates(targetSlotIndex: number, quality: GroupQuality): Traversal {
+export function queryToGetGroupCandidates(
+   targetSlotIndex: number,
+   quality: GroupQuality,
+   currentTraversal?: Traversal,
+): Traversal {
    let traversal: Traversal;
 
    switch (quality) {
       case GroupQuality.Good:
-         traversal = queryToSearchGoodQualityMatchingGroups(targetSlotIndex);
+         traversal = queryToSearchGoodQualityMatchingGroups(targetSlotIndex, currentTraversal);
          break;
       case GroupQuality.Bad:
-         traversal = queryToSearchBadQualityMatchingGroups(targetSlotIndex);
+         traversal = queryToSearchBadQualityMatchingGroups(targetSlotIndex, currentTraversal);
          break;
    }
 
@@ -43,7 +47,7 @@ export function queryToGetGroupCandidates(targetSlotIndex: number, quality: Grou
  * according to the given group slot.
  * If no traversal is provided then it will start with all complete users and then filter that list.
  */
-function queryToGetUsersAllowedToBeOnGroups(
+export function queryToGetUsersAllowedToBeOnGroups(
    targetSlotIndex: number,
    quality: GroupQuality,
    traversal?: Traversal,
@@ -97,15 +101,20 @@ function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number, quality: 
  * Old version with horrible performance:
  * https://gremlify.com/5lgbctob8n4
  */
-function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traversal {
+function queryToSearchGoodQualityMatchingGroups(
+   targetSlotIndex: number,
+   currentTraversal?: Traversal,
+): Traversal {
+   const traversal: Traversal =
+      currentTraversal ?? queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good);
+
    return (
-      queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
+      traversal
          .as('u')
          // Find groups
          .flatMap(
             queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
                // This avoids repetitions by avoiding same resulting inverse comparisons
-               .where(P.without('evaluated'))
                .flatMap(
                   __.union(
                      // Find groups of connected triangles and couples (couples are useful to form squares)
@@ -115,9 +124,7 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
 
                      // With the search below the starting user and the match are not added so we add it here
                      __.identity(),
-                     __.select('u')
-                        // Now that we are selecting the parent user we take the opportunity to add it to the "evaluated" list
-                        .sideEffect(__.store('evaluated')),
+                     __.select('u'),
                   )
                      // Order the group members so later dedup() does not take different order in members as a different group
                      .order()
@@ -171,7 +178,10 @@ function queryToSearchGoodQualityMatchingGroups(targetSlotIndex: number): Traver
  * To test the query easily:
  * https://gremlify.com/o9rye6xy5od
  */
-function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Traversal {
+function queryToSearchBadQualityMatchingGroups(
+   targetSlotIndex: number,
+   currentTraversal?: Traversal,
+): Traversal {
    const searches: Traversal[] = [];
 
    for (let i = 5; i <= MAX_GROUP_SIZE; i++) {
@@ -184,8 +194,11 @@ function queryToSearchBadQualityMatchingGroups(targetSlotIndex: number): Travers
       );
    }
 
+   const traversal: Traversal =
+      currentTraversal ?? queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Bad);
+
    return (
-      queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Bad)
+      traversal
          .as('a')
 
          // Find shapes
@@ -248,15 +261,7 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
    );
 }
 
-/**
- * Returns a list of groups that are recently created so they still can receive new users along with a list of users
- * that can be added to each group. Also details of each group are included.
- * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
- *
- * To play with this query:
- * https://gremlify.com/3hrqz4ijyvt
- */
-export function queryToGetGroupsReceivingNewUsers(slotIndex: number, quality: GroupQuality): Traversal {
+export function queryToGetGroupsReceivingMoreUsers(slotIndex: number, quality: GroupQuality): Traversal {
    return (
       g
          .V()
@@ -279,8 +284,27 @@ export function queryToGetGroupsReceivingNewUsers(slotIndex: number, quality: Gr
                   ),
                ),
          )
+   );
+}
 
-         // Get users to add to these groups
+/**
+ * Returns a list of groups that are recently created so they still can receive new users along with a list of users
+ * that can be added to each group. Also details of each group are included.
+ * Active groups are open to adding new users as long as the new user has 2 matches within the members of the group.
+ *
+ * To play with this query:
+ * https://gremlify.com/3hrqz4ijyvt
+ */
+export function queryToGetUsersToAddInRecentGroups(
+   slotIndex: number,
+   quality: GroupQuality,
+   currentTraversal?: Traversal,
+): Traversal {
+   const traversal = currentTraversal ?? queryToGetGroupsReceivingMoreUsers(slotIndex, quality);
+
+   return (
+      // Get users to add to these groups
+      traversal
          .project('group', 'usersToAdd')
          .by()
          .by(

@@ -33,7 +33,7 @@ import {
    analiceFilterAndSortReport,
 } from './tools/group-finder/group-candidates-ordering';
 
-describe('Group Finder: Small groups', () => {
+describe('Group finder', () => {
    test('Matching users below minimum amount does not form a group', async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MIN_GROUP_SIZE - 1,

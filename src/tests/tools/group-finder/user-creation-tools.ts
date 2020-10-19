@@ -7,7 +7,7 @@ import { Group } from '../../../shared-tools/endpoints-interfaces/groups';
 import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from '../replacements';
 import { createFakeUser2 } from '../_experimental';
-import { ENABLE_DATABASE_MULTITHREADING, GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE } from '../../../configurations';
+import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE } from '../../../configurations';
 
 const testGroupsCreated: Group[] = [];
 

@@ -1,13 +1,20 @@
 import {
    CREATE_BIGGER_GROUPS_FIRST,
+   ENABLE_MULTITHREADING_IN_GROUP_FINDER,
    GROUP_SLOTS_CONFIGS,
    MAX_GROUP_SIZE,
    SEARCH_BAD_QUALITY_GROUPS,
    SEARCH_GROUPS_FREQUENCY,
+   SINGLE_QUERY_GROUP_FINDER,
 } from '../../configurations';
 import * as Collections from 'typescript-collections';
 import { firstBy } from 'thenby';
-import { queryToGetGroupCandidates, queryToGetGroupsReceivingNewUsers } from './queries';
+import {
+   queryToGetGroupCandidates,
+   queryToGetGroupsReceivingMoreUsers,
+   queryToGetUsersAllowedToBeOnGroups,
+   queryToGetUsersToAddInRecentGroups,
+} from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
 import { analiceGroupCandidate, getBestGroup, groupHasMinimumQuality } from './tools/group-candidate-analysis';
 import {
@@ -26,6 +33,9 @@ import {
 } from './tools/group-candidate-editing';
 import { addUserToGroupCandidate } from './tools/group-candidate-editing';
 import { Group } from '../../shared-tools/endpoints-interfaces/groups';
+import { queryToGetUserById } from '../user/queries';
+import { executePromises } from '../../common-tools/js-tools/js-tools';
+import { queryToGetGroupById } from '../groups/queries';
 
 export async function initializeGroupsFinder(): Promise<void> {
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
@@ -78,13 +88,36 @@ async function createGroupsForSlot(
    notAvailableUsers: Set<string>,
 ): Promise<Group[]> {
    const groupsCreated: Group[] = [];
+   let groupsFromDatabase: GroupCandidate[] = [];
 
-   // Call the group finding query
-   const groupsFromDatabase: GroupCandidate[] = await fromQueryToGroupCandidates(
-      queryToGetGroupCandidates(slot, quality),
-   );
+   /**
+    * Call the group finding query
+    */
+   if (SINGLE_QUERY_GROUP_FINDER) {
+      groupsFromDatabase = await fromQueryToGroupCandidates(queryToGetGroupCandidates(slot, quality));
+   } else {
+      // To not exceed the maximum time for a single query send one request to the database per user
+      const usersToSearchIds: string[] = (await queryToGetUsersAllowedToBeOnGroups(slot, quality)
+         .values('userId')
+         .toList()) as string[];
 
-   // Analice, filter and get a BST with group candidates sorted by quality
+      const databaseRequests: Array<() => Promise<void>> = [];
+      for (const userId of usersToSearchIds) {
+         databaseRequests.push(async () => {
+            groupsFromDatabase.push(
+               ...(await fromQueryToGroupCandidates(
+                  queryToGetGroupCandidates(slot, quality, queryToGetUserById(userId)),
+               )),
+            );
+         });
+      }
+
+      await executePromises(databaseRequests, ENABLE_MULTITHREADING_IN_GROUP_FINDER);
+   }
+
+   /**
+    * Analice, filter and get a BST with group candidates sorted by quality
+    */
    const groupCandidatesSorted: GroupsAnalyzedSorted = analiceFilterAndSortGroupCandidates(
       groupsFromDatabase,
       slot,
@@ -156,9 +189,34 @@ async function addMoreUsersToRecentGroups(
    notAvailableUsers: Set<string>,
 ): Promise<string[]> {
    const groupsModified: string[] = [];
-   const groupsReceivingUsers: GroupsReceivingNewUsers[] = await fromQueryToGroupsReceivingNewUsers(
-      queryToGetGroupsReceivingNewUsers(slotIndex, quality),
-   );
+   let groupsReceivingUsers: GroupsReceivingNewUsers[] = [];
+
+   /**
+    * Call the database
+    */
+   if (SINGLE_QUERY_GROUP_FINDER) {
+      groupsReceivingUsers = await fromQueryToGroupsReceivingNewUsers(
+         queryToGetUsersToAddInRecentGroups(slotIndex, quality),
+      );
+   } else {
+      // To not exceed the maximum time for a single query send one request to the database per group
+      const groupsIds: string[] = (await queryToGetGroupsReceivingMoreUsers(slotIndex, quality)
+         .values('groupId')
+         .toList()) as string[];
+
+      const databaseRequests: Array<() => Promise<void>> = [];
+      for (const groupId of groupsIds) {
+         databaseRequests.push(async () => {
+            groupsReceivingUsers.push(
+               ...(await fromQueryToGroupsReceivingNewUsers(
+                  queryToGetUsersToAddInRecentGroups(slotIndex, quality, queryToGetGroupById(groupId)),
+               )),
+            );
+         });
+      }
+
+      await executePromises(databaseRequests, ENABLE_MULTITHREADING_IN_GROUP_FINDER);
+   }
 
    for (const groupReceiving of groupsReceivingUsers) {
       const groupsWithNewUser = new Collections.BSTreeKV(getSortFunction());

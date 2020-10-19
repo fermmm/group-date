@@ -2,7 +2,7 @@ import * as gremlin from 'gremlin';
 import * as ora from 'ora';
 import { Traversal } from './gremlin-typing-tools';
 import { retryPromise } from '../js-tools/js-tools';
-import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY } from '../../configurations';
+import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from '../../configurations';
 
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
@@ -74,10 +74,16 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
       try {
          // Try again without waiting, maybe a simple retry is enough
          result = await query();
+         if (REPORT_DATABASE_RETRYING) {
+            consoleLog('Database retrying');
+         }
       } catch (error) {
          try {
             // Try again repeatedly waiting more time on each retry
             result = await retryPromise(query, MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);
+            if (REPORT_DATABASE_RETRYING) {
+               consoleLog('Database retrying');
+            }
          } catch (error) {
             // If the amount of retries hit the limit and returned an error log the error
             console.log(`Error from database, all retries failed: ${error}`);

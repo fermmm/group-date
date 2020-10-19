@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Group Finder: Small groups Group analysis was not modified 1`] = `
+exports[`Group finder Group analysis was not modified 1`] = `
 Array [
   Object {
     "analysis": Object {
@@ -280,7 +280,7 @@ Array [
 ]
 `;
 
-exports[`Group Finder: Small groups Group filter and sorting was not modified 1`] = `
+exports[`Group finder Group filter and sorting was not modified 1`] = `
 Object {
   "finalGroups": Array [
     Object {
