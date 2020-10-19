@@ -1,13 +1,13 @@
 import { executePromises } from '../../../common-tools/js-tools/js-tools';
 import { searchAndCreateNewGroups } from '../../../components/groups-finder/models';
-import { GroupCandidate, UserWithMatches } from '../../../components/groups-finder/tools/types';
+import { GroupCandidate, Slot, UserWithMatches } from '../../../components/groups-finder/tools/types';
 import { userGroupsGet } from '../../../components/groups/models';
 import { setAttractionPost } from '../../../components/user/models';
 import { Group } from '../../../shared-tools/endpoints-interfaces/groups';
 import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces/user';
 import { fakeCtx } from '../replacements';
 import { createFakeUser2 } from '../_experimental';
-import { ENABLE_DATABASE_MULTITHREADING } from '../../../configurations';
+import { ENABLE_DATABASE_MULTITHREADING, GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE } from '../../../configurations';
 
 const testGroupsCreated: Group[] = [];
 
@@ -76,4 +76,13 @@ export async function retrieveFinalGroupsOf(
 
 export function getAllTestGroupsCreated(): Group[] {
    return testGroupsCreated;
+}
+
+export function getSmallerSlot(): Slot {
+   return GROUP_SLOTS_CONFIGS.reduce((previous, current) => {
+      if (current.maximumSize ?? MAX_GROUP_SIZE < previous.maximumSize ?? MAX_GROUP_SIZE) {
+         return current;
+      }
+      return previous;
+   }, GROUP_SLOTS_CONFIGS[0]);
 }
