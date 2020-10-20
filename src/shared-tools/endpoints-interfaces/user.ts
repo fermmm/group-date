@@ -24,8 +24,7 @@ export interface User {
    likesOtherGenders: boolean;
    pictures: string[];
    height?: number;
-   dateIdeaName: string;
-   dateIdeaAddress: string;
+   dateIdea: string;
    profileDescription: string;
    profileCompleted: boolean;
    isAdmin?: boolean;
