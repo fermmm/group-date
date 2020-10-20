@@ -16,7 +16,12 @@ import {
    queryToGetUsersToAddInRecentGroups,
 } from './queries';
 import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
-import { analiceGroupCandidate, getBestGroup, groupHasMinimumQuality } from './tools/group-candidate-analysis';
+import {
+   analiceGroupCandidate,
+   getBestGroup,
+   groupHasMinimumQuality,
+   dedupGroupCandidates,
+} from './tools/group-candidate-analysis';
 import {
    GroupCandidate,
    GroupQuality,
@@ -113,6 +118,9 @@ async function createGroupsForSlot(
       }
 
       await executePromises(databaseRequests, ENABLE_MULTITHREADING_IN_GROUP_FINDER);
+
+      // Remove duplicates
+      groupsFromDatabase = dedupGroupCandidates(groupsFromDatabase);
    }
 
    /**
