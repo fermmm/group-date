@@ -1,9 +1,10 @@
 import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
 import { sendQuery } from '../../../common-tools/database-tools/database-manager';
 import { Traversal, GremlinValueType } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { GroupCandidate, UserWithMatches, GroupsReceivingNewUsers } from './types';
+import { GroupCandidate, GroupsReceivingNewUsers } from './types';
 import { generateId } from '../../../common-tools/string-tools/string-tools';
 import { reportPossibleDataCorruption } from './group-candidate-analysis';
+import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
 
 /**
  * Converts a gremlin query that should return a list of group candidates (groups of users) into the corresponding serialized objects.

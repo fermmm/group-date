@@ -22,13 +22,7 @@ import {
    groupHasMinimumQuality,
    dedupGroupCandidates,
 } from './tools/group-candidate-analysis';
-import {
-   GroupCandidate,
-   GroupQuality,
-   GroupsReceivingNewUsers,
-   GroupCandidateAnalyzed,
-   UserWithMatches,
-} from './tools/types';
+import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { addUsersToGroup, createGroup } from '../groups/models';
 import {
@@ -37,7 +31,7 @@ import {
    tryToFixBadQualityGroupIfNeeded,
 } from './tools/group-candidate-editing';
 import { addUserToGroupCandidate } from './tools/group-candidate-editing';
-import { Group } from '../../shared-tools/endpoints-interfaces/groups';
+import { Group, UserWithMatches } from '../../shared-tools/endpoints-interfaces/groups';
 import { queryToGetUserById } from '../user/queries';
 import { executePromises } from '../../common-tools/js-tools/js-tools';
 import { queryToGetGroupById } from '../groups/queries';

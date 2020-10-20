@@ -3,9 +3,10 @@ import {
    groupHasMinimumQuality,
    groupSizeIsUnderMinimum,
 } from './group-candidate-analysis';
-import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
+import { GroupCandidate, GroupCandidateAnalyzed } from './types';
 import { MAX_GROUP_SIZE, MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../../configurations';
 import { generateId } from '../../../common-tools/string-tools/string-tools';
+import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
 
 export function copyGroupCandidate(group: GroupCandidate, keepSameId: boolean = true): GroupCandidate {
    return {

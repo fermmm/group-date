@@ -5,9 +5,10 @@ import {
    connectUsers,
    copyGroupCandidate,
 } from '../../../components/groups-finder/tools/group-candidate-editing';
-import { GroupCandidate, UserWithMatches } from '../../../components/groups-finder/tools/types';
+import { GroupCandidate } from '../../../components/groups-finder/tools/types';
 import { chance } from '../generalTools';
 import { generateId } from '../../../common-tools/string-tools/string-tools';
+import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
 
 /**
  * Creates a group candidate.

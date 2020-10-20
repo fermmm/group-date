@@ -22,7 +22,7 @@ import {
 } from './tools/users';
 import { DeepPartial } from 'ts-essentials';
 
-// TODO: Habria que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seenmatch
+// TODO: Habría que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seen match
 describe('Cards game', () => {
    let fakeData: Array<DeepPartial<User>>;
    let fakeUsers: User[] = [];

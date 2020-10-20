@@ -1,7 +1,4 @@
-export interface UserWithMatches {
-   userId: string;
-   matches: string[];
-}
+import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
 
 export interface GroupCandidate {
    groupId: string;

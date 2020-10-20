@@ -142,6 +142,10 @@ export function queryToUpdateGroupProperty(
 /**
  * Receives a traversal that selects one or more groups vertices and returns them in a value map format.
  * Also optionally includes the members list and date ideas.
+ *
+ * To experiment with this query:
+ * https://gremlify.com/bqey3ricohp
+ *
  * @param traversal A traversal that has one or more groups.
  * @param details Include or not the full group details default = true
  */
@@ -155,15 +159,28 @@ export function queryToGetGroupsInFinalFormat(
       detailsTraversals = [
          // Add the details about the members of the group
          __.project('members').by(__.in_('member').valueMap().by(__.unfold()).fold()),
+
          // Add the details about the usersIds that received a vote to their date idea and who voted
          __.project('dateIdeasVotes').by(
             __.inE('dateIdeaVote').group().by('ideaOfUser').by(__.outV().values('userId').fold()),
+         ),
+
+         // Add the matches relationships
+         __.project('matches').by(
+            __.in_('member')
+               .map(
+                  __.project('userId', 'matches')
+                     .by(__.values('userId'))
+                     .by(__.both('SeenMatch').where(__.out('member').as('group')).values('userId').fold()),
+               )
+               .fold(),
          ),
       ];
    }
 
    traversal = traversal.map(
-      __.union(__.valueMap().by(__.unfold()), ...detailsTraversals)
+      __.as('group')
+         .union(__.valueMap().by(__.unfold()), ...detailsTraversals)
          .unfold()
          .group()
          .by(__.select(column.keys))

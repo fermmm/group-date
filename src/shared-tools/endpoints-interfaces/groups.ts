@@ -11,6 +11,7 @@ export interface Group {
    usersThatAccepted: string[];
    openForMoreUsers: boolean;
    feedback: ExperienceFeedback[];
+   matches: UserWithMatches[];
 }
 
 export interface GroupChat {
@@ -65,4 +66,9 @@ export interface ChatPostParams extends BasicGroupParams {
 
 export interface FeedbackPostParams extends BasicGroupParams {
    feedback: Omit<ExperienceFeedback, 'userId'>;
+}
+
+export interface UserWithMatches {
+   userId: string;
+   matches: string[];
 }

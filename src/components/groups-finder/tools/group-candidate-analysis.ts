@@ -9,8 +9,9 @@ import {
 } from '../../../configurations';
 import { getSortFunction, GroupsAnalyzedSorted } from '../models';
 import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
-import { GroupCandidate, GroupCandidateAnalyzed, UserWithMatches } from './types';
+import { GroupCandidate, GroupCandidateAnalyzed } from './types';
 import { checkTypeByMember } from '../../../common-tools/ts-tools/ts-tools';
+import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
 
 /**
  * This function calculates the connections count inequality level with the following logic:
