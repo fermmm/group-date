@@ -24,7 +24,7 @@ import {
 } from '../../shared-tools/endpoints-interfaces/user';
 import {
    editableUserPropsList,
-   ExposedUserPropKey,
+   EditableUserPropKey,
    validateUserProps,
 } from '../../shared-tools/validators/user';
 import {
@@ -132,8 +132,8 @@ export async function profileStatusGet(
    return Promise.resolve(result);
 }
 
-function getMissingEditableUserProps(user: Partial<User>): ExposedUserPropKey[] {
-   const result: ExposedUserPropKey[] = [];
+function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[] {
+   const result: EditableUserPropKey[] = [];
 
    editableUserPropsList.forEach(editableUserProp => {
       if (user[editableUserProp] == null) {

@@ -1,7 +1,14 @@
-import { ExposedUserPropKey, EditableUserProps } from '../validators/user';
+import { EditableUserPropKey, EditableUserProps } from '../validators/user';
 
 export type UserPropsValueTypes = number | string | boolean | string[];
 
+/**
+ * If you want to add or remove a user prop this is the basic todo list:
+ *    - Update, add or remove the prop in this interface
+ *    - Make sure the database queries are updated when using or should use your prop
+ *    - If the prop is editable by the user search editableUserPropsSchema constant and update it.
+ *    - Make sure the tests are updated specially the code that generates users with random data.
+ */
 export interface User {
    userId: string;
    token: string;
@@ -11,6 +18,7 @@ export interface User {
    locationName: string;
    locationLat: number;
    locationLon: number;
+   cityName: string;
    name: string;
    age: number;
    gender: Gender;
@@ -42,7 +50,7 @@ export enum Gender {
 }
 
 export interface ProfileStatusServerResponse {
-   missingEditableUserProps: ExposedUserPropKey[];
+   missingEditableUserProps: EditableUserPropKey[];
    missingQuestionsId: number[];
 }
 

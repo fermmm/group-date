@@ -80,6 +80,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
+      cityName: chance.city(),
       token: generateId(),
       userId: generateId(),
       email: chance.email(),
