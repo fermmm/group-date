@@ -7,8 +7,7 @@ const v = new ((Validator as unknown) as typeof Validator.default)();
 
 /**
  * This object contains the user props required to finish registration and also the validation restrictions.
- * Set all as optional: true in order to not generate an issue.
- * This props are required to register a user and optional parameter from here is not used and should be true.
+ * Set all as optional = true in order to not generate an issue.
  */
 const EDITABLE_USER_PROPS_SCHEMA = {
    name: { type: 'string', min: 2, max: 32, optional: true },

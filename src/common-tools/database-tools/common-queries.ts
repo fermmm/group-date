@@ -21,7 +21,12 @@ export function queryToCreateVerticesFromObjects<T>(
    verticesLabel: string,
    duplicationAvoidanceProperty?: keyof T,
    serializeProperties: boolean = true,
+   currentTraversal?: Traversal,
 ): Traversal {
+   if (currentTraversal == null) {
+      currentTraversal = (g as unknown) as Traversal;
+   }
+
    let objectsReadyForDB: Array<Record<keyof T, GremlinValueType>> | T[];
 
    objectsReadyForDB = !serializeProperties ? objects : objects.map(o => serializeAllValuesIfNeeded(o));
@@ -32,10 +37,11 @@ export function queryToCreateVerticesFromObjects<T>(
    );
 
    if (duplicationAvoidanceProperty == null) {
-      return g.inject(objectsReadyForDB).unfold().map(creationTraversal);
+      return currentTraversal.inject(objectsReadyForDB).unfold().map(creationTraversal);
    } else {
-      return g
-         .withSideEffect('nothing', [])
+      return currentTraversal
+         .inject([])
+         .as('nothing')
          .inject(objectsReadyForDB)
          .unfold()
          .map(
