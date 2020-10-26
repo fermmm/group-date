@@ -17,6 +17,7 @@ import { initializeGroups } from './components/groups/models';
 import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
 import { testingRoutes } from './components/testing/routes';
+import { themesRoutes } from './components/themes/routes';
 import { initializeUsers } from './components/user/models';
 import { userRoutes } from './components/user/routes';
 
@@ -42,6 +43,7 @@ import { userRoutes } from './components/user/routes';
    userRoutes(router);
    cardsGameRoutes(router);
    groupsRoutes(router);
+   themesRoutes(router);
    adminRoutes(router);
    testingRoutes(router);
 

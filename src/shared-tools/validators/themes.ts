@@ -13,6 +13,7 @@ const v = new ((Validator as unknown) as typeof Validator.default)();
 const EDITABLE_THEME_PROPS_SCHEMA = {
    name: { type: 'string', min: 2, max: 300, optional: false },
    category: { type: 'string', min: 2, max: 300, optional: false },
+   country: { type: 'string', optional: true },
    global: { type: 'boolean', optional: true },
 };
 
