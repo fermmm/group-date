@@ -81,6 +81,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
       cityName: chance.city(),
+      country: chance.country(),
       token: generateId(),
       userId: generateId(),
       email: chance.email(),
@@ -94,7 +95,6 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       ],
       dateIdea: chance.sentence({ words: 5 }),
       profileDescription: chance.paragraph(),
-      locationName: chance.city(),
       locationLat: chance.latitude({ min: -38.88147, max: -32.990726 }),
       locationLon: chance.longitude({ min: -63.346051, max: -56.729749 }),
       likesWoman: genderLikes[0],

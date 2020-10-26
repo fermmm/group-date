@@ -15,10 +15,10 @@ export interface User {
    email: string;
    notifications: Notification[];
    lastLoginDate: number;
-   locationName: string;
    locationLat: number;
    locationLon: number;
    cityName: string;
+   country: string;
    name: string;
    age: number;
    gender: Gender;
