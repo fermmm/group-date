@@ -22,7 +22,6 @@ import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configur
 import { fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 
-// TODO: Se tiene que poder saber si el usuario esta subscrito o bloqueando un theme
 // TODO: Modificar las recomendaciones de las cartas para que no aparezcan ignorados
 // TODO: A la query de recomendacion de las cartas se le tiene que poder pasar un theme
 
