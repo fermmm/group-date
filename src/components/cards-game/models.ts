@@ -2,15 +2,18 @@ import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import { NOTIFICATION_FREQUENCY_NEW_CARDS } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
+import { BasicThemeParams } from '../../shared-tools/endpoints-interfaces/themes';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
 import { addNotificationToUser, retrieveFullyRegisteredUser } from '../user/models';
 import { queryToUpdateUserProps } from '../user/queries';
 import { fromQueryToUserList } from '../user/tools/data-conversion';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    queryToGetAllUsersWantingNewCardsNotification,
    queryToGetCardsRecommendations,
    queryToGetDislikedUsers,
 } from './queries';
+import { queryToGetUsersSubscribedToThemes } from '../themes/queries';
 
 export function initializeCardsGame(): void {
    setIntervalAsync(notifyAllUsersAboutNewCards, NOTIFICATION_FREQUENCY_NEW_CARDS);
@@ -25,6 +28,13 @@ export async function recommendationsGet(params: TokenParameter, ctx: BaseContex
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
    const recommendationsQuery = queryToGetDislikedUsers(params.token, user);
+   return fromQueryToUserList(recommendationsQuery);
+}
+
+export async function recommendationsFromThemeGet(params: BasicThemeParams, ctx: BaseContext): Promise<User[]> {
+   const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
+   const fromTheme: Traversal = queryToGetUsersSubscribedToThemes(params.themeIds);
+   const recommendationsQuery = queryToGetCardsRecommendations(user, fromTheme);
    return fromQueryToUserList(recommendationsQuery);
 }
 

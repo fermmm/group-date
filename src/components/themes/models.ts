@@ -23,7 +23,6 @@ import { fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 
 // TODO: Modificar las recomendaciones de las cartas para que no aparezcan ignorados
-// TODO: A la query de recomendacion de las cartas se le tiene que poder pasar un theme
 
 export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);

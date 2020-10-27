@@ -84,6 +84,19 @@ export function queryToIncludeExtraInfoInTheme(traversal: Traversal): Traversal 
    );
 }
 
+export function queryToGetUsersSubscribedToThemes(themesIds: string[]): Traversal {
+   return g
+      .inject(themesIds)
+      .unfold()
+      .flatMap(
+         __.as('themeId')
+            .V()
+            .hasLabel('theme')
+            .has('themeId', __.where(P.eq('themeId')))
+            .in_('subscribed'),
+      );
+}
+
 export function queryToRemoveThemes(themesIds: string[]): Traversal {
    return g
       .inject(themesIds)
