@@ -14,13 +14,15 @@ import {
 import { queryToGetAllCompleteUsers, queryToGetUserByToken } from '../user/queries';
 import { getQuestionDataById, questions } from '../user/questions/models';
 
-export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
-   let query: Traversal = queryToGetAllCompleteUsers();
+export function queryToGetCardsRecommendations(searcherUser: User, traversal?: Traversal): Traversal {
+   if (traversal == null) {
+      traversal = queryToGetAllCompleteUsers();
+   }
 
    /**
     * Is inside the distance range the user wants
     */
-   query = query.not(
+   traversal = traversal.not(
       __.has(
          'locationLat',
          P.outside(
@@ -29,7 +31,7 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
          ),
       ),
    );
-   query = query.not(
+   traversal = traversal.not(
       __.has(
          'locationLon',
          P.outside(
@@ -42,7 +44,7 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    /**
     * Don't show inactive accounts. Inactive means many time without login and no new users notifications pending
     */
-   query = query.not(
+   traversal = traversal.not(
       __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_CARDS))
          .and()
          .has('sendNewUsersNotification', 0),
@@ -51,68 +53,68 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    /**
     * Was not already reviewed by the user
     */
-   query = query.not(__.inE(...allAttractionTypes).where(__.outV().has('token', searcherUser.token)));
+   traversal = traversal.not(__.inE(...allAttractionTypes).where(__.outV().has('token', searcherUser.token)));
 
    /**
     * It's not a Match or SeenMatch
     */
-   query = query.not(
+   traversal = traversal.not(
       __.bothE(...allMatchTypes).where(__.bothV().simplePath().has('token', searcherUser.token)),
    );
 
    /**
     * It's another user (not self)
     */
-   query = query.not(__.has('userId', searcherUser.userId));
+   traversal = traversal.not(__.has('userId', searcherUser.userId));
 
    /**
     * User likes the gender
     */
    if (!searcherUser.likesWoman) {
-      query = query.not(__.has('gender', Gender.Woman));
+      traversal = traversal.not(__.has('gender', Gender.Woman));
    }
    if (!searcherUser.likesMan) {
-      query = query.not(__.has('gender', Gender.Man));
+      traversal = traversal.not(__.has('gender', Gender.Man));
    }
    if (!searcherUser.likesWomanTrans) {
-      query = query.not(__.has('gender', Gender.TransgenderWoman));
+      traversal = traversal.not(__.has('gender', Gender.TransgenderWoman));
    }
    if (!searcherUser.likesManTrans) {
-      query = query.not(__.has('gender', Gender.TransgenderMan));
+      traversal = traversal.not(__.has('gender', Gender.TransgenderMan));
    }
    if (!searcherUser.likesOtherGenders) {
-      query = query.not(__.has('gender', Gender.Other));
+      traversal = traversal.not(__.has('gender', Gender.Other));
    }
 
    /**
     * Likes the gender of the user
     */
    if (searcherUser.gender === Gender.Woman) {
-      query = query.not(__.has('likesWoman', false));
+      traversal = traversal.not(__.has('likesWoman', false));
    }
    if (searcherUser.gender === Gender.Man) {
-      query = query.not(__.has('likesMan', false));
+      traversal = traversal.not(__.has('likesMan', false));
    }
    if (searcherUser.gender === Gender.TransgenderWoman) {
-      query = query.not(__.has('likesWomanTrans', false));
+      traversal = traversal.not(__.has('likesWomanTrans', false));
    }
    if (searcherUser.gender === Gender.TransgenderMan) {
-      query = query.not(__.has('likesManTrans', false));
+      traversal = traversal.not(__.has('likesManTrans', false));
    }
    if (searcherUser.gender === Gender.Other) {
-      query = query.not(__.has('likesOtherGenders', false));
+      traversal = traversal.not(__.has('likesOtherGenders', false));
    }
 
    /**
     * User likes the age
     */
-   query = query.not(__.has('age', P.outside(searcherUser.targetAgeMin, searcherUser.targetAgeMax)));
+   traversal = traversal.not(__.has('age', P.outside(searcherUser.targetAgeMin, searcherUser.targetAgeMax)));
 
    /**
     * Likes the age of the user
     */
-   query = query.not(__.has('targetAgeMin', P.gt(searcherUser.age)));
-   query = query.not(__.has('targetAgeMax', P.lt(searcherUser.age)));
+   traversal = traversal.not(__.has('targetAgeMin', P.gt(searcherUser.age)));
+   traversal = traversal.not(__.has('targetAgeMax', P.lt(searcherUser.age)));
 
    /**
     * Passes the filter questions of the user
@@ -128,7 +130,7 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
          continue;
       }
 
-      query = query.not(
+      traversal = traversal.not(
          __.outE('response')
             .has('questionId', questionId)
             .has('answerId', P.within(...incompatibleAnswers)),
@@ -142,7 +144,7 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
       const userAnswer: QuestionResponse = searcherUser.questions.find(
          q => q.questionId === question.questionId,
       );
-      query = query.not(
+      traversal = traversal.not(
          __.outE('response')
             .has('questionId', question.questionId)
             .has('useAsFilter', true)
@@ -153,14 +155,14 @@ export function queryToGetCardsRecommendations(searcherUser: User): Traversal {
    /**
     * Order the results
     */
-   query = queryToOrderResultsByMatchingQuestions(query, searcherUser);
+   traversal = queryToOrderResultsByMatchingQuestions(traversal, searcherUser);
 
    /**
     * Limit results
     */
-   query = query.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST);
+   traversal = traversal.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST);
 
-   return query;
+   return traversal;
 }
 
 export function queryToGetDislikedUsers(token: string, searcherUser: User): Traversal {
