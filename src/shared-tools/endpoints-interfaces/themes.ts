@@ -1,6 +1,9 @@
-export interface Theme {
+export interface ThemeBasicInfo {
    themeId: string;
    name: string;
+}
+
+export interface Theme extends ThemeBasicInfo {
    category: string;
    country: string;
    creationDate: number;

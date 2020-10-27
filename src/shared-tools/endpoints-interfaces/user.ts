@@ -1,9 +1,10 @@
 import { EditableUserPropKey, EditableUserProps } from '../validators/user';
+import { ThemeBasicInfo } from './themes';
 
 export type UserPropsValueTypes = number | string | boolean | string[];
 
 /**
- * If you want to add or remove a user prop this is the basic todo list:
+ * If you want to add or remove a "user editable user prop" this is the basic todo list:
  *    - Update, add or remove the prop in this interface
  *    - Make sure the database queries are updated when using or should use your prop
  *    - If the prop is editable by the user search editableUserPropsSchema constant and update it.
@@ -39,6 +40,8 @@ export interface User {
    sendNewUsersNotification: number;
    lastGroupJoinedDate: number;
    questions?: QuestionResponse[];
+   themesSubscribed?: ThemeBasicInfo[];
+   themesBlocked?: ThemeBasicInfo[];
 }
 
 export enum Gender {

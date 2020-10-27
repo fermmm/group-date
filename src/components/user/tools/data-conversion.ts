@@ -4,14 +4,15 @@ import { sendQuery } from '../../../common-tools/database-tools/database-manager
 import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { removePrivacySensitiveUserProps } from '../../../common-tools/security-tools/security-tools';
 import { User } from '../../../shared-tools/endpoints-interfaces/user';
-import { queryToIncludeQuestionsInUserQuery } from '../questions/queries';
+import { queryToIncludeFullInfoInUserQuery } from '../queries';
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
+ * @param includeFullInfo Includes questions and themes data
  */
-export async function fromQueryToUser(queryOfUser: Traversal, includeQuestions: boolean): Promise<User> {
-   if (includeQuestions) {
-      queryOfUser = queryToIncludeQuestionsInUserQuery(queryOfUser);
+export async function fromQueryToUser(queryOfUser: Traversal, includeFullInfo: boolean): Promise<User> {
+   if (includeFullInfo) {
+      queryOfUser = queryToIncludeFullInfoInUserQuery(queryOfUser);
    } else {
       queryOfUser = valueMap(queryOfUser);
    }
@@ -22,15 +23,15 @@ export async function fromQueryToUser(queryOfUser: Traversal, includeQuestions: 
  * Converts a gremlin query that should return a list of users' vertices into a list of Users as object.
  *
  * @param protectPrivacy Don't include internal properties like token and other credentials. default = true
- * @param includeQuestionsData default = true
+ * @param includeFullInfo default = true Includes questions and themes data
  */
 export async function fromQueryToUserList(
    queryOfUsers: Traversal,
    protectPrivacy: boolean = true,
-   includeQuestionsData: boolean = true,
+   includeFullInfo: boolean = true,
 ): Promise<User[]> {
-   if (includeQuestionsData) {
-      queryOfUsers = queryToIncludeQuestionsInUserQuery(queryOfUsers);
+   if (includeFullInfo) {
+      queryOfUsers = queryToIncludeFullInfoInUserQuery(queryOfUsers);
    } else {
       queryOfUsers = valueMap(queryOfUsers);
    }

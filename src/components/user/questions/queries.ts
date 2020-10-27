@@ -1,4 +1,4 @@
-import { __, column, g, P, sendQuery } from '../../../common-tools/database-tools/database-manager';
+import { __, g, P, sendQuery } from '../../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
 import { QuestionData, QuestionResponseParams } from '../../../shared-tools/endpoints-interfaces/user';
 import { getIncompatibleAnswers } from './models';
@@ -52,19 +52,6 @@ export function queryToRespondQuestions(query: Traversal, questions: QuestionRes
    }
 
    return query;
-}
-
-export function queryToIncludeQuestionsInUserQuery(traversal: Traversal): Traversal {
-   return traversal.map(
-      __.union(
-         __.valueMap().by(__.unfold()),
-         __.project('questions').by(__.outE('response').valueMap().by(__.unfold()).fold()),
-      )
-         .unfold()
-         .group()
-         .by(__.select(column.keys))
-         .by(__.select(column.values)),
-   );
 }
 
 export function queryToGetQuestionsVerticesIds(): Traversal {

@@ -1,5 +1,5 @@
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
-import { __, P, sendQuery, g } from '../../common-tools/database-tools/database-manager';
+import { __, P, sendQuery, g, column } from '../../common-tools/database-tools/database-manager';
 import { Traversal, GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    allAttractionTypes,
@@ -221,4 +221,25 @@ export function queryToGetAttractionsReceived(token: string, types?: AttractionT
       .as('user')
       .in_(...types)
       .where(__.not(__.both(...allMatchTypes).as('user')));
+}
+
+export function queryToIncludeFullInfoInUserQuery(traversal: Traversal): Traversal {
+   return traversal.map(
+      __.union(
+         // Include all user props
+         __.valueMap().by(__.unfold()),
+         // Include questions array
+         __.project('questions').by(__.outE('response').valueMap().by(__.unfold()).fold()),
+         // Include themes subscribed
+         __.project('themesSubscribed').by(
+            __.out('subscribed').valueMap('themeId', 'name').by(__.unfold()).fold(),
+         ),
+         // Include themes blocked
+         __.project('themesBlocked').by(__.out('blocked').valueMap('themeId', 'name').by(__.unfold()).fold()),
+      )
+         .unfold()
+         .group()
+         .by(__.select(column.keys))
+         .by(__.select(column.values)),
+   );
 }
