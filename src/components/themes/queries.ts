@@ -46,16 +46,28 @@ export function queryToGetThemesCreatedByUser(token: string, timeFilter?: number
 /**
  * To play with the query:
  * https://gremlify.com/xeqxrbq7uv8
+ *
+ * @param relation The relation to add or remove
+ * @param remove true = adds the relation. false = removes the relation
  */
 export function queryToRelateUserWithTheme(
    token: string,
    themesIds: string[],
    relation: ThemeRelationShip,
+   remove: boolean,
 ): Traversal {
+   let relationTraversal: Traversal;
+
+   if (remove) {
+      relationTraversal = __.inE(relation).where(__.outV().has('token', token)).drop();
+   } else {
+      relationTraversal = __.coalesce(__.in_(relation).where(P.eq('user')), __.addE(relation).from_('user'));
+   }
+
    return g
       .inject(themesIds)
       .as('themes')
-      .union(hasProfileCompleted(queryToGetUserByToken(token, __)).as('user'))
+      .union(queryToGetUserByToken(token, __).as('user'))
       .select('themes')
       .unfold()
       .map(
@@ -63,7 +75,7 @@ export function queryToRelateUserWithTheme(
             .V()
             .hasLabel('theme')
             .has('themeId', __.where(P.eq('themeId')))
-            .sideEffect(__.coalesce(__.in_(relation).where(P.eq('user')), __.addE(relation).from_('user'))),
+            .sideEffect(relationTraversal),
       );
 }
 

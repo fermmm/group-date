@@ -96,15 +96,29 @@ export async function themesCreatedByUserGet(token: string) {
 
 export async function subscribeToThemePost(params: BasicThemeParams): Promise<Theme[]> {
    return await fromQueryToThemeList(
-      queryToRelateUserWithTheme(params.token, params.themeIds, 'subscribed'),
-      true,
+      queryToRelateUserWithTheme(params.token, params.themeIds, 'subscribed', false),
+      false,
    );
 }
 
 export async function blockThemePost(params: BasicThemeParams): Promise<Theme[]> {
    return await fromQueryToThemeList(
-      queryToRelateUserWithTheme(params.token, params.themeIds, 'blocked'),
-      true,
+      queryToRelateUserWithTheme(params.token, params.themeIds, 'blocked', false),
+      false,
+   );
+}
+
+export async function removeSubscriptionToThemePost(params: BasicThemeParams): Promise<Theme[]> {
+   return await fromQueryToThemeList(
+      queryToRelateUserWithTheme(params.token, params.themeIds, 'subscribed', true),
+      false,
+   );
+}
+
+export async function removeBlockToThemePost(params: BasicThemeParams): Promise<Theme[]> {
+   return await fromQueryToThemeList(
+      queryToRelateUserWithTheme(params.token, params.themeIds, 'blocked', true),
+      false,
    );
 }
 
