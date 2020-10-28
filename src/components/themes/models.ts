@@ -22,8 +22,6 @@ import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configur
 import { fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 
-// TODO: Modificar las recomendaciones de las cartas para que no aparezcan ignorados
-
 export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
