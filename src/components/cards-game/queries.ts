@@ -11,7 +11,7 @@ import {
    QuestionResponse,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { queryToGetAllCompleteUsers, queryToGetUserByToken } from '../user/queries';
+import { queryToGetAllCompleteUsers, queryToGetUserByToken, queryToGetUserById } from '../user/queries';
 import { getQuestionDataById, questions } from '../user/questions/models';
 
 export function queryToGetCardsRecommendations(searcherUser: User, traversal?: Traversal): Traversal {
@@ -49,6 +49,23 @@ export function queryToGetCardsRecommendations(searcherUser: User, traversal?: T
          .and()
          .has('sendNewUsersNotification', 0),
    );
+
+   /**
+    * Here we get the searcher user so he/she will be available in the future steps as "searcherUser"
+    * Also we store any data from the user that we need to have later.
+    */
+   traversal = traversal
+      .fold()
+      .as('results')
+      .union(queryToGetUserById(searcherUser.userId, __).as('searcherUser'))
+      .sideEffect(__.out('blocked').store('blockedTags'))
+      .select('results')
+      .unfold();
+
+   /**
+    * Is not a subscriber of any searcher blocked tags:
+    */
+   traversal = traversal.not(__.where(__.out('subscribed').where(P.within('blockedTags'))));
 
    /**
     * Was not already reviewed by the user
