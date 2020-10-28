@@ -73,7 +73,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
       global: params.global ?? false,
    };
 
-   return await fromQueryToThemeList(queryToCreateThemes(user.userId, [themeToCreate]), true);
+   return await fromQueryToThemeList(queryToCreateThemes(user.userId, [themeToCreate]), false);
 }
 
 export async function themesGet(params: ThemeGetParams, ctx: BaseContext): Promise<Theme[]> {
