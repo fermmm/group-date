@@ -121,3 +121,10 @@ export function queryToRemoveThemes(themesIds: string[]): Traversal {
             .drop(),
       );
 }
+
+/**
+ * Only for tests
+ */
+export function queryToRemoveAllThemes(): Traversal {
+   return g.V().hasLabel('theme').drop();
+}

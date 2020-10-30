@@ -130,11 +130,9 @@ export async function removeBlockToThemePost(params: BasicThemeParams): Promise<
 export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    if (!user.isAdmin) {
-      const themesCreatedByUser: Theme[] = await fromQueryToThemeList(
-         queryToGetThemesCreatedByUser(user.userId),
-         true,
-      );
-      params.themeIds.forEach(t => {
+      const themesCreatedByUser: Theme[] = await themesCreatedByUserGet(params.token);
+
+      for (const t of params.themeIds) {
          const themeFound = themesCreatedByUser.find(ut => ut.themeId === t);
          if (themeFound == null) {
             ctx.throw(400, 'Only admin users can remove themes created by anyone');
@@ -149,14 +147,14 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
             );
             return;
          }
-      });
+      }
    }
 
    await queryToRemoveThemes(params.themeIds).iterate();
 }
 
 function getRemainingTimeToCreateNewTheme(themes: Theme[]): number {
-   const oldestTheme: Theme = themes.reduce((theme, result) => {
+   const oldestTheme: Theme = themes.reduce((result, theme) => {
       // Theme is not inside the creation time frame
       if (theme.creationDate < moment().unix() - THEME_CREATION_TIME_FRAME) {
          return result;
@@ -170,11 +168,13 @@ function getRemainingTimeToCreateNewTheme(themes: Theme[]): number {
       if (theme.creationDate < result.creationDate) {
          return theme;
       }
+
+      return result;
    }, null);
 
    let secondsLeft: number = 0;
    if (oldestTheme != null) {
-      secondsLeft = oldestTheme.creationDate - (moment().unix() - THEME_CREATION_TIME_FRAME);
+      secondsLeft = THEME_CREATION_TIME_FRAME - (moment().unix() - oldestTheme.creationDate);
    }
 
    return secondsLeft;
