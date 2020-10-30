@@ -65,6 +65,7 @@ export async function getGroupById(
 
    if (result == null && ctx != null) {
       ctx.throw(400, 'Group not found');
+      return;
    }
 
    return result;

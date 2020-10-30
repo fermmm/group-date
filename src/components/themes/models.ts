@@ -27,15 +27,18 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
 
    if (params.global && !user.isAdmin) {
       ctx.throw(400, 'Only admin users can create global themes');
+      return;
    }
 
    if (params.country && !user.isAdmin) {
       ctx.throw(400, 'Only admin users can set the theme country');
+      return;
    }
 
    const validationResult: true | ValidationError[] = validateThemeProps(params);
    if (validationResult !== true) {
       ctx.throw(400, JSON.stringify(validationResult));
+      return;
    }
 
    const themesCreatedByUserTraversal: Traversal = queryToGetThemesCreatedByUser(
@@ -54,6 +57,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
          400,
          `Sorry you created too many themes in a short period of time. Try again in ${remaining}. The themes should be created by many different users, although you can send us a message and we can evaluate adding the themes`,
       );
+      return;
    }
 
    const userThemesTraversal: Traversal = queryToGetThemes({ countryFilter: params.country ?? user.country });
@@ -62,6 +66,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
 
    if (matchingTheme != null) {
       ctx.throw(400, 'A theme with the same name already exists in your country');
+      return;
    }
 
    const themeToCreate: Partial<Theme> = {
@@ -133,6 +138,7 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
          const themeFound = themesCreatedByUser.find(ut => ut.themeId === t);
          if (themeFound == null) {
             ctx.throw(400, 'Only admin users can remove themes created by anyone');
+            return;
          }
          if (themeFound.subscribersAmount > 0 || themeFound.blockersAmount > 0) {
             ctx.throw(
@@ -141,6 +147,7 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
                   themeFound.subscribersAmount + themeFound.blockersAmount
                } users have interacted with your theme, it cannot be removed anymore.`,
             );
+            return;
          }
       });
    }

@@ -66,12 +66,12 @@ export async function initializeUsers(): Promise<void> {
  */
 export async function retrieveUser(
    token: string,
-   includeQuestionsData: boolean,
+   includeFullInfo: boolean,
    ctx: BaseContext,
 ): Promise<Partial<User>> {
    let user: Partial<User> = null;
 
-   user = await fromQueryToUser(queryToGetUserByToken(token), includeQuestionsData);
+   user = await fromQueryToUser(queryToGetUserByToken(token), includeFullInfo);
 
    if (user != null) {
       return user;
@@ -83,23 +83,22 @@ export async function retrieveUser(
 
    if (userDataFromFacebook.success === false) {
       ctx.throw(400, userDataFromFacebook.error.message);
+      return;
    }
 
    if (!userDataFromFacebook.content || !userDataFromFacebook.content.email) {
       ctx.throw(400, 'Facebook error 01');
+      return;
    }
 
-   user = await fromQueryToUser(
-      queryToGetUserByEmail(userDataFromFacebook.content.email),
-      includeQuestionsData,
-   );
+   user = await fromQueryToUser(queryToGetUserByEmail(userDataFromFacebook.content.email), includeFullInfo);
 
    if (user != null) {
       await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
       return user;
    }
 
-   return fromQueryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeQuestionsData);
+   return fromQueryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeFullInfo);
 }
 
 /**
@@ -184,6 +183,7 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       const validationResult: true | ValidationError[] = validateUserProps(params.props);
       if (validationResult !== true) {
          ctx.throw(400, JSON.stringify(validationResult));
+         return;
       }
 
       query = queryToSetUserProps(query, params.props);
@@ -204,13 +204,14 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
  */
 export async function retrieveFullyRegisteredUser(
    token: string,
-   includeQuestionsData: boolean,
+   includeFullInfo: boolean,
    ctx: BaseContext,
 ): Promise<User> {
-   const user = await retrieveUser(token, includeQuestionsData, ctx);
+   const user = await retrieveUser(token, includeFullInfo, ctx);
 
    if (!user.profileCompleted) {
       ctx.throw(400, 'Incomplete profiles not allowed in this endpoint');
+      return;
    }
 
    return user as User;
@@ -301,6 +302,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
          fs.unlinkSync(file.path);
       }
       ctx.throw(400, 'Invalid file provided');
+      return;
    }
 
    const originalFileExtension: string = path.extname(file.name).toLowerCase();
@@ -315,6 +317,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
       fs.unlinkSync(file.path);
       ctx.throw(400, 'File format not supported');
+      return;
    }
 
    if (
@@ -324,6 +327,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
    ) {
       fs.unlinkSync(file.path);
       ctx.throw(400, 'Attempted to upload a file with wrong extension');
+      return;
    }
 
    /**

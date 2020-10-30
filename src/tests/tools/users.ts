@@ -18,7 +18,7 @@ import { fakeCtx } from './replacements';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { getAllTestUsersCreatedExperimental } from './_experimental';
 
-const fakeUsersCreated: User[] = [];
+let fakeUsersCreated: User[] = [];
 
 export async function createFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
    const users: User[] = [];
@@ -160,7 +160,9 @@ export async function createFakeCompatibleUsers(user: User, amount: number): Pro
 }
 
 export function getAllTestUsersCreated(): User[] {
-   return [...fakeUsersCreated, ...getAllTestUsersCreatedExperimental()];
+   const result = [...fakeUsersCreated, ...getAllTestUsersCreatedExperimental()];
+   fakeUsersCreated = [];
+   return result;
 }
 
 function getGendersLikedByUser(user: User): Gender[] {

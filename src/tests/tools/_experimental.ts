@@ -13,7 +13,7 @@ import { getIncompatibleAnswers } from '../../components/user/questions/models';
 import { User } from '../../shared-tools/endpoints-interfaces/user';
 import { generateRandomUserProps } from './users';
 
-const fakeUsersCreated: User[] = [];
+let fakeUsersCreated: User[] = [];
 
 export async function createFakeUsers2(
    amount: number,
@@ -130,5 +130,7 @@ function queryToSaveQuestionsResponsesForMultipleUsers(users: User[]): Traversal
 }
 
 export function getAllTestUsersCreatedExperimental(): User[] {
-   return fakeUsersCreated;
+   const result = [...fakeUsersCreated];
+   fakeUsersCreated = [];
+   return result;
 }
