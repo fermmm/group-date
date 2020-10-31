@@ -19,10 +19,10 @@ import {
    queryToRemoveThemes,
 } from './queries';
 import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configurations';
-import { fromQueryToThemeList } from './tools/data-conversion';
+import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 
-export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme[]> {
+export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
    if (params.global && !user.isAdmin) {
@@ -78,7 +78,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
       global: params.global ?? false,
    };
 
-   return await fromQueryToThemeList(queryToCreateThemes(user.userId, [themeToCreate]), false);
+   return await fromQueryToTheme(queryToCreateThemes(user.userId, [themeToCreate]), false);
 }
 
 export async function themesGet(params: ThemeGetParams, ctx: BaseContext): Promise<Theme[]> {
@@ -151,6 +151,17 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
    }
 
    await queryToRemoveThemes(params.themeIds).iterate();
+}
+
+/**
+ * This is currently being used to clean tests only
+ */
+export async function removeAllThemesCreatedBy(users: User[]): Promise<void> {
+   const result: Theme[] = [];
+   for (const user of users) {
+      result.push(...(await themesCreatedByUserGet(user.token)));
+   }
+   await queryToRemoveThemes(result.map(t => t.themeId)).iterate();
 }
 
 function getRemainingTimeToCreateNewTheme(themes: Theme[]): number {

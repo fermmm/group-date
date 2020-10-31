@@ -3,6 +3,7 @@ import * as JestDateMock from 'jest-date-mock';
 import {
    blockThemePost,
    createThemePost,
+   removeAllThemesCreatedBy,
    removeBlockToThemePost,
    removeSubscriptionToThemePost,
    removeThemesPost,
@@ -11,7 +12,11 @@ import {
    themesGet,
 } from '../components/themes/models';
 import { queryToRemoveUsers } from '../components/user/queries';
-import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../configurations';
+import {
+   MAX_THEME_SUBSCRIPTIONS_ALLOWED,
+   THEMES_PER_TIME_FRAME,
+   THEME_CREATION_TIME_FRAME,
+} from '../configurations';
 import { User } from '../shared-tools/endpoints-interfaces/user';
 import { fakeCtx, fakeCtxMuted } from './tools/replacements';
 import { createFakeUser, getAllTestUsersCreated } from './tools/users';
@@ -19,9 +24,8 @@ import { hoursToMilliseconds } from '../common-tools/math-tools/general';
 import { Theme } from '../shared-tools/endpoints-interfaces/themes';
 import { retrieveFullyRegisteredUser } from '../components/user/models';
 import { objectsContentIsEqual } from '../common-tools/js-tools/js-tools';
-import { queryToRemoveAllThemes } from '../components/themes/queries';
 
-// TODO: Orden de los tests:
+// TODO::
 // Resultados de busqueda (en cards-game.test.tsx)
 
 describe('Themes', () => {
@@ -288,8 +292,60 @@ describe('Themes', () => {
       expect(await themesCreatedByUserGet(user1.token)).toHaveLength(user1Themes.length - themeIds.length);
    });
 
+   test(`Subscribing to more themes than MAX_THEME_SUBSCRIPTIONS_ALLOWED is not possible for the same country`, async () => {
+      let user = await createFakeUser({ country: 'ar' });
+      const themes: Theme[] = [];
+
+      // Create the maximum amount of themes for 'ar' country
+      for (let i = 0; i < MAX_THEME_SUBSCRIPTIONS_ALLOWED; i++) {
+         const tempUser = await createFakeUser({ country: 'ar' });
+         themes.push(
+            await createThemePost(
+               { token: tempUser.token, name: `max test theme ${i}`, category: `max test category ${i}` },
+               fakeCtx,
+            ),
+         );
+      }
+
+      await subscribeToThemePost({ token: user.token, themeIds: themes.map(t => t.themeId) });
+
+      user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
+
+      expect(user.themesSubscribed).toHaveLength(MAX_THEME_SUBSCRIPTIONS_ALLOWED);
+
+      // Create one more theme and this one should not be possible to subscribe
+      const tempUser2 = await createFakeUser({ country: 'ar' });
+      const finalTheme = await createThemePost(
+         { token: tempUser2.token, name: `max test theme final`, category: `max test category final` },
+         fakeCtx,
+      );
+
+      await subscribeToThemePost({ token: user.token, themeIds: [finalTheme.themeId] });
+
+      user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
+      expect(user.themesSubscribed).toHaveLength(MAX_THEME_SUBSCRIPTIONS_ALLOWED);
+
+      // Create one more theme but this one in a different country and should be possible to subscribe
+      const tempUser3 = await createFakeUser({ country: 'ru' });
+      const otherCountryTheme = await createThemePost(
+         { token: tempUser3.token, name: `max test theme final`, category: `max test category final` },
+         fakeCtx,
+      );
+
+      await subscribeToThemePost({ token: user.token, themeIds: [otherCountryTheme.themeId] });
+
+      user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
+      expect(user.themesSubscribed).toHaveLength(MAX_THEME_SUBSCRIPTIONS_ALLOWED + 1);
+   });
+
+   test('Unrelated user created at the beginning of the test was not affected', async () => {
+      const themes = await themesCreatedByUserGet(userUnrelated.token);
+      expect(themes).toHaveLength(THEMES_PER_TIME_FRAME);
+   });
+
    afterAll(async () => {
-      await queryToRemoveUsers(getAllTestUsersCreated());
-      await queryToRemoveAllThemes().iterate();
+      const testUsers = getAllTestUsersCreated();
+      await queryToRemoveUsers(testUsers);
+      await removeAllThemesCreatedBy(testUsers);
    });
 });
