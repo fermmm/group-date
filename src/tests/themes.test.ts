@@ -25,9 +25,6 @@ import { Theme } from '../shared-tools/endpoints-interfaces/themes';
 import { retrieveFullyRegisteredUser } from '../components/user/models';
 import { objectsContentIsEqual } from '../common-tools/js-tools/js-tools';
 
-// TODO::
-// Resultados de busqueda (en cards-game.test.tsx)
-
 describe('Themes', () => {
    let user1: User;
    let user2: User;
