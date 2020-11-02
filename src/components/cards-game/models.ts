@@ -1,6 +1,11 @@
 import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { NOTIFICATION_FREQUENCY_NEW_CARDS } from '../../configurations';
+import {
+   LIKING_USERS_CHUNK,
+   NON_LIKING_USERS_CHUNK,
+   NOTIFICATION_FREQUENCY_NEW_CARDS,
+   SHUFFLE_LIKING_NON_LIKING_RESULTS,
+} from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import { BasicThemeParams } from '../../shared-tools/endpoints-interfaces/themes';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
@@ -14,6 +19,8 @@ import {
    queryToGetDislikedUsers,
 } from './queries';
 import { queryToGetUsersSubscribedToThemes } from '../themes/queries';
+import { CardsGameResult, fromQueryToCardsResult } from './tools/data-conversion';
+import { divideArrayCallback, shuffleArray } from '../../common-tools/js-tools/js-tools';
 
 export function initializeCardsGame(): void {
    setIntervalAsync(notifyAllUsersAboutNewCards, NOTIFICATION_FREQUENCY_NEW_CARDS);
@@ -21,21 +28,24 @@ export function initializeCardsGame(): void {
 
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   const recommendationsQuery = queryToGetCardsRecommendations(user);
-   return fromQueryToUserList(recommendationsQuery);
+   const recommendationsQuery: Traversal = queryToGetCardsRecommendations(user);
+   const result: CardsGameResult = await fromQueryToCardsResult(recommendationsQuery);
+   return mergeResults(result);
 }
 
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   const recommendationsQuery = queryToGetDislikedUsers(params.token, user);
-   return fromQueryToUserList(recommendationsQuery);
+   const recommendationsQuery: Traversal = queryToGetDislikedUsers(params.token, user);
+   const result: CardsGameResult = await fromQueryToCardsResult(recommendationsQuery);
+   return mergeResults(result);
 }
 
 export async function recommendationsFromThemeGet(params: BasicThemeParams, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   const fromTheme: Traversal = queryToGetUsersSubscribedToThemes(params.themeIds);
-   const recommendationsQuery = queryToGetCardsRecommendations(user, fromTheme);
-   return fromQueryToUserList(recommendationsQuery);
+   let traversal: Traversal = queryToGetUsersSubscribedToThemes(params.themeIds);
+   traversal = queryToGetCardsRecommendations(user, { traversal });
+   const result: CardsGameResult = await fromQueryToCardsResult(traversal);
+   return mergeResults(result);
 }
 
 /**
@@ -52,7 +62,10 @@ export async function recommendationsFromThemeGet(params: BasicThemeParams, ctx:
 export async function notifyAllUsersAboutNewCards(): Promise<void> {
    const users: User[] = await fromQueryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
    for (const user of users) {
-      const recommendations: number = (await queryToGetCardsRecommendations(user).toList()).length;
+      const recommendations: number = (
+         await queryToGetCardsRecommendations(user, { singleListResults: true, unordered: true }).toList()
+      ).length;
+
       if (recommendations >= user.sendNewUsersNotification) {
          await queryToUpdateUserProps(user.token, [
             {
@@ -67,4 +80,28 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
          });
       }
    }
+}
+
+function mergeResults(cardsGameResult: CardsGameResult): User[] {
+   const result: User[] = [];
+
+   divideArrayCallback(cardsGameResult.liking, LIKING_USERS_CHUNK, likingChunk => {
+      const chunk: User[] = [];
+
+      if (cardsGameResult.others.length > 0) {
+         // splice cuts the array and returns the slice
+         chunk.push(...cardsGameResult.others.splice(0, NON_LIKING_USERS_CHUNK));
+      }
+
+      chunk.push(...likingChunk);
+      if (SHUFFLE_LIKING_NON_LIKING_RESULTS) {
+         shuffleArray(chunk);
+      }
+      result.push(...chunk);
+   });
+
+   // If the "liking" array is smaller than the "others" array then at this point we still have elements to add
+   result.push(...cardsGameResult.others);
+
+   return result;
 }

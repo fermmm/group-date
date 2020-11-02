@@ -4,20 +4,17 @@ import {
    notifyAllUsersAboutNewCards,
    recommendationsGet,
 } from '../components/cards-game/models';
-import { userGet, userPost } from '../components/user/models';
-import { queryToRemoveUsers, queryToGetAllCompleteUsers } from '../components/user/queries';
-import { fromQueryToUserList } from '../components/user/tools/data-conversion';
-import { AttractionType, Gender, User, UserPostParams } from '../shared-tools/endpoints-interfaces/user';
+import { setAttractionPost, userGet, userPost } from '../components/user/models';
+import { queryToRemoveUsers } from '../components/user/queries';
+import { AttractionType, Gender, User } from '../shared-tools/endpoints-interfaces/user';
 import { amountOfMatchingResponses } from '../shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { createdUsersMatchesFakeData } from './tools/reusable-tests';
 import {
    createFakeCompatibleUsers,
    createFakeUser,
-   createFakeUsers,
    generateRandomUserProps,
    getAllTestUsersCreated,
-   mergeQuestionsLists,
    setAttraction,
 } from './tools/users';
 import { DeepPartial } from 'ts-essentials';
@@ -30,6 +27,7 @@ import {
    subscribeToThemePost,
    themesCreatedByUserGet,
 } from '../components/themes/models';
+import { NON_LIKING_USERS_CHUNK, LIKING_USERS_CHUNK } from '../configurations';
 
 // TODO: Habría que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seen match
 describe('Cards game', () => {
@@ -445,6 +443,46 @@ describe('Cards game', () => {
       expect(recommendations[0].userId).toBe(themeCompatibleUsers[0].userId);
       expect(recommendations[1].userId).toBe(themeCompatibleUsers[1].userId);
       expect(recommendations[2].userId).toBe(themeCompatibleUsers[2].userId);
+   });
+
+   test('Liking users appears in the first places of the results', async () => {
+      const searcher = await createFakeUser();
+      const nonLikingUsers = await createFakeCompatibleUsers(searcher, NON_LIKING_USERS_CHUNK * 3);
+      const likingUsers = await createFakeCompatibleUsers(searcher, LIKING_USERS_CHUNK);
+
+      for (const usr of likingUsers) {
+         await setAttractionPost(
+            {
+               token: usr.token,
+               attractions: [{ userId: searcher.userId, attractionType: AttractionType.Like }],
+            },
+            fakeCtx,
+         );
+      }
+
+      const theme = await createThemePost(
+         {
+            token: searcher.token,
+            name: `searcher theme`,
+            category: 'test category 1',
+         },
+         fakeCtx,
+      );
+      await subscribeToThemePost({ token: searcher.token, themeIds: [theme.themeId] });
+
+      /*
+       * We subscribe the nonLiking users to the same theme to make them appear first, but this should
+       * not happen because liking users have their special place.
+       */
+      for (const usr of nonLikingUsers) {
+         await subscribeToThemePost({ token: usr.token, themeIds: [theme.themeId] });
+      }
+
+      recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);
+
+      expect(recommendations.findIndex(u => likingUsers[0].userId === u.userId)).toBeLessThanOrEqual(
+         LIKING_USERS_CHUNK + NON_LIKING_USERS_CHUNK,
+      );
    });
 
    afterAll(async () => {

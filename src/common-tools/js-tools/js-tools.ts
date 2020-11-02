@@ -72,6 +72,10 @@ export async function numberChunksCallback(
    chunkSize: number,
    callback: (chunk: number) => void | Promise<void>,
 ): Promise<void> {
+   if (total === 0) {
+      return;
+   }
+
    if (total <= chunkSize) {
       await callback(total);
       return;
@@ -158,6 +162,13 @@ export async function retryPromise<T>(
       } else {
          return await promise();
       }
+   }
+}
+
+export function shuffleArray<T>(array: T[]): void {
+   for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
    }
 }
 

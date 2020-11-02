@@ -112,7 +112,7 @@ export function getQuestionDataById(id: number): QuestionData {
    return questionsById[id];
 }
 
-export function getCardOrderingQuestions(questionsToFilter: QuestionResponse[]): QuestionResponse[] {
+export function getQuestionsAffectingCards(questionsToFilter: QuestionResponse[]): QuestionResponse[] {
    const result = [];
    for (const q of questionsToFilter) {
       if (!getQuestionDataById(q.questionId).affectsCardsGameOrdering) {

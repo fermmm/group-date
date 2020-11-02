@@ -1,8 +1,12 @@
 import * as moment from 'moment';
-import { __, order, P, TextP } from '../../common-tools/database-tools/database-manager';
+import { __, order, P, TextP, column, scope } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { KM_IN_GPS_FORMAT } from '../../common-tools/math-tools/constants';
-import { CARDS_GAME_MAX_RESULTS_PER_REQUEST, MAXIMUM_INACTIVITY_FOR_CARDS } from '../../configurations';
+import {
+   CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING,
+   CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS,
+   MAXIMUM_INACTIVITY_FOR_CARDS,
+} from '../../configurations';
 import {
    allAttractionTypes,
    allMatchTypes,
@@ -11,17 +15,24 @@ import {
    QuestionResponse,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
-import { queryToGetAllCompleteUsers, queryToGetUserByToken, queryToGetUserById } from '../user/queries';
-import { getCardOrderingQuestions, getQuestionDataById, questions } from '../user/questions/models';
+import {
+   queryToGetAllCompleteUsers,
+   queryToGetUserByToken,
+   queryToGetUserById,
+   queryToIncludeFullInfoInUserQuery,
+} from '../user/queries';
+import { getQuestionsAffectingCards, getQuestionDataById, questions } from '../user/questions/models';
 
 export function queryToGetCardsRecommendations(
    searcherUser: User,
-   traversal?: Traversal,
-   hideAlreadyReviewed: boolean = true,
+   settings?: {
+      traversal?: Traversal;
+      showAlreadyReviewed?: boolean;
+      singleListResults?: boolean;
+      unordered?: boolean;
+   },
 ): Traversal {
-   if (traversal == null) {
-      traversal = queryToGetAllCompleteUsers();
-   }
+   let traversal: Traversal = settings?.traversal ?? queryToGetAllCompleteUsers();
 
    /**
     * Is inside the distance range the user wants
@@ -113,7 +124,7 @@ export function queryToGetCardsRecommendations(
    /**
     * Was not already reviewed by the user
     */
-   if (hideAlreadyReviewed) {
+   if (!settings?.showAlreadyReviewed) {
       traversal = traversal.not(
          __.inE(...allAttractionTypes).where(__.outV().has('token', searcherUser.token)),
       );
@@ -181,44 +192,79 @@ export function queryToGetCardsRecommendations(
    /**
     * Order the results
     */
-   traversal = queryToOrderResults(traversal, searcherUser);
+   if (!settings?.unordered) {
+      traversal = queryToOrderResults(traversal, searcherUser);
+   }
 
    /**
-    * Limit results
+    * Create an output with 2 users list, the ones that likes the user and the others
     */
-   traversal = traversal.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST);
+   if (!settings?.singleListResults) {
+      traversal = queryToDivideLikingUsers(traversal, searcherUser);
+   }
 
    return traversal;
 }
 
-export function queryToOrderResults(query: Traversal, searcherUser: User): Traversal {
-   query = query
-      .order()
+export function queryToOrderResults(traversal: Traversal, searcherUser: User): Traversal {
+   return (
+      traversal
+         /**
+          * This shuffle avoids 2 similar users getting the same result giving more visibility
+          * to the first users in that case just because they are lucky.
+          * Shuffle needs it's own order() and needs to be at the beginning.
+          */
+         .order()
+         .by(order.shuffle)
 
-      // Order by questions responded in the same way
+         .order()
+
+         // Sub-order by questions responded in the same way
+         .by(
+            __.outE('response')
+               .or(
+                  ...getQuestionsAffectingCards(searcherUser.questions).map(q =>
+                     __.has('questionId', q.questionId).has('answerId', q.answerId),
+                  ),
+               )
+               .count(),
+            order.desc,
+         )
+
+         // Sub-order by subscribed matching themes
+         .by(__.out('subscribed').where(P.within('subscribedThemes')).count(), order.desc)
+
+         // Sub-order by subscribed blocked themes
+         .by(__.out('blocked').where(P.within('blockedThemes')).count(), order.desc)
+   );
+}
+
+export function queryToDivideLikingUsers(traversal: Traversal, searcherUser: User): Traversal {
+   return traversal
+      .group()
       .by(
-         __.outE('response')
-            .or(
-               ...getCardOrderingQuestions(searcherUser.questions).map(q =>
-                  __.has('questionId', q.questionId).has('answerId', q.answerId),
-               ),
-            )
-            .count(),
-         order.desc,
+         __.choose(
+            __.out(AttractionType.Like).has('userId', searcherUser.userId),
+            __.constant('liking'),
+            __.constant('others'),
+         ),
       )
-
-      // Sub-order by subscribed matching themes
-      .by(__.out('subscribed').where(P.within('subscribedThemes')).count(), order.desc)
-
-      // Sub-order by subscribed blocked themes
-      .by(__.out('blocked').where(P.within('blockedThemes')).count(), order.desc);
-
-   return query;
+      .project('liking', 'others')
+      .by(
+         queryToIncludeFullInfoInUserQuery(__.select('liking').unfold())
+            .limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING)
+            .fold(),
+      )
+      .by(
+         queryToIncludeFullInfoInUserQuery(__.select('others').unfold())
+            .limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS)
+            .fold(),
+      );
 }
 
 export function queryToGetDislikedUsers(token: string, searcherUser: User): Traversal {
    let traversal: Traversal = queryToGetUserByToken(token).out(AttractionType.Dislike);
-   traversal = queryToGetCardsRecommendations(searcherUser, traversal, false);
+   traversal = queryToGetCardsRecommendations(searcherUser, { traversal, showAlreadyReviewed: true });
    return traversal;
 }
 

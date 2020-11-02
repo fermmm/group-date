@@ -167,14 +167,28 @@ export const EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES: boolean = false;
 export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////  CARDS RECOMMENDATIONS  /////////////////////////////////////////
+/////////////////////////////////////////////////////  CARDS GAME  ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Maximum time (in seconds) since last login allowed, after this inactivity time the user no longer appears
- * on the cards recommendations until next login.
+ * Maximum time since last login allowed, after this inactivity time the user no longer appears on the cards
+ * recommendations until next login (unless the user ran out of recommendations and it's waiting to be notified).
  */
 export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
+
+/**
+ * If the cards game results contains users that likes the searcher and others that do not (yet), it will show
+ * a chunk of users that don't like the user and after that a chunk of users that do like it, this pattern is then
+ * repeated for the entire list of card search results.
+ * The amounts on this interleaving configuration can be configured with these 2 numbers:
+ */
+export const LIKING_USERS_CHUNK = 4;
+export const NON_LIKING_USERS_CHUNK = 4;
+
+/**
+ * If true, each pack of both chunks mentioned above will be shuffled to obfuscate the pattern to the users
+ */
+export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////  THEMES  /////////////////////////////////////////////////
@@ -184,7 +198,7 @@ export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
  * This is the amount of themes a user can create in a time frame specified
  * in THEME_CREATION_LIMIT_TIME_FRAME
  */
-export const THEMES_PER_TIME_FRAME = 2;
+export const THEMES_PER_TIME_FRAME = 4;
 
 /**
  * The user needs to wait this time to create a new theme after reaching the creation limit
@@ -217,7 +231,8 @@ export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
 export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
 export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
-export const CARDS_GAME_MAX_RESULTS_PER_REQUEST = 70;
+export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
+export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
 
 /**
@@ -227,7 +242,7 @@ export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
 export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
 
 /**
- * This sends all all the group finder queries at the same time, 100% of CPU is used on the database but finishes a
+ * This sends all the group finder queries at the same time, 100% of CPU is used on the database but finishes a
  * little faster. Could be useful in a multi instance configuration.
  * Only has effect if SINGLE_QUERY_GROUP_FINDER = false
  */

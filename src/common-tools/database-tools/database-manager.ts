@@ -72,18 +72,18 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
       result = await query();
    } catch (error) {
       try {
-         // Try again without waiting, maybe a simple retry is enough
-         result = await query();
          if (REPORT_DATABASE_RETRYING) {
             consoleLog('Database retrying');
          }
+         // Try again without waiting, maybe a simple retry is enough
+         result = await query();
       } catch (error) {
          try {
-            // Try again repeatedly waiting more time on each retry
-            result = await retryPromise(query, MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);
             if (REPORT_DATABASE_RETRYING) {
                consoleLog('Database retrying');
             }
+            // Try again repeatedly waiting more time on each retry
+            result = await retryPromise(query, MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);
          } catch (error) {
             // If the amount of retries hit the limit and returned an error log the error
             console.log(`Error from database, all retries failed: ${error}`);
