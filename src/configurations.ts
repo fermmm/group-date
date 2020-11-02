@@ -81,9 +81,9 @@ export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
 /**
  * After a group is created and the members are interacting it can still receive new users until a time passed.
  * Too high times in this setting is dangerous because there is a possible situation where members are added
- * after a group already met in person, this is serious since late arriving users will not see the matching
- * members of the group in person and will not form group with them again because the members are now "seen matches".
- * So it's a good idea to keep this setting low.
+ * after too much time where the group already met in person, this is serious since late arriving users will not
+ * see the matching members of the group in person and will not form group with them again because the members
+ * are now "seen matches". So it's a good idea to keep this setting low.
  */
 export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
 
@@ -196,7 +196,7 @@ export const THEME_CREATION_TIME_FRAME = WEEK_IN_SECONDS;
  * A user can subscribe to this maximum amount of themes.
  * This prevents users from being in too many themes to get more visibility.
  */
-export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 8;
+export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 10;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  ERROR REPORTING  //////////////////////////////////////////////
@@ -204,7 +204,7 @@ export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 8;
 
 /**
  * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
- * trust that the query is working correctly.
+ * trust that the query and multithreading is working correctly.
  */
 export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
 export const REPORT_DATABASE_RETRYING: boolean = true;

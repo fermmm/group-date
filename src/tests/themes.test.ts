@@ -24,6 +24,7 @@ import { hoursToMilliseconds } from '../common-tools/math-tools/general';
 import { Theme } from '../shared-tools/endpoints-interfaces/themes';
 import { retrieveFullyRegisteredUser } from '../components/user/models';
 import { objectsContentIsEqual } from '../common-tools/js-tools/js-tools';
+import { createFakeUser2 } from './tools/_experimental';
 
 describe('Themes', () => {
    let user1: User;
@@ -333,6 +334,25 @@ describe('Themes', () => {
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
       expect(user.themesSubscribed).toHaveLength(MAX_THEME_SUBSCRIPTIONS_ALLOWED + 1);
+   });
+
+   test('Admin users can create unlimited themes', async () => {
+      const adminUser = await createFakeUser2({ isAdmin: true });
+
+      for (let i = 0; i < THEMES_PER_TIME_FRAME + 2; i++) {
+         await createThemePost(
+            {
+               token: adminUser.token,
+               name: `admin user test theme ${i}`,
+               category: 'test category 1',
+            },
+            fakeCtx,
+         );
+      }
+
+      const themes = await themesCreatedByUserGet(adminUser.token);
+
+      expect(themes).toHaveLength(THEMES_PER_TIME_FRAME + 2);
    });
 
    test('Unrelated user created at the beginning of the test was not affected', async () => {

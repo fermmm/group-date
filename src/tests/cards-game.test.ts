@@ -4,7 +4,6 @@ import {
    notifyAllUsersAboutNewCards,
    recommendationsGet,
 } from '../components/cards-game/models';
-import { queryToOrderResultsByMatchingQuestions } from '../components/cards-game/queries';
 import { userGet, userPost } from '../components/user/models';
 import { queryToRemoveUsers, queryToGetAllCompleteUsers } from '../components/user/queries';
 import { fromQueryToUserList } from '../components/user/tools/data-conversion';
@@ -18,9 +17,19 @@ import {
    createFakeUsers,
    generateRandomUserProps,
    getAllTestUsersCreated,
+   mergeQuestionsLists,
    setAttraction,
 } from './tools/users';
 import { DeepPartial } from 'ts-essentials';
+import { chance } from './tools/generalTools';
+import { createFakeUser2 } from './tools/_experimental';
+import {
+   blockThemePost,
+   createThemePost,
+   removeAllThemesCreatedBy,
+   subscribeToThemePost,
+   themesCreatedByUserGet,
+} from '../components/themes/models';
 
 // TODO: Habría que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seen match
 describe('Cards game', () => {
@@ -274,11 +283,15 @@ describe('Cards game', () => {
       expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
       expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
 
+      const matchingResponsesWithUser1 = amountOfMatchingResponses(searcherUser, recommendations[0], {
+         onlyCardOrderingQuestions: true,
+      });
+      const matchingResponsesWithUser2 = amountOfMatchingResponses(searcherUser, recommendations[1], {
+         onlyCardOrderingQuestions: true,
+      });
+
       // Check amount of matching responses
-      expect(
-         amountOfMatchingResponses(searcherUser, recommendations[0]) >=
-            amountOfMatchingResponses(searcherUser, recommendations[1]),
-      ).toBe(true);
+      expect(matchingResponsesWithUser1).toBeGreaterThanOrEqual(matchingResponsesWithUser2);
 
       // Send profile evaluation to search results and try again to make sure evaluated users are not returned
       await setAttraction(searcherUser, [compatibleUser, compatibleUser2], AttractionType.Dislike);
@@ -303,28 +316,43 @@ describe('Cards game', () => {
    });
 
    test('Order of cards deep query testing is correct', async () => {
-      fakeUsers = await createFakeUsers(50);
-      searcherUser = fakeUsers[0];
-
-      let query = queryToGetAllCompleteUsers();
-      query = queryToOrderResultsByMatchingQuestions(query, searcherUser);
-
       let orderIsCorrect: boolean = true;
-      const orderedUsers = await fromQueryToUserList(query);
+      searcherUser = await createFakeUser();
+      fakeUsers = [];
 
-      expect(orderedUsers.length === fakeUsers.length).toBe(true);
+      // Generate matching users but with different amount of matching question responses
+      for (let i = 0; i < 50; i++) {
+         const compatibleQuestions = chance.pickset(
+            searcherUser.questions,
+            chance.integer({ min: 0, max: searcherUser.questions.length }),
+         );
 
-      for (let i = 0; i < orderedUsers.length; i++) {
-         const nextIndex = i < orderedUsers.length - 1 ? i + 1 : null;
+         const newUser = (
+            await createFakeCompatibleUsers(searcherUser, 1, {
+               questions: compatibleQuestions,
+            })
+         )[0];
+
+         fakeUsers.push(newUser);
+      }
+
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+
+      for (let i = 0; i < recommendations.length; i++) {
+         const nextIndex = i < recommendations.length - 1 ? i + 1 : null;
          if (nextIndex == null) {
             continue;
          }
 
-         const user: User = orderedUsers[i];
-         const followingUser: User = orderedUsers[nextIndex];
+         const user: User = recommendations[i];
+         const followingUser: User = recommendations[nextIndex];
 
-         const userMatches: number = amountOfMatchingResponses(user, searcherUser);
-         const nextUserMatches: number = amountOfMatchingResponses(followingUser, searcherUser);
+         const userMatches: number = amountOfMatchingResponses(user, searcherUser, {
+            onlyCardOrderingQuestions: true,
+         });
+         const nextUserMatches: number = amountOfMatchingResponses(followingUser, searcherUser, {
+            onlyCardOrderingQuestions: true,
+         });
 
          if (userMatches < nextUserMatches) {
             orderIsCorrect = false;
@@ -367,7 +395,61 @@ describe('Cards game', () => {
       await queryToRemoveUsers(fakeCompatibleUsers);
    });
 
+   test('Users with matching themes appear first', async () => {
+      const adminUser = await createFakeUser2({ isAdmin: true });
+      const searcher = (await createFakeCompatibleUsers(adminUser, 1))[0];
+
+      for (let i = 0; i < 5; i++) {
+         await createThemePost(
+            {
+               token: adminUser.token,
+               name: `cards test theme ${i}`,
+               category: 'test category 1',
+            },
+            fakeCtx,
+         );
+      }
+
+      const themes = await themesCreatedByUserGet(adminUser.token);
+      const themeIds = themes.map(t => t.themeId);
+
+      await createFakeCompatibleUsers(searcher, 5);
+      const themeCompatibleUsers = await createFakeCompatibleUsers(searcher, 3);
+
+      // Searcher user subscribes to 2 themes and blocks 1 theme
+      await subscribeToThemePost({ token: searcher.token, themeIds: [themeIds[0], themeIds[1]] });
+      await blockThemePost({ token: searcher.token, themeIds: [themeIds[2]] });
+
+      // The user that should appear first does the same than the searcher
+      await subscribeToThemePost({
+         token: themeCompatibleUsers[0].token,
+         themeIds: [themeIds[0], themeIds[1]],
+      });
+      await blockThemePost({ token: themeCompatibleUsers[0].token, themeIds: [themeIds[2]] });
+
+      // This one should appear second because it's subscribed to all themes but does not block any of them
+      await subscribeToThemePost({
+         token: themeCompatibleUsers[1].token,
+         themeIds: [themeIds[0], themeIds[1], themeIds[3], themeIds[4]],
+      });
+
+      // Single coincidence
+      await blockThemePost({
+         token: themeCompatibleUsers[2].token,
+         themeIds: [themeIds[2]],
+      });
+
+      recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);
+
+      expect(recommendations).toHaveLength(9);
+      expect(recommendations[0].userId).toBe(themeCompatibleUsers[0].userId);
+      expect(recommendations[1].userId).toBe(themeCompatibleUsers[1].userId);
+      expect(recommendations[2].userId).toBe(themeCompatibleUsers[2].userId);
+   });
+
    afterAll(async () => {
-      await queryToRemoveUsers(getAllTestUsersCreated());
+      const testUsers = getAllTestUsersCreated();
+      await queryToRemoveUsers(testUsers);
+      await removeAllThemesCreatedBy(testUsers);
    });
 });

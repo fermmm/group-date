@@ -4,12 +4,12 @@ import { User } from '../endpoints-interfaces/user';
 /**
  * Returns the amount of questions responded exactly in the same way by 2 users.
  *
- * @param onlyCardOrderingQuestions Only count questions that has affectsCardsGameOrdering = true
+ * @param onlyCardOrderingQuestions Default = true Only count questions that has affectsCardsGameOrdering = true
  */
 export function amountOfMatchingResponses(
    user1: User,
    user2: User,
-   onlyCardOrderingQuestions: boolean = true,
+   settings: { onlyCardOrderingQuestions: boolean },
 ): number {
    let result: number = 0;
 
@@ -23,7 +23,7 @@ export function amountOfMatchingResponses(
 
    for (const user1Question of user1.questions) {
       if (
-         onlyCardOrderingQuestions &&
+         settings.onlyCardOrderingQuestions &&
          !getQuestionDataById(user1Question.questionId).affectsCardsGameOrdering
       ) {
          continue;

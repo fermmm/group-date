@@ -1,4 +1,4 @@
-import { QuestionData } from '../../../shared-tools/endpoints-interfaces/user';
+import { QuestionData, QuestionResponse } from '../../../shared-tools/endpoints-interfaces/user';
 
 export function questionsGet(): QuestionData[] {
    return questions;
@@ -110,6 +110,17 @@ const incompatibleAnswersRecord: Record<number, Record<number, number[]>> = crea
 
 export function getQuestionDataById(id: number): QuestionData {
    return questionsById[id];
+}
+
+export function getCardOrderingQuestions(questionsToFilter: QuestionResponse[]): QuestionResponse[] {
+   const result = [];
+   for (const q of questionsToFilter) {
+      if (!getQuestionDataById(q.questionId).affectsCardsGameOrdering) {
+         continue;
+      }
+      result.push(q);
+   }
+   return result;
 }
 
 /**

@@ -55,27 +55,13 @@ export async function createFakeUser(customParams?: Partial<User>): Promise<User
  * @param customProps Provide user props that should not be random here.
  */
 export function generateRandomUserProps(customProps?: Partial<User>): User {
-   // Add random questions responses when there are not provided
-   const questions: QuestionResponse[] = questionsData.map(question => {
-      const questionFoundOnParams = customProps?.questions?.find(q => q.questionId === question.questionId);
+   let questions = mergeQuestionsLists(customProps?.questions ?? [], generateRandomUserQuestions());
 
-      if (questionFoundOnParams != null) {
-         return {
-            ...questionFoundOnParams,
-            incompatibleAnswers:
-               getIncompatibleAnswers(questionFoundOnParams.questionId, questionFoundOnParams.answerId) ?? [],
-         };
-      } else {
-         const answer = chance.pickone(question.answers).answerId;
-
-         return {
-            questionId: question.questionId,
-            answerId: answer,
-            useAsFilter: chance.bool(),
-            incompatibleAnswers: getIncompatibleAnswers(question.questionId, answer) ?? [],
-         };
-      }
-   });
+   // Add incompatibleAnswers parameter in case it's missing
+   questions = questions.map(question => ({
+      ...question,
+      incompatibleAnswers: getIncompatibleAnswers(question.questionId, question.answerId) ?? [],
+   }));
 
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
@@ -114,6 +100,41 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    return { ...randomProps, ...(customProps ?? {}), questions };
 }
 
+/**
+ * Missing questions from list1 will be filled by questions from list 2
+ */
+export function mergeQuestionsLists(
+   questionsList1: QuestionResponse[],
+   questionsList2: QuestionResponse[],
+): QuestionResponse[] {
+   if (questionsList1 == null) {
+      return questionsList2;
+   }
+   if (questionsList2 == null) {
+      return questionsList1;
+   }
+
+   return questionsData.map(question => {
+      const questionFoundOnList1 = questionsList1.find(q => q.questionId === question.questionId);
+      const questionFoundOnList2 = questionsList2.find(q => q.questionId === question.questionId);
+
+      return questionFoundOnList1 ?? questionFoundOnList2;
+   });
+}
+
+export function generateRandomUserQuestions(): QuestionResponse[] {
+   return questionsData.map(question => {
+      const answer = chance.pickone(question.answers).answerId;
+
+      return {
+         questionId: question.questionId,
+         answerId: answer,
+         useAsFilter: chance.bool(),
+         incompatibleAnswers: getIncompatibleAnswers(question.questionId, answer) ?? [],
+      };
+   });
+}
+
 export async function setAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
    const attractions: Attraction[] = to.map(user => ({ userId: user.userId, attractionType }));
    await setAttractionPost(
@@ -138,7 +159,11 @@ export async function setAttractionAllWithAll(users: User[]): Promise<void> {
    }
 }
 
-export async function createFakeCompatibleUsers(user: User, amount: number): Promise<User[]> {
+export async function createFakeCompatibleUsers(
+   user: User,
+   amount: number,
+   customProps?: Partial<User>,
+): Promise<User[]> {
    const compatibleProps = {
       age: chance.integer({ min: user.targetAgeMin, max: user.targetAgeMax }),
       targetAgeMin: 18,
@@ -154,7 +179,7 @@ export async function createFakeCompatibleUsers(user: User, amount: number): Pro
       gender: getGendersLikedByUser(user)[0],
       questions: user.questions,
    };
-   const props = generateRandomUserProps(compatibleProps);
+   const props = generateRandomUserProps({ ...compatibleProps, ...customProps });
 
    return createFakeUsers(amount, props);
 }
