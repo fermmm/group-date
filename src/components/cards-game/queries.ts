@@ -201,6 +201,8 @@ export function queryToGetCardsRecommendations(
     */
    if (!settings?.singleListResults) {
       traversal = queryToDivideLikingUsers(traversal, searcherUser);
+   } else {
+      traversal = traversal.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS);
    }
 
    return traversal;
