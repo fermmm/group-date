@@ -7,6 +7,7 @@ export interface Theme extends ThemeBasicInfo {
    category: string;
    country: string;
    creationDate: number;
+   lastInteractionDate: number;
    global: boolean;
    subscribersAmount: number;
    blockersAmount: number;

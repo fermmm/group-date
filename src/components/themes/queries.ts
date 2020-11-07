@@ -99,7 +99,8 @@ export function queryToRelateUserWithTheme(
             .hasLabel('theme')
             .has('themeId', __.where(P.eq('themeId')))
             .as('theme')
-            .sideEffect(relationTraversal),
+            .sideEffect(relationTraversal)
+            .property('lastInteractionDate', moment().unix()),
       );
 }
 

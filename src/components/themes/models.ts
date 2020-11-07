@@ -75,6 +75,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
       category: params.category.toLowerCase(),
       country: params.country ?? user.country,
       creationDate: moment().unix(),
+      lastInteractionDate: moment().unix(),
       global: params.global ?? false,
    };
 
