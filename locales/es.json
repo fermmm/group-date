@@ -1,0 +1,30 @@
+{
+   "Sorry you created too many themes": "Has creado muchas temáticas en un periodo corto de tiempo. Podrás crear nuevamente en %s. Sin embargo nos puedes enviar un mensaje para que evaluemos agregar tu temática.",
+   "Only admin users can create global themes": "Solo lxs admins pueden crear temáticas globales",
+   "Only admin users can set the theme country": "Solo lxs admins pueden establecer el país de la temática",
+   "A theme with the same name already exists in your country": "Ya existe en tu país una temática con el mismo nombre",
+   "Only admin users can remove themes created by anyone": "Solo lxs admins pueden eliminar temáticas creadas por otrxs",
+   "Sorry, %s users have interacted with your theme, it cannot be removed anymore": "%s usuarixs ya interactuaron con tu temática, por lo que ya no puede ser eliminada",
+
+   "Group not found": "Grupo no encontrado",
+   "Incomplete profiles not allowed in this endpoint": "Perfil incompleto, no se puede continuar en este endpoint",
+   "Invalid file provided": "El archivo es invalido",
+   "File format not supported": "El formato del archivo no esta soportado",
+   "Attempted to upload a file with wrong extension": "Extension del archivo inválida",
+
+   "If you go to a group date from this app, do you plan to go with someone?": "Si vas a una cita grupal en esta app ¿Tienes pensado ir con alguien?",
+   "Would go on the date with": "Iría a la cita con",
+   "Just me": "Solo yo",
+   "With my couple": "Con mi pareja",
+
+   "Do you agree with feminism in general?": "¿Estás de acuerdo con el feminismo en general?",
+   "Agrees with feminism in general": "Está de acuerdo con el feminismo en general",
+   "Yes, I totally agree / I Almost totally agree": "Si, muy de acuerdo / En casi todo",
+   "I Don't agree very much / I do not agree at all": "No tan de acuerdo / Nada de acuerdo",
+
+   "The term 'Group sex' what makes you think?": "¿Qué piensas del sexo grupal?",
+   "Thoughts about group sex": "Su opinión sobre el sexo grupal",
+   "I don't know / No comments": "No lo se / Prefiero no opinar",
+   "I'm interested": "Me interesa",
+   "I'm not very interested / Zero interest": "No tengo mucho interés / Cero interés"
+}

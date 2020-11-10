@@ -21,17 +21,18 @@ import {
 import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configurations';
 import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { __ } from '../../common-tools/database-tools/database-manager';
 
 export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
    if (params.global && !user.isAdmin) {
-      ctx.throw(400, 'Only admin users can create global themes');
+      ctx.throw(400, ctx.t('Only admin users can create global themes'));
       return;
    }
 
    if (params.country && !user.isAdmin) {
-      ctx.throw(400, 'Only admin users can set the theme country');
+      ctx.throw(400, ctx.t('Only admin users can set the theme country'));
       return;
    }
 
@@ -50,13 +51,10 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
    if (themesCreatedByUser.length >= THEMES_PER_TIME_FRAME && !user.isAdmin) {
       const remaining = moment
          .duration(getRemainingTimeToCreateNewTheme(themesCreatedByUser), 'seconds')
-         .locale('en')
+         .locale(ctx.__getLocale())
          .humanize();
 
-      ctx.throw(
-         400,
-         `Sorry you created too many themes in a short period of time. Try again in ${remaining}. The themes should be created by many different users, although you can send us a message and we can evaluate adding the themes`,
-      );
+      ctx.throw(400, ctx.t('Sorry you created too many themes', remaining));
       return;
    }
 
@@ -65,7 +63,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
    const matchingTheme: Theme = userThemes.find(t => t.name.toLowerCase() === params.name.toLowerCase());
 
    if (matchingTheme != null) {
-      ctx.throw(400, 'A theme with the same name already exists in your country');
+      ctx.throw(400, ctx.t('A theme with the same name already exists in your country'));
       return;
    }
 
@@ -136,15 +134,16 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
       for (const t of params.themeIds) {
          const themeFound = themesCreatedByUser.find(ut => ut.themeId === t);
          if (themeFound == null) {
-            ctx.throw(400, 'Only admin users can remove themes created by anyone');
+            ctx.throw(400, ctx.t('Only admin users can remove themes created by anyone'));
             return;
          }
          if (themeFound.subscribersAmount > 0 || themeFound.blockersAmount > 0) {
             ctx.throw(
                400,
-               `Sorry, ${
-                  themeFound.subscribersAmount + themeFound.blockersAmount
-               } users have interacted with your theme, it cannot be removed anymore.`,
+               ctx.t(
+                  'Sorry, %s users have interacted with your theme, it cannot be removed anymore',
+                  themeFound.subscribersAmount + themeFound.blockersAmount,
+               ),
             );
             return;
          }

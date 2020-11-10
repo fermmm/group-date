@@ -210,7 +210,7 @@ export async function retrieveFullyRegisteredUser(
    const user = await retrieveUser(token, includeFullInfo, ctx);
 
    if (!user.profileCompleted) {
-      ctx.throw(400, 'Incomplete profiles not allowed in this endpoint');
+      ctx.throw(400, ctx.t('Incomplete profiles not allowed in this endpoint'));
       return;
    }
 
@@ -301,7 +301,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
       if (file) {
          fs.unlinkSync(file.path);
       }
-      ctx.throw(400, 'Invalid file provided');
+      ctx.throw(400, ctx.t('Invalid file provided'));
       return;
    }
 
@@ -316,7 +316,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
     */
    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
       fs.unlinkSync(file.path);
-      ctx.throw(400, 'File format not supported');
+      ctx.throw(400, ctx.t('File format not supported'));
       return;
    }
 
@@ -326,7 +326,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
       originalFileExtension !== '.png'
    ) {
       fs.unlinkSync(file.path);
-      ctx.throw(400, 'Attempted to upload a file with wrong extension');
+      ctx.throw(400, ctx.t('Attempted to upload a file with wrong extension'));
       return;
    }
 

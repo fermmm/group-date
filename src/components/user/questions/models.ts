@@ -1,22 +1,23 @@
+import { BaseContext } from 'koa';
 import { QuestionData, QuestionResponse } from '../../../shared-tools/endpoints-interfaces/user';
 
-export function questionsGet(): QuestionData[] {
-   return questions;
+export function questionsGet(ctx: BaseContext): QuestionData[] {
+   return translateQuestionsText(questions, ctx);
 }
 
 const companyQuestion: QuestionData = {
    questionId: 0,
    affectsCardsGameOrdering: false,
-   text: '¿Pensás ir acompañadx a las citas grupales de esta app?',
-   shortVersion: 'Iría a la cita con',
+   text: 'If you go to a group date from this app, do you plan to go with someone?',
+   shortVersion: 'Would go on the date with',
    answers: [
       {
          answerId: 0,
-         text: 'Iría solx',
+         text: 'Just me',
       },
       {
          answerId: 1,
-         text: 'Iría con mi pareja',
+         text: 'With my couple',
       },
    ],
 };
@@ -24,16 +25,16 @@ const companyQuestion: QuestionData = {
 const feminismQuestion: QuestionData = {
    questionId: 1,
    affectsCardsGameOrdering: true,
-   text: '¿Estás de acuerdo con el feminismo en general?',
-   shortVersion: 'Está de acuerdo con el feminismo en general',
+   text: 'Do you agree with feminism in general?',
+   shortVersion: 'Agrees with feminism in general',
    answers: [
       {
          answerId: 0,
-         text: 'Si, muy de acuerdo / En casi todo',
+         text: 'Yes, I totally agree / I Almost totally agree',
       },
       {
          answerId: 1,
-         text: 'No tan de acuerdo / Nada de acuerdo',
+         text: "I Don't agree very much / I do not agree at all",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -45,20 +46,20 @@ const feminismQuestion: QuestionData = {
 const groupSexQuestion: QuestionData = {
    questionId: 2,
    affectsCardsGameOrdering: true,
-   text: '¿Qué pensás del sexo grupal?',
-   shortVersion: 'Su opinión sobre el sexo grupal',
+   text: "The term 'Group sex' what makes you think?",
+   shortVersion: 'Thoughts about group sex',
    answers: [
       {
          answerId: 0,
-         text: 'No lo se / Prefiero no opinar',
+         text: "I don't know / No comments",
       },
       {
          answerId: 1,
-         text: 'Me interesa',
+         text: "I'm interested",
       },
       {
          answerId: 2,
-         text: 'No tengo mucho interés / No me interesa',
+         text: "I'm not very interested / Zero interest",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -67,6 +68,7 @@ const groupSexQuestion: QuestionData = {
    },
 };
 
+/*
 const politicsQuestion: QuestionData = {
    questionId: 3,
    affectsCardsGameOrdering: false,
@@ -97,10 +99,10 @@ const politicsQuestion: QuestionData = {
       2: [1],
    },
 };
-
+*/
 export const questions: QuestionData[] = [
    feminismQuestion,
-   politicsQuestion,
+   // politicsQuestion,
    groupSexQuestion,
    companyQuestion,
 ];
@@ -163,4 +165,17 @@ function createIncompatibleAnswersRecord(): Record<number, Record<number, number
       result[question.questionId] = question.incompatibilitiesBetweenAnswers ?? [];
    });
    return result;
+}
+
+function translateQuestionsText(rawQuestions: QuestionData[], ctx: BaseContext): QuestionData[] {
+   return rawQuestions.map(q => ({
+      ...q,
+      text: ctx.t(q.text),
+      shortVersion: ctx.t(q.shortVersion),
+      answers: q.answers.map(a => ({
+         ...a,
+         text: ctx.t(a.text),
+         shortVersion: ctx.t(a.shortVersion),
+      })),
+   }));
 }

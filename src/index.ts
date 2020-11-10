@@ -6,6 +6,7 @@ import * as koaBody from 'koa-body';
 import * as mount from 'koa-mount';
 import * as ratelimit from 'koa-ratelimit';
 import * as serve from 'koa-static';
+import * as locales from 'koa-locales';
 import * as ora from 'ora';
 import { waitForDatabase } from './common-tools/database-tools/database-manager';
 import { rateLimiterConfig } from './common-tools/security-tools/security-tools';
@@ -48,12 +49,18 @@ import { userRoutes } from './components/user/routes';
    testingRoutes(router);
 
    // Koa middlewares:
-   app.use(ratelimit(rateLimiterConfig))
+   const a = app
+      .use(ratelimit(rateLimiterConfig))
       .use(koaBody({ parsedMethods: ['GET', 'POST'] }))
       .use(router.routes())
       .use(router.allowedMethods())
       .use(mount('/images', serve('./uploads/')))
       .listen(process.env.PORT);
+
+   locales(app, {
+      defaultLocale: 'en',
+      functionName: 't',
+   });
 
    // Final messages
    ora('Application initialized!').succeed();

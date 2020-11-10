@@ -1,6 +1,5 @@
 import * as Validator from 'fastest-validator';
 import { ValidationRule } from 'fastest-validator';
-import { Gender, UserPropsValueTypes, User } from '../endpoints-interfaces/user';
 import { Theme } from '../endpoints-interfaces/themes';
 import { GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
 

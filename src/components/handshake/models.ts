@@ -1,3 +1,4 @@
+import { BaseContext } from 'koa';
 import { versionIsCompatible } from '../../common-tools/string-tools/string-tools';
 import {
    GROUP_SLOTS_CONFIGS,
@@ -10,11 +11,15 @@ import {
 } from '../../configurations';
 import { HandshakeParams, ServerHandshakeResponse } from '../../shared-tools/endpoints-interfaces/handshake';
 
-export function handshakeGet(params: HandshakeParams): ServerHandshakeResponse {
+export function handshakeGet(params: HandshakeParams, ctx: BaseContext): ServerHandshakeResponse {
    return {
       serverOperating: Boolean(process.env.SERVER_OPERATING),
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
       versionIsCompatible: versionIsCompatible(params.version, process.env.MINIMUM_CLIENT_VERSION_ALLOWED),
+      locale: {
+         language: ctx.__getLocale(),
+         origin: ctx.__getLocaleOrigin(),
+      },
       serverConfigurations: {
          maxSimultaneousGroups: GROUP_SLOTS_CONFIGS.reduce((prev, curr) => prev + curr.amount, 0),
          minGroupSize: MIN_GROUP_SIZE,

@@ -64,7 +64,7 @@ export async function getGroupById(
    const result: Group = await fromQueryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
 
    if (result == null && ctx != null) {
-      ctx.throw(400, 'Group not found');
+      ctx.throw(400, ctx.t('Group not found'));
       return;
    }
 
