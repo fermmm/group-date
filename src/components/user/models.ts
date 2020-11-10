@@ -39,16 +39,16 @@ import {
    queryToUpdateUserProps,
    queryToUpdateUserToken,
 } from './queries';
-import { questions } from './questions/models';
 import { queryToCreateQuestionsInDatabase, queryToRespondQuestions } from './questions/queries';
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
+import { QUESTIONS } from '../../configurations';
 
 export async function initializeUsers(): Promise<void> {
-   await queryToCreateQuestionsInDatabase(questions);
+   await queryToCreateQuestionsInDatabase(QUESTIONS);
    createFolderOnRoot('uploads');
 }
 
@@ -145,7 +145,7 @@ function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[]
 
 function getMissingQuestions(user: Partial<User>): number[] {
    const result: number[] = [];
-   questions.forEach(q => {
+   QUESTIONS.forEach(q => {
       if (user.questions == null) {
          result.push(q.questionId);
          return;

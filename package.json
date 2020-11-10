@@ -7,8 +7,8 @@
    "license": "ISC",
    "private": true,
    "scripts": {
-      "clean": "rimraf ./build",
       "prebuild": "npm run clean",
+      "clean": "rimraf ./build",
       "build": "tsc",
       "dev-win": "./vendor/gremlin-local-server/bin/gremlin-server.bat restart && nodemon --watch",
       "dev": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && nodemon --watch",

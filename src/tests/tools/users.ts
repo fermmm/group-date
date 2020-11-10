@@ -3,7 +3,7 @@ import ora = require('ora');
 import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { setAttractionPost, userPost } from '../../components/user/models';
 import { queryToCreateUser } from '../../components/user/queries';
-import { getIncompatibleAnswers, questions as questionsData } from '../../components/user/questions/models';
+import { getIncompatibleAnswers } from '../../components/user/questions/models';
 import {
    Attraction,
    AttractionType,
@@ -17,6 +17,7 @@ import { chance } from './generalTools';
 import { fakeCtx } from './replacements';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { getAllTestUsersCreatedExperimental } from './_experimental';
+import { QUESTIONS } from '../../configurations';
 
 let fakeUsersCreated: User[] = [];
 
@@ -114,7 +115,7 @@ export function mergeQuestionsLists(
       return questionsList1;
    }
 
-   return questionsData.map(question => {
+   return QUESTIONS.map(question => {
       const questionFoundOnList1 = questionsList1.find(q => q.questionId === question.questionId);
       const questionFoundOnList2 = questionsList2.find(q => q.questionId === question.questionId);
 
@@ -123,7 +124,7 @@ export function mergeQuestionsLists(
 }
 
 export function generateRandomUserQuestions(): QuestionResponse[] {
-   return questionsData.map(question => {
+   return QUESTIONS.map(question => {
       const answer = chance.pickone(question.answers).answerId;
 
       return {

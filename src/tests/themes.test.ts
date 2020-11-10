@@ -166,11 +166,11 @@ describe('Themes', () => {
       user2 = await retrieveFullyRegisteredUser(user2.token, true, fakeCtx);
 
       expect(
-         objectsContentIsEqual(
-            themeIds,
-            user1.themesSubscribed.map(t => t.themeId),
-         ),
-      ).toBe(true);
+         user1.themesSubscribed
+            .map(t => t.themeId)
+            .sort()
+            .join(),
+      ).toEqual(themeIds.sort().join());
 
       expect(user1.themesBlocked ?? []).toHaveLength(0);
       expect(user2.themesSubscribed ?? []).toHaveLength(0);

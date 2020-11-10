@@ -1,6 +1,7 @@
 import { hoursToMilliseconds } from './common-tools/math-tools/general';
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
+import { QuestionData } from './shared-tools/endpoints-interfaces/user';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  GROUPS  ////////////////////////////////////////////////////
@@ -247,3 +248,110 @@ export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
  * Only has effect if SINGLE_QUERY_GROUP_FINDER = false
  */
 export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////  QUESTIONS  //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const companyQuestion: QuestionData = {
+   questionId: 0,
+   affectsCardsGameOrdering: false,
+   text: 'If you go to a group date from this app, do you plan to go with someone?',
+   shortVersion: 'Would go on the date with',
+   answers: [
+      {
+         answerId: 0,
+         text: 'Just me',
+      },
+      {
+         answerId: 1,
+         text: 'With my couple',
+      },
+   ],
+};
+
+const feminismQuestion: QuestionData = {
+   questionId: 1,
+   affectsCardsGameOrdering: true,
+   text: 'Do you agree with feminism in general?',
+   shortVersion: 'Agrees with feminism in general',
+   answers: [
+      {
+         answerId: 0,
+         text: 'Yes, I totally agree / I Almost totally agree',
+      },
+      {
+         answerId: 1,
+         text: "I Don't agree very much / I do not agree at all",
+      },
+   ],
+   incompatibilitiesBetweenAnswers: {
+      0: [1],
+      1: [0],
+   },
+};
+
+const groupSexQuestion: QuestionData = {
+   questionId: 2,
+   affectsCardsGameOrdering: true,
+   text: "The term 'Group sex' what makes you think?",
+   shortVersion: 'Thoughts about group sex',
+   answers: [
+      {
+         answerId: 0,
+         text: "I don't know / No comments",
+      },
+      {
+         answerId: 1,
+         text: "I'm interested",
+      },
+      {
+         answerId: 2,
+         text: "I'm not very interested / Zero interest",
+      },
+   ],
+   incompatibilitiesBetweenAnswers: {
+      1: [0, 2],
+      2: [1],
+   },
+};
+
+/*
+const politicsQuestion: QuestionData = {
+   questionId: 3,
+   affectsCardsGameOrdering: false,
+   text: '¿Qué grupo de posturas políticas preferís?',
+   shortVersion: 'Posturas políticas preferidas',
+   answers: [
+      {
+         answerId: 0,
+         text: 'Prefiero no decirlo',
+      },
+      {
+         answerId: 1,
+         text: 'Libre mercado / Derecha / Otras cercanas',
+         shortVersion: 'Libre mercado / Derecha / Otras',
+      },
+      {
+         answerId: 2,
+         text: 'Socialismo / Izquierda / Anarquismo / Otras cercanas',
+         shortVersion: 'Izquierda / Anarquismo / Otras',
+      },
+      {
+         answerId: 3,
+         text: 'Otra',
+      },
+   ],
+   incompatibilitiesBetweenAnswers: {
+      1: [2],
+      2: [1],
+   },
+};
+*/
+
+export const QUESTIONS: QuestionData[] = [
+   feminismQuestion,
+   // politicsQuestion,
+   groupSexQuestion,
+   companyQuestion,
+];

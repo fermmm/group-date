@@ -6,6 +6,7 @@ import {
    CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING,
    CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS,
    MAXIMUM_INACTIVITY_FOR_CARDS,
+   QUESTIONS,
 } from '../../configurations';
 import {
    allAttractionTypes,
@@ -21,7 +22,7 @@ import {
    queryToGetUserById,
    queryToIncludeFullInfoInUserQuery,
 } from '../user/queries';
-import { getQuestionsAffectingCards, getQuestionDataById, questions } from '../user/questions/models';
+import { getQuestionsAffectingCards, getQuestionDataById } from '../user/questions/models';
 
 export function queryToGetCardsRecommendations(
    searcherUser: User,
@@ -177,7 +178,7 @@ export function queryToGetCardsRecommendations(
    /**
     * The user passes the filter questions
     */
-   for (const question of questions) {
+   for (const question of QUESTIONS) {
       const userAnswer: QuestionResponse = searcherUser.questions.find(
          q => q.questionId === question.questionId,
       );
