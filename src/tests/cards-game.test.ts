@@ -27,7 +27,7 @@ import {
    subscribeToThemePost,
    themesCreatedByUserGet,
 } from '../components/themes/models';
-import { NON_LIKING_USERS_CHUNK, LIKING_USERS_CHUNK } from '../configurations';
+import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from '../configurations';
 
 // TODO: Habría que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seen match
 describe('Cards game', () => {
@@ -447,8 +447,8 @@ describe('Cards game', () => {
 
    test('Liking users appears in the first places of the results', async () => {
       const searcher = await createFakeUser();
-      const nonLikingUsers = await createFakeCompatibleUsers(searcher, NON_LIKING_USERS_CHUNK * 3);
-      const likingUsers = await createFakeCompatibleUsers(searcher, LIKING_USERS_CHUNK);
+      const nonLikingUsers = await createFakeCompatibleUsers(searcher, NON_SEARCHER_LIKING_CHUNK * 3);
+      const likingUsers = await createFakeCompatibleUsers(searcher, SEARCHER_LIKING_CHUNK);
 
       for (const usr of likingUsers) {
          await setAttractionPost(
@@ -481,7 +481,7 @@ describe('Cards game', () => {
       recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);
 
       expect(recommendations.findIndex(u => likingUsers[0].userId === u.userId)).toBeLessThanOrEqual(
-         LIKING_USERS_CHUNK + NON_LIKING_USERS_CHUNK,
+         SEARCHER_LIKING_CHUNK + NON_SEARCHER_LIKING_CHUNK,
       );
    });
 

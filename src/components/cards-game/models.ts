@@ -1,8 +1,8 @@
 import { BaseContext } from 'koa';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import {
-   LIKING_USERS_CHUNK,
-   NON_LIKING_USERS_CHUNK,
+   SEARCHER_LIKING_CHUNK,
+   NON_SEARCHER_LIKING_CHUNK,
    NOTIFICATION_FREQUENCY_NEW_CARDS,
    SHUFFLE_LIKING_NON_LIKING_RESULTS,
 } from '../../configurations';
@@ -85,12 +85,12 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
 function mergeResults(cardsGameResult: CardsGameResult): User[] {
    const result: User[] = [];
 
-   divideArrayCallback(cardsGameResult.liking, LIKING_USERS_CHUNK, likingChunk => {
+   divideArrayCallback(cardsGameResult.liking, SEARCHER_LIKING_CHUNK, likingChunk => {
       const chunk: User[] = [];
 
       if (cardsGameResult.others.length > 0) {
          // splice cuts the array and returns the slice
-         chunk.push(...cardsGameResult.others.splice(0, NON_LIKING_USERS_CHUNK));
+         chunk.push(...cardsGameResult.others.splice(0, NON_SEARCHER_LIKING_CHUNK));
       }
 
       chunk.push(...likingChunk);

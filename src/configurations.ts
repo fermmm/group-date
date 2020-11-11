@@ -178,16 +178,20 @@ export const MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = 0.25;
 export const MAXIMUM_INACTIVITY_FOR_CARDS = ONE_MONTH_IN_SECONDS;
 
 /**
- * If the cards game results contains users that likes the searcher and others that do not (yet), it will show
- * a chunk of users that don't like the user and after that a chunk of users that do like it, this pattern is then
- * repeated for the entire list of card search results.
- * The amounts on this interleaving configuration can be configured with these 2 numbers:
+ * The "searcher-liking" users (users that like the searcher user) should be order with priority in the cards game
+ * to form more matches, but could be cases where the searcher-liking users are not attractive to the searcher, so
+ * not all the cards should be searcher-liking users.
+ *
+ * Because of this the cards game will show a small amount of users (chunk) that don't like the searcher and after
+ * that a chunk of searcher-liking users, this pattern is then repeated for the entire list of card game results.
+ * The amount of cards on each chunk can be configured with these 2 numbers:
  */
-export const LIKING_USERS_CHUNK = 4;
-export const NON_LIKING_USERS_CHUNK = 4;
+export const SEARCHER_LIKING_CHUNK = 4;
+export const NON_SEARCHER_LIKING_CHUNK = 4;
 
 /**
- * If true, each pack of both chunks mentioned above will be shuffled to obfuscate the pattern to the users
+ * If true, each pack of both chunks mentioned above will be shuffled to obfuscate the pattern to the users and
+ * make the card game less predictable
  */
 export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 
