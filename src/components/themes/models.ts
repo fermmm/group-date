@@ -22,19 +22,18 @@ import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configur
 import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { __ } from '../../common-tools/database-tools/database-manager';
-import { setLocaleFrom, t } from '../../common-tools/i18n-tools/i18n-tools';
+import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   setLocaleFrom({ user });
 
    if (params.global && !user.isAdmin) {
-      ctx.throw(400, t('Only admin users can create global themes'));
+      ctx.throw(400, t('Only admin users can create global themes', { user }));
       return;
    }
 
    if (params.country && !user.isAdmin) {
-      ctx.throw(400, t('Only admin users can set the theme country'));
+      ctx.throw(400, t('Only admin users can set the theme country', { user }));
       return;
    }
 
@@ -56,7 +55,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
          .locale(user.language)
          .humanize();
 
-      ctx.throw(400, t('Sorry you created too many themes', remaining));
+      ctx.throw(400, t('Sorry you created too many themes', { user }, remaining));
       return;
    }
 
@@ -67,7 +66,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
    );
 
    if (matchingTheme != null) {
-      ctx.throw(400, t('A theme with the same name already exists in your country'));
+      ctx.throw(400, t('A theme with the same name already exists in your country', { user }));
       return;
    }
 
@@ -132,7 +131,6 @@ export async function removeBlockToThemePost(params: BasicThemeParams): Promise<
 
 export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   setLocaleFrom({ user });
 
    if (!user.isAdmin) {
       const themesCreatedByUser: Theme[] = await themesCreatedByUserGet(params.token);
@@ -140,7 +138,7 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
       for (const theme of params.themeIds) {
          const themeFound = themesCreatedByUser.find(ut => ut.themeId === theme);
          if (themeFound == null) {
-            ctx.throw(400, t('Only admin users can remove themes created by anyone'));
+            ctx.throw(400, t('Only admin users can remove themes created by anyone', { user }));
             return;
          }
          if (themeFound.subscribersAmount > 0 || themeFound.blockersAmount > 0) {
@@ -148,6 +146,7 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
                400,
                t(
                   'Sorry, %s users have interacted with your theme, it cannot be removed anymore',
+                  { user },
                   String(themeFound.subscribersAmount + themeFound.blockersAmount),
                ),
             );

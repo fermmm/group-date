@@ -1,7 +1,7 @@
 import { BaseContext } from 'koa';
 import { QUESTIONS } from '../../../configurations';
 import { QuestionData, QuestionResponse } from '../../../shared-tools/endpoints-interfaces/user';
-import { setLocaleFrom, t, getLocaleFromHeader } from '../../../common-tools/i18n-tools/i18n-tools';
+import { t } from '../../../common-tools/i18n-tools/i18n-tools';
 
 const questionsById: QuestionData[] = createQuestionsByIdArray();
 const incompatibleAnswersRecord: Record<number, Record<number, number[]>> = createIncompatibleAnswersRecord();
@@ -68,16 +68,14 @@ function createIncompatibleAnswersRecord(): Record<number, Record<number, number
 }
 
 function translateQuestionsText(rawQuestions: QuestionData[], ctx: BaseContext): QuestionData[] {
-   setLocaleFrom({ ctx });
-
    return rawQuestions.map(q => ({
       ...q,
-      text: t(q.text),
-      shortVersion: t(q.shortVersion),
+      text: t(q.text, { ctx }),
+      shortVersion: t(q.shortVersion, { ctx }),
       answers: q.answers.map(a => ({
          ...a,
-         text: t(a.text),
-         shortVersion: t(a.shortVersion),
+         text: t(a.text, { ctx }),
+         shortVersion: t(a.shortVersion, { ctx }),
       })),
    }));
 }

@@ -6,14 +6,20 @@ import { User } from '../../shared-tools/endpoints-interfaces/user';
 /**
  * Returns a translation to the provided string
  */
-// @ts-ignore
-export const t: typeof i18n.__ = (...args) => i18n.__(...args);
+export function t(
+   phraseOrOptions: string | i18n.TranslateOptions,
+   sources: LocaleConfigurationSources,
+   ...replace: string[]
+): string {
+   setLocaleFrom(sources);
+   return i18n.__(phraseOrOptions, ...replace);
+}
 
 /**
  * Sets the translator language, optionally from ctx or from the user. If it's not found sets the
  * language to the default.
  */
-export function setLocaleFrom(sources: { ctx?: BaseContext; user?: Partial<User> }): void {
+function setLocaleFrom(sources: LocaleConfigurationSources): void {
    if (sources.ctx != null) {
       i18n.setLocale(getLocaleFromHeader(sources.ctx));
       return;
@@ -31,4 +37,9 @@ export function setLocaleFrom(sources: { ctx?: BaseContext; user?: Partial<User>
  */
 export function getLocaleFromHeader(ctx: BaseContext): string {
    return ctx.header['accept-language'] ?? DEFAULT_LANGUAGE;
+}
+
+export interface LocaleConfigurationSources {
+   ctx?: BaseContext;
+   user?: Partial<User>;
 }

@@ -33,7 +33,7 @@ import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion'
 import { GroupQuality } from '../groups-finder/tools/types';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { sendQuery } from '../../common-tools/database-tools/database-manager';
-import { setLocaleFrom, t } from '../../common-tools/i18n-tools/i18n-tools';
+import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -65,8 +65,7 @@ export async function getGroupById(
    const result: Group = await fromQueryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
 
    if (result == null && ctx != null) {
-      setLocaleFrom({ ctx });
-      ctx.throw(400, t('Group not found'));
+      ctx.throw(400, t('Group not found', { ctx }));
       return;
    }
 
