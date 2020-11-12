@@ -46,6 +46,7 @@ import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tool
 import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
 import { QUESTIONS } from '../../configurations';
+import { getLocaleFromHeader, setLocaleFrom, t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export async function initializeUsers(): Promise<void> {
    await queryToCreateQuestionsInDatabase(QUESTIONS);
@@ -105,6 +106,7 @@ export async function retrieveUser(
  * This endpoint returns all user props that are missing, only when this endpoint returns empty arrays
  * the user can proceed with the endpoints not related with registration.
  * If the user does not exist this endpoint creates it and it should be used also for the user creation.
+ * Also the language is set on this endpoint, example: "Accept-Language: es" on the header of the request.
  */
 export async function profileStatusGet(
    params: TokenParameter,
@@ -125,6 +127,10 @@ export async function profileStatusGet(
       {
          key: 'lastLoginDate',
          value: moment().unix(),
+      },
+      {
+         key: 'language',
+         value: getLocaleFromHeader(ctx),
       },
    ]);
 
@@ -208,9 +214,10 @@ export async function retrieveFullyRegisteredUser(
    ctx: BaseContext,
 ): Promise<User> {
    const user = await retrieveUser(token, includeFullInfo, ctx);
+   setLocaleFrom({ user });
 
    if (!user.profileCompleted) {
-      ctx.throw(400, ctx.t('Incomplete profiles not allowed in this endpoint'));
+      ctx.throw(400, t('Incomplete profiles not allowed in this endpoint'));
       return;
    }
 
@@ -297,11 +304,12 @@ export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Ko
 }
 
 export async function onFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {
+   setLocaleFrom({ ctx });
    if (file == null || file.size === 0) {
       if (file) {
          fs.unlinkSync(file.path);
       }
-      ctx.throw(400, ctx.t('Invalid file provided'));
+      ctx.throw(400, t('Invalid file provided'));
       return;
    }
 
@@ -316,7 +324,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
     */
    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
       fs.unlinkSync(file.path);
-      ctx.throw(400, ctx.t('File format not supported'));
+      ctx.throw(400, t('File format not supported'));
       return;
    }
 
@@ -326,7 +334,7 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
       originalFileExtension !== '.png'
    ) {
       fs.unlinkSync(file.path);
-      ctx.throw(400, ctx.t('Attempted to upload a file with wrong extension'));
+      ctx.throw(400, t('Attempted to upload a file with wrong extension'));
       return;
    }
 

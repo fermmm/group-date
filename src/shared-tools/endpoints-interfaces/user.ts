@@ -20,6 +20,7 @@ export interface User {
    locationLon: number;
    cityName: string;
    country: string;
+   language: string;
    name: string;
    age: number;
    gender: Gender;

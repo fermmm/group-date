@@ -6,7 +6,7 @@ export interface ServerHandshakeResponse {
    versionIsCompatible: boolean;
    serverOperating: boolean;
    serverMessage?: string;
-   locale: { language: string; origin: string };
+   locale: string;
    serverConfigurations: {
       maxSimultaneousGroups: number;
       minGroupSize: number;

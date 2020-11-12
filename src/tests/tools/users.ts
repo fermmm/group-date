@@ -68,6 +68,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
       cityName: chance.city(),
+      language: 'en',
       country: chance.country(),
       token: generateId(),
       userId: generateId(),
