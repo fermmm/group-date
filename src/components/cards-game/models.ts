@@ -21,6 +21,7 @@ import {
 import { queryToGetUsersSubscribedToThemes } from '../themes/queries';
 import { CardsGameResult, fromQueryToCardsResult } from './tools/data-conversion';
 import { divideArrayCallback, shuffleArray } from '../../common-tools/js-tools/js-tools';
+import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export function initializeCardsGame(): void {
    setIntervalAsync(notifyAllUsersAboutNewCards, NOTIFICATION_FREQUENCY_NEW_CARDS);
@@ -75,8 +76,8 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
          ]);
          await addNotificationToUser(user.token, {
             type: NotificationType.CardsGame,
-            title: `¡Hay mas gente!`,
-            text: `Hay ${recommendations} usuarixs nuevxs para que veas.`,
+            title: t(`There is new people in the app!`, { user }),
+            text: t('There are %s new users', { user }, String(recommendations)),
          });
       }
    }
