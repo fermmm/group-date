@@ -1,6 +1,6 @@
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, P, sendQuery, g, column } from '../../common-tools/database-tools/database-manager';
-import { Traversal, GremlinValueType } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import {
    allAttractionTypes,
    allMatchTypes,
@@ -15,6 +15,7 @@ import { generateId } from '../../common-tools/string-tools/string-tools';
 import { time } from '../../common-tools/js-tools/js-tools';
 import { TokenOrId } from './tools/typings';
 import { checkTypeByMember } from '../../common-tools/ts-tools/ts-tools';
+import { DEFAULT_LANGUAGE } from '../../configurations';
 
 export function queryToCreateUser(
    token: string,
@@ -31,6 +32,7 @@ export function queryToCreateUser(
             .property('token', token)
             .property('userId', customUserIdForTesting ?? generateId())
             .property('email', email)
+            .property('language', DEFAULT_LANGUAGE)
             .property('profileCompleted', setProfileCompletedForTesting ?? false)
             .property('sendNewUsersNotification', 0)
             .property('lastGroupJoinedDate', moment().unix())

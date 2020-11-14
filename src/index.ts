@@ -7,9 +7,6 @@ import * as mount from 'koa-mount';
 import * as ratelimit from 'koa-ratelimit';
 import * as serve from 'koa-static';
 import * as ora from 'ora';
-import * as i18n from 'i18n';
-import * as path from 'path';
-import * as appRoot from 'app-root-path';
 import { waitForDatabase } from './common-tools/database-tools/database-manager';
 import { rateLimiterConfig } from './common-tools/security-tools/security-tools';
 import { adminRoutes } from './components/admin/routes';
@@ -23,15 +20,8 @@ import { testingRoutes } from './components/testing/routes';
 import { themesRoutes } from './components/themes/routes';
 import { initializeUsers } from './components/user/models';
 import { userRoutes } from './components/user/routes';
-import { DEFAULT_LANGUAGE } from './configurations';
 
 (async () => {
-   // i18n
-   i18n.configure({
-      defaultLocale: DEFAULT_LANGUAGE,
-      directory: path.join(appRoot.path, '/locales/'),
-   });
-
    // Koa initialization:
    const app: Koa = new Koa();
    const router = new Router();

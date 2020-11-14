@@ -52,6 +52,12 @@ export async function createGroup(
       votersUserId: [],
    }));
 
+   const resultGroup: Group = await fromQueryToGroup(
+      queryToCreateGroup({ dayOptions, initialUsers, initialQuality }),
+      false,
+   );
+
+   // Send notifications
    for (const userId of initialUsers.usersIds) {
       await addNotificationToUser(
          { userId },
@@ -64,7 +70,7 @@ export async function createGroup(
       );
    }
 
-   return fromQueryToGroup(queryToCreateGroup({ dayOptions, initialUsers, initialQuality }), false);
+   return resultGroup;
 }
 
 /**
@@ -89,6 +95,9 @@ export async function getGroupById(
  * Add users to a group (this is not an endpoint)
  */
 export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSettings): Promise<void> {
+   await sendQuery(() => queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate());
+
+   // Send notifications:
    for (const userId of users.usersIds) {
       await addNotificationToUser(
          { userId },
@@ -100,8 +109,6 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
          true,
       );
    }
-
-   await sendQuery(() => queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate());
 }
 
 /**

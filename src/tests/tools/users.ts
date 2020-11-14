@@ -17,7 +17,7 @@ import { chance } from './generalTools';
 import { fakeCtx } from './replacements';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { getAllTestUsersCreatedExperimental } from './_experimental';
-import { QUESTIONS } from '../../configurations';
+import { QUESTIONS, DEFAULT_LANGUAGE } from '../../configurations';
 
 let fakeUsersCreated: User[] = [];
 
@@ -68,7 +68,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
       cityName: chance.city(),
-      language: 'en',
+      language: DEFAULT_LANGUAGE,
       country: chance.country(),
       token: generateId(),
       userId: generateId(),

@@ -1,3 +1,6 @@
+import { I18n } from 'i18n';
+import * as path from 'path';
+import * as appRoot from 'app-root-path';
 import { hoursToMilliseconds } from './common-tools/math-tools/general';
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
@@ -258,6 +261,10 @@ export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const DEFAULT_LANGUAGE = 'en';
+export const I18N = new I18n({
+   defaultLocale: DEFAULT_LANGUAGE,
+   directory: path.join(appRoot.path, '/locales/'),
+});
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  QUESTIONS  //////////////////////////////////////////////////
@@ -317,7 +324,7 @@ const groupSexQuestion: QuestionData = {
       },
       {
          answerId: 2,
-         text: "I'm not very interested / Zero interest",
+         text: "I'm not very interested / No interest",
       },
    ],
    incompatibilitiesBetweenAnswers: {
