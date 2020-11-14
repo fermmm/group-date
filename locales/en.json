@@ -28,5 +28,7 @@
    "You have a new message from an admin": "You have a new message from an admin",
    "You can respond to the admin": "You can respond to the admin",
    "You are in a group!": "You are in a group!",
-   "A group just formed and you like each other!": "A group just formed and you like each other!"
+   "A group just formed and you like each other!": "A group just formed and you like each other!",
+   "New chat messages": "New chat messages",
+   "There are new chat messages in your group date": "There are new chat messages in your group date"
 }

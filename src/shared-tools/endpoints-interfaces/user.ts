@@ -125,6 +125,7 @@ export enum MatchType {
 
 export interface Notification {
    notificationId: string;
+   idForReplacement?: string;
    date: number;
    type: NotificationType;
    title: string;

@@ -243,6 +243,15 @@ export async function addNotificationToUser(
       };
    }
 
+   if (notification.idForReplacement != null) {
+      const previousNotificationIndex = user.notifications.findIndex(
+         n => n.idForReplacement === notification.idForReplacement,
+      );
+      if (previousNotificationIndex > -1) {
+         user.notifications.splice(previousNotificationIndex, 1);
+      }
+   }
+
    user.notifications.push({
       ...notification,
       notificationId: generateId(),

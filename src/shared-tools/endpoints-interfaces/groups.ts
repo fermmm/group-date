@@ -4,6 +4,7 @@ import { User } from './user';
 export interface Group {
    groupId: string;
    creationDate: number;
+   membersAmount: number;
    members: User[];
    chat: GroupChat;
    dateIdeasVotes: Record<string, string[]>;
@@ -50,6 +51,7 @@ export enum ExperienceFeedbackType {
 export interface BasicGroupParams {
    token: string;
    groupId: string;
+   includeFullDetails?: boolean;
 }
 
 export interface DateIdeaVotePostParams extends BasicGroupParams {
@@ -71,4 +73,9 @@ export interface FeedbackPostParams extends BasicGroupParams {
 export interface UserWithMatches {
    userId: string;
    matches: string[];
+}
+
+export interface GroupMembership {
+   newMessagesRead: boolean;
+   lastNotificationDate: number;
 }

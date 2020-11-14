@@ -3,8 +3,8 @@ import { MarkRequired } from 'ts-essentials';
 import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
 import { __, column, g, P, sendQuery } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { GROUP_SLOTS_CONFIGS } from '../../configurations';
-import { DayOption, Group, GroupChat } from '../../shared-tools/endpoints-interfaces/groups';
+import { GROUP_SLOTS_CONFIGS, NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL } from '../../configurations';
+import { DayOption, Group, GroupChat, GroupMembership } from '../../shared-tools/endpoints-interfaces/groups';
 import { GroupQuality } from '../groups-finder/tools/types';
 import { queryToGetUserById } from '../user/queries';
 import { generateId } from '../../common-tools/string-tools/string-tools';
@@ -25,6 +25,7 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
          }),
       )
       .property('creationDate', moment().unix())
+      .property('membersAmount', params.initialUsers?.usersIds.length ?? 0)
       .property('dayOptions', serializeIfNeeded(params.dayOptions))
       .property('usersThatAccepted', serializeIfNeeded([]))
       .property('initialQuality', params.initialQuality ?? GroupQuality.Good)
@@ -54,11 +55,17 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
             __.V()
                // Make queries selecting each user by the user id provided and add the member edge to the group
                .union(...settings.usersIds.map(u => __.has('userId', u)))
-               .sideEffect(__.addE('member').to('group'))
+               .sideEffect(
+                  __.addE('member')
+                     .to('group')
+                     .property('newMessagesRead', true)
+                     .property('lastNotificationDate', 0),
+               )
                // Add the corresponding slot edge, slots avoids adding the users in too many groups
                .sideEffect(__.addE('slot' + settings.slotToUse).to('group'))
                .sideEffect(__.property('lastGroupJoinedDate', moment().unix())),
          )
+         .property('membersAmount', __.inE('member').count())
 
          // Replace the "Match" edges between the members of the group by a "SeenMatch" edge in order to be ignored
          // by the group finding algorithms. This avoids repeated groups or groups with repeated matches.
@@ -137,6 +144,39 @@ export function queryToUpdateGroupProperty(
    }
 
    return sendQuery(() => traversal.iterate());
+}
+
+export function queryToUpdateMembershipProperty(
+   groupId: string,
+   userId: string,
+   properties: Partial<GroupMembership>,
+): Promise<void> {
+   let traversal = queryToGetGroupById(groupId, userId);
+   traversal = traversal.inE('member').where(__.outV().has('user', 'userId', userId));
+
+   for (const key of Object.keys(properties)) {
+      traversal = traversal.property(key, serializeIfNeeded(properties[key]));
+   }
+
+   return sendQuery(() => traversal.iterate());
+}
+
+/**
+ * Gets the list of users that are able to receive new chat message notification.
+ * Also this function updates membership properties to avoid notification spam
+ */
+export function queryToGetMembersForNewMsgNotification(groupId: string): Traversal {
+   return queryToGetGroupById(groupId)
+      .inE('member')
+      .has('newMessagesRead', true)
+      .where(
+         __.values('lastNotificationDate').is(
+            P.lt(moment().unix() - NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL),
+         ),
+      )
+      .property('newMessagesRead', false)
+      .property('lastNotificationDate', moment().unix())
+      .outV();
 }
 
 /**

@@ -12,6 +12,7 @@ import {
    userGroupsGet,
 } from '../components/groups/models';
 import { queryToRemoveGroups } from '../components/groups/queries';
+import { retrieveFullyRegisteredUser, retrieveUser } from '../components/user/models';
 import { queryToRemoveUsers } from '../components/user/queries';
 import { ExperienceFeedbackType, Group } from '../shared-tools/endpoints-interfaces/groups';
 import { User } from '../shared-tools/endpoints-interfaces/user';
@@ -40,7 +41,10 @@ describe('Groups', () => {
       for (const user of fakeUsers) {
          await acceptPost({ token: user.token, groupId: group.groupId }, null);
       }
-      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      group = await groupGet(
+         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
+         fakeCtx,
+      );
       expect(group.usersThatAccepted.length === fakeUsers.length).toBe(true);
    });
 
@@ -85,7 +89,10 @@ describe('Groups', () => {
          fakeCtx,
       );
 
-      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      group = await groupGet(
+         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
+         fakeCtx,
+      );
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
       expect(group.dateIdeasVotes[fakeUsers[4].userId]).toContain(mainUser.userId);
@@ -139,7 +146,10 @@ describe('Groups', () => {
          fakeCtx,
       );
 
-      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      group = await groupGet(
+         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
+         fakeCtx,
+      );
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
       expect(group.dayOptions[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
@@ -151,23 +161,30 @@ describe('Groups', () => {
    });
 
    test('Chat messages are saved correctly', async () => {
-      await chatPost(
-         { message: 'Hey, how are you today?', token: mainUser.token, groupId: group.groupId },
-         fakeCtx,
-      );
+      await chatPost({ message: 'Hey!', token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      await chatPost({ message: 'how are you today?', token: mainUser.token, groupId: group.groupId }, fakeCtx);
       await chatPost(
          { message: "I'm so good, I love the world!", token: mainUser2.token, groupId: group.groupId },
          fakeCtx,
       );
 
-      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      group = await groupGet(
+         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
+         fakeCtx,
+      );
 
-      expect(group.chat.messages.length).toEqual(2);
+      expect(group.chat.messages).toHaveLength(3);
+   });
+
+   test('Notifications of new chat messages are received and not with a spamming behavior', async () => {
+      mainUser2 = await retrieveFullyRegisteredUser(mainUser2.token, false, fakeCtx);
+      const chatNotifications = mainUser2.notifications.filter(n => n.targetId === group.groupId);
+      expect(chatNotifications).toHaveLength(1);
    });
 
    test('The action of a user downloading a message is recorded correctly', async () => {
       // mainUser downloads the messages, this groupGet call simulates that
-      await groupGet({ token: mainUser.token, groupId: group.groupId }, null);
+      await groupGet({ token: mainUser.token, groupId: group.groupId, includeFullDetails: true }, null);
 
       // Now we retrieve the group again to check if stored correctly the read
       group = await getGroupById(group.groupId);
@@ -175,7 +192,7 @@ describe('Groups', () => {
       expect(group.chat.usersDownloadedLastMessage[0]).toBe(mainUser.userId);
 
       // Now mainUser2 downloads the messages
-      await groupGet({ token: mainUser2.token, groupId: group.groupId }, null);
+      await groupGet({ token: mainUser2.token, groupId: group.groupId, includeFullDetails: true }, null);
 
       // Now we retrieve the group again to check if stored correctly the read
       group = await getGroupById(group.groupId);

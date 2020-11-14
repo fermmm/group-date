@@ -19,7 +19,11 @@ import {
 } from '../../shared-tools/endpoints-interfaces/groups';
 import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
 import { addNotificationToUser, retrieveFullyRegisteredUser } from '../user/models';
-import { queryToFindSlotsToRelease } from './queries';
+import {
+   queryToFindSlotsToRelease,
+   queryToGetMembersForNewMsgNotification,
+   queryToUpdateMembershipProperty,
+} from './queries';
 import {
    AddUsersToGroupSettings,
    queryToAddUsersToGroup,
@@ -120,11 +124,12 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
       onlyIfAMemberHasUserId: user.userId,
-      includeFullDetails: true,
+      includeFullDetails: params.includeFullDetails,
       ctx,
    });
 
    await updateAndCleanChat(user, group);
+   await queryToUpdateMembershipProperty(group.groupId, user.userId, { newMessagesRead: true });
 
    return group;
 }
@@ -200,7 +205,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
       onlyIfAMemberHasUserId: user.userId,
-      includeFullDetails: true,
+      includeFullDetails: false,
       ctx,
    });
 
@@ -213,6 +218,26 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    group.chat.usersDownloadedLastMessage = [];
 
    await queryToUpdateGroupProperty({ groupId: group.groupId, chat: group.chat });
+
+   // Send a notification to group members informing that there is a new message
+   const usersToReceiveNotification: string[] = (await queryToGetMembersForNewMsgNotification(group.groupId)
+      .values('userId')
+      .toList()) as string[];
+
+   for (const userId of usersToReceiveNotification) {
+      await addNotificationToUser(
+         { userId },
+         {
+            type: NotificationType.Chat,
+            title: 'New chat messages',
+            text: 'There are new chat messages in your group date',
+            targetId: group.groupId,
+            // Previous notifications that has the same value here are replaced
+            idForReplacement: group.groupId,
+         },
+         true,
+      );
+   }
 }
 
 /**
@@ -256,7 +281,7 @@ async function updateAndCleanChat(user: User, group: Group): Promise<void> {
 
    // If all users downloaded the last message and there are many chat messages
    if (
-      group.chat.usersDownloadedLastMessage.length === group.members.length &&
+      group.chat.usersDownloadedLastMessage.length === group.membersAmount &&
       group.chat.messages.length > MAX_CHAT_MESSAGES_STORED_ON_SERVER
    ) {
       // Remove all chat messages except for the last ones to optimize data transfer next time
