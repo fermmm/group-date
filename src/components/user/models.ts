@@ -47,6 +47,8 @@ import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
 import { QUESTIONS } from '../../configurations';
 import { getLocaleFromHeader, t } from '../../common-tools/i18n-tools/i18n-tools';
+import { queryToGetUserById, queryToGetUserByTokenOrId } from './queries';
+import { TokenOrId } from './tools/typings';
 
 export async function initializeUsers(): Promise<void> {
    await queryToCreateQuestionsInDatabase(QUESTIONS);
@@ -227,10 +229,19 @@ export async function retrieveFullyRegisteredUser(
  * Internal function to add a notification to the user object.
  */
 export async function addNotificationToUser(
-   token: string,
+   tokenOrId: TokenOrId,
    notification: Omit<Notification, 'notificationId' | 'date'>,
+   translateNotification?: boolean,
 ) {
-   const user: Partial<User> = await retrieveUser(token, false, null);
+   const user: Partial<User> = await fromQueryToUser(queryToGetUserByTokenOrId(tokenOrId), false);
+
+   if (translateNotification) {
+      notification = {
+         ...notification,
+         title: t(notification.title, { user }),
+         text: t(notification.text, { user }),
+      };
+   }
 
    user.notifications.push({
       ...notification,
@@ -238,7 +249,7 @@ export async function addNotificationToUser(
       date: moment().unix(),
    });
 
-   await queryToUpdateUserProps(token, [
+   await queryToUpdateUserProps(queryToGetUserByTokenOrId(tokenOrId), [
       {
          key: 'notifications',
          value: user.notifications,

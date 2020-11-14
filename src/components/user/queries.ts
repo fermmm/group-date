@@ -13,6 +13,8 @@ import * as moment from 'moment';
 import { ValueOf } from 'ts-essentials';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { time } from '../../common-tools/js-tools/js-tools';
+import { TokenOrId } from './tools/typings';
+import { checkTypeByMember } from '../../common-tools/ts-tools/ts-tools';
 
 export function queryToCreateUser(
    token: string,
@@ -35,6 +37,16 @@ export function queryToCreateUser(
             .property('notifications', '[]'),
       )
       .unfold();
+}
+
+export function queryToGetUserByTokenOrId(tokenOrId: TokenOrId): Traversal {
+   if (checkTypeByMember(tokenOrId, 'token')) {
+      return queryToGetUserByToken(tokenOrId.token);
+   } else if (checkTypeByMember(tokenOrId, 'userId')) {
+      return queryToGetUserById(tokenOrId.userId);
+   } else {
+      return null;
+   }
 }
 
 export function queryToGetUserByToken(token: string, currentTraversal?: Traversal): Traversal {
@@ -83,11 +95,12 @@ export async function queryToUpdateUserToken(userEmail: string, newToken: string
 }
 
 export async function queryToUpdateUserProps(
-   token: string,
+   tokenOrTraversal: string | Traversal,
    props: Array<{ key: keyof User; value: ValueOf<User> }>,
 ): Promise<void> {
    await sendQuery(() => {
-      let query = queryToGetUserByToken(token);
+      let query =
+         typeof tokenOrTraversal === 'string' ? queryToGetUserByToken(tokenOrTraversal) : tokenOrTraversal;
 
       for (const prop of props) {
          query = query.property(prop.key, serializeIfNeeded(prop.value));

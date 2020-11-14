@@ -74,11 +74,14 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
                value: 0,
             },
          ]);
-         await addNotificationToUser(user.token, {
-            type: NotificationType.CardsGame,
-            title: t(`There is new people in the app!`, { user }),
-            text: t('There are %s new users', { user }, String(recommendations)),
-         });
+         await addNotificationToUser(
+            { token: user.token },
+            {
+               type: NotificationType.CardsGame,
+               title: t(`There is new people in the app!`, { user }),
+               text: t('There are %s new users', { user }, String(recommendations)),
+            },
+         );
       }
    }
 }

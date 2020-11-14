@@ -24,5 +24,9 @@
    "I'm interested": "Me interesa",
    "I'm not very interested / Zero interest": "No tengo mucho interés / Cero interés",
    "There is new people in the app!": "¡Hay más gente en la app!",
-   "There are %s new users": "Hay %s usuarixs nuevxs"
+   "There are %s new users": "Hay %s usuarixs nuevxs",
+   "You have a new message from an admin": "Tienes un nuevo mensaje de unx admin",
+   "You can respond to the admin": "Puedes responderle a lx admin",
+   "You are in a group!": "¡Estás en un grupo!",
+   "A group just formed and you like each other!": "Se acaba de formar un grupo y te gustas con ellos!"
 }

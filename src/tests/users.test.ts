@@ -39,18 +39,24 @@ describe('Users', () => {
    });
 
    test('Notifications works', async () => {
-      await addNotificationToUser(matchingUsersCouple1[0].token, {
-         type: NotificationType.Group,
-         title: 'Prueba',
-         text: 'sarasa2',
-         targetId: 'http://sarasa.com',
-      });
-      await addNotificationToUser(matchingUsersCouple1[0].token, {
-         type: NotificationType.FacebookEvent,
-         title: 'sarasa3',
-         text: 'sarasa4',
-         targetId: 'http://sarasa.com',
-      });
+      await addNotificationToUser(
+         { token: matchingUsersCouple1[0].token },
+         {
+            type: NotificationType.Group,
+            title: 'Prueba',
+            text: 'sarasa2',
+            targetId: 'http://sarasa.com',
+         },
+      );
+      await addNotificationToUser(
+         { token: matchingUsersCouple1[0].token },
+         {
+            type: NotificationType.FacebookEvent,
+            title: 'sarasa3',
+            text: 'sarasa4',
+            targetId: 'http://sarasa.com',
+         },
+      );
 
       const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       expect(updatedUser.notifications.length).toBe(2);

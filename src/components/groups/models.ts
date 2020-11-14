@@ -17,8 +17,8 @@ import {
    FeedbackPostParams,
    Group,
 } from '../../shared-tools/endpoints-interfaces/groups';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { retrieveFullyRegisteredUser } from '../user/models';
+import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
+import { addNotificationToUser, retrieveFullyRegisteredUser } from '../user/models';
 import { queryToFindSlotsToRelease } from './queries';
 import {
    AddUsersToGroupSettings,
@@ -51,6 +51,19 @@ export async function createGroup(
       date,
       votersUserId: [],
    }));
+
+   for (const userId of initialUsers.usersIds) {
+      await addNotificationToUser(
+         { userId },
+         {
+            type: NotificationType.Group,
+            title: 'You are in a group!',
+            text: 'A group just formed and you like each other!',
+         },
+         true,
+      );
+   }
+
    return fromQueryToGroup(queryToCreateGroup({ dayOptions, initialUsers, initialQuality }), false);
 }
 
@@ -76,6 +89,18 @@ export async function getGroupById(
  * Add users to a group (this is not an endpoint)
  */
 export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSettings): Promise<void> {
+   for (const userId of users.usersIds) {
+      await addNotificationToUser(
+         { userId },
+         {
+            type: NotificationType.Group,
+            title: 'You are in a group!',
+            text: 'A group just formed and you like each other!',
+         },
+         true,
+      );
+   }
+
    await sendQuery(() => queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate());
 }
 

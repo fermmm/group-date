@@ -8,8 +8,8 @@ import {
    ChatWithAdmins,
 } from '../../shared-tools/endpoints-interfaces/admin';
 import { ChatMessage } from '../../shared-tools/endpoints-interfaces/common';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { retrieveUser } from '../user/models';
+import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
+import { addNotificationToUser, retrieveUser } from '../user/models';
 import { queryToUpdateUserProps } from '../user/queries';
 import {
    queryToGetAdminChatMessages,
@@ -18,6 +18,7 @@ import {
 } from './queries';
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from './tools/data-conversion';
 import { generateId } from '../../common-tools/string-tools/string-tools';
+import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
@@ -42,6 +43,18 @@ export async function adminChatPost(params: AdminChatPostParams, ctx: BaseContex
    });
 
    await queryToSaveAdminChatMessage(nonAdminUserId, currentChat, callerUser.isAdmin || false).iterate();
+
+   if (callerUser.isAdmin) {
+      await addNotificationToUser(
+         { userId: params.targetUserId },
+         {
+            type: NotificationType.ContactChat,
+            title: 'You have a new message from an admin',
+            text: 'You can respond to the admin',
+         },
+         true,
+      );
+   }
 }
 
 export async function allChatsWithAdminsGet(
