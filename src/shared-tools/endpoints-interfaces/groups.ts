@@ -13,6 +13,9 @@ export interface Group {
    openForMoreUsers: boolean;
    feedback: ExperienceFeedback[];
    matches: UserWithMatches[];
+   mostVotedDate: number;
+   reminder1NotificationSent: boolean;
+   reminder2NotificationSent: boolean;
 }
 
 export interface GroupChat {

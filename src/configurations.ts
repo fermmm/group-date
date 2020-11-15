@@ -2,7 +2,12 @@ import { I18n } from 'i18n';
 import * as path from 'path';
 import * as appRoot from 'app-root-path';
 import { hoursToMilliseconds } from './common-tools/math-tools/general';
-import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
+import {
+   DAY_IN_SECONDS,
+   HOUR_IN_SECONDS,
+   ONE_MONTH_IN_SECONDS,
+   WEEK_IN_SECONDS,
+} from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
 import { QuestionData } from './shared-tools/endpoints-interfaces/user';
 
@@ -265,6 +270,22 @@ export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
  * are sent to the user unless this amount of time passes
  */
 export const NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL = DAY_IN_SECONDS * 2;
+
+/**
+ * Amount of time before the date to send the first reminder
+ */
+export const FIRST_DATE_REMINDER_TIME = DAY_IN_SECONDS * 3;
+
+/**
+ * Amount of time before the date to send the second reminder
+ * The specific time of the day is not voted so the reminder also is limited because of that.
+ */
+export const SECOND_DATE_REMINDER_TIME = DAY_IN_SECONDS;
+
+/**
+ * How often to execute the search of groups to send the remainder notification to members
+ */
+export const SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = hoursToMilliseconds(5);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  LOCALIZATION  /////////////////////////////////////////////////

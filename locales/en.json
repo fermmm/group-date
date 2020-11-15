@@ -30,5 +30,7 @@
    "You are in a group!": "You are in a group!",
    "A group just formed and you like each other!": "A group just formed and you like each other!",
    "New chat messages": "New chat messages",
-   "There are new chat messages in your group date": "There are new chat messages in your group date"
+   "There are new chat messages in your group date": "There are new chat messages in your group date",
+   "Date reminder": "Date reminder",
+   "Your group date will be in less than %s": "Your group date will be in less than %s"
 }

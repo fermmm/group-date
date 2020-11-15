@@ -30,5 +30,7 @@
    "You are in a group!": "¡Estás en un grupo!",
    "A group just formed and you like each other!": "Se acaba de formar un grupo y te gustas con ellos!",
    "New chat messages": "Nuevos mensajes en el chat",
-   "There are new chat messages in your group date": "Hay nuevos mensajes en el chat de tu cita grupal"
+   "There are new chat messages in your group date": "Hay nuevos mensajes en el chat de tu cita grupal",
+   "Date reminder": "Recordatorio de la cita",
+   "Your group date will be in less than %s": "Tu cita grupal será en menos de %s"
 }

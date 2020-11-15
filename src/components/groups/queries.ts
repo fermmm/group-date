@@ -29,6 +29,9 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property('dayOptions', serializeIfNeeded(params.dayOptions))
       .property('usersThatAccepted', serializeIfNeeded([]))
       .property('initialQuality', params.initialQuality ?? GroupQuality.Good)
+      .property('reminder1NotificationSent', false)
+      .property('reminder2NotificationSent', false)
+      .property('mostVotedDate', 0)
       .property('feedback', serializeIfNeeded([]));
 
    if (params.initialUsers != null) {
@@ -169,14 +172,22 @@ export function queryToGetMembersForNewMsgNotification(groupId: string): Travers
    return queryToGetGroupById(groupId)
       .inE('member')
       .has('newMessagesRead', true)
-      .where(
-         __.values('lastNotificationDate').is(
-            P.lt(moment().unix() - NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL),
-         ),
-      )
+      .has('lastNotificationDate', P.lt(moment().unix() - NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL))
       .property('newMessagesRead', false)
       .property('lastNotificationDate', moment().unix())
       .outV();
+}
+
+export function queryToGetGroupsToSendReminder(
+   timeRemaining: number,
+   reminderProp: 'reminder1NotificationSent' | 'reminder2NotificationSent',
+): Traversal {
+   return g
+      .V()
+      .hasLabel('group')
+      .has('mostVotedDate', P.inside(moment().unix(), moment().unix() + timeRemaining))
+      .has(reminderProp, false)
+      .property(reminderProp, true);
 }
 
 /**

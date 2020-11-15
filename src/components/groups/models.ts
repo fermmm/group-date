@@ -3,9 +3,12 @@ import * as moment from 'moment';
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import {
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
+   FIRST_DATE_REMINDER_TIME,
    GROUP_SLOTS_CONFIGS,
    MAX_CHAT_MESSAGES_STORED_ON_SERVER,
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
+   SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY,
+   SECOND_DATE_REMINDER_TIME,
 } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
 import {
@@ -21,6 +24,7 @@ import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/
 import { addNotificationToUser, retrieveFullyRegisteredUser } from '../user/models';
 import {
    queryToFindSlotsToRelease,
+   queryToGetGroupsToSendReminder,
    queryToGetMembersForNewMsgNotification,
    queryToUpdateMembershipProperty,
 } from './queries';
@@ -41,6 +45,7 @@ import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
+   setIntervalAsync(sendDateReminderNotifications, SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
 }
 
 /**
@@ -177,6 +182,8 @@ export async function dateIdeaVotePost(params: DateIdeaVotePostParams, ctx: Base
 export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
+   let mostVotedDate: number = null;
+   let mostVotedDateVotes: number = 0;
 
    for (const groupDayOption of group.dayOptions) {
       const userIsVotingThisOption: boolean = params.daysToVote.indexOf(groupDayOption.date) !== -1;
@@ -193,9 +200,15 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
             groupDayOption.votersUserId.splice(userIdPosOnVotes, 1);
          }
       }
+
+      // Save the most voted date
+      if (mostVotedDate == null || groupDayOption.votersUserId.length > mostVotedDateVotes) {
+         mostVotedDate = groupDayOption.date;
+         mostVotedDateVotes = groupDayOption.votersUserId.length;
+      }
    }
 
-   await queryToUpdateGroupProperty({ groupId: group.groupId, dayOptions: group.dayOptions });
+   await queryToUpdateGroupProperty({ groupId: group.groupId, dayOptions: group.dayOptions, mostVotedDate });
 }
 
 /**
@@ -264,6 +277,50 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
 
 export async function findSlotsToRelease(): Promise<void> {
    return await queryToFindSlotsToRelease().iterate();
+}
+
+export async function sendDateReminderNotifications(): Promise<void> {
+   const reminders: Array<{
+      time: number;
+      reminderProp: 'reminder1NotificationSent' | 'reminder2NotificationSent';
+   }> = [
+      {
+         time: FIRST_DATE_REMINDER_TIME,
+         reminderProp: 'reminder1NotificationSent',
+      },
+      {
+         time: SECOND_DATE_REMINDER_TIME,
+         reminderProp: 'reminder2NotificationSent',
+      },
+   ];
+
+   for (const reminder of reminders) {
+      const groups: Group[] = await fromQueryToGroupList(
+         queryToGetGroupsToSendReminder(reminder.time, reminder.reminderProp),
+         false,
+         true,
+      );
+
+      const currentTime: number = moment().unix();
+
+      for (const group of groups) {
+         for (const user of group.members) {
+            await addNotificationToUser(
+               { userId: user.userId },
+               {
+                  type: NotificationType.Group,
+                  title: t('Date reminder', { user }),
+                  text: t(
+                     'Your group date will be in less than %s',
+                     { user },
+                     moment.duration(reminder.time, 'seconds').locale(user.language).humanize(),
+                  ),
+                  targetId: group.groupId,
+               },
+            );
+         }
+      }
+   }
 }
 
 /**
