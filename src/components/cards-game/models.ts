@@ -23,7 +23,7 @@ import { CardsGameResult, fromQueryToCardsResult } from './tools/data-conversion
 import { divideArrayCallback, shuffleArray } from '../../common-tools/js-tools/js-tools';
 import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
-export function initializeCardsGame(): void {
+export async function initializeCardsGame(): Promise<void> {
    setIntervalAsync(notifyAllUsersAboutNewCards, NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY);
 }
 

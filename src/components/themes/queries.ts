@@ -7,7 +7,13 @@ import { Theme, ThemeRelationShip } from '../../shared-tools/endpoints-interface
 import { queryToGetUserById, queryToGetUserByToken } from '../user/queries';
 
 export function queryToCreateThemes(userId: string, themesToCreate: Array<Partial<Theme>>): Traversal {
-   return queryToCreateVerticesFromObjects(themesToCreate, 'theme')
+   const traversal: Traversal = queryToCreateVerticesFromObjects(themesToCreate, 'theme', 'themeId');
+
+   if (userId == null) {
+      return traversal;
+   }
+
+   return traversal
       .fold()
       .as('t')
       .union(queryToGetUserById(userId, __).as('user'))

@@ -69,12 +69,12 @@ describe('Themes', () => {
          );
       }
 
-      user1Themes = await themesGet({ token: user1.token }, fakeCtx);
-      user2Themes = await themesGet({ token: user2.token }, fakeCtx);
-      const unrelatedThemes = await themesGet({ token: userUnrelated.token }, fakeCtx);
+      user1Themes = await themesCreatedByUserGet(user1.token);
+      user2Themes = await themesCreatedByUserGet(user2.token);
+      const unrelatedThemes = await themesCreatedByUserGet(userUnrelated.token);
 
-      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME * 2);
-      expect(user2Themes).toHaveLength(THEMES_PER_TIME_FRAME * 2);
+      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME);
+      expect(user2Themes).toHaveLength(THEMES_PER_TIME_FRAME);
       expect(unrelatedThemes).toHaveLength(THEMES_PER_TIME_FRAME);
    });
    test('Creating more themes than the maximum allowed per time frame should be not possible', async () => {
@@ -87,8 +87,8 @@ describe('Themes', () => {
          fakeCtxMuted,
       );
 
-      user1Themes = await themesGet({ token: user1.token }, fakeCtx);
-      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME * 2);
+      user1Themes = await themesCreatedByUserGet(user1.token);
+      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME);
    });
 
    test('After full time frame passes it should be possible to add new themes', async () => {
@@ -104,8 +104,8 @@ describe('Themes', () => {
          fakeCtxMuted,
       );
 
-      user1Themes = await themesGet({ token: user1.token }, fakeCtx);
-      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME * 2);
+      user1Themes = await themesCreatedByUserGet(user1.token);
+      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME);
 
       // Now enough time has passed
       JestDateMock.advanceBy((THEME_CREATION_TIME_FRAME * 1000) / 2 + hoursToMilliseconds(1));
@@ -119,8 +119,8 @@ describe('Themes', () => {
          fakeCtx,
       );
 
-      user1Themes = await themesGet({ token: user1.token }, fakeCtx);
-      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME * 2 + 1);
+      user1Themes = await themesCreatedByUserGet(user1.token);
+      expect(user1Themes).toHaveLength(THEMES_PER_TIME_FRAME + 1);
 
       JestDateMock.clear();
    });
@@ -132,25 +132,36 @@ describe('Themes', () => {
       await createThemePost(
          {
             token: user.token,
-            name: `new test theme`,
-            category: 'test category 2',
+            name: `duplicated test`,
+            category: 'test category',
          },
          fakeCtxMuted,
       );
 
+      // Same theme than the previous one
+      await createThemePost(
+         {
+            token: user.token,
+            name: `duplicated test`,
+            category: 'test category',
+         },
+         fakeCtxMuted,
+      );
+
+      // This user is from another country so the theme should be created in this case
       await createThemePost(
          {
             token: userOutside.token,
-            name: `new test theme`,
-            category: 'test category 2',
+            name: `duplicated test`,
+            category: 'test category',
          },
          fakeCtx,
       );
 
-      const userThemes = await themesGet({ token: user.token }, fakeCtx);
-      expect(userThemes).toHaveLength(THEMES_PER_TIME_FRAME * 2 + 1);
+      const userThemes = await themesCreatedByUserGet(user.token);
+      expect(userThemes).toHaveLength(1);
 
-      const userOutsideThemes = await themesGet({ token: userOutside.token }, fakeCtx);
+      const userOutsideThemes = await themesCreatedByUserGet(userOutside.token);
       expect(userOutsideThemes).toHaveLength(1);
    });
 

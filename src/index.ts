@@ -17,6 +17,7 @@ import { initializeGroups } from './components/groups/models';
 import { groupsRoutes } from './components/groups/routes';
 import { handshakeRoutes } from './components/handshake/routes';
 import { testingRoutes } from './components/testing/routes';
+import { initializeThemes } from './components/themes/models';
 import { themesRoutes } from './components/themes/routes';
 import { initializeUsers } from './components/user/models';
 import { userRoutes } from './components/user/routes';
@@ -29,14 +30,24 @@ import { userRoutes } from './components/user/routes';
       ctx.body = 'Poly Dates server';
    });
 
+   // Koa middlewares:
+   const a = app
+      .use(ratelimit(rateLimiterConfig))
+      .use(koaBody({ parsedMethods: ['GET', 'POST'] }))
+      .use(router.routes())
+      .use(router.allowedMethods())
+      .use(mount('/images', serve('./uploads/')))
+      .listen(process.env.PORT);
+
    // Database initialization:
    await waitForDatabase();
 
    // Initializers that contains scheduled tasks and other initialization stuff
-   initializeUsers();
-   initializeGroups();
-   initializeCardsGame();
-   initializeGroupsFinder();
+   await initializeUsers();
+   await initializeGroups();
+   await initializeCardsGame();
+   await initializeGroupsFinder();
+   await initializeThemes();
 
    // Routes:
    handshakeRoutes(router);
@@ -46,15 +57,6 @@ import { userRoutes } from './components/user/routes';
    themesRoutes(router);
    adminRoutes(router);
    testingRoutes(router);
-
-   // Koa middlewares:
-   const a = app
-      .use(ratelimit(rateLimiterConfig))
-      .use(koaBody({ parsedMethods: ['GET', 'POST'] }))
-      .use(router.routes())
-      .use(router.allowedMethods())
-      .use(mount('/images', serve('./uploads/')))
-      .listen(process.env.PORT);
 
    // Final messages
    ora('Application initialized!').succeed();

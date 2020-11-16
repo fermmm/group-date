@@ -5,6 +5,8 @@ import { hoursToMilliseconds } from './common-tools/math-tools/general';
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
 import { QuestionData } from './shared-tools/endpoints-interfaces/user';
+import { Theme } from './shared-tools/endpoints-interfaces/themes';
+import moment = require('moment');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  GROUP FINDER  //////////////////////////////////////////////////
@@ -197,7 +199,7 @@ export const NON_SEARCHER_LIKING_CHUNK = 4;
 export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////  THEMES  /////////////////////////////////////////////////
+////////////////////////////////////////////////////  THEMES  ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -218,57 +220,25 @@ export const THEME_CREATION_TIME_FRAME = WEEK_IN_SECONDS;
  */
 export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 10;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////  ERROR REPORTING  //////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * These are the "app authored" themes. The themeId can be any string but all should be different for each theme here.
+ */
+const politicsLeftTheme: Partial<Theme> = {
+   themeId: 'aat0',
+   category: 'Politics',
+   name: 'Left-wing / Socialism / Anarchism / Other close',
+};
+
+const politicsRightTheme: Partial<Theme> = {
+   themeId: 'aat1',
+   category: 'Politics',
+   name: 'Right-wing / Free market ideas',
+};
 
 /**
- * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
- * trust that the query and multithreading is working correctly.
+ * These are the "app authored" themes that will be shown as questions and are mandatory to interact on registration.
+ * The themeId can be any string but all should be different for each theme here.
  */
-export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
-export const REPORT_DATABASE_RETRYING: boolean = true;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////  NOTIFICATIONS  /////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * When the user ignores a notification of new chat messages then no more notifications of this kind
- * are sent to the user unless this amount of time passes
- */
-export const NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL = DAY_IN_SECONDS * 2;
-
-/**
- * Amount of time before the date to send the first reminder
- */
-export const FIRST_DATE_REMINDER_TIME = DAY_IN_SECONDS * 3;
-
-/**
- * Amount of time before the date to send the second reminder
- * The specific time of the day is not voted so the reminder also is limited because of that.
- */
-export const SECOND_DATE_REMINDER_TIME = DAY_IN_SECONDS;
-
-/**
- * How often to execute the search of groups to send the remainder notification to members
- */
-export const SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = hoursToMilliseconds(5);
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////  LOCALIZATION  /////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export const DEFAULT_LANGUAGE = 'en';
-export const I18N = new I18n({
-   defaultLocale: DEFAULT_LANGUAGE,
-   directory: path.join(appRoot.path, '/locales/'),
-});
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////  QUESTIONS  //////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 const companyQuestion: QuestionData = {
    questionId: 0,
    affectsCardsGameOrdering: false,
@@ -332,45 +302,44 @@ const groupSexQuestion: QuestionData = {
    },
 };
 
-/*
-const politicsQuestion: QuestionData = {
-   questionId: 3,
-   affectsCardsGameOrdering: false,
-   text: '¿Qué grupo de posturas políticas preferís?',
-   shortVersion: 'Posturas políticas preferidas',
-   answers: [
-      {
-         answerId: 0,
-         text: 'Prefiero no decirlo',
-      },
-      {
-         answerId: 1,
-         text: 'Libre mercado / Derecha / Otras cercanas',
-         shortVersion: 'Libre mercado / Derecha / Otras',
-      },
-      {
-         answerId: 2,
-         text: 'Socialismo / Izquierda / Anarquismo / Otras cercanas',
-         shortVersion: 'Izquierda / Anarquismo / Otras',
-      },
-      {
-         answerId: 3,
-         text: 'Otra',
-      },
-   ],
-   incompatibilitiesBetweenAnswers: {
-      1: [2],
-      2: [1],
-   },
-};
-*/
+export const QUESTIONS: QuestionData[] = [feminismQuestion, groupSexQuestion, companyQuestion];
+export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, politicsRightTheme];
 
-export const QUESTIONS: QuestionData[] = [
-   feminismQuestion,
-   // politicsQuestion,
-   groupSexQuestion,
-   companyQuestion,
-];
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////  NOTIFICATIONS  /////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * When the user ignores a notification of new chat messages then no more notifications of this kind
+ * are sent to the user unless this amount of time passes
+ */
+export const NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL = DAY_IN_SECONDS * 2;
+
+/**
+ * Amount of time before the date to send the first reminder
+ */
+export const FIRST_DATE_REMINDER_TIME = DAY_IN_SECONDS * 3;
+
+/**
+ * Amount of time before the date to send the second reminder
+ * The specific time of the day is not voted so the reminder also is limited because of that.
+ */
+export const SECOND_DATE_REMINDER_TIME = DAY_IN_SECONDS;
+
+/**
+ * How often to execute the search of groups to send the remainder notification to members
+ */
+export const SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = hoursToMilliseconds(5);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////  LOCALIZATION  /////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const DEFAULT_LANGUAGE = 'en';
+export const I18N = new I18n({
+   defaultLocale: DEFAULT_LANGUAGE,
+   directory: path.join(appRoot.path, '/locales/'),
+});
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
@@ -396,3 +365,14 @@ export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
  * Only has effect if SINGLE_QUERY_GROUP_FINDER = false
  */
 export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////  ERROR REPORTING  //////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
+ * trust that the query and multithreading is working correctly.
+ */
+export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
+export const REPORT_DATABASE_RETRYING: boolean = true;

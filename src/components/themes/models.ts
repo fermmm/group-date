@@ -1,6 +1,11 @@
 import { ValidationError } from 'fastest-validator';
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
+import { APP_AUTHORED_THEMES, THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configurations';
+import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
+import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { __ } from '../../common-tools/database-tools/database-manager';
+import { t, LocaleConfigurationSources } from '../../common-tools/i18n-tools/i18n-tools';
 import {
    Theme,
    ThemeCreateParams,
@@ -18,11 +23,10 @@ import {
    queryToRelateUserWithTheme,
    queryToRemoveThemes,
 } from './queries';
-import { THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configurations';
-import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { __ } from '../../common-tools/database-tools/database-manager';
-import { t } from '../../common-tools/i18n-tools/i18n-tools';
+
+export async function initializeThemes(): Promise<void> {
+   await creteAppAuthoredThemes();
+}
 
 export async function createThemePost(params: ThemeCreateParams, ctx: BaseContext): Promise<Theme> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
@@ -85,16 +89,20 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
 
 export async function themesGet(params: ThemeGetParams, ctx: BaseContext): Promise<Theme[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   let result: Theme[];
 
-   if (user.isAdmin) {
+   if (!user.isAdmin) {
+      result = await fromQueryToThemeList(queryToGetThemes({ countryFilter: user.country }), true);
+   } else {
       // In the query the countryFilter must be null to return all app themes
       if (params.countryFilter === 'all') {
          params.countryFilter = null;
       }
-      return await fromQueryToThemeList(queryToGetThemes({ countryFilter: params.countryFilter }), true);
+      result = await fromQueryToThemeList(queryToGetThemes({ countryFilter: params.countryFilter }), true);
    }
 
-   return await fromQueryToThemeList(queryToGetThemes({ countryFilter: user.country }), true);
+   result = translateAppAuthoredThemes(result, { user });
+   return result;
 }
 
 export async function themesCreatedByUserGet(token: string) {
@@ -158,6 +166,18 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
    await queryToRemoveThemes(params.themeIds).iterate();
 }
 
+export async function creteAppAuthoredThemes() {
+   const themesReady = APP_AUTHORED_THEMES.map(theme => ({
+      ...theme,
+      country: 'all',
+      creationDate: moment().unix(),
+      lastInteractionDate: moment().unix(),
+      global: true,
+   }));
+
+   await fromQueryToTheme(queryToCreateThemes(null, themesReady), false);
+}
+
 /**
  * This is currently being used to clean tests only
  */
@@ -194,4 +214,15 @@ function getRemainingTimeToCreateNewTheme(themes: Theme[]): number {
    }
 
    return secondsLeft;
+}
+
+/**
+ * App authored themes are global, this means any country will see the themes, so translation is needed.
+ */
+function translateAppAuthoredThemes(themes: Theme[], localeSource: LocaleConfigurationSources): Theme[] {
+   return themes.map(theme => ({
+      ...theme,
+      category: t(theme.category, localeSource),
+      name: t(theme.name, localeSource),
+   }));
 }

@@ -32,5 +32,8 @@
    "New chat messages": "Nuevos mensajes en el chat",
    "There are new chat messages in your group date": "Hay nuevos mensajes en el chat de tu cita grupal",
    "Date reminder": "Recordatorio de la cita",
-   "Your group date will be in less than %s": "Tu cita grupal será en menos de %s"
+   "Your group date will be in less than %s": "Tu cita grupal será en menos de %s",
+   "Politics": "Política",
+   "Left-wing / Socialism / Anarchism / Other close": "Izquierda / Socialismo / Anarquismo / Otras cercanas",
+   "Right-wing / Free market ideas": "Derecha / Libre mercado"
 }

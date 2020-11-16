@@ -74,11 +74,6 @@ describe('Cards game', () => {
                answerId: 1,
                useAsFilter: true,
             },
-            // {
-            //    questionId: 3,
-            //    answerId: 2,
-            //    useAsFilter: true,
-            // },
          ],
       };
 
@@ -113,11 +108,6 @@ describe('Cards game', () => {
                answerId: 1,
                useAsFilter: false,
             },
-            // {
-            //    questionId: 3,
-            //    answerId: 3,
-            //    useAsFilter: false,
-            // },
          ],
       };
 
@@ -200,11 +190,6 @@ describe('Cards game', () => {
                answerId: 2, // This makes it incompatible
                useAsFilter: false,
             },
-            // {
-            //    questionId: 3,
-            //    answerId: 1, // This makes it incompatible
-            //    useAsFilter: false,
-            // },
          ],
       };
 
@@ -228,11 +213,6 @@ describe('Cards game', () => {
                answerId: 1,
                useAsFilter: false,
             },
-            // {
-            //    questionId: 3,
-            //    answerId: 2,
-            //    useAsFilter: true,
-            // },
          ],
       };
 
