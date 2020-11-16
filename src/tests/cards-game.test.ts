@@ -397,6 +397,7 @@ describe('Cards game', () => {
       const adminUser = await createFakeUser2({ isAdmin: true });
       const searcher = (await createFakeCompatibleUsers(adminUser, 1))[0];
 
+      // Create 5 themes (only admins can create unlimited themes)
       for (let i = 0; i < 5; i++) {
          await createThemePost(
             {
@@ -408,11 +409,19 @@ describe('Cards game', () => {
          );
       }
 
+      // Store the themes
       const themes = await themesCreatedByUserGet(adminUser.token);
       const themeIds = themes.map(t => t.themeId);
 
+      // Create 5 users compatible but not with themes, so we can test these users will appear last
       await createFakeCompatibleUsers(searcher, 5);
+
+      // Create 3 users that will be compatible in themes, so we can test that these users appear first
       const themeCompatibleUsers = await createFakeCompatibleUsers(searcher, 3);
+
+      // Create a user that blocks the searcher, so we can test that this user also does not appear
+      const userShouldNotAppear1 = (await createFakeCompatibleUsers(searcher, 1))[0];
+      const userShouldNotAppear2 = (await createFakeCompatibleUsers(searcher, 1))[0];
 
       // Searcher user subscribes to 2 themes and blocks 1 theme
       await subscribeToThemePost({ token: searcher.token, themeIds: [themeIds[0], themeIds[1]] });
@@ -435,6 +444,18 @@ describe('Cards game', () => {
       await blockThemePost({
          token: themeCompatibleUsers[2].token,
          themeIds: [themeIds[2]],
+      });
+
+      // User subscribed to theme that the searcher blocks
+      await subscribeToThemePost({
+         token: userShouldNotAppear1.token,
+         themeIds: [themeIds[2]],
+      });
+
+      // User blocks theme that the searcher subscribes
+      await blockThemePost({
+         token: userShouldNotAppear2.token,
+         themeIds: [themeIds[0]],
       });
 
       recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);

@@ -2,17 +2,12 @@ import { I18n } from 'i18n';
 import * as path from 'path';
 import * as appRoot from 'app-root-path';
 import { hoursToMilliseconds } from './common-tools/math-tools/general';
-import {
-   DAY_IN_SECONDS,
-   HOUR_IN_SECONDS,
-   ONE_MONTH_IN_SECONDS,
-   WEEK_IN_SECONDS,
-} from './common-tools/math-tools/constants';
+import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
 import { QuestionData } from './shared-tools/endpoints-interfaces/user';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////  GROUPS  ////////////////////////////////////////////////////
+////////////////////////////////////////////////  GROUP FINDER  //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -22,7 +17,7 @@ import { QuestionData } from './shared-tools/endpoints-interfaces/user';
  * date, this happens in general when organizing events online. So if the minimum group size is too low
  * the groups could be too broken when they meet each other.
  *
- * For the moment we will set the minimum at 3 and see what happens.
+ * Note: For the moment we will set the minimum at 3 and see what happens.
  */
 export const MIN_GROUP_SIZE = 3;
 export const MAX_GROUP_SIZE = 18;
@@ -37,15 +32,13 @@ export const MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = 2;
  * many groups at the same time potentially leads to users that will be "too busy" generating absent members.
  *
  * This problem is solved with a limitation of groups using a slot system: Each user has a limited number of
- * "group slots", each slot is reserved for a specific group size. Currently there are 2 slots, one for small
- * groups and one for big groups.
- *
- * This "slot for a size" feature it's implemented because being in different kind of groups is a good reason
- * to make the limitation more flexible to 2 groups at the same time, or more, but still limited.
+ * "group slots", each slot can be reserved for a specific group size. It's recommended to configure 2 slots, one
+ * for small groups and one for big groups so the only simultaneous experience possible is when the options are
+ * very different experiences.
  * Also solves another problem: The bigger groups takes more time to form so they should have a reserved slot
  * available for the moment the group is formed.
  * Slots gets available again after a configurable time, in theory this should be the average time the users
- * take to finally meet.
+ * take to finally meet so they become available again.
  *
  * Parameters:
  *
@@ -53,7 +46,7 @@ export const MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = 2;
  *    @param maximumSize Don't set this value if the slot is the one handling the bigger groups.
  *    @param amount If you want to configure the app to have multiple slots with the same group size, use this
  *                  property, don't duplicate slots
- *    @param releaseTime A group slot will be available again after a specific time set in this constant
+ *    @param releaseTime A group slot will be available again after a specific time set in this setting
  */
 export const GROUP_SLOTS_CONFIGS: Slot[] = [
    {
@@ -143,18 +136,18 @@ export const MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = ONE_MONTH_IN_SECONDS;
  */
 export const EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES: boolean = false;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////  GROUP QUALITY ANALYSIS  /////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 /**
  * This value is equivalent to quality, and it's the minimum quality of groups allowed.
- * Explanation:
- * Metaconnections = The connections of your connections.
- * This value is the maximum allowed numeric distance between the connections of a user an the metaconnections
+ * The following is an explanation of this concept.
+ *
+ * Terminology:
+ * Connections = When the users like each other (same than "Match" in monogamy apps)
+ * Metaconnections = The connections of your connections within the group
+ *
+ * So this value is the maximum allowed numeric distance between the connections of a user an the metaconnections
  * amounts in a range between 0 and 1.
- * In other words: "How much people I connect with and how much other people I have to "share" my connections".
- * Groups with a value higher than this will not be created and an attempt to fix them will be executed.
+ * In easier words: "How much people I connect with and how much other people I have to "share" my connections".
+ * Groups with a value higher than this will not be created and an attempt to fix them by will be executed.
  *
  * For a reference this is a list of groups and their values, where for example: "3 for 5" means
  * that "3 users matches with 5 users":
@@ -235,31 +228,6 @@ export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 10;
  */
 export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
 export const REPORT_DATABASE_RETRYING: boolean = true;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
-export const NOTIFICATION_FREQUENCY_NEW_CARDS = hoursToMilliseconds(24);
-export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
-export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
-export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
-export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
-export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
-
-/**
- * NOT RECOMMENDED. This is faster but when the group finding takes too much time Gremlin fails with a timeout error.
- * If this is false the group finding sends many queries, takes much more time but it's safe.
- */
-export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
-
-/**
- * This sends all the group finder queries at the same time, 100% of CPU is used on the database but finishes a
- * little faster. Could be useful in a multi instance configuration.
- * Only has effect if SINGLE_QUERY_GROUP_FINDER = false
- */
-export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  NOTIFICATIONS  /////////////////////////////////////////////////
@@ -403,3 +371,28 @@ export const QUESTIONS: QuestionData[] = [
    groupSexQuestion,
    companyQuestion,
 ];
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
+export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = hoursToMilliseconds(24);
+export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
+export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15;
+export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
+export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
+export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
+
+/**
+ * NOT RECOMMENDED. This is faster but when the group finding takes too much time Gremlin fails with a timeout error.
+ * If this is false the group finding sends many queries, takes much more time but it's safe.
+ */
+export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
+
+/**
+ * This sends all the group finder queries at the same time, 100% of CPU is used on the database but finishes a
+ * little faster. Could be useful in a multi instance configuration.
+ * Only has effect if SINGLE_QUERY_GROUP_FINDER = false
+ */
+export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;

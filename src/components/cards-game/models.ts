@@ -3,7 +3,7 @@ import { setIntervalAsync } from 'set-interval-async/dynamic';
 import {
    SEARCHER_LIKING_CHUNK,
    NON_SEARCHER_LIKING_CHUNK,
-   NOTIFICATION_FREQUENCY_NEW_CARDS,
+   NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY,
    SHUFFLE_LIKING_NON_LIKING_RESULTS,
 } from '../../configurations';
 import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
@@ -24,7 +24,7 @@ import { divideArrayCallback, shuffleArray } from '../../common-tools/js-tools/j
 import { t } from '../../common-tools/i18n-tools/i18n-tools';
 
 export function initializeCardsGame(): void {
-   setIntervalAsync(notifyAllUsersAboutNewCards, NOTIFICATION_FREQUENCY_NEW_CARDS);
+   setIntervalAsync(notifyAllUsersAboutNewCards, NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY);
 }
 
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {

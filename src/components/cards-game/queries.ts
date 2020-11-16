@@ -123,6 +123,11 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.not(__.where(__.out('subscribed').where(P.within('blockedThemes'))));
 
    /**
+    * Does not have blocked a subscription of the user:
+    */
+   traversal = traversal.not(__.where(__.out('blocked').where(P.within('subscribedThemes'))));
+
+   /**
     * Was not already reviewed by the user
     */
    if (!settings?.showAlreadyReviewed) {
