@@ -1,19 +1,17 @@
 import * as moment from 'moment';
-import { __, order, P, TextP, column, scope } from '../../common-tools/database-tools/database-manager';
+import { __, order, P } from '../../common-tools/database-tools/database-manager';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { KM_IN_GPS_FORMAT } from '../../common-tools/math-tools/constants';
 import {
    CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING,
    CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS,
    MAXIMUM_INACTIVITY_FOR_CARDS,
-   QUESTIONS,
 } from '../../configurations';
 import {
    allAttractionTypes,
    allMatchTypes,
    AttractionType,
    Gender,
-   QuestionResponse,
    User,
 } from '../../shared-tools/endpoints-interfaces/user';
 import {
@@ -22,7 +20,6 @@ import {
    queryToGetUserById,
    queryToIncludeFullInfoInUserQuery,
 } from '../user/queries';
-import { getQuestionsAffectingCards, getQuestionDataById } from '../user/questions/models';
 
 export function queryToGetCardsRecommendations(
    searcherUser: User,
@@ -61,6 +58,22 @@ export function queryToGetCardsRecommendations(
       __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_CARDS))
          .and()
          .has('sendNewUsersNotification', 0),
+   );
+
+   /**
+    * Was not already reviewed by the user
+    */
+   if (!settings?.showAlreadyReviewed) {
+      traversal = traversal.not(
+         __.inE(...allAttractionTypes).where(__.outV().has('token', searcherUser.token)),
+      );
+   }
+
+   /**
+    * It's not a Match or SeenMatch
+    */
+   traversal = traversal.not(
+      __.bothE(...allMatchTypes).where(__.bothV().simplePath().has('token', searcherUser.token)),
    );
 
    /**
@@ -128,22 +141,6 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.not(__.where(__.out('blocked').where(P.within('subscribedThemes'))));
 
    /**
-    * Was not already reviewed by the user
-    */
-   if (!settings?.showAlreadyReviewed) {
-      traversal = traversal.not(
-         __.inE(...allAttractionTypes).where(__.outV().has('token', searcherUser.token)),
-      );
-   }
-
-   /**
-    * It's not a Match or SeenMatch
-    */
-   traversal = traversal.not(
-      __.bothE(...allMatchTypes).where(__.bothV().simplePath().has('token', searcherUser.token)),
-   );
-
-   /**
     * It's another user (not self)
     */
    traversal = traversal.not(__.has('userId', searcherUser.userId));
@@ -158,42 +155,6 @@ export function queryToGetCardsRecommendations(
     */
    traversal = traversal.not(__.has('targetAgeMin', P.gt(searcherUser.age)));
    traversal = traversal.not(__.has('targetAgeMax', P.lt(searcherUser.age)));
-
-   /**
-    * Passes the filter questions of the user
-    */
-   for (const question of searcherUser.questions) {
-      const { useAsFilter, questionId, incompatibleAnswers } = question;
-
-      if (!useAsFilter) {
-         continue;
-      }
-
-      if (incompatibleAnswers == null) {
-         continue;
-      }
-
-      traversal = traversal.not(
-         __.outE('response')
-            .has('questionId', questionId)
-            .has('answerId', P.within(...incompatibleAnswers)),
-      );
-   }
-
-   /**
-    * The user passes the filter questions
-    */
-   for (const question of QUESTIONS) {
-      const userAnswer: QuestionResponse = searcherUser.questions.find(
-         q => q.questionId === question.questionId,
-      );
-      traversal = traversal.not(
-         __.outE('response')
-            .has('questionId', question.questionId)
-            .has('useAsFilter', true)
-            .has('incompatibleAnswers', TextP.containing(`${userAnswer.answerId}`)),
-      );
-   }
 
    /**
     * Order the results
@@ -226,18 +187,6 @@ export function queryToOrderResults(traversal: Traversal, searcherUser: User): T
          .by(order.shuffle)
 
          .order()
-
-         // Sub-order by questions responded in the same way
-         .by(
-            __.outE('response')
-               .or(
-                  ...getQuestionsAffectingCards(searcherUser.questions).map(q =>
-                     __.has('questionId', q.questionId).has('answerId', q.answerId),
-                  ),
-               )
-               .count(),
-            order.desc,
-         )
 
          // Sub-order by subscribed matching themes
          .by(__.out('subscribed').where(P.within('subscribedThemes')).count(), order.desc)

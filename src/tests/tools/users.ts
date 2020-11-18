@@ -3,7 +3,6 @@ import ora = require('ora');
 import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { setAttractionPost, userPost } from '../../components/user/models';
 import { queryToCreateUser } from '../../components/user/queries';
-import { getIncompatibleAnswers } from '../../components/user/questions/models';
 import {
    Attraction,
    AttractionType,
@@ -17,7 +16,7 @@ import { chance } from './generalTools';
 import { fakeCtx } from './replacements';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { getAllTestUsersCreatedExperimental } from './_experimental';
-import { QUESTIONS, DEFAULT_LANGUAGE } from '../../configurations';
+import { APP_AUTHORED_THEMES_AS_QUESTIONS, DEFAULT_LANGUAGE } from '../../configurations';
 
 let fakeUsersCreated: User[] = [];
 
@@ -43,10 +42,7 @@ export async function createFakeUser(customParams?: Partial<User>): Promise<User
    const userProps: User = generateRandomUserProps(customParams);
 
    await sendQuery(() => queryToCreateUser(userProps.token, userProps.email, true, userProps.userId).iterate());
-   await userPost(
-      { token: userProps.token, props: userProps as EditableUserProps, questions: userProps.questions },
-      fakeCtx,
-   );
+   await userPost({ token: userProps.token, props: userProps as EditableUserProps }, fakeCtx);
 
    fakeUsersCreated.push(userProps);
    return userProps;
@@ -56,19 +52,12 @@ export async function createFakeUser(customParams?: Partial<User>): Promise<User
  * @param customProps Provide user props that should not be random here.
  */
 export function generateRandomUserProps(customProps?: Partial<User>): User {
-   let questions = mergeQuestionsLists(customProps?.questions ?? [], generateRandomUserQuestions());
-
-   // Add incompatibleAnswers parameter in case it's missing
-   questions = questions.map(question => ({
-      ...question,
-      incompatibleAnswers: getIncompatibleAnswers(question.questionId, question.answerId) ?? [],
-   }));
-
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
       name: chance.first({ nationality: 'it' }),
       cityName: chance.city(),
       language: DEFAULT_LANGUAGE,
+      isCoupleProfile: chance.bool(),
       country: chance.country(),
       token: generateId(),
       userId: generateId(),
@@ -97,44 +86,10 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       lastLoginDate: moment().unix(),
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
+      questionsShowed: APP_AUTHORED_THEMES_AS_QUESTIONS.map(q => q.questionId),
    };
 
-   return { ...randomProps, ...(customProps ?? {}), questions };
-}
-
-/**
- * Missing questions from list1 will be filled by questions from list 2
- */
-export function mergeQuestionsLists(
-   questionsList1: QuestionResponse[],
-   questionsList2: QuestionResponse[],
-): QuestionResponse[] {
-   if (questionsList1 == null) {
-      return questionsList2;
-   }
-   if (questionsList2 == null) {
-      return questionsList1;
-   }
-
-   return QUESTIONS.map(question => {
-      const questionFoundOnList1 = questionsList1.find(q => q.questionId === question.questionId);
-      const questionFoundOnList2 = questionsList2.find(q => q.questionId === question.questionId);
-
-      return questionFoundOnList1 ?? questionFoundOnList2;
-   });
-}
-
-export function generateRandomUserQuestions(): QuestionResponse[] {
-   return QUESTIONS.map(question => {
-      const answer = chance.pickone(question.answers).answerId;
-
-      return {
-         questionId: question.questionId,
-         answerId: answer,
-         useAsFilter: chance.bool(),
-         incompatibleAnswers: getIncompatibleAnswers(question.questionId, answer) ?? [],
-      };
-   });
+   return { ...randomProps, ...(customProps ?? {}) };
 }
 
 export async function setAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
@@ -179,7 +134,6 @@ export async function createFakeCompatibleUsers(
       likesManTrans: true,
       likesOtherGenders: true,
       gender: getGendersLikedByUser(user)[0],
-      questions: user.questions,
    };
    const props = generateRandomUserProps({ ...compatibleProps, ...customProps });
 

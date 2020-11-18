@@ -7,7 +7,6 @@ import {
 import { setAttractionPost, userGet, userPost } from '../components/user/models';
 import { queryToRemoveUsers } from '../components/user/queries';
 import { AttractionType, Gender, User } from '../shared-tools/endpoints-interfaces/user';
-import { amountOfMatchingResponses } from '../shared-tools/user-tools/user-tools';
 import { fakeCtx } from './tools/replacements';
 import { createdUsersMatchesFakeData } from './tools/reusable-tests';
 import {
@@ -29,10 +28,9 @@ import {
 } from '../components/themes/models';
 import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from '../configurations';
 
-// TODO: Habría que agregar un test que se fije que no te aparezcan usuarios que tenes como match o seen match
 describe('Cards game', () => {
    let fakeData: Array<DeepPartial<User>>;
-   let fakeUsers: User[] = [];
+   const fakeUsers: User[] = [];
    let searcherUser: User;
    let compatibleUser: User;
    let compatibleUser2: User;
@@ -58,23 +56,6 @@ describe('Cards game', () => {
          likesWoman: true,
          likesMan: false,
          likesOtherGenders: true,
-         questions: [
-            {
-               questionId: 0,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 1,
-               answerId: 1,
-               useAsFilter: false,
-            },
-            {
-               questionId: 2,
-               answerId: 1,
-               useAsFilter: true,
-            },
-         ],
       };
 
       const compatibleParams: DeepPartial<User> = {
@@ -91,24 +72,6 @@ describe('Cards game', () => {
          targetDistance: 25,
          locationLat: -34.597917,
          locationLon: -58.412001,
-
-         questions: [
-            {
-               questionId: 0,
-               answerId: 1,
-               useAsFilter: false,
-            },
-            {
-               questionId: 1,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 2,
-               answerId: 1,
-               useAsFilter: false,
-            },
-         ],
       };
 
       const compatible: DeepPartial<User> = {
@@ -123,7 +86,6 @@ describe('Cards game', () => {
          locationLat: -34.608204,
          locationLon: -58.502031,
          likesWoman: true,
-         questions: searcherParams.questions,
       };
 
       const distanceIncompatibleParams: DeepPartial<User> = {
@@ -170,52 +132,6 @@ describe('Cards game', () => {
          targetAgeMax: 25,
       };
 
-      const questionsIncompatibleParams: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: 'questionsIncompatibleParams',
-         questions: [
-            {
-               questionId: 0,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 1,
-               answerId: 1,
-               useAsFilter: false,
-            },
-            {
-               questionId: 2,
-               answerId: 2, // This makes it incompatible
-               useAsFilter: false,
-            },
-         ],
-      };
-
-      const questionsIncompatibleParams2: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: 'questionsIncompatibleParams2',
-         questions: [
-            {
-               questionId: 0,
-               answerId: 0,
-               useAsFilter: false,
-            },
-            {
-               questionId: 1,
-               answerId: 0, // This makes it incompatible
-               useAsFilter: true,
-            },
-            {
-               questionId: 2,
-               answerId: 1,
-               useAsFilter: false,
-            },
-         ],
-      };
-
       fakeData = [
          searcherParams,
          compatible,
@@ -226,8 +142,6 @@ describe('Cards game', () => {
          ageIncompatibleParams,
          ageIncompatibleParams2,
          ageIncompatibleParams3,
-         questionsIncompatibleParams,
-         questionsIncompatibleParams2,
       ];
 
       for (const data of fakeData) {
@@ -257,20 +171,6 @@ describe('Cards game', () => {
       // Check for duplication
       expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
 
-      // Check order
-      expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
-      expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
-
-      const matchingResponsesWithUser1 = amountOfMatchingResponses(searcherUser, recommendations[0], {
-         onlyCardOrderingQuestions: true,
-      });
-      const matchingResponsesWithUser2 = amountOfMatchingResponses(searcherUser, recommendations[1], {
-         onlyCardOrderingQuestions: true,
-      });
-
-      // Check amount of matching responses
-      expect(matchingResponsesWithUser1).toBeGreaterThanOrEqual(matchingResponsesWithUser2);
-
       // Send profile evaluation to search results and try again to make sure evaluated users are not returned
       await setAttraction(searcherUser, [compatibleUser, compatibleUser2], AttractionType.Dislike);
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
@@ -286,58 +186,6 @@ describe('Cards game', () => {
       // Check for duplication
       expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
 
-      // Check order
-      expect(recommendations[0].userId === compatibleUser2.userId).toBe(true);
-      expect(recommendations[1].userId === compatibleUser.userId).toBe(true);
-
-      await queryToRemoveUsers(fakeUsers);
-   });
-
-   test('Order of cards deep query testing is correct', async () => {
-      let orderIsCorrect: boolean = true;
-      searcherUser = await createFakeUser();
-      fakeUsers = [];
-
-      // Generate matching users but with different amount of matching question responses
-      for (let i = 0; i < 50; i++) {
-         const compatibleQuestions = chance.pickset(
-            searcherUser.questions,
-            chance.integer({ min: 0, max: searcherUser.questions.length }),
-         );
-
-         const newUser = (
-            await createFakeCompatibleUsers(searcherUser, 1, {
-               questions: compatibleQuestions,
-            })
-         )[0];
-
-         fakeUsers.push(newUser);
-      }
-
-      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
-
-      for (let i = 0; i < recommendations.length; i++) {
-         const nextIndex = i < recommendations.length - 1 ? i + 1 : null;
-         if (nextIndex == null) {
-            continue;
-         }
-
-         const user: User = recommendations[i];
-         const followingUser: User = recommendations[nextIndex];
-
-         const userMatches: number = amountOfMatchingResponses(user, searcherUser, {
-            onlyCardOrderingQuestions: true,
-         });
-         const nextUserMatches: number = amountOfMatchingResponses(followingUser, searcherUser, {
-            onlyCardOrderingQuestions: true,
-         });
-
-         if (userMatches < nextUserMatches) {
-            orderIsCorrect = false;
-         }
-      }
-
-      expect(orderIsCorrect).toBe(true);
       await queryToRemoveUsers(fakeUsers);
    });
 

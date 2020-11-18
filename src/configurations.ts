@@ -4,7 +4,7 @@ import * as appRoot from 'app-root-path';
 import { hoursToMilliseconds } from './common-tools/math-tools/general';
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
 import { Slot } from './components/groups-finder/tools/types';
-import { QuestionData } from './shared-tools/endpoints-interfaces/user';
+import { ThemesAsQuestion } from './shared-tools/endpoints-interfaces/user';
 import { Theme } from './shared-tools/endpoints-interfaces/themes';
 import moment = require('moment');
 
@@ -239,36 +239,19 @@ const politicsRightTheme: Partial<Theme> = {
  * These are the "app authored" themes that will be shown as questions and are mandatory to interact on registration.
  * The themeId can be any string but all should be different for each theme here.
  */
-const companyQuestion: QuestionData = {
+const feminismQuestion: ThemesAsQuestion = {
    questionId: 0,
-   affectsCardsGameOrdering: false,
-   text: 'If you go to a group date from this app, do you plan to go with someone?',
-   shortVersion: 'Would go on the date with',
-   answers: [
-      {
-         answerId: 0,
-         text: 'Just me',
-      },
-      {
-         answerId: 1,
-         text: 'With my couple',
-      },
-   ],
-};
-
-const feminismQuestion: QuestionData = {
-   questionId: 1,
-   affectsCardsGameOrdering: true,
    text: 'Do you agree with feminism in general?',
-   shortVersion: 'Agrees with feminism in general',
    answers: [
       {
-         answerId: 0,
-         text: 'Yes, I totally agree / I Almost totally agree',
+         themeId: 'q00-a00',
+         text: 'I totally agree / I Almost totally agree',
+         themeName: 'Feminism: I totally agree / I Almost totally agree',
       },
       {
-         answerId: 1,
+         themeId: 'q00-a01',
          text: "I Don't agree very much / I do not agree at all",
+         themeName: "Feminism: I Don't agree very much / Not at all",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -277,23 +260,24 @@ const feminismQuestion: QuestionData = {
    },
 };
 
-const groupSexQuestion: QuestionData = {
-   questionId: 2,
-   affectsCardsGameOrdering: true,
-   text: "The term 'Group sex' what makes you think?",
-   shortVersion: 'Thoughts about group sex',
+const groupSexQuestion: ThemesAsQuestion = {
+   questionId: 1,
+   text: 'Are group sex situations one of your motivations to use the app?',
    answers: [
       {
-         answerId: 0,
+         themeId: 'q01-a00',
          text: "I don't know / No comments",
+         themeName: "Group sex: I don't know / No comments",
       },
       {
-         answerId: 1,
-         text: "I'm interested",
+         themeId: 'q01-a01',
+         text: 'Yes / Could be',
+         themeName: 'Group sex: Yes / Could be',
       },
       {
-         answerId: 2,
-         text: "I'm not very interested / No interest",
+         themeId: 'q01-a02',
+         text: "I'm not very interested on that",
+         themeName: "Group sex: I'm not very interested",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -302,7 +286,7 @@ const groupSexQuestion: QuestionData = {
    },
 };
 
-export const QUESTIONS: QuestionData[] = [feminismQuestion, groupSexQuestion, companyQuestion];
+export const APP_AUTHORED_THEMES_AS_QUESTIONS: ThemesAsQuestion[] = [feminismQuestion, groupSexQuestion];
 export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, politicsRightTheme];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

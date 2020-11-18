@@ -17,7 +17,6 @@ import {
    FileUploadResponse,
    Notification,
    ProfileStatusServerResponse,
-   QuestionResponse,
    SetAttractionParams,
    User,
    UserPostParams,
@@ -39,19 +38,17 @@ import {
    queryToUpdateUserProps,
    queryToUpdateUserToken,
 } from './queries';
-import { queryToCreateQuestionsInDatabase, queryToRespondQuestions } from './questions/queries';
 import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
 import { generateId } from '../../common-tools/string-tools/string-tools';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { sendQuery } from '../../common-tools/database-tools/database-manager';
 import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
-import { QUESTIONS } from '../../configurations';
 import { getLocaleFromHeader, t } from '../../common-tools/i18n-tools/i18n-tools';
-import { queryToGetUserById, queryToGetUserByTokenOrId } from './queries';
+import { queryToGetUserByTokenOrId } from './queries';
 import { TokenOrId } from './tools/typings';
+import { getNotShowedQuestionIds } from '../themes/models';
 
 export async function initializeUsers(): Promise<void> {
-   await queryToCreateQuestionsInDatabase(QUESTIONS);
    createFolderOnRoot('uploads');
 }
 
@@ -118,13 +115,13 @@ export async function profileStatusGet(
 
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
-      missingQuestionsId: getMissingQuestions(user),
+      notShowedThemeQuestions: getNotShowedQuestionIds(user),
    };
 
    await queryToUpdateUserProps(user.token, [
       {
          key: 'profileCompleted',
-         value: result.missingEditableUserProps.length === 0 && result.missingQuestionsId.length === 0,
+         value: result.missingEditableUserProps.length === 0 && result.notShowedThemeQuestions.length === 0,
       },
       {
          key: 'lastLoginDate',
@@ -151,28 +148,6 @@ function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[]
    return result;
 }
 
-function getMissingQuestions(user: Partial<User>): number[] {
-   const result: number[] = [];
-   QUESTIONS.forEach(q => {
-      if (user.questions == null) {
-         result.push(q.questionId);
-         return;
-      }
-
-      const answerPresentAndValid: QuestionResponse = user.questions.find(uq => {
-         const questionPresent: boolean = q.questionId === uq.questionId;
-         const answerIsValid: boolean = q.answers.find(a => a.answerId === uq.answerId) != null;
-         return questionPresent && answerIsValid;
-      });
-
-      if (answerPresentAndValid == null) {
-         result.push(q.questionId);
-      }
-   });
-
-   return result;
-}
-
 /**
  * This endpoint retrieves the user info and is meant to be called only by the person corresponding
  * to the user (token only) because it returns private information.
@@ -182,7 +157,7 @@ export async function userGet(params: TokenParameter, ctx: BaseContext): Promise
 }
 
 /**
- * This endpoint should be used to send the user props and questions.
+ * This endpoint should be used to send the user props.
  */
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
    let query: Traversal = queryToGetUserByToken(params.token);
@@ -195,10 +170,6 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       }
 
       query = queryToSetUserProps(query, params.props);
-   }
-
-   if (params.questions != null) {
-      query = queryToRespondQuestions(query, params.questions);
    }
 
    await sendQuery(() => query.iterate());

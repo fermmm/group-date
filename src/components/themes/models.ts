@@ -1,7 +1,12 @@
 import { ValidationError } from 'fastest-validator';
 import { BaseContext } from 'koa';
 import * as moment from 'moment';
-import { APP_AUTHORED_THEMES, THEMES_PER_TIME_FRAME, THEME_CREATION_TIME_FRAME } from '../../configurations';
+import {
+   APP_AUTHORED_THEMES,
+   APP_AUTHORED_THEMES_AS_QUESTIONS,
+   THEMES_PER_TIME_FRAME,
+   THEME_CREATION_TIME_FRAME,
+} from '../../configurations';
 import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
 import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
 import { __ } from '../../common-tools/database-tools/database-manager';
@@ -12,7 +17,7 @@ import {
    ThemeGetParams,
    BasicThemeParams,
 } from '../../shared-tools/endpoints-interfaces/themes';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
+import { ThemesAsQuestion, User } from '../../shared-tools/endpoints-interfaces/user';
 import { validateThemeProps } from '../../shared-tools/validators/themes';
 import { retrieveFullyRegisteredUser } from '../user/models';
 import { generateId } from '../../common-tools/string-tools/string-tools';
@@ -105,6 +110,10 @@ export async function themesGet(params: ThemeGetParams, ctx: BaseContext): Promi
    return result;
 }
 
+export function appAuthoredThemesAsQuestionsGet(ctx: BaseContext): ThemesAsQuestion[] {
+   return translateAppAuthoredThemesAsQuestions(APP_AUTHORED_THEMES_AS_QUESTIONS, ctx);
+}
+
 export async function themesCreatedByUserGet(token: string) {
    return await fromQueryToThemeList(queryToGetThemesCreatedByUser(token), true);
 }
@@ -167,13 +176,29 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
 }
 
 export async function creteAppAuthoredThemes() {
-   const themesReady = APP_AUTHORED_THEMES.map(theme => ({
+   // Create raw app authored themes
+   const themesReady: Array<Partial<Theme>> = APP_AUTHORED_THEMES.map(theme => ({
       ...theme,
       country: 'all',
       creationDate: moment().unix(),
       lastInteractionDate: moment().unix(),
       global: true,
    }));
+
+   // Crete app authored themes that are saved as questions
+   themesReady.push(
+      ...APP_AUTHORED_THEMES_AS_QUESTIONS.map(question =>
+         question.answers.map(answer => ({
+            themeId: answer.themeId,
+            category: 'Question when registering',
+            name: answer.themeName,
+            country: 'all',
+            creationDate: moment().unix(),
+            lastInteractionDate: moment().unix(),
+            global: true,
+         })),
+      ).flat(),
+   );
 
    await fromQueryToTheme(queryToCreateThemes(null, themesReady), false);
 }
@@ -187,6 +212,17 @@ export async function removeAllThemesCreatedBy(users: User[]): Promise<void> {
       result.push(...(await themesCreatedByUserGet(user.token)));
    }
    await queryToRemoveThemes(result.map(theme => theme.themeId)).iterate();
+}
+
+export function getNotShowedQuestionIds(user: Partial<User>): number[] {
+   const result: number[] = [];
+   APP_AUTHORED_THEMES_AS_QUESTIONS.forEach(themeQ => {
+      const foundInUser = user.questionsShowed.find(q => q === themeQ.questionId);
+      if (foundInUser == null) {
+         result.push(themeQ.questionId);
+      }
+   });
+   return result;
 }
 
 function getRemainingTimeToCreateNewTheme(themes: Theme[]): number {
@@ -220,9 +256,44 @@ function getRemainingTimeToCreateNewTheme(themes: Theme[]): number {
  * App authored themes are global, this means any country will see the themes, so translation is needed.
  */
 function translateAppAuthoredThemes(themes: Theme[], localeSource: LocaleConfigurationSources): Theme[] {
-   return themes.map(theme => ({
-      ...theme,
-      category: t(theme.category, localeSource),
-      name: t(theme.name, localeSource),
+   const appAuthoredIds: Set<string> = getAppAuthoredQuestionsIdsAsSet();
+
+   return themes.map(theme => {
+      if (!appAuthoredIds.has(theme.themeId)) {
+         return theme;
+      }
+
+      return {
+         ...theme,
+         category: t(theme.category, localeSource),
+         name: t(theme.name, localeSource),
+      };
+   });
+}
+
+function translateAppAuthoredThemesAsQuestions(
+   rawQuestions: ThemesAsQuestion[],
+   ctx: BaseContext,
+): ThemesAsQuestion[] {
+   return rawQuestions.map(q => ({
+      ...q,
+      text: t(q.text, { ctx }),
+      extraText: q.extraText != null ? t(q.extraText, { ctx }) : null,
+      answers: q.answers.map(a => ({
+         ...a,
+         text: t(a.text, { ctx }),
+         themeName: t(a.themeName, { ctx }),
+      })),
    }));
+}
+
+let catchedAppAuthoredQuestions = null;
+export function getAppAuthoredQuestionsIdsAsSet(): Set<string> {
+   if (catchedAppAuthoredQuestions == null) {
+      const result = new Set<string>();
+      APP_AUTHORED_THEMES.forEach(q => result.add(q.themeId));
+      APP_AUTHORED_THEMES_AS_QUESTIONS.forEach(q => q.answers.forEach(a => result.add(a.themeId)));
+      catchedAppAuthoredQuestions = result;
+   }
+   return catchedAppAuthoredQuestions;
 }

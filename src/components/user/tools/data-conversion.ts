@@ -54,13 +54,11 @@ export function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinVa
       return null;
    }
 
-   const result = fromGremlinMapToObject<User>(userFromDatabase, ['pictures', 'notifications']);
-
-   if (result.questions != null) {
-      for (const question of result.questions) {
-         question.incompatibleAnswers = JSON.parse((question.incompatibleAnswers as unknown) as string);
-      }
-   }
+   const result = fromGremlinMapToObject<User>(userFromDatabase, [
+      'pictures',
+      'notifications',
+      'questionsShowed',
+   ]);
 
    return result;
 }

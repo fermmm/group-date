@@ -3,10 +3,11 @@ import { GremlinValueType, SupportedGremlinTypes } from './gremlin-typing-tools'
 
 /**
  * Converts the format of the Gremlin Map output into JS object
+ * @param serializedPropsToParse If a prop was serializer you need to include it here
  */
 export function fromGremlinMapToObject<T>(
    gremlinMap: Map<keyof T, GremlinValueType>,
-   propsToParse?: Array<keyof T>,
+   serializedPropsToParse?: Array<keyof T>,
 ): T {
    if (gremlinMap == null) {
       return null;
@@ -15,7 +16,7 @@ export function fromGremlinMapToObject<T>(
    // Add general props
    const result: Record<keyof T, GremlinValueType> = fromMapToObjectDeep(gremlinMap);
 
-   propsToParse?.forEach(propName => {
+   serializedPropsToParse?.forEach(propName => {
       if (result[propName] != null) {
          result[propName] = JSON.parse(result[propName] as string);
       }
