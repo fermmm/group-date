@@ -5,11 +5,11 @@
  * one request per user but it seems to be multithreading safe.
  */
 
-import { queryToCreateVerticesFromObjects } from '../../common-tools/database-tools/common-queries';
-import { __, sendQuery } from '../../common-tools/database-tools/database-manager';
-import { numberChunksCallback } from '../../common-tools/js-tools/js-tools';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { generateRandomUserProps } from './users';
+import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
+import { __, sendQuery } from "../../common-tools/database-tools/database-manager";
+import { numberChunksCallback } from "../../common-tools/js-tools/js-tools";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
+import { generateRandomUserProps } from "./users";
 
 let fakeUsersCreated: User[] = [];
 
@@ -58,8 +58,8 @@ async function generateAndCreateFakeUsers(
    await sendQuery(() =>
       queryToCreateVerticesFromObjects(
          users,
-         'user',
-         !useMultithreading ? 'userId' : null, // Checking for duplication is not supported in multithreading
+         "user",
+         !useMultithreading ? "userId" : null, // Checking for duplication is not supported in multithreading
       ).iterate(),
    );
 

@@ -1,14 +1,14 @@
-import { sendQuery } from '../../../common-tools/database-tools/database-manager';
-import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
+import { sendQuery } from "../../../common-tools/database-tools/database-manager";
+import { GremlinValueType, Traversal } from "../../../common-tools/database-tools/gremlin-typing-tools";
 import {
    removePrivacySensitiveGroupProps,
    removePrivacySensitiveUserProps,
-} from '../../../common-tools/security-tools/security-tools';
-import { Group } from '../../../shared-tools/endpoints-interfaces/groups';
-import { User } from '../../../shared-tools/endpoints-interfaces/user';
-import { queryToGetGroupsInFinalFormat } from '../queries';
-import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
-import { fromGremlinMapToUser } from '../../user/tools/data-conversion';
+} from "../../../common-tools/security-tools/security-tools";
+import { Group } from "../../../shared-tools/endpoints-interfaces/groups";
+import { User } from "../../../shared-tools/endpoints-interfaces/user";
+import { queryToGetGroupsInFinalFormat } from "../queries";
+import { fromGremlinMapToObject } from "../../../common-tools/database-tools/data-conversion-tools";
+import { fromGremlinMapToUser } from "../../user/tools/data-conversion";
 
 /**
  * Converts a Gremlin query that returns a single group into a Group object.
@@ -53,21 +53,21 @@ function fromGremlinMapToGroup(
    }
 
    // List of members is a list of users so we use the corresponding user converters for that part
-   const members = groupFromDatabase.get('members') as Array<Map<keyof User, GremlinValueType>>;
+   const members = groupFromDatabase.get("members") as Array<Map<keyof User, GremlinValueType>>;
    const membersConverted = members?.map(userFromQuery => {
       if (protectPrivacy) {
          return removePrivacySensitiveUserProps(fromGremlinMapToUser(userFromQuery));
       }
       return fromGremlinMapToUser(userFromQuery);
    });
-   groupFromDatabase.delete('members');
+   groupFromDatabase.delete("members");
 
    // Now the rest of the group properties can be converted
    const group = fromGremlinMapToObject<Group>(groupFromDatabase, [
-      'chat',
-      'dayOptions',
-      'usersThatAccepted',
-      'feedback',
+      "chat",
+      "dayOptions",
+      "usersThatAccepted",
+      "feedback",
    ]);
 
    group.members = membersConverted;

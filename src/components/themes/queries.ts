@@ -1,13 +1,13 @@
-import * as moment from 'moment';
-import { queryToCreateVerticesFromObjects } from '../../common-tools/database-tools/common-queries';
-import { column, g, P, __ } from '../../common-tools/database-tools/database-manager';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { MAX_THEME_SUBSCRIPTIONS_ALLOWED } from '../../configurations';
-import { Theme, ThemeRelationShip } from '../../shared-tools/endpoints-interfaces/themes';
-import { queryToGetUserById, queryToGetUserByToken } from '../user/queries';
+import * as moment from "moment";
+import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
+import { column, g, P, __ } from "../../common-tools/database-tools/database-manager";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { MAX_THEME_SUBSCRIPTIONS_ALLOWED } from "../../configurations";
+import { Theme, ThemeRelationShip } from "../../shared-tools/endpoints-interfaces/themes";
+import { queryToGetUserById, queryToGetUserByToken } from "../user/queries";
 
 export function queryToCreateThemes(userId: string, themesToCreate: Array<Partial<Theme>>): Traversal {
-   const traversal: Traversal = queryToCreateVerticesFromObjects(themesToCreate, 'theme', 'themeId');
+   const traversal: Traversal = queryToCreateVerticesFromObjects(themesToCreate, "theme", "themeId");
 
    if (userId == null) {
       return traversal;
@@ -15,28 +15,28 @@ export function queryToCreateThemes(userId: string, themesToCreate: Array<Partia
 
    return traversal
       .fold()
-      .as('t')
-      .union(queryToGetUserById(userId, __).as('user'))
-      .select('t')
+      .as("t")
+      .union(queryToGetUserById(userId, __).as("user"))
+      .select("t")
       .unfold()
       .sideEffect(
          __.map(
             // Create an edge to keep track of who created the theme
-            __.sideEffect(__.addE('createdTheme').from_('user')),
+            __.sideEffect(__.addE("createdTheme").from_("user")),
          ),
       );
 }
 
 export function queryToGetThemes(filters?: { countryFilter?: string }): Traversal {
-   const filtersAsTraversal: Traversal[] = [__.has('global', true)];
+   const filtersAsTraversal: Traversal[] = [__.has("global", true)];
 
    if (filters?.countryFilter != null) {
-      filtersAsTraversal.push(__.has('country', filters.countryFilter));
+      filtersAsTraversal.push(__.has("country", filters.countryFilter));
    }
 
    return g
       .V()
-      .hasLabel('theme')
+      .hasLabel("theme")
       .or(...filtersAsTraversal);
 }
 
@@ -45,14 +45,14 @@ export function queryToGetThemes(filters?: { countryFilter?: string }): Traversa
  */
 export function queryToGetThemesCreatedByUser(token: string, timeFilter?: number): Traversal {
    let traversal: Traversal = queryToGetUserByToken(token)
-      .as('user')
-      .out('createdTheme')
-      .where(P.eq('user'))
-      .by('country')
-      .by('country');
+      .as("user")
+      .out("createdTheme")
+      .where(P.eq("user"))
+      .by("country")
+      .by("country");
 
    if (timeFilter != null) {
-      traversal = traversal.where(__.values('creationDate').is(P.gte(moment().unix() - timeFilter)));
+      traversal = traversal.where(__.values("creationDate").is(P.gte(moment().unix() - timeFilter)));
    }
 
    return traversal;
@@ -74,18 +74,18 @@ export function queryToRelateUserWithTheme(
    let relationTraversal: Traversal;
 
    if (remove) {
-      relationTraversal = __.inE(relation).where(__.outV().has('token', token)).drop();
+      relationTraversal = __.inE(relation).where(__.outV().has("token", token)).drop();
    } else {
-      relationTraversal = __.coalesce(__.in_(relation).where(P.eq('user')), __.addE(relation).from_('user'));
+      relationTraversal = __.coalesce(__.in_(relation).where(P.eq("user")), __.addE(relation).from_("user"));
 
       // For subscribing there is a maximum of themes a user can subscribe
-      if (relation === 'subscribed') {
+      if (relation === "subscribed") {
          relationTraversal = __.coalesce(
-            __.select('user')
-               .out('subscribed')
-               .where(P.eq('theme'))
-               .by('country')
-               .by('country')
+            __.select("user")
+               .out("subscribed")
+               .where(P.eq("theme"))
+               .by("country")
+               .by("country")
                .count()
                .is(P.gte(MAX_THEME_SUBSCRIPTIONS_ALLOWED)),
             relationTraversal,
@@ -95,18 +95,18 @@ export function queryToRelateUserWithTheme(
 
    return g
       .inject(themesIds)
-      .as('themes')
-      .union(queryToGetUserByToken(token, __).as('user'))
-      .select('themes')
+      .as("themes")
+      .union(queryToGetUserByToken(token, __).as("user"))
+      .select("themes")
       .unfold()
       .map(
-         __.as('themeId')
+         __.as("themeId")
             .V()
-            .hasLabel('theme')
-            .has('themeId', __.where(P.eq('themeId')))
-            .as('theme')
+            .hasLabel("theme")
+            .has("themeId", __.where(P.eq("themeId")))
+            .as("theme")
             .sideEffect(relationTraversal)
-            .property('lastInteractionDate', moment().unix()),
+            .property("lastInteractionDate", moment().unix()),
       );
 }
 
@@ -117,8 +117,8 @@ export function queryToIncludeExtraInfoInTheme(traversal: Traversal): Traversal 
    return traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),
-         __.project('subscribersAmount').by(__.inE('subscribed').count()),
-         __.project('blockersAmount').by(__.inE('blocked').count()),
+         __.project("subscribersAmount").by(__.inE("subscribed").count()),
+         __.project("blockersAmount").by(__.inE("blocked").count()),
       )
          .unfold()
          .group()
@@ -132,11 +132,11 @@ export function queryToGetUsersSubscribedToThemes(themesIds: string[]): Traversa
       .inject(themesIds)
       .unfold()
       .flatMap(
-         __.as('themeId')
+         __.as("themeId")
             .V()
-            .hasLabel('theme')
-            .has('themeId', __.where(P.eq('themeId')))
-            .in_('subscribed'),
+            .hasLabel("theme")
+            .has("themeId", __.where(P.eq("themeId")))
+            .in_("subscribed"),
       );
 }
 
@@ -145,10 +145,10 @@ export function queryToRemoveThemes(themesIds: string[]): Traversal {
       .inject(themesIds)
       .unfold()
       .map(
-         __.as('themeId')
+         __.as("themeId")
             .V()
-            .hasLabel('theme')
-            .has('themeId', __.where(P.eq('themeId')))
+            .hasLabel("theme")
+            .has("themeId", __.where(P.eq("themeId")))
             .drop(),
       );
 }

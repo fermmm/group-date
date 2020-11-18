@@ -1,33 +1,33 @@
-import { ValidationError } from 'fastest-validator';
-import { BaseContext } from 'koa';
-import * as moment from 'moment';
+import { ValidationError } from "fastest-validator";
+import { BaseContext } from "koa";
+import * as moment from "moment";
 import {
    APP_AUTHORED_THEMES,
    APP_AUTHORED_THEMES_AS_QUESTIONS,
    THEMES_PER_TIME_FRAME,
    THEME_CREATION_TIME_FRAME,
-} from '../../configurations';
-import { fromQueryToTheme, fromQueryToThemeList } from './tools/data-conversion';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { __ } from '../../common-tools/database-tools/database-manager';
-import { t, LocaleConfigurationSources } from '../../common-tools/i18n-tools/i18n-tools';
+} from "../../configurations";
+import { fromQueryToTheme, fromQueryToThemeList } from "./tools/data-conversion";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { __ } from "../../common-tools/database-tools/database-manager";
+import { t, LocaleConfigurationSources } from "../../common-tools/i18n-tools/i18n-tools";
 import {
    Theme,
    ThemeCreateParams,
    ThemeGetParams,
    BasicThemeParams,
-} from '../../shared-tools/endpoints-interfaces/themes';
-import { ThemesAsQuestion, User } from '../../shared-tools/endpoints-interfaces/user';
-import { validateThemeProps } from '../../shared-tools/validators/themes';
-import { retrieveFullyRegisteredUser } from '../user/models';
-import { generateId } from '../../common-tools/string-tools/string-tools';
+} from "../../shared-tools/endpoints-interfaces/themes";
+import { ThemesAsQuestion, User } from "../../shared-tools/endpoints-interfaces/user";
+import { validateThemeProps } from "../../shared-tools/validators/themes";
+import { retrieveFullyRegisteredUser } from "../user/models";
+import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    queryToCreateThemes,
    queryToGetThemesCreatedByUser,
    queryToGetThemes,
    queryToRelateUserWithTheme,
    queryToRemoveThemes,
-} from './queries';
+} from "./queries";
 
 export async function initializeThemes(): Promise<void> {
    await creteAppAuthoredThemes();
@@ -37,12 +37,12 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
    if (params.global && !user.isAdmin) {
-      ctx.throw(400, t('Only admin users can create global themes', { user }));
+      ctx.throw(400, t("Only admin users can create global themes", { user }));
       return;
    }
 
    if (params.country && !user.isAdmin) {
-      ctx.throw(400, t('Only admin users can set the theme country', { user }));
+      ctx.throw(400, t("Only admin users can set the theme country", { user }));
       return;
    }
 
@@ -60,11 +60,11 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
 
    if (themesCreatedByUser.length >= THEMES_PER_TIME_FRAME && !user.isAdmin) {
       const remaining = moment
-         .duration(getRemainingTimeToCreateNewTheme(themesCreatedByUser), 'seconds')
+         .duration(getRemainingTimeToCreateNewTheme(themesCreatedByUser), "seconds")
          .locale(user.language)
          .humanize();
 
-      ctx.throw(400, t('Sorry you created too many themes', { user }, remaining));
+      ctx.throw(400, t("Sorry you created too many themes", { user }, remaining));
       return;
    }
 
@@ -75,7 +75,7 @@ export async function createThemePost(params: ThemeCreateParams, ctx: BaseContex
    );
 
    if (matchingTheme != null) {
-      ctx.throw(400, t('A theme with the same name already exists in your country', { user }));
+      ctx.throw(400, t("A theme with the same name already exists in your country", { user }));
       return;
    }
 
@@ -100,7 +100,7 @@ export async function themesGet(params: ThemeGetParams, ctx: BaseContext): Promi
       result = await fromQueryToThemeList(queryToGetThemes({ countryFilter: user.country }), true);
    } else {
       // In the query the countryFilter must be null to return all app themes
-      if (params.countryFilter === 'all') {
+      if (params.countryFilter === "all") {
          params.countryFilter = null;
       }
       result = await fromQueryToThemeList(queryToGetThemes({ countryFilter: params.countryFilter }), true);
@@ -120,28 +120,28 @@ export async function themesCreatedByUserGet(token: string) {
 
 export async function subscribeToThemePost(params: BasicThemeParams): Promise<Theme[]> {
    return await fromQueryToThemeList(
-      queryToRelateUserWithTheme(params.token, params.themeIds, 'subscribed', false),
+      queryToRelateUserWithTheme(params.token, params.themeIds, "subscribed", false),
       false,
    );
 }
 
 export async function blockThemePost(params: BasicThemeParams): Promise<Theme[]> {
    return await fromQueryToThemeList(
-      queryToRelateUserWithTheme(params.token, params.themeIds, 'blocked', false),
+      queryToRelateUserWithTheme(params.token, params.themeIds, "blocked", false),
       false,
    );
 }
 
 export async function removeSubscriptionToThemePost(params: BasicThemeParams): Promise<Theme[]> {
    return await fromQueryToThemeList(
-      queryToRelateUserWithTheme(params.token, params.themeIds, 'subscribed', true),
+      queryToRelateUserWithTheme(params.token, params.themeIds, "subscribed", true),
       false,
    );
 }
 
 export async function removeBlockToThemePost(params: BasicThemeParams): Promise<Theme[]> {
    return await fromQueryToThemeList(
-      queryToRelateUserWithTheme(params.token, params.themeIds, 'blocked', true),
+      queryToRelateUserWithTheme(params.token, params.themeIds, "blocked", true),
       false,
    );
 }
@@ -155,14 +155,14 @@ export async function removeThemesPost(params: BasicThemeParams, ctx: BaseContex
       for (const theme of params.themeIds) {
          const themeFound = themesCreatedByUser.find(ut => ut.themeId === theme);
          if (themeFound == null) {
-            ctx.throw(400, t('Only admin users can remove themes created by anyone', { user }));
+            ctx.throw(400, t("Only admin users can remove themes created by anyone", { user }));
             return;
          }
          if (themeFound.subscribersAmount > 0 || themeFound.blockersAmount > 0) {
             ctx.throw(
                400,
                t(
-                  'Sorry, %s users have interacted with your theme, it cannot be removed anymore',
+                  "Sorry, %s users have interacted with your theme, it cannot be removed anymore",
                   { user },
                   String(themeFound.subscribersAmount + themeFound.blockersAmount),
                ),
@@ -179,7 +179,7 @@ export async function creteAppAuthoredThemes() {
    // Create raw app authored themes
    const themesReady: Array<Partial<Theme>> = APP_AUTHORED_THEMES.map(theme => ({
       ...theme,
-      country: 'all',
+      country: "all",
       creationDate: moment().unix(),
       lastInteractionDate: moment().unix(),
       global: true,
@@ -190,9 +190,9 @@ export async function creteAppAuthoredThemes() {
       ...APP_AUTHORED_THEMES_AS_QUESTIONS.map(question =>
          question.answers.map(answer => ({
             themeId: answer.themeId,
-            category: 'Question when registering',
+            category: "Question when registering",
             name: answer.themeName,
-            country: 'all',
+            country: "all",
             creationDate: moment().unix(),
             lastInteractionDate: moment().unix(),
             global: true,

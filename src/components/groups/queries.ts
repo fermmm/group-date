@@ -1,13 +1,13 @@
-import * as moment from 'moment';
-import { MarkRequired } from 'ts-essentials';
-import { serializeIfNeeded } from '../../common-tools/database-tools/data-conversion-tools';
-import { __, column, g, P, sendQuery } from '../../common-tools/database-tools/database-manager';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { GROUP_SLOTS_CONFIGS, NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL } from '../../configurations';
-import { DayOption, Group, GroupChat, GroupMembership } from '../../shared-tools/endpoints-interfaces/groups';
-import { GroupQuality } from '../groups-finder/tools/types';
-import { queryToGetUserById } from '../user/queries';
-import { generateId } from '../../common-tools/string-tools/string-tools';
+import * as moment from "moment";
+import { MarkRequired } from "ts-essentials";
+import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
+import { __, column, g, P, sendQuery } from "../../common-tools/database-tools/database-manager";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { GROUP_SLOTS_CONFIGS, NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL } from "../../configurations";
+import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
+import { GroupQuality } from "../groups-finder/tools/types";
+import { queryToGetUserById } from "../user/queries";
+import { generateId } from "../../common-tools/string-tools/string-tools";
 
 /**
  * Creates a group and returns it as a traversal query.
@@ -15,24 +15,24 @@ import { generateId } from '../../common-tools/string-tools/string-tools';
  */
 export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal {
    let traversal: Traversal = g
-      .addV('group')
-      .property('groupId', generateId())
+      .addV("group")
+      .property("groupId", generateId())
       .property(
-         'chat',
+         "chat",
          serializeIfNeeded<GroupChat>({
             usersDownloadedLastMessage: [],
             messages: [],
          }),
       )
-      .property('creationDate', moment().unix())
-      .property('membersAmount', params.initialUsers?.usersIds.length ?? 0)
-      .property('dayOptions', serializeIfNeeded(params.dayOptions))
-      .property('usersThatAccepted', serializeIfNeeded([]))
-      .property('initialQuality', params.initialQuality ?? GroupQuality.Good)
-      .property('reminder1NotificationSent', false)
-      .property('reminder2NotificationSent', false)
-      .property('mostVotedDate', 0)
-      .property('feedback', serializeIfNeeded([]));
+      .property("creationDate", moment().unix())
+      .property("membersAmount", params.initialUsers?.usersIds.length ?? 0)
+      .property("dayOptions", serializeIfNeeded(params.dayOptions))
+      .property("usersThatAccepted", serializeIfNeeded([]))
+      .property("initialQuality", params.initialQuality ?? GroupQuality.Good)
+      .property("reminder1NotificationSent", false)
+      .property("reminder2NotificationSent", false)
+      .property("mostVotedDate", 0)
+      .property("feedback", serializeIfNeeded([]));
 
    if (params.initialUsers != null) {
       traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
@@ -53,31 +53,31 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
 export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGroupSettings): Traversal {
    return (
       group
-         .as('group')
+         .as("group")
          .sideEffect(
             __.V()
                // Make queries selecting each user by the user id provided and add the member edge to the group
-               .union(...settings.usersIds.map(u => __.has('userId', u)))
+               .union(...settings.usersIds.map(u => __.has("userId", u)))
                .sideEffect(
-                  __.addE('member')
-                     .to('group')
-                     .property('newMessagesRead', true)
-                     .property('lastNotificationDate', 0),
+                  __.addE("member")
+                     .to("group")
+                     .property("newMessagesRead", true)
+                     .property("lastNotificationDate", 0),
                )
                // Add the corresponding slot edge, slots avoids adding the users in too many groups
-               .sideEffect(__.addE('slot' + settings.slotToUse).to('group'))
-               .sideEffect(__.property('lastGroupJoinedDate', moment().unix())),
+               .sideEffect(__.addE("slot" + settings.slotToUse).to("group"))
+               .sideEffect(__.property("lastGroupJoinedDate", moment().unix())),
          )
-         .property('membersAmount', __.inE('member').count())
+         .property("membersAmount", __.inE("member").count())
 
          // Replace the "Match" edges between the members of the group by a "SeenMatch" edge in order to be ignored
          // by the group finding algorithms. This avoids repeated groups or groups with repeated matches.
          .sideEffect(
-            __.both('member')
-               .bothE('Match')
-               .where(__.bothV().simplePath().both('member').where(P.eq('group')))
+            __.both("member")
+               .bothE("Match")
+               .where(__.bothV().simplePath().both("member").where(P.eq("group")))
                .dedup()
-               .sideEffect(__.addE('SeenMatch').from_(__.inV()).to(__.outV()))
+               .sideEffect(__.addE("SeenMatch").from_(__.inV()).to(__.outV()))
                .drop(),
          )
    );
@@ -92,9 +92,9 @@ export function queryToFindSlotsToRelease(): Traversal {
       .E()
       .union(
          ...GROUP_SLOTS_CONFIGS.map((slot, i) =>
-            __.hasLabel('slot' + i).where(
+            __.hasLabel("slot" + i).where(
                __.inV()
-                  .values('creationDate')
+                  .values("creationDate")
                   .is(P.lt(moment().unix() - slot.releaseTime)),
             ),
          ),
@@ -104,40 +104,40 @@ export function queryToFindSlotsToRelease(): Traversal {
 
 export function queryToVoteDateIdeas(group: Traversal, userId: string, usersIdsToVote: string[]): Traversal {
    let traversal: Traversal = group
-      .as('group')
+      .as("group")
       .V()
-      .has('userId', userId)
-      .as('user')
-      .sideEffect(__.outE('dateIdeaVote').where(__.inV().as('group')).drop());
+      .has("userId", userId)
+      .as("user")
+      .sideEffect(__.outE("dateIdeaVote").where(__.inV().as("group")).drop());
 
    usersIdsToVote.forEach(
       ideaUserId =>
          (traversal = traversal.sideEffect(
-            __.addE('dateIdeaVote').to('group').property('ideaOfUser', ideaUserId),
+            __.addE("dateIdeaVote").to("group").property("ideaOfUser", ideaUserId),
          )),
    );
 
-   traversal = traversal.select('group');
+   traversal = traversal.select("group");
 
    return traversal;
 }
 
 export function queryToGetGroupById(groupId: string, onlyIfAMemberHasUserId?: string): Traversal {
-   let traversal = g.V().has('group', 'groupId', groupId);
+   let traversal = g.V().has("group", "groupId", groupId);
 
    if (onlyIfAMemberHasUserId != null) {
-      traversal = traversal.where(__.in_('member').has('userId', onlyIfAMemberHasUserId));
+      traversal = traversal.where(__.in_("member").has("userId", onlyIfAMemberHasUserId));
    }
 
    return traversal;
 }
 
 export function queryToGetGroupsOfUserByUserId(userId: string): Traversal {
-   return queryToGetUserById(userId).out('member');
+   return queryToGetUserById(userId).out("member");
 }
 
 export function queryToUpdateGroupProperty(
-   group: MarkRequired<Partial<Group>, 'groupId'>,
+   group: MarkRequired<Partial<Group>, "groupId">,
    onlyIfAMemberHasUserId?: string,
 ): Promise<void> {
    let traversal = queryToGetGroupById(group.groupId, onlyIfAMemberHasUserId);
@@ -155,7 +155,7 @@ export function queryToUpdateMembershipProperty(
    properties: Partial<GroupMembership>,
 ): Promise<void> {
    let traversal = queryToGetGroupById(groupId, userId);
-   traversal = traversal.inE('member').where(__.outV().has('user', 'userId', userId));
+   traversal = traversal.inE("member").where(__.outV().has("user", "userId", userId));
 
    for (const key of Object.keys(properties)) {
       traversal = traversal.property(key, serializeIfNeeded(properties[key]));
@@ -170,22 +170,22 @@ export function queryToUpdateMembershipProperty(
  */
 export function queryToGetMembersForNewMsgNotification(groupId: string): Traversal {
    return queryToGetGroupById(groupId)
-      .inE('member')
-      .has('newMessagesRead', true)
-      .has('lastNotificationDate', P.lt(moment().unix() - NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL))
-      .property('newMessagesRead', false)
-      .property('lastNotificationDate', moment().unix())
+      .inE("member")
+      .has("newMessagesRead", true)
+      .has("lastNotificationDate", P.lt(moment().unix() - NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL))
+      .property("newMessagesRead", false)
+      .property("lastNotificationDate", moment().unix())
       .outV();
 }
 
 export function queryToGetGroupsToSendReminder(
    timeRemaining: number,
-   reminderProp: 'reminder1NotificationSent' | 'reminder2NotificationSent',
+   reminderProp: "reminder1NotificationSent" | "reminder2NotificationSent",
 ): Traversal {
    return g
       .V()
-      .hasLabel('group')
-      .has('mostVotedDate', P.inside(moment().unix(), moment().unix() + timeRemaining))
+      .hasLabel("group")
+      .has("mostVotedDate", P.inside(moment().unix(), moment().unix() + timeRemaining))
       .has(reminderProp, false)
       .property(reminderProp, true);
 }
@@ -209,20 +209,20 @@ export function queryToGetGroupsInFinalFormat(
    if (includeFullDetails) {
       detailsTraversals = [
          // Add the details about the members of the group
-         __.project('members').by(__.in_('member').valueMap().by(__.unfold()).fold()),
+         __.project("members").by(__.in_("member").valueMap().by(__.unfold()).fold()),
 
          // Add the details about the usersIds that received a vote to their date idea and who voted
-         __.project('dateIdeasVotes').by(
-            __.inE('dateIdeaVote').group().by('ideaOfUser').by(__.outV().values('userId').fold()),
+         __.project("dateIdeasVotes").by(
+            __.inE("dateIdeaVote").group().by("ideaOfUser").by(__.outV().values("userId").fold()),
          ),
 
          // Add the matches relationships
-         __.project('matches').by(
-            __.in_('member')
+         __.project("matches").by(
+            __.in_("member")
                .map(
-                  __.project('userId', 'matches')
-                     .by(__.values('userId'))
-                     .by(__.both('SeenMatch').where(__.out('member').as('group')).values('userId').fold()),
+                  __.project("userId", "matches")
+                     .by(__.values("userId"))
+                     .by(__.both("SeenMatch").where(__.out("member").as("group")).values("userId").fold()),
                )
                .fold(),
          ),
@@ -230,7 +230,7 @@ export function queryToGetGroupsInFinalFormat(
    }
 
    traversal = traversal.map(
-      __.as('group')
+      __.as("group")
          .union(__.valueMap().by(__.unfold()), ...detailsTraversals)
          .unfold()
          .group()
@@ -247,7 +247,7 @@ export function queryToGetGroupsInFinalFormat(
  */
 export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
    if (groups == null) {
-      return g.V().hasLabel('group').drop().iterate();
+      return g.V().hasLabel("group").drop().iterate();
    }
 
    const ids: string[] = groups.map(u => u.groupId);
@@ -256,10 +256,10 @@ export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
          .inject(ids)
          .unfold()
          .map(
-            __.as('targetGroupId')
+            __.as("targetGroupId")
                .V()
-               .hasLabel('group')
-               .has('groupId', __.where(P.eq('targetGroupId')))
+               .hasLabel("group")
+               .has("groupId", __.where(P.eq("targetGroupId")))
                .drop(),
          )
          .iterate(),

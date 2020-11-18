@@ -1,6 +1,6 @@
-import { EditableUserPropKey, EditableUserProps } from '../validators/user';
-import { ThemeBasicInfo } from './themes';
-import { ValueOf } from 'ts-essentials';
+import { EditableUserPropKey, EditableUserProps } from "../validators/user";
+import { ThemeBasicInfo } from "./themes";
+import { ValueOf } from "ts-essentials";
 
 /**
  * If you want to add or remove a "user editable user prop" this is the basic todo list:
@@ -48,11 +48,11 @@ export interface User {
 export type UserPropsValueTypes = ValueOf<User>;
 
 export enum Gender {
-   Woman = 'Woman',
-   Man = 'Man',
-   TransgenderWoman = 'TransgenderWoman',
-   TransgenderMan = 'TransgenderMan',
-   Other = 'Other',
+   Woman = "Woman",
+   Man = "Man",
+   TransgenderWoman = "TransgenderWoman",
+   TransgenderMan = "TransgenderMan",
+   Other = "Other",
 }
 
 export interface ProfileStatusServerResponse {
@@ -114,13 +114,13 @@ export interface Attraction {
 }
 
 export enum AttractionType {
-   Like = 'Like',
-   Dislike = 'Dislike',
+   Like = "Like",
+   Dislike = "Dislike",
 }
 
 export enum MatchType {
-   Like = 'Match',
-   Dislike = 'SeenMatch',
+   Like = "Match",
+   Dislike = "SeenMatch",
 }
 
 export interface Notification {

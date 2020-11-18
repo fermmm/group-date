@@ -1,4 +1,4 @@
-import { process, structure } from 'gremlin';
+import { process, structure } from "gremlin";
 
 export interface GremlinResponse {
    value: any;

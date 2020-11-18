@@ -1,17 +1,17 @@
-import * as appRoot from 'app-root-path';
-import { ValidationError } from 'fastest-validator';
-import { File } from 'formidable';
-import * as fs from 'fs';
-import * as Koa from 'koa';
-import { BaseContext, ParameterizedContext } from 'koa';
-import * as koaBody from 'koa-body';
-import * as moment from 'moment';
-import * as path from 'path';
-import * as sharp from 'sharp';
-import { HttpRequestResponse } from '../../common-tools/database-tools/typing-tools/typing-tools';
-import { createFolderOnRoot } from '../../common-tools/files-tools/files-tools';
-import { httpRequest } from '../../common-tools/httpRequest/httpRequest';
-import { FacebookResponse, TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
+import * as appRoot from "app-root-path";
+import { ValidationError } from "fastest-validator";
+import { File } from "formidable";
+import * as fs from "fs";
+import * as Koa from "koa";
+import { BaseContext, ParameterizedContext } from "koa";
+import * as koaBody from "koa-body";
+import * as moment from "moment";
+import * as path from "path";
+import * as sharp from "sharp";
+import { HttpRequestResponse } from "../../common-tools/database-tools/typing-tools/typing-tools";
+import { createFolderOnRoot } from "../../common-tools/files-tools/files-tools";
+import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
+import { FacebookResponse, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
    AttractionType,
    FileUploadResponse,
@@ -20,12 +20,12 @@ import {
    SetAttractionParams,
    User,
    UserPostParams,
-} from '../../shared-tools/endpoints-interfaces/user';
+} from "../../shared-tools/endpoints-interfaces/user";
 import {
    editableUserPropsList,
    EditableUserPropKey,
    validateUserProps,
-} from '../../shared-tools/validators/user';
+} from "../../shared-tools/validators/user";
 import {
    queryToCreateUser,
    queryToGetAttractionsReceived,
@@ -37,19 +37,19 @@ import {
    queryToSetUserProps,
    queryToUpdateUserProps,
    queryToUpdateUserToken,
-} from './queries';
-import { fromQueryToUser, fromQueryToUserList } from './tools/data-conversion';
-import { generateId } from '../../common-tools/string-tools/string-tools';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
-import { sendQuery } from '../../common-tools/database-tools/database-manager';
-import { divideArrayCallback } from '../../common-tools/js-tools/js-tools';
-import { getLocaleFromHeader, t } from '../../common-tools/i18n-tools/i18n-tools';
-import { queryToGetUserByTokenOrId } from './queries';
-import { TokenOrId } from './tools/typings';
-import { getNotShowedQuestionIds } from '../themes/models';
+} from "./queries";
+import { fromQueryToUser, fromQueryToUserList } from "./tools/data-conversion";
+import { generateId } from "../../common-tools/string-tools/string-tools";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { sendQuery } from "../../common-tools/database-tools/database-manager";
+import { divideArrayCallback } from "../../common-tools/js-tools/js-tools";
+import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
+import { queryToGetUserByTokenOrId } from "./queries";
+import { TokenOrId } from "./tools/typings";
+import { getNotShowedQuestionIds } from "../themes/models";
 
 export async function initializeUsers(): Promise<void> {
-   createFolderOnRoot('uploads');
+   createFolderOnRoot("uploads");
 }
 
 /**
@@ -87,7 +87,7 @@ export async function retrieveUser(
    }
 
    if (!userDataFromFacebook.content || !userDataFromFacebook.content.email) {
-      ctx.throw(400, 'Facebook error 01');
+      ctx.throw(400, "Facebook error 01");
       return;
    }
 
@@ -120,15 +120,15 @@ export async function profileStatusGet(
 
    await queryToUpdateUserProps(user.token, [
       {
-         key: 'profileCompleted',
+         key: "profileCompleted",
          value: result.missingEditableUserProps.length === 0 && result.notShowedThemeQuestions.length === 0,
       },
       {
-         key: 'lastLoginDate',
+         key: "lastLoginDate",
          value: moment().unix(),
       },
       {
-         key: 'language',
+         key: "language",
          value: getLocaleFromHeader(ctx),
       },
    ]);
@@ -189,7 +189,7 @@ export async function retrieveFullyRegisteredUser(
    const user = await retrieveUser(token, includeFullInfo, ctx);
 
    if (!user.profileCompleted) {
-      ctx.throw(400, t('Incomplete profiles not allowed in this endpoint', { user }));
+      ctx.throw(400, t("Incomplete profiles not allowed in this endpoint", { user }));
       return;
    }
 
@@ -201,7 +201,7 @@ export async function retrieveFullyRegisteredUser(
  */
 export async function addNotificationToUser(
    tokenOrId: TokenOrId,
-   notification: Omit<Notification, 'notificationId' | 'date'>,
+   notification: Omit<Notification, "notificationId" | "date">,
    translateNotification?: boolean,
 ) {
    const user: Partial<User> = await fromQueryToUser(queryToGetUserByTokenOrId(tokenOrId), false);
@@ -231,7 +231,7 @@ export async function addNotificationToUser(
 
    await queryToUpdateUserProps(queryToGetUserByTokenOrId(tokenOrId), [
       {
-         key: 'notifications',
+         key: "notifications",
          value: user.notifications,
       },
    ]);
@@ -274,7 +274,7 @@ export async function attractionsSentGet(token: string, types?: AttractionType[]
 const imageSaver = koaBody({
    multipart: true,
    formidable: {
-      uploadDir: path.join(appRoot.path, '/uploads/'),
+      uploadDir: path.join(appRoot.path, "/uploads/"),
       keepExtensions: true,
       maxFileSize: 0.3 * 1024 * 1024,
    },
@@ -298,32 +298,32 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
       if (file) {
          fs.unlinkSync(file.path);
       }
-      ctx.throw(400, t('Invalid file provided', { ctx }));
+      ctx.throw(400, t("Invalid file provided", { ctx }));
       return;
    }
 
    const originalFileExtension: string = path.extname(file.name).toLowerCase();
    const folderPath: string = path.dirname(file.path);
-   const fileName: string = path.basename(file.path).replace(originalFileExtension, '');
+   const fileName: string = path.basename(file.path).replace(originalFileExtension, "");
    const fileNameSmall: string = `${fileName}_small.jpg`;
    const fileNameBig: string = `${fileName}_big.jpg`;
 
    /**
     * Throw error and remove files with invalid extension or format
     */
-   if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+   if (file.type !== "image/jpeg" && file.type !== "image/png") {
       fs.unlinkSync(file.path);
-      ctx.throw(400, t('File format not supported', { ctx }));
+      ctx.throw(400, t("File format not supported", { ctx }));
       return;
    }
 
    if (
-      originalFileExtension !== '.jpg' &&
-      originalFileExtension !== '.jpeg' &&
-      originalFileExtension !== '.png'
+      originalFileExtension !== ".jpg" &&
+      originalFileExtension !== ".jpeg" &&
+      originalFileExtension !== ".png"
    ) {
       fs.unlinkSync(file.path);
-      ctx.throw(400, t('Attempted to upload a file with wrong extension', { ctx }));
+      ctx.throw(400, t("Attempted to upload a file with wrong extension", { ctx }));
       return;
    }
 

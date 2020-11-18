@@ -1,12 +1,12 @@
-import { I18n } from 'i18n';
-import * as path from 'path';
-import * as appRoot from 'app-root-path';
-import { hoursToMilliseconds } from './common-tools/math-tools/general';
-import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from './common-tools/math-tools/constants';
-import { Slot } from './components/groups-finder/tools/types';
-import { ThemesAsQuestion } from './shared-tools/endpoints-interfaces/user';
-import { Theme } from './shared-tools/endpoints-interfaces/themes';
-import moment = require('moment');
+import { I18n } from "i18n";
+import * as path from "path";
+import * as appRoot from "app-root-path";
+import { hoursToMilliseconds } from "./common-tools/math-tools/general";
+import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
+import { Slot } from "./components/groups-finder/tools/types";
+import { ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/user";
+import { Theme } from "./shared-tools/endpoints-interfaces/themes";
+import moment = require("moment");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  GROUP FINDER  //////////////////////////////////////////////////
@@ -224,15 +224,15 @@ export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 10;
  * These are the "app authored" themes. The themeId can be any string but all should be different for each theme here.
  */
 const politicsLeftTheme: Partial<Theme> = {
-   themeId: 'aat0',
-   category: 'Politics',
-   name: 'Left-wing / Socialism / Anarchism / Other close',
+   themeId: "aat0",
+   category: "Politics",
+   name: "Left-wing / Socialism / Anarchism / Other close",
 };
 
 const politicsRightTheme: Partial<Theme> = {
-   themeId: 'aat1',
-   category: 'Politics',
-   name: 'Right-wing / Free market ideas',
+   themeId: "aat1",
+   category: "Politics",
+   name: "Right-wing / Free market ideas",
 };
 
 /**
@@ -241,15 +241,15 @@ const politicsRightTheme: Partial<Theme> = {
  */
 const feminismQuestion: ThemesAsQuestion = {
    questionId: 0,
-   text: 'Do you agree with feminism in general?',
+   text: "Do you agree with feminism in general?",
    answers: [
       {
-         themeId: 'q00-a00',
-         text: 'I totally agree / I Almost totally agree',
-         themeName: 'Feminism: I totally agree / I Almost totally agree',
+         themeId: "q00-a00",
+         text: "I totally agree / I Almost totally agree",
+         themeName: "Feminism: I totally agree / I Almost totally agree",
       },
       {
-         themeId: 'q00-a01',
+         themeId: "q00-a01",
          text: "I Don't agree very much / I do not agree at all",
          themeName: "Feminism: I Don't agree very much / Not at all",
       },
@@ -262,20 +262,20 @@ const feminismQuestion: ThemesAsQuestion = {
 
 const groupSexQuestion: ThemesAsQuestion = {
    questionId: 1,
-   text: 'Are group sex situations one of your motivations to use the app?',
+   text: "Are group sex situations one of your motivations to use the app?",
    answers: [
       {
-         themeId: 'q01-a00',
+         themeId: "q01-a00",
          text: "I don't know / No comments",
          themeName: "Group sex: I don't know / No comments",
       },
       {
-         themeId: 'q01-a01',
-         text: 'Yes / Could be',
-         themeName: 'Group sex: Yes / Could be',
+         themeId: "q01-a01",
+         text: "Yes / Could be",
+         themeName: "Group sex: Yes / Could be",
       },
       {
-         themeId: 'q01-a02',
+         themeId: "q01-a02",
          text: "I'm not very interested on that",
          themeName: "Group sex: I'm not very interested",
       },
@@ -319,10 +319,10 @@ export const SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = hoursToMilliseconds(5);
 /////////////////////////////////////////////////  LOCALIZATION  /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const DEFAULT_LANGUAGE = 'en';
+export const DEFAULT_LANGUAGE = "en";
 export const I18N = new I18n({
    defaultLocale: DEFAULT_LANGUAGE,
-   directory: path.join(appRoot.path, '/locales/'),
+   directory: path.join(appRoot.path, "/locales/"),
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

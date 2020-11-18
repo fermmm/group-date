@@ -23,7 +23,7 @@ export interface ThemeCreateParams {
 
 export interface ThemeGetParams {
    token: string;
-   countryFilter?: string | 'all';
+   countryFilter?: string | "all";
 }
 
 export interface BasicThemeParams {
@@ -31,4 +31,4 @@ export interface BasicThemeParams {
    themeIds: string[];
 }
 
-export type ThemeRelationShip = 'subscribed' | 'blocked';
+export type ThemeRelationShip = "subscribed" | "blocked";

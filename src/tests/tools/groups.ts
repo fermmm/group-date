@@ -1,7 +1,7 @@
-import { Group } from '../../shared-tools/endpoints-interfaces/groups';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
-import { chance } from './generalTools';
-import { createFakeUsers, setAttractionAllWithAll, setAttractionMatch } from './users';
+import { Group } from "../../shared-tools/endpoints-interfaces/groups";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
+import { chance } from "./generalTools";
+import { createFakeUsers, setAttractionAllWithAll, setAttractionMatch } from "./users";
 
 /**
  * Creates a group of users that are matching between them. You can set the minimum and maximum

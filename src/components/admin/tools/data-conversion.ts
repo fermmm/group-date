@@ -1,10 +1,10 @@
-import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
-import { sendQuery } from '../../../common-tools/database-tools/database-manager';
-import { Traversal, GremlinValueType } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { removePrivacySensitiveUserProps } from '../../../common-tools/security-tools/security-tools';
-import { ChatWithAdmins } from '../../../shared-tools/endpoints-interfaces/admin';
-import { User } from '../../../shared-tools/endpoints-interfaces/user';
-import { fromGremlinMapToUser } from '../../user/tools/data-conversion';
+import { fromGremlinMapToObject } from "../../../common-tools/database-tools/data-conversion-tools";
+import { sendQuery } from "../../../common-tools/database-tools/database-manager";
+import { Traversal, GremlinValueType } from "../../../common-tools/database-tools/gremlin-typing-tools";
+import { removePrivacySensitiveUserProps } from "../../../common-tools/security-tools/security-tools";
+import { ChatWithAdmins } from "../../../shared-tools/endpoints-interfaces/admin";
+import { User } from "../../../shared-tools/endpoints-interfaces/user";
+import { fromGremlinMapToUser } from "../../user/tools/data-conversion";
 
 /**
  * Converts into a Group object a gremlin query that should return a single group vertex.
@@ -44,15 +44,15 @@ function fromGremlinMapToChatWithAdmins(
 
    // Convert user prop with the corresponding converter for the users
    let nonAdminUser = fromGremlinMapToUser(
-      chatWithAdmins.get('nonAdminUser') as Map<keyof User, GremlinValueType>,
+      chatWithAdmins.get("nonAdminUser") as Map<keyof User, GremlinValueType>,
    );
-   chatWithAdmins.delete('nonAdminUser');
+   chatWithAdmins.delete("nonAdminUser");
    if (nonAdminUser != null && protectPrivacy) {
       nonAdminUser = removePrivacySensitiveUserProps(nonAdminUser);
    }
 
    // Now the rest of the properties can be converted
-   const result = fromGremlinMapToObject<ChatWithAdmins>(chatWithAdmins, ['messages']);
+   const result = fromGremlinMapToObject<ChatWithAdmins>(chatWithAdmins, ["messages"]);
    result.nonAdminUser = nonAdminUser;
 
    return result;

@@ -1,5 +1,5 @@
-import { BaseContext } from 'koa';
-import { versionIsCompatible } from '../../common-tools/string-tools/string-tools';
+import { BaseContext } from "koa";
+import { versionIsCompatible } from "../../common-tools/string-tools/string-tools";
 import {
    GROUP_SLOTS_CONFIGS,
    MAXIMUM_INACTIVITY_FOR_CARDS,
@@ -8,9 +8,9 @@ import {
    MIN_GROUP_SIZE,
    THEMES_PER_TIME_FRAME,
    THEME_CREATION_TIME_FRAME,
-} from '../../configurations';
-import { HandshakeParams, ServerHandshakeResponse } from '../../shared-tools/endpoints-interfaces/handshake';
-import { getLocaleFromHeader } from '../../common-tools/i18n-tools/i18n-tools';
+} from "../../configurations";
+import { HandshakeParams, ServerHandshakeResponse } from "../../shared-tools/endpoints-interfaces/handshake";
+import { getLocaleFromHeader } from "../../common-tools/i18n-tools/i18n-tools";
 
 export function handshakeGet(params: HandshakeParams, ctx: BaseContext): ServerHandshakeResponse {
    return {

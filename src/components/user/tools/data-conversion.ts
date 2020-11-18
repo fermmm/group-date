@@ -1,10 +1,10 @@
-import { valueMap } from '../../../common-tools/database-tools/common-queries';
-import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
-import { sendQuery } from '../../../common-tools/database-tools/database-manager';
-import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { removePrivacySensitiveUserProps } from '../../../common-tools/security-tools/security-tools';
-import { User } from '../../../shared-tools/endpoints-interfaces/user';
-import { queryToIncludeFullInfoInUserQuery } from '../queries';
+import { valueMap } from "../../../common-tools/database-tools/common-queries";
+import { fromGremlinMapToObject } from "../../../common-tools/database-tools/data-conversion-tools";
+import { sendQuery } from "../../../common-tools/database-tools/database-manager";
+import { GremlinValueType, Traversal } from "../../../common-tools/database-tools/gremlin-typing-tools";
+import { removePrivacySensitiveUserProps } from "../../../common-tools/security-tools/security-tools";
+import { User } from "../../../shared-tools/endpoints-interfaces/user";
+import { queryToIncludeFullInfoInUserQuery } from "../queries";
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
@@ -55,9 +55,9 @@ export function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinVa
    }
 
    const result = fromGremlinMapToObject<User>(userFromDatabase, [
-      'pictures',
-      'notifications',
-      'questionsShowed',
+      "pictures",
+      "notifications",
+      "questionsShowed",
    ]);
 
    return result;

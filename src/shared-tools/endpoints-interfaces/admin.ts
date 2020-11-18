@@ -1,5 +1,5 @@
-import { ChatMessage, TokenParameter } from './common';
-import { User } from './user';
+import { ChatMessage, TokenParameter } from "./common";
+import { User } from "./user";
 
 export interface AdminChatPostParams extends TokenParameter {
    messageText: string;

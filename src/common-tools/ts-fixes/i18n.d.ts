@@ -1,6 +1,6 @@
-import * as i18n from 'i18n';
+import * as i18n from "i18n";
 
-declare module 'i18n' {
+declare module "i18n" {
    export class I18n {
       /**
        * Get current i18n-node version

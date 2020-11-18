@@ -4,11 +4,11 @@ import {
    AddUsersRandomlyParams,
    connectUsers,
    copyGroupCandidate,
-} from '../../../components/groups-finder/tools/group-candidate-editing';
-import { GroupCandidate } from '../../../components/groups-finder/tools/types';
-import { chance } from '../generalTools';
-import { generateId } from '../../../common-tools/string-tools/string-tools';
-import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
+} from "../../../components/groups-finder/tools/group-candidate-editing";
+import { GroupCandidate } from "../../../components/groups-finder/tools/types";
+import { chance } from "../generalTools";
+import { generateId } from "../../../common-tools/string-tools/string-tools";
+import { UserWithMatches } from "../../../shared-tools/endpoints-interfaces/groups";
 
 /**
  * Creates a group candidate.
@@ -27,7 +27,7 @@ export function createGroupCandidate(props: {
    for (let i = 0; i < props.amountOfInitialUsers; i++) {
       resultGroup = createAndAddOneUser({
          group: resultGroup,
-         connectWith: props.connectAllWithAll ? 'all' : [],
+         connectWith: props.connectAllWithAll ? "all" : [],
       });
    }
    return resultGroup;
@@ -46,7 +46,7 @@ export function createGroupCandidateWithCustomIds(props: {
       userId =>
          (resultGroup = createAndAddOneUser({
             group: resultGroup,
-            connectWith: props.connectAllWithAll ? 'all' : [],
+            connectWith: props.connectAllWithAll ? "all" : [],
             userId,
          })),
    );
@@ -57,7 +57,7 @@ export function createGroupCandidateWithCustomIds(props: {
 export function addUsersToGroupWithCustomIds(props: {
    group: GroupCandidate;
    usersIds: string[];
-   connectWith: 'all' | number[];
+   connectWith: "all" | number[];
 }): GroupCandidate {
    let resultGroup: GroupCandidate = copyGroupCandidate(props.group);
 
@@ -80,12 +80,12 @@ export function addUsersToGroupWithCustomIds(props: {
  */
 export function createAndAddOneUser(props: {
    group: GroupCandidate;
-   connectWith: number[] | 'all';
+   connectWith: number[] | "all";
    userId?: string;
 }): GroupCandidate {
    const resultGroup: GroupCandidate = copyGroupCandidate(props.group);
    const connectWith =
-      props.connectWith === 'all' ? getUsersFromGroupCandidateAsIndexList(resultGroup) : props.connectWith;
+      props.connectWith === "all" ? getUsersFromGroupCandidateAsIndexList(resultGroup) : props.connectWith;
 
    const newUser: UserWithMatches = {
       userId: props.userId ?? generateId(),
@@ -110,7 +110,7 @@ export function createAndAddOneUser(props: {
 export function createAndAddMultipleUsers(
    group: GroupCandidate,
    amountOfUsers: number,
-   connectWith: number[] | 'all',
+   connectWith: number[] | "all",
 ): GroupCandidate {
    let resultGroup: GroupCandidate = copyGroupCandidate(group);
    connectWith = connectWith ?? getUsersFromGroupCandidateAsIndexList(resultGroup);

@@ -1,6 +1,6 @@
-import { BaseContext } from 'koa';
-import { DEFAULT_LANGUAGE, I18N } from '../../configurations';
-import { User } from '../../shared-tools/endpoints-interfaces/user';
+import { BaseContext } from "koa";
+import { DEFAULT_LANGUAGE, I18N } from "../../configurations";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
 
 /**
  * Returns a translation to the provided string
@@ -40,7 +40,7 @@ export function getLocaleFromHeader(ctx: BaseContext): string {
       return DEFAULT_LANGUAGE;
    }
 
-   return ctx.header['accept-language'] ?? DEFAULT_LANGUAGE;
+   return ctx.header["accept-language"] ?? DEFAULT_LANGUAGE;
 }
 
 export interface LocaleConfigurationSources {

@@ -1,5 +1,5 @@
-import '../..';
-import { waitForDatabase } from '../../common-tools/database-tools/database-manager';
+import "../..";
+import { waitForDatabase } from "../../common-tools/database-tools/database-manager";
 
 export default async () => {
    await waitForDatabase(true);

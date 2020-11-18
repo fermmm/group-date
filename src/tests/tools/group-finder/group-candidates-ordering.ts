@@ -1,8 +1,8 @@
-import { MAX_CONNECTIONS_POSSIBLE_IN_REALITY } from '../../../configurations';
+import { MAX_CONNECTIONS_POSSIBLE_IN_REALITY } from "../../../configurations";
 import {
    analiceFilterAndSortGroupCandidates,
    GroupsAnalyzedSorted,
-} from '../../../components/groups-finder/models';
+} from "../../../components/groups-finder/models";
 import {
    getDataCorruptionProblemsInGroupCandidate,
    getAverageConnectionsAmount,
@@ -11,9 +11,9 @@ import {
    getConnectionsMetaconnectionsDistance,
    removeExceedingConnectionsOnGroupCandidate,
    analiceGroupCandidate,
-} from '../../../components/groups-finder/tools/group-candidate-analysis';
-import { GroupCandidate, GroupCandidateAnalyzed } from '../../../components/groups-finder/tools/types';
-import { groupHasMinimumQuality } from '../../../components/groups-finder/tools/group-candidate-analysis';
+} from "../../../components/groups-finder/tools/group-candidate-analysis";
+import { GroupCandidate, GroupCandidateAnalyzed } from "../../../components/groups-finder/tools/types";
+import { groupHasMinimumQuality } from "../../../components/groups-finder/tools/group-candidate-analysis";
 import {
    createGroupCandidate,
    createAndAddMultipleUsers,
@@ -21,7 +21,7 @@ import {
    createAndAddMultipleUsersRandomlyConnected,
    createAndAddOneUser,
    connectMembersAllWithAll,
-} from './group-candidate-test-editing';
+} from "./group-candidate-test-editing";
 
 const createGroupWith2 = () => createGroupCandidate({ amountOfInitialUsers: 2, connectAllWithAll: false });
 const createTwoForTwo = () => createAndAddMultipleUsers(createGroupWith2(), 2, [0, 1]);
@@ -40,110 +40,110 @@ const createBigRandomGroup = () =>
 
 const testGroups: Array<{ name: string; group: GroupCandidate }> = [
    {
-      name: '2 for 2',
+      name: "2 for 2",
       group: createTwoForTwo(),
    },
    {
-      name: '2 for 2 + 1 extra bisexual',
+      name: "2 for 2 + 1 extra bisexual",
       group: createAndAddOneUser({ group: createTwoForTwo(), connectWith: [1, 0] }),
    },
    {
-      name: '2 for 3',
+      name: "2 for 3",
       group: createAndAddMultipleUsers(createGroupWith2(), 3, [0, 1]),
    },
    {
-      name: '2 for 4',
+      name: "2 for 4",
       group: createAndAddMultipleUsers(createGroupWith2(), 4, [0, 1]),
    },
    {
-      name: '2 for 5',
+      name: "2 for 5",
       group: createAndAddMultipleUsers(createGroupWith2(), 5, [0, 1]),
    },
    {
-      name: '2 for 6',
+      name: "2 for 6",
       group: createAndAddMultipleUsers(createGroupWith2(), 6, [0, 1]),
    },
    {
-      name: '2 for 8',
+      name: "2 for 8",
       group: createAndAddMultipleUsers(createGroupWith2(), 8, [0, 1]),
    },
    {
-      name: '3 for 3',
+      name: "3 for 3",
       group: createAndAddMultipleUsers(createGroupWith3(), 3, [0, 1, 2]),
    },
    {
-      name: '3 for 4',
+      name: "3 for 4",
       group: createAndAddMultipleUsers(createGroupWith3(), 4, [0, 1, 2]),
    },
    {
-      name: '3 for 5',
+      name: "3 for 5",
       group: createAndAddMultipleUsers(createGroupWith3(), 5, [0, 1, 2]),
    },
    {
-      name: '3 for 6',
+      name: "3 for 6",
       group: createAndAddMultipleUsers(createGroupWith3(), 6, [0, 1, 2]),
    },
    {
-      name: '3 for 7',
+      name: "3 for 7",
       group: createAndAddMultipleUsers(createGroupWith3(), 7, [0, 1, 2]),
    },
    {
-      name: '3 for 8',
+      name: "3 for 8",
       group: createAndAddMultipleUsers(createGroupWith3(), 8, [0, 1, 2]),
    },
    {
-      name: '4 for 5',
+      name: "4 for 5",
       group: createAndAddMultipleUsers(createGroupWith4(), 5, [0, 1, 2, 3]),
    },
    {
-      name: '4 for 6',
+      name: "4 for 6",
       group: createAndAddMultipleUsers(createGroupWith4(), 6, [0, 1, 2, 3]),
    },
    {
-      name: '4 for 7',
+      name: "4 for 7",
       group: createAndAddMultipleUsers(createGroupWith4(), 7, [0, 1, 2, 3]),
    },
    {
-      name: '4 for 8',
+      name: "4 for 8",
       group: createAndAddMultipleUsers(createGroupWith4(), 8, [0, 1, 2, 3]),
    },
    {
-      name: '4 for 9',
+      name: "4 for 9",
       group: createAndAddMultipleUsers(createGroupWith4(), 9, [0, 1, 2, 3]),
    },
    {
-      name: '3 All with all',
+      name: "3 All with all",
       group: createGroupCandidate({ amountOfInitialUsers: 3, connectAllWithAll: true }),
    },
    {
-      name: '5 All with all',
+      name: "5 All with all",
       group: connectMembersAllWithAll(createGroupWith5()),
    },
    {
-      name: '5 All with all + 1 with 2 connections',
+      name: "5 All with all + 1 with 2 connections",
       group: createAndAddOneUser({ group: connectMembersAllWithAll(createGroupWith5()), connectWith: [0, 2] }),
    },
    {
-      name: '1 user with 12 connections, the rest have from 2 to 6 connections',
+      name: "1 user with 12 connections, the rest have from 2 to 6 connections",
       group: createAndAddOneUser({
          group: createAndAddMultipleUsersRandomlyConnected({
             amountOfUsers: 12,
             minConnectionsPerUser: 2,
             maxConnectionsPerUser: 6,
          }),
-         connectWith: 'all',
+         connectWith: "all",
       }),
    },
    {
-      name: '1 user with 12 connections, the rest have 2 other connections',
-      group: createAndAddOneUser({ group: createCircleGroupOf12(), connectWith: 'all' }),
+      name: "1 user with 12 connections, the rest have 2 other connections",
+      group: createAndAddOneUser({ group: createCircleGroupOf12(), connectWith: "all" }),
    },
    {
-      name: '12 users with 4 to 9 connections',
+      name: "12 users with 4 to 9 connections",
       group: createBigRandomGroup(),
    },
    {
-      name: '12 users with 4 to 9 connections + 1 of 2',
+      name: "12 users with 4 to 9 connections + 1 of 2",
       group: createAndAddOneUser({ group: createBigRandomGroup(), connectWith: [0, 1] }),
    },
 ];
@@ -173,14 +173,14 @@ export function groupAnalysisReport(): GroupAnalysisReport[] {
 
       return {
          name: group.groupId,
-         approvedReport: groupApproved ? 'APPROVED' : 'NOT MINIMUM QUALITY',
+         approvedReport: groupApproved ? "APPROVED" : "NOT MINIMUM QUALITY",
          analysis: {
             inequality: Number(inequality.toFixed(2)),
             conCoverage: Number(coverage.toFixed(2)),
             distConMetaconnection: Number(connectionsMetaconnectionsDistance.toFixed(2)),
             conAmount: Number(averageConnections.toFixed(2)),
          },
-         problems: problems.length === 0 ? 'OK' : 'GROUP ERROR: ' + problems,
+         problems: problems.length === 0 ? "OK" : "GROUP ERROR: " + problems,
       };
    });
 }
@@ -206,7 +206,7 @@ export function analiceFilterAndSortReport() {
          connAmountR: g.analysis.averageConnectionsAmountRounded,
          qualityR: g.analysis.qualityRounded,
          quality: Number(g.analysis.quality.toFixed(3)),
-         problems: problems.length === 0 ? 'OK' : 'GROUP ERROR: ' + problems,
+         problems: problems.length === 0 ? "OK" : "GROUP ERROR: " + problems,
       });
    });
 

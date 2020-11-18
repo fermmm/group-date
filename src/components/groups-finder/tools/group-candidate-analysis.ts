@@ -1,17 +1,17 @@
-import { objectsContentIsEqual } from '../../../common-tools/js-tools/js-tools';
-import { generateNumberId, replaceNaNInfinity, roundDecimals } from '../../../common-tools/math-tools/general';
+import { objectsContentIsEqual } from "../../../common-tools/js-tools/js-tools";
+import { generateNumberId, replaceNaNInfinity, roundDecimals } from "../../../common-tools/math-tools/general";
 import {
    GROUP_SLOTS_CONFIGS,
    MAX_CONNECTIONS_METACONNECTIONS_DISTANCE,
    MAX_CONNECTIONS_POSSIBLE_IN_REALITY,
    MIN_GROUP_SIZE,
    REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER,
-} from '../../../configurations';
-import { getSortFunction, GroupsAnalyzedSorted } from '../models';
-import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from './group-candidate-editing';
-import { GroupCandidate, GroupCandidateAnalyzed } from './types';
-import { checkTypeByMember } from '../../../common-tools/ts-tools/ts-tools';
-import { UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
+} from "../../../configurations";
+import { getSortFunction, GroupsAnalyzedSorted } from "../models";
+import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from "./group-candidate-editing";
+import { GroupCandidate, GroupCandidateAnalyzed } from "./types";
+import { checkTypeByMember } from "../../../common-tools/ts-tools/ts-tools";
+import { UserWithMatches } from "../../../shared-tools/endpoints-interfaces/groups";
 
 /**
  * This function calculates the connections count inequality level with the following logic:
@@ -201,7 +201,7 @@ export function getDataCorruptionProblemsInGroupCandidate(
 ): string[] {
    const result = [];
 
-   const gr: GroupCandidate = checkTypeByMember<GroupCandidateAnalyzed>(group, 'group') ? group.group : group;
+   const gr: GroupCandidate = checkTypeByMember<GroupCandidateAnalyzed>(group, "group") ? group.group : group;
 
    if (maxUsersAllowed != null && gr.users.length > maxUsersAllowed) {
       result.push(
@@ -298,7 +298,7 @@ export function reportPossibleDataCorruption(groups: GroupCandidate[] | GroupsAn
 export function dedupGroupCandidates(groupCandidates: GroupCandidate[]): GroupCandidate[] {
    const evaluated: Set<string> = new Set();
    return groupCandidates.reduce((result, group) => {
-      const hash: string = group.users.reduce((ids, user) => ids + user.userId, '');
+      const hash: string = group.users.reduce((ids, user) => ids + user.userId, "");
       if (!evaluated.has(hash)) {
          result.push(group);
          evaluated.add(hash);

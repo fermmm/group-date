@@ -1,4 +1,4 @@
-import 'jest';
+import "jest";
 import {
    acceptPost,
    chatPost,
@@ -10,16 +10,16 @@ import {
    getSlotIdFromUsersAmount,
    groupGet,
    userGroupsGet,
-} from '../components/groups/models';
-import { queryToRemoveGroups } from '../components/groups/queries';
-import { retrieveFullyRegisteredUser, retrieveUser } from '../components/user/models';
-import { queryToRemoveUsers } from '../components/user/queries';
-import { ExperienceFeedbackType, Group } from '../shared-tools/endpoints-interfaces/groups';
-import { User } from '../shared-tools/endpoints-interfaces/user';
-import { fakeCtx } from './tools/replacements';
-import { createFakeUsers, getAllTestUsersCreated } from './tools/users';
+} from "../components/groups/models";
+import { queryToRemoveGroups } from "../components/groups/queries";
+import { retrieveFullyRegisteredUser, retrieveUser } from "../components/user/models";
+import { queryToRemoveUsers } from "../components/user/queries";
+import { ExperienceFeedbackType, Group } from "../shared-tools/endpoints-interfaces/groups";
+import { User } from "../shared-tools/endpoints-interfaces/user";
+import { fakeCtx } from "./tools/replacements";
+import { createFakeUsers, getAllTestUsersCreated } from "./tools/users";
 
-describe('Groups', () => {
+describe("Groups", () => {
    let group: Group;
    let group2: Group;
    let fakeUsers: User[];
@@ -37,7 +37,7 @@ describe('Groups', () => {
       group2 = await createGroup({ usersIds: [mainUser2.userId], slotToUse: getSlotIdFromUsersAmount(1) });
    });
 
-   test('Users that accept the group are stored correctly', async () => {
+   test("Users that accept the group are stored correctly", async () => {
       for (const user of fakeUsers) {
          await acceptPost({ token: user.token, groupId: group.groupId }, null);
       }
@@ -48,7 +48,7 @@ describe('Groups', () => {
       expect(group.usersThatAccepted.length === fakeUsers.length).toBe(true);
    });
 
-   test('Voting dating ideas works correctly and not cheating is allowed', async () => {
+   test("Voting dating ideas works correctly and not cheating is allowed", async () => {
       // Main user votes for some ideas
       await dateIdeaVotePost(
          {
@@ -105,7 +105,7 @@ describe('Groups', () => {
       expect(group.dateIdeasVotes[fakeUsers[3].userId]).toHaveLength(1);
    });
 
-   test('Voting day option works correctly and not cheating is allowed', async () => {
+   test("Voting day option works correctly and not cheating is allowed", async () => {
       // Main user votes for some ideas
       await dateDayVotePost(
          {
@@ -160,9 +160,9 @@ describe('Groups', () => {
       expect(group.dayOptions[3].votersUserId.length === 1).toBe(true);
    });
 
-   test('Chat messages are saved correctly', async () => {
-      await chatPost({ message: 'Hey!', token: mainUser.token, groupId: group.groupId }, fakeCtx);
-      await chatPost({ message: 'how are you today?', token: mainUser.token, groupId: group.groupId }, fakeCtx);
+   test("Chat messages are saved correctly", async () => {
+      await chatPost({ message: "Hey!", token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      await chatPost({ message: "how are you today?", token: mainUser.token, groupId: group.groupId }, fakeCtx);
       await chatPost(
          { message: "I'm so good, I love the world!", token: mainUser2.token, groupId: group.groupId },
          fakeCtx,
@@ -176,13 +176,13 @@ describe('Groups', () => {
       expect(group.chat.messages).toHaveLength(3);
    });
 
-   test('Notifications of new chat messages are received and not with a spamming behavior', async () => {
+   test("Notifications of new chat messages are received and not with a spamming behavior", async () => {
       mainUser2 = await retrieveFullyRegisteredUser(mainUser2.token, false, fakeCtx);
       const chatNotifications = mainUser2.notifications.filter(n => n.targetId === group.groupId);
       expect(chatNotifications).toHaveLength(1);
    });
 
-   test('The action of a user downloading a message is recorded correctly', async () => {
+   test("The action of a user downloading a message is recorded correctly", async () => {
       // mainUser downloads the messages, this groupGet call simulates that
       await groupGet({ token: mainUser.token, groupId: group.groupId, includeFullDetails: true }, null);
 
@@ -199,14 +199,14 @@ describe('Groups', () => {
       expect(group.chat.usersDownloadedLastMessage.length).toBe(2);
    });
 
-   test('Feedback gets saved correctly', async () => {
+   test("Feedback gets saved correctly", async () => {
       await feedbackPost(
          {
             token: mainUser.token,
             groupId: group.groupId,
             feedback: {
                feedbackType: ExperienceFeedbackType.AssistedAndLovedIt,
-               description: 'Everything went so good!. I love the world!',
+               description: "Everything went so good!. I love the world!",
             },
          },
          fakeCtx,
@@ -217,7 +217,7 @@ describe('Groups', () => {
             groupId: group.groupId,
             feedback: {
                feedbackType: ExperienceFeedbackType.DidntWantToGo,
-               description: 'I hate this app.',
+               description: "I hate this app.",
             },
          },
          fakeCtx,
@@ -226,7 +226,7 @@ describe('Groups', () => {
       expect(group.feedback.length).toBe(2);
    });
 
-   test('User groups are retrieved correctly', async () => {
+   test("User groups are retrieved correctly", async () => {
       const user1Groups: Group[] = await userGroupsGet({ token: mainUser.token }, fakeCtx);
       const user2Groups: Group[] = await userGroupsGet({ token: mainUser2.token }, fakeCtx);
       expect(user1Groups.length).toBe(1);

@@ -6,35 +6,35 @@ import {
    SEARCH_BAD_QUALITY_GROUPS,
    SEARCH_GROUPS_FREQUENCY,
    SINGLE_QUERY_GROUP_FINDER,
-} from '../../configurations';
-import * as Collections from 'typescript-collections';
-import { firstBy } from 'thenby';
+} from "../../configurations";
+import * as Collections from "typescript-collections";
+import { firstBy } from "thenby";
 import {
    queryToGetGroupCandidates,
    queryToGetGroupsReceivingMoreUsers,
    queryToGetUsersAllowedToBeOnGroups,
    queryToGetUsersToAddInRecentGroups,
-} from './queries';
-import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from './tools/data-conversion';
+} from "./queries";
+import { fromQueryToGroupCandidates, fromQueryToGroupsReceivingNewUsers } from "./tools/data-conversion";
 import {
    analiceGroupCandidate,
    getBestGroup,
    groupHasMinimumQuality,
    dedupGroupCandidates,
-} from './tools/group-candidate-analysis';
-import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from './tools/types';
-import { setIntervalAsync } from 'set-interval-async/dynamic';
-import { addUsersToGroup, createGroup } from '../groups/models';
+} from "./tools/group-candidate-analysis";
+import { GroupCandidate, GroupQuality, GroupsReceivingNewUsers, GroupCandidateAnalyzed } from "./tools/types";
+import { setIntervalAsync } from "set-interval-async/dynamic";
+import { addUsersToGroup, createGroup } from "../groups/models";
 import {
    limitGroupToMaximumSizeIfNeeded,
    removeUnavailableUsersFromGroup,
    tryToFixBadQualityGroupIfNeeded,
-} from './tools/group-candidate-editing';
-import { addUserToGroupCandidate } from './tools/group-candidate-editing';
-import { Group, UserWithMatches } from '../../shared-tools/endpoints-interfaces/groups';
-import { queryToGetUserById } from '../user/queries';
-import { executePromises } from '../../common-tools/js-tools/js-tools';
-import { queryToGetGroupById } from '../groups/queries';
+} from "./tools/group-candidate-editing";
+import { addUserToGroupCandidate } from "./tools/group-candidate-editing";
+import { Group, UserWithMatches } from "../../shared-tools/endpoints-interfaces/groups";
+import { queryToGetUserById } from "../user/queries";
+import { executePromises } from "../../common-tools/js-tools/js-tools";
+import { queryToGetGroupById } from "../groups/queries";
 
 export async function initializeGroupsFinder(): Promise<void> {
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
@@ -97,7 +97,7 @@ async function createGroupsForSlot(
    } else {
       // To not exceed the maximum time for a single query send one request to the database per user
       const usersToSearchIds: string[] = (await queryToGetUsersAllowedToBeOnGroups(slot, quality)
-         .values('userId')
+         .values("userId")
          .toList()) as string[];
 
       const databaseRequests: Array<() => Promise<void>> = [];
@@ -203,7 +203,7 @@ async function addMoreUsersToRecentGroups(
    } else {
       // To not exceed the maximum time for a single query send one request to the database per group
       const groupsIds: string[] = (await queryToGetGroupsReceivingMoreUsers(slotIndex, quality)
-         .values('groupId')
+         .values("groupId")
          .toList()) as string[];
 
       const databaseRequests: Array<() => Promise<void>> = [];
@@ -340,7 +340,7 @@ function setUsersAsNotAvailable(usersIds: string[], notAvailableUsers: Set<strin
 export function slotsIndexesOrdered(): number[] {
    const slotsSorted = [...GROUP_SLOTS_CONFIGS];
    const slotsWithIndex = slotsSorted.map((s, i) => ({ slot: s, index: i }));
-   slotsWithIndex.sort(firstBy(s => s.slot.minimumSize ?? 0, 'desc'));
+   slotsWithIndex.sort(firstBy(s => s.slot.minimumSize ?? 0, "desc"));
    return slotsWithIndex.map(s => s.index);
 }
 

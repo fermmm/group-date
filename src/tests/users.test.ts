@@ -1,6 +1,6 @@
-import 'jest';
-import { createGroup, getSlotIdFromUsersAmount } from '../components/groups/models';
-import { queryToRemoveGroups } from '../components/groups/queries';
+import "jest";
+import { createGroup, getSlotIdFromUsersAmount } from "../components/groups/models";
+import { queryToRemoveGroups } from "../components/groups/queries";
 import {
    addNotificationToUser,
    attractionsReceivedGet,
@@ -8,15 +8,15 @@ import {
    matchesGet,
    profileStatusGet,
    userGet,
-} from '../components/user/models';
-import { queryToRemoveUsers } from '../components/user/queries';
-import { Group } from '../shared-tools/endpoints-interfaces/groups';
-import { AttractionType, NotificationType, User } from '../shared-tools/endpoints-interfaces/user';
-import { createMatchingUsers } from './tools/groups';
-import { fakeCtx } from './tools/replacements';
-import { createFakeUser, getAllTestUsersCreated, setAttraction } from './tools/users';
+} from "../components/user/models";
+import { queryToRemoveUsers } from "../components/user/queries";
+import { Group } from "../shared-tools/endpoints-interfaces/groups";
+import { AttractionType, NotificationType, User } from "../shared-tools/endpoints-interfaces/user";
+import { createMatchingUsers } from "./tools/groups";
+import { fakeCtx } from "./tools/replacements";
+import { createFakeUser, getAllTestUsersCreated, setAttraction } from "./tools/users";
 
-describe('Users', () => {
+describe("Users", () => {
    let matchingUsersCouple1: User[];
    let matchingUsersCouple2: User[];
    let matchingUsersCouple3: User[];
@@ -32,29 +32,29 @@ describe('Users', () => {
       testProtagonist = await createFakeUser();
    });
 
-   test('Fake users profile is completed', async () => {
+   test("Fake users profile is completed", async () => {
       await profileStatusGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       expect(updatedUser.profileCompleted).toBe(true);
    });
 
-   test('Notifications works', async () => {
+   test("Notifications works", async () => {
       await addNotificationToUser(
          { token: matchingUsersCouple1[0].token },
          {
             type: NotificationType.Group,
-            title: 'Prueba',
-            text: 'sarasa2',
-            targetId: 'http://sarasa.com',
+            title: "Prueba",
+            text: "sarasa2",
+            targetId: "http://sarasa.com",
          },
       );
       await addNotificationToUser(
          { token: matchingUsersCouple1[0].token },
          {
             type: NotificationType.FacebookEvent,
-            title: 'sarasa3',
-            text: 'sarasa4',
-            targetId: 'http://sarasa.com',
+            title: "sarasa3",
+            text: "sarasa4",
+            targetId: "http://sarasa.com",
          },
       );
 
@@ -62,7 +62,7 @@ describe('Users', () => {
       expect(updatedUser.notifications.length).toBe(2);
    });
 
-   test('Attraction works', async () => {
+   test("Attraction works", async () => {
       // Self liking should be not possible
       await setAttraction(testProtagonist, [testProtagonist], AttractionType.Like);
       expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(0);

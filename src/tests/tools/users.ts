@@ -1,8 +1,8 @@
-import * as moment from 'moment';
-import ora = require('ora');
-import { sendQuery } from '../../common-tools/database-tools/database-manager';
-import { setAttractionPost, userPost } from '../../components/user/models';
-import { queryToCreateUser } from '../../components/user/queries';
+import * as moment from "moment";
+import ora = require("ora");
+import { sendQuery } from "../../common-tools/database-tools/database-manager";
+import { setAttractionPost, userPost } from "../../components/user/models";
+import { queryToCreateUser } from "../../components/user/queries";
 import {
    Attraction,
    AttractionType,
@@ -10,13 +10,13 @@ import {
    QuestionResponse,
    QuestionResponseParams,
    User,
-} from '../../shared-tools/endpoints-interfaces/user';
-import { EditableUserProps } from '../../shared-tools/validators/user';
-import { chance } from './generalTools';
-import { fakeCtx } from './replacements';
-import { generateId } from '../../common-tools/string-tools/string-tools';
-import { getAllTestUsersCreatedExperimental } from './_experimental';
-import { APP_AUTHORED_THEMES_AS_QUESTIONS, DEFAULT_LANGUAGE } from '../../configurations';
+} from "../../shared-tools/endpoints-interfaces/user";
+import { EditableUserProps } from "../../shared-tools/validators/user";
+import { chance } from "./generalTools";
+import { fakeCtx } from "./replacements";
+import { generateId } from "../../common-tools/string-tools/string-tools";
+import { getAllTestUsersCreatedExperimental } from "./_experimental";
+import { APP_AUTHORED_THEMES_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
 
 let fakeUsersCreated: User[] = [];
 
@@ -54,7 +54,7 @@ export async function createFakeUser(customParams?: Partial<User>): Promise<User
 export function generateRandomUserProps(customProps?: Partial<User>): User {
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
-      name: chance.first({ nationality: 'it' }),
+      name: chance.first({ nationality: "it" }),
       cityName: chance.city(),
       language: DEFAULT_LANGUAGE,
       isCoupleProfile: chance.bool(),
@@ -67,8 +67,8 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       targetAgeMax: chance.integer({ min: 30, max: 55 }),
       targetDistance: chance.integer({ min: 25, max: 150 }),
       pictures: [
-         'https://data.whicdn.com/images/75413003/large.jpg',
-         'https://i.pinimg.com/originals/f9/dc/16/f9dc1608b6b94b29ed9070ac54b9e3b8.jpg',
+         "https://data.whicdn.com/images/75413003/large.jpg",
+         "https://i.pinimg.com/originals/f9/dc/16/f9dc1608b6b94b29ed9070ac54b9e3b8.jpg",
       ],
       dateIdea: chance.sentence({ words: 5 }),
       profileDescription: chance.paragraph(),

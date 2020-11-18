@@ -1,6 +1,6 @@
-import { BaseContext } from 'koa';
-import * as moment from 'moment';
-import { setIntervalAsync } from 'set-interval-async/dynamic';
+import { BaseContext } from "koa";
+import * as moment from "moment";
+import { setIntervalAsync } from "set-interval-async/dynamic";
 import {
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
    FIRST_DATE_REMINDER_TIME,
@@ -9,8 +9,8 @@ import {
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
    SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY,
    SECOND_DATE_REMINDER_TIME,
-} from '../../configurations';
-import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
+} from "../../configurations";
+import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
    BasicGroupParams,
    ChatPostParams,
@@ -19,15 +19,15 @@ import {
    DayOptionsVotePostParams,
    FeedbackPostParams,
    Group,
-} from '../../shared-tools/endpoints-interfaces/groups';
-import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
-import { addNotificationToUser, retrieveFullyRegisteredUser } from '../user/models';
+} from "../../shared-tools/endpoints-interfaces/groups";
+import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
+import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import {
    queryToFindSlotsToRelease,
    queryToGetGroupsToSendReminder,
    queryToGetMembersForNewMsgNotification,
    queryToUpdateMembershipProperty,
-} from './queries';
+} from "./queries";
 import {
    AddUsersToGroupSettings,
    queryToAddUsersToGroup,
@@ -36,12 +36,12 @@ import {
    queryToGetGroupsOfUserByUserId,
    queryToUpdateGroupProperty,
    queryToVoteDateIdeas,
-} from './queries';
-import { fromQueryToGroup, fromQueryToGroupList } from './tools/data-conversion';
-import { GroupQuality } from '../groups-finder/tools/types';
-import { generateId } from '../../common-tools/string-tools/string-tools';
-import { sendQuery } from '../../common-tools/database-tools/database-manager';
-import { t } from '../../common-tools/i18n-tools/i18n-tools';
+} from "./queries";
+import { fromQueryToGroup, fromQueryToGroupList } from "./tools/data-conversion";
+import { GroupQuality } from "../groups-finder/tools/types";
+import { generateId } from "../../common-tools/string-tools/string-tools";
+import { sendQuery } from "../../common-tools/database-tools/database-manager";
+import { t } from "../../common-tools/i18n-tools/i18n-tools";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -72,8 +72,8 @@ export async function createGroup(
          { userId },
          {
             type: NotificationType.Group,
-            title: 'You are in a group!',
-            text: 'A group just formed and you like each other!',
+            title: "You are in a group!",
+            text: "A group just formed and you like each other!",
          },
          true,
       );
@@ -93,7 +93,7 @@ export async function getGroupById(
    const result: Group = await fromQueryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
 
    if (result == null && ctx != null) {
-      ctx.throw(400, t('Group not found', { ctx }));
+      ctx.throw(400, t("Group not found", { ctx }));
       return;
    }
 
@@ -112,8 +112,8 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
          { userId },
          {
             type: NotificationType.Group,
-            title: 'You are in a group!',
-            text: 'A group just formed and you like each other!',
+            title: "You are in a group!",
+            text: "A group just formed and you like each other!",
          },
          true,
       );
@@ -234,7 +234,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
 
    // Send a notification to group members informing that there is a new message
    const usersToReceiveNotification: string[] = (await queryToGetMembersForNewMsgNotification(group.groupId)
-      .values('userId')
+      .values("userId")
       .toList()) as string[];
 
    for (const userId of usersToReceiveNotification) {
@@ -242,8 +242,8 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
          { userId },
          {
             type: NotificationType.Chat,
-            title: 'New chat messages',
-            text: 'There are new chat messages in your group date',
+            title: "New chat messages",
+            text: "There are new chat messages in your group date",
             targetId: group.groupId,
             // Previous notifications that has the same value here are replaced
             idForReplacement: group.groupId,
@@ -282,15 +282,15 @@ export async function findSlotsToRelease(): Promise<void> {
 export async function sendDateReminderNotifications(): Promise<void> {
    const reminders: Array<{
       time: number;
-      reminderProp: 'reminder1NotificationSent' | 'reminder2NotificationSent';
+      reminderProp: "reminder1NotificationSent" | "reminder2NotificationSent";
    }> = [
       {
          time: FIRST_DATE_REMINDER_TIME,
-         reminderProp: 'reminder1NotificationSent',
+         reminderProp: "reminder1NotificationSent",
       },
       {
          time: SECOND_DATE_REMINDER_TIME,
-         reminderProp: 'reminder2NotificationSent',
+         reminderProp: "reminder2NotificationSent",
       },
    ];
 
@@ -309,11 +309,11 @@ export async function sendDateReminderNotifications(): Promise<void> {
                { userId: user.userId },
                {
                   type: NotificationType.Group,
-                  title: t('Date reminder', { user }),
+                  title: t("Date reminder", { user }),
                   text: t(
-                     'Your group date will be in less than %s',
+                     "Your group date will be in less than %s",
                      { user },
-                     moment.duration(reminder.time, 'seconds').locale(user.language).humanize(),
+                     moment.duration(reminder.time, "seconds").locale(user.language).humanize(),
                   ),
                   targetId: group.groupId,
                },
@@ -356,7 +356,7 @@ function getComingWeekendDays(limitAmount: number): number[] {
    let i: number = 1;
 
    while (result.length < limitAmount) {
-      const dayToCheck: moment.Moment = moment().add(i, 'day');
+      const dayToCheck: moment.Moment = moment().add(i, "day");
       const weekDay: number = dayToCheck.weekday();
       if (weekDay === 5 || weekDay === 6 || weekDay === 0) {
          result.push(dayToCheck.unix());

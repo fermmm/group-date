@@ -1,5 +1,5 @@
-import { __ } from './database-manager';
-import { GremlinValueType, SupportedGremlinTypes } from './gremlin-typing-tools';
+import { __ } from "./database-manager";
+import { GremlinValueType, SupportedGremlinTypes } from "./gremlin-typing-tools";
 
 /**
  * Converts the format of the Gremlin Map output into JS object
@@ -45,7 +45,7 @@ export function fromMapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): 
 export function serializeIfNeeded<T>(value: T): SupportedGremlinTypes {
    const type: string = typeof value;
 
-   if (type !== 'string' && type !== 'boolean' && type !== 'number') {
+   if (type !== "string" && type !== "boolean" && type !== "number") {
       return JSON.stringify(value);
    }
 

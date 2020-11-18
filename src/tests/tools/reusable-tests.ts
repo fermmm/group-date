@@ -1,8 +1,8 @@
-import 'jest';
-import { firstBy } from 'thenby';
-import { DeepPartial } from 'ts-essentials';
-import { objectsContentIsEqual } from '../../common-tools/js-tools/js-tools';
-import { QuestionResponse, User } from '../../shared-tools/endpoints-interfaces/user';
+import "jest";
+import { firstBy } from "thenby";
+import { DeepPartial } from "ts-essentials";
+import { objectsContentIsEqual } from "../../common-tools/js-tools/js-tools";
+import { QuestionResponse, User } from "../../shared-tools/endpoints-interfaces/user";
 
 /**
  * Checks if the users created contains the information that was passed to create them. Also checks that both
@@ -20,10 +20,10 @@ export function createdUsersMatchesFakeData(
       dataUsed = [...dataUsed];
       const cmp = new Intl.Collator().compare;
       createdUsers.sort(
-         firstBy<User>('userId', { cmp }),
+         firstBy<User>("userId", { cmp }),
       );
       dataUsed.sort(
-         firstBy<User>('userId', { cmp }),
+         firstBy<User>("userId", { cmp }),
       );
    }
 

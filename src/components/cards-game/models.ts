@@ -1,27 +1,27 @@
-import { BaseContext } from 'koa';
-import { setIntervalAsync } from 'set-interval-async/dynamic';
+import { BaseContext } from "koa";
+import { setIntervalAsync } from "set-interval-async/dynamic";
 import {
    SEARCHER_LIKING_CHUNK,
    NON_SEARCHER_LIKING_CHUNK,
    NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY,
    SHUFFLE_LIKING_NON_LIKING_RESULTS,
-} from '../../configurations';
-import { TokenParameter } from '../../shared-tools/endpoints-interfaces/common';
-import { BasicThemeParams } from '../../shared-tools/endpoints-interfaces/themes';
-import { NotificationType, User } from '../../shared-tools/endpoints-interfaces/user';
-import { addNotificationToUser, retrieveFullyRegisteredUser } from '../user/models';
-import { queryToUpdateUserProps } from '../user/queries';
-import { fromQueryToUserList } from '../user/tools/data-conversion';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+} from "../../configurations";
+import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
+import { BasicThemeParams } from "../../shared-tools/endpoints-interfaces/themes";
+import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
+import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
+import { queryToUpdateUserProps } from "../user/queries";
+import { fromQueryToUserList } from "../user/tools/data-conversion";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
    queryToGetAllUsersWantingNewCardsNotification,
    queryToGetCardsRecommendations,
    queryToGetDislikedUsers,
-} from './queries';
-import { queryToGetUsersSubscribedToThemes } from '../themes/queries';
-import { CardsGameResult, fromQueryToCardsResult } from './tools/data-conversion';
-import { divideArrayCallback, shuffleArray } from '../../common-tools/js-tools/js-tools';
-import { t } from '../../common-tools/i18n-tools/i18n-tools';
+} from "./queries";
+import { queryToGetUsersSubscribedToThemes } from "../themes/queries";
+import { CardsGameResult, fromQueryToCardsResult } from "./tools/data-conversion";
+import { divideArrayCallback, shuffleArray } from "../../common-tools/js-tools/js-tools";
+import { t } from "../../common-tools/i18n-tools/i18n-tools";
 
 export async function initializeCardsGame(): Promise<void> {
    setIntervalAsync(notifyAllUsersAboutNewCards, NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY);
@@ -70,7 +70,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
       if (recommendations >= user.sendNewUsersNotification) {
          await queryToUpdateUserProps(user.token, [
             {
-               key: 'sendNewUsersNotification',
+               key: "sendNewUsersNotification",
                value: 0,
             },
          ]);
@@ -79,7 +79,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
             {
                type: NotificationType.CardsGame,
                title: t(`There is new people in the app!`, { user }),
-               text: t('There are %s new users', { user }, String(recommendations)),
+               text: t("There are %s new users", { user }, String(recommendations)),
             },
          );
       }

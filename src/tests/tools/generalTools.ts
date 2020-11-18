@@ -1,4 +1,4 @@
-import * as Chance from 'chance';
+import * as Chance from "chance";
 
 /**
  * There should be only one instance of chance for all the app, otherwise when re creating

@@ -1,9 +1,9 @@
-import { valueMap } from '../../../common-tools/database-tools/common-queries';
-import { fromGremlinMapToObject } from '../../../common-tools/database-tools/data-conversion-tools';
-import { sendQuery } from '../../../common-tools/database-tools/database-manager';
-import { GremlinValueType, Traversal } from '../../../common-tools/database-tools/gremlin-typing-tools';
-import { Theme } from '../../../shared-tools/endpoints-interfaces/themes';
-import { queryToIncludeExtraInfoInTheme } from '../queries';
+import { valueMap } from "../../../common-tools/database-tools/common-queries";
+import { fromGremlinMapToObject } from "../../../common-tools/database-tools/data-conversion-tools";
+import { sendQuery } from "../../../common-tools/database-tools/database-manager";
+import { GremlinValueType, Traversal } from "../../../common-tools/database-tools/gremlin-typing-tools";
+import { Theme } from "../../../shared-tools/endpoints-interfaces/themes";
+import { queryToIncludeExtraInfoInTheme } from "../queries";
 
 /**
  * Converts into a Theme object a gremlin query that should return a single theme vertex.

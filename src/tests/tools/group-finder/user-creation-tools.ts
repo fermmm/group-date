@@ -1,13 +1,13 @@
-import { executePromises } from '../../../common-tools/js-tools/js-tools';
-import { searchAndCreateNewGroups } from '../../../components/groups-finder/models';
-import { GroupCandidate, Slot } from '../../../components/groups-finder/tools/types';
-import { userGroupsGet } from '../../../components/groups/models';
-import { setAttractionPost } from '../../../components/user/models';
-import { Group, UserWithMatches } from '../../../shared-tools/endpoints-interfaces/groups';
-import { User, AttractionType } from '../../../shared-tools/endpoints-interfaces/user';
-import { fakeCtx } from '../replacements';
-import { createFakeUser2 } from '../_experimental';
-import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE } from '../../../configurations';
+import { executePromises } from "../../../common-tools/js-tools/js-tools";
+import { searchAndCreateNewGroups } from "../../../components/groups-finder/models";
+import { GroupCandidate, Slot } from "../../../components/groups-finder/tools/types";
+import { userGroupsGet } from "../../../components/groups/models";
+import { setAttractionPost } from "../../../components/user/models";
+import { Group, UserWithMatches } from "../../../shared-tools/endpoints-interfaces/groups";
+import { User, AttractionType } from "../../../shared-tools/endpoints-interfaces/user";
+import { fakeCtx } from "../replacements";
+import { createFakeUser2 } from "../_experimental";
+import { GROUP_SLOTS_CONFIGS, MAX_GROUP_SIZE } from "../../../configurations";
 
 const testGroupsCreated: Group[] = [];
 
@@ -61,7 +61,7 @@ export async function retrieveFinalGroupsOf(
 ): Promise<Group[]> {
    const result: Group[] = [];
    for (const user of groupCandidateUsers) {
-      const token: string = typeof user === 'string' ? user : user.userId;
+      const token: string = typeof user === "string" ? user : user.userId;
 
       // userId and token are the same in these tests
       const userGroups = await userGroupsGet({ token }, fakeCtx);

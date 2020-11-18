@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid';
+import { nanoid } from "nanoid";
 
 export function versionIsCompatible(current: string, required: string): boolean {
    for (let i = 0; i < required.length; i++) {

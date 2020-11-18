@@ -1,40 +1,40 @@
-import 'jest';
-import * as JestDateMock from 'jest-date-mock';
+import "jest";
+import * as JestDateMock from "jest-date-mock";
 import {
    callGroupFinder,
    createFullUsersFromGroupCandidate,
    getAllTestGroupsCreated,
    getSmallerSlot,
    retrieveFinalGroupsOf,
-} from './tools/group-finder/user-creation-tools';
-import * as GroupCandTestTools from './tools/group-finder/group-candidate-test-editing';
+} from "./tools/group-finder/user-creation-tools";
+import * as GroupCandTestTools from "./tools/group-finder/group-candidate-test-editing";
 import {
    GROUP_SLOTS_CONFIGS,
    MAX_GROUP_SIZE,
    MAX_TIME_GROUPS_RECEIVE_NEW_USERS,
    MIN_GROUP_SIZE,
-} from '../configurations';
-import { Group } from '../shared-tools/endpoints-interfaces/groups';
-import { getBiggestGroup } from './tools/groups';
-import { hoursToMilliseconds } from '../common-tools/math-tools/general';
-import { GroupCandidate, GroupCandidateAnalyzed, Slot } from '../components/groups-finder/tools/types';
-import { queryToRemoveGroups } from '../components/groups/queries';
-import { queryToRemoveUsers } from '../components/user/queries';
-import { getAllTestUsersCreated } from './tools/users';
-import { firstBy } from 'thenby';
-import { slotsIndexesOrdered } from '../components/groups-finder/models';
-import { analiceGroupCandidate } from '../components/groups-finder/tools/group-candidate-analysis';
-import { tryToFixBadQualityGroupIfNeeded } from '../components/groups-finder/tools/group-candidate-editing';
-import { findSlotsToRelease } from '../components/groups/models';
+} from "../configurations";
+import { Group } from "../shared-tools/endpoints-interfaces/groups";
+import { getBiggestGroup } from "./tools/groups";
+import { hoursToMilliseconds } from "../common-tools/math-tools/general";
+import { GroupCandidate, GroupCandidateAnalyzed, Slot } from "../components/groups-finder/tools/types";
+import { queryToRemoveGroups } from "../components/groups/queries";
+import { queryToRemoveUsers } from "../components/user/queries";
+import { getAllTestUsersCreated } from "./tools/users";
+import { firstBy } from "thenby";
+import { slotsIndexesOrdered } from "../components/groups-finder/models";
+import { analiceGroupCandidate } from "../components/groups-finder/tools/group-candidate-analysis";
+import { tryToFixBadQualityGroupIfNeeded } from "../components/groups-finder/tools/group-candidate-editing";
+import { findSlotsToRelease } from "../components/groups/models";
 import {
    getTestingGroups,
    getTestingGroupsFilteredAndSorted,
    groupAnalysisReport,
    analiceFilterAndSortReport,
-} from './tools/group-finder/group-candidates-ordering';
+} from "./tools/group-finder/group-candidates-ordering";
 
-describe('Group finder', () => {
-   test('Matching users below minimum amount does not form a group', async () => {
+describe("Group finder", () => {
+   test("Matching users below minimum amount does not form a group", async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MIN_GROUP_SIZE - 1,
          connectAllWithAll: true,
@@ -45,7 +45,7 @@ describe('Group finder', () => {
       expect(await retrieveFinalGroupsOf(groupCandidate.users)).toHaveLength(0);
    });
 
-   test('Matching in minimum amount creates a group', async () => {
+   test("Matching in minimum amount creates a group", async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MIN_GROUP_SIZE,
          connectAllWithAll: true,
@@ -58,7 +58,7 @@ describe('Group finder', () => {
       expect(groups[0].members).toHaveLength(MIN_GROUP_SIZE);
    });
 
-   test('Additional user matching can enter the group even after creation', async () => {
+   test("Additional user matching can enter the group even after creation", async () => {
       let groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MIN_GROUP_SIZE,
          connectAllWithAll: true,
@@ -66,7 +66,7 @@ describe('Group finder', () => {
       await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
 
-      groupCandidate = GroupCandTestTools.createAndAddOneUser({ group: groupCandidate, connectWith: 'all' });
+      groupCandidate = GroupCandTestTools.createAndAddOneUser({ group: groupCandidate, connectWith: "all" });
       await createFullUsersFromGroupCandidate(groupCandidate);
 
       await callGroupFinder();
@@ -77,7 +77,7 @@ describe('Group finder', () => {
       expect(groups[0].members).toHaveLength(MIN_GROUP_SIZE + 1);
    });
 
-   test('Users that decrease the quality of an existing group when joining should not join', async () => {
+   test("Users that decrease the quality of an existing group when joining should not join", async () => {
       let groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: 4,
          connectAllWithAll: true,
@@ -96,7 +96,7 @@ describe('Group finder', () => {
       expect(groups[0].members).toHaveLength(4);
    });
 
-   test('Additional users added to a group cannot be higher than maximum configured', async () => {
+   test("Additional users added to a group cannot be higher than maximum configured", async () => {
       let groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: 4,
          connectAllWithAll: true,
@@ -104,7 +104,7 @@ describe('Group finder', () => {
       await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
 
-      groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, MAX_GROUP_SIZE + 5, 'all');
+      groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, MAX_GROUP_SIZE + 5, "all");
       await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
 
@@ -113,7 +113,7 @@ describe('Group finder', () => {
       expect(getBiggestGroup(groups).members.length).toBeLessThanOrEqual(MAX_GROUP_SIZE);
    });
 
-   test('Additional users are not added after too much time', async () => {
+   test("Additional users are not added after too much time", async () => {
       let groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: 4,
          connectAllWithAll: true,
@@ -124,7 +124,7 @@ describe('Group finder', () => {
       // Simulate time passing
       JestDateMock.advanceBy(MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + hoursToMilliseconds(1));
 
-      groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, 2, 'all');
+      groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, 2, "all");
       await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
       JestDateMock.clear();
@@ -135,8 +135,8 @@ describe('Group finder', () => {
       expect(groups[0].members).toHaveLength(4);
    });
 
-   test('Users should not have more groups than what the slots allows', async () => {
-      const testUserId: string = 'testUser';
+   test("Users should not have more groups than what the slots allows", async () => {
+      const testUserId: string = "testUser";
 
       const groupsAllowedBySize: number[] = GROUP_SLOTS_CONFIGS.map(slot => {
          const result: number[] = [];
@@ -162,7 +162,7 @@ describe('Group finder', () => {
             result.push(
                GroupCandTestTools.createAndAddOneUser({
                   group: groupCandidate,
-                  connectWith: 'all',
+                  connectWith: "all",
                   userId: testUserId,
                }),
             );
@@ -192,7 +192,7 @@ describe('Group finder', () => {
       }
    });
 
-   test('Only one group is created when many users like all with all', async () => {
+   test("Only one group is created when many users like all with all", async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MAX_GROUP_SIZE,
          connectAllWithAll: true,
@@ -205,7 +205,7 @@ describe('Group finder', () => {
       expect(groups[0].members).toHaveLength(MAX_GROUP_SIZE);
    });
 
-   test('A group with more members than MAX_GROUP_SIZE cannot be created', async () => {
+   test("A group with more members than MAX_GROUP_SIZE cannot be created", async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MAX_GROUP_SIZE * 2,
          connectAllWithAll: true,
@@ -219,8 +219,8 @@ describe('Group finder', () => {
       expect(groups[1].members).toHaveLength(MAX_GROUP_SIZE);
    });
 
-   test('Seen users cannot form a group again', async () => {
-      const testUsersIds: string[] = ['testUser1', 'testUser2', 'testUser3'];
+   test("Seen users cannot form a group again", async () => {
+      const testUsersIds: string[] = ["testUser1", "testUser2", "testUser3"];
 
       // Create 2 triangle groups
       const triangle1 = GroupCandTestTools.createGroupCandidateWithCustomIds({
@@ -265,7 +265,7 @@ describe('Group finder', () => {
       expect(createdGroups[0].groupId !== createdGroups[1].groupId).toBeTrue();
    });
 
-   test('Too bad quality groups gets fixed before creation and not ruined when adding more users afterwards', async () => {
+   test("Too bad quality groups gets fixed before creation and not ruined when adding more users afterwards", async () => {
       const groupWith2 = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: 2,
          connectAllWithAll: false,
@@ -286,7 +286,7 @@ describe('Group finder', () => {
       expect(groups[0].members.length).toBeLessThanOrEqual(badGroupCandidateFixed.group.users.length);
    });
 
-   test('From 2 groups that shares users only the best quality one is created', async () => {
+   test("From 2 groups that shares users only the best quality one is created", async () => {
       const slotsOrdered = [...GROUP_SLOTS_CONFIGS];
       slotsOrdered.sort(firstBy(s => s.minimumSize ?? 0));
 
@@ -317,7 +317,7 @@ describe('Group finder', () => {
             const goodGroupToFillSlot = GroupCandTestTools.createAndAddMultipleUsers(
                groupWith2,
                (slot.maximumSize ?? MAX_GROUP_SIZE) - 2,
-               'all',
+               "all",
             );
             await createFullUsersFromGroupCandidate(goodGroupToFillSlot);
          }
@@ -340,7 +340,7 @@ describe('Group finder', () => {
       expect(groups).toHaveLength(0);
    });
 
-   test('Slots gets free after time passes', async () => {
+   test("Slots gets free after time passes", async () => {
       const singleUserGroup = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: 1,
          connectAllWithAll: false,
@@ -357,7 +357,7 @@ describe('Group finder', () => {
        */
       for (let i = 0; i < groupCandidatesToCreate; i++) {
          await createFullUsersFromGroupCandidate(
-            GroupCandTestTools.createAndAddMultipleUsers(singleUserGroup, smallerSlotMinSize - 1, 'all'),
+            GroupCandTestTools.createAndAddMultipleUsers(singleUserGroup, smallerSlotMinSize - 1, "all"),
          );
       }
 
@@ -391,7 +391,7 @@ describe('Group finder', () => {
       JestDateMock.clear();
    });
 
-   test('All groups that should be created gets created', async () => {
+   test("All groups that should be created gets created", async () => {
       const testingGroups: GroupCandidateAnalyzed[] = getTestingGroups();
       const groupsFilteredAndSorted: GroupCandidateAnalyzed[] = getTestingGroupsFilteredAndSorted();
 
@@ -404,7 +404,7 @@ describe('Group finder', () => {
       expect(groupsCreated.length).toBeGreaterThanOrEqual(groupsFilteredAndSorted.length);
    });
 
-   test('Group analysis was not modified', async () => {
+   test("Group analysis was not modified", async () => {
       /**
        * If this snapshot does not match anymore it means you changed code or a setting that affects
        * group analysis and you should check if everything is still working as expected before re
@@ -419,7 +419,7 @@ describe('Group finder', () => {
       // consoleLog(groupAnalysisReport());
    });
 
-   test('Group filter and sorting was not modified', async () => {
+   test("Group filter and sorting was not modified", async () => {
       /**
        * If this snapshot does not match anymore it means you changed code or a setting that affects
        * group analysis, filtering and/or sorting and you should check if everything is still working

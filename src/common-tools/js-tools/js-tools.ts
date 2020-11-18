@@ -1,4 +1,4 @@
-import * as util from 'util';
+import * as util from "util";
 
 /**
  * Wraps a setTimeout into this async function to be used with "async await" syntax.

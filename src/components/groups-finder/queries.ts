@@ -1,5 +1,5 @@
-import { __, column, P, scope, t, g } from '../../common-tools/database-tools/database-manager';
-import { Traversal } from '../../common-tools/database-tools/gremlin-typing-tools';
+import { __, column, P, scope, t, g } from "../../common-tools/database-tools/database-manager";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
    GROUP_SLOTS_CONFIGS,
    MAXIMUM_INACTIVITY_FOR_NEW_GROUPS,
@@ -10,11 +10,11 @@ import {
    ALLOW_SMALL_GROUPS_BECOME_BIG,
    EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES,
    ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS,
-} from '../../configurations';
-import * as moment from 'moment';
-import { queryToGetAllCompleteUsers } from '../user/queries';
-import { GroupQuality, SizeRestriction } from './tools/types';
-import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from '../../configurations';
+} from "../../configurations";
+import * as moment from "moment";
+import { queryToGetAllCompleteUsers } from "../user/queries";
+import { GroupQuality, SizeRestriction } from "./tools/types";
+import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from "../../configurations";
 
 /**
  * This query returns lists of users arrays where it's users matches between them.
@@ -56,7 +56,7 @@ export function queryToGetUsersAllowedToBeOnGroups(
    traversal = traversal
       // Only users with not too many groups already active can be part of new group searches
       .where(
-         __.outE('slot' + targetSlotIndex)
+         __.outE("slot" + targetSlotIndex)
             .count()
             .is(P.lt(GROUP_SLOTS_CONFIGS[targetSlotIndex].amount)),
       )
@@ -64,14 +64,14 @@ export function queryToGetUsersAllowedToBeOnGroups(
       // Don't introduce inactive users into the groups candidates.
       // Inactive means many time without login and no new users notifications pending
       .not(
-         __.has('lastLoginDate', P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
+         __.has("lastLoginDate", P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
             .and()
-            .has('sendNewUsersNotification', 0),
+            .has("sendNewUsersNotification", 0),
       );
 
    if (quality === GroupQuality.Bad) {
       traversal = traversal.where(
-         __.values('lastGroupJoinedDate').is(P.lt(moment().unix() - FORM_BAD_QUALITY_GROUPS_TIME)),
+         __.values("lastGroupJoinedDate").is(P.lt(moment().unix() - FORM_BAD_QUALITY_GROUPS_TIME)),
       );
    }
 
@@ -83,7 +83,7 @@ export function queryToGetUsersAllowedToBeOnGroups(
  * allowed to be on groups
  */
 function queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex: number, quality: GroupQuality): Traversal {
-   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, quality, __.both('Match'));
+   return queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, quality, __.both("Match"));
 }
 
 /**
@@ -110,7 +110,7 @@ function queryToSearchGoodQualityMatchingGroups(
 
    return (
       traversal
-         .as('u')
+         .as("u")
          // Find groups
          .flatMap(
             queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
@@ -119,12 +119,12 @@ function queryToSearchGoodQualityMatchingGroups(
                   __.union(
                      // Find groups of connected triangles and couples (couples are useful to form squares)
                      queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good).where(
-                        __.both('Match').as('u'),
+                        __.both("Match").as("u"),
                      ),
 
                      // With the search below the starting user and the match are not added so we add it here
                      __.identity(),
-                     __.select('u'),
+                     __.select("u"),
                   )
                      // Order the group members so later dedup() does not take different order in members as a different group
                      .order()
@@ -143,19 +143,19 @@ function queryToSearchGoodQualityMatchingGroups(
                __.union(
                   __.identity().unfold(),
                   __.identity()
-                     .as('group')
+                     .as("group")
                      .unfold()
-                     .as('groupMember')
+                     .as("groupMember")
 
                      // Get match outside the group (union is used only to be able to call a function)
                      .union(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good))
-                     .not(__.where(P.within('group')))
+                     .not(__.where(P.within("group")))
 
                      // But only matches that forms a square with 2 members of the group
                      .where(
                         queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Good)
-                           .not(__.where(P.within('group')))
-                           .where(__.both('Match').where(P.within('group')).where(P.neq('groupMember'))),
+                           .not(__.where(P.within("group")))
+                           .where(__.both("Match").where(P.within("group")).where(P.neq("groupMember"))),
                      ),
                )
                   .dedup()
@@ -188,9 +188,9 @@ function queryToSearchBadQualityMatchingGroups(
       searches.push(
          __.repeat(queryToGetMatchesAllowedToBeOnGroups(targetSlotIndex, GroupQuality.Bad).simplePath())
             .times(i - 1)
-            .where(__.both('Match').as('a'))
+            .where(__.both("Match").as("a"))
             .path()
-            .from_('a'),
+            .from_("a"),
       );
    }
 
@@ -199,7 +199,7 @@ function queryToSearchBadQualityMatchingGroups(
 
    return (
       traversal
-         .as('a')
+         .as("a")
 
          // Find shapes
          .union(...searches)
@@ -240,16 +240,16 @@ function queryToAddDetailsAndIgnoreInvalidSizes(traversal: Traversal, slotSize?:
                ),
             ),
       )
-         .as('g')
+         .as("g")
          .unfold()
          .map(
-            __.project('userId', 'matches')
-               .by(__.values('userId'))
+            __.project("userId", "matches")
+               .by(__.values("userId"))
                .by(
-                  __.as('u')
-                     .both('Match')
-                     .where(P.within('g')) // Get the matches of the user within the group
-                     .values('userId')
+                  __.as("u")
+                     .both("Match")
+                     .where(P.within("g")) // Get the matches of the user within the group
+                     .values("userId")
                      .fold(),
                ),
          )
@@ -265,14 +265,14 @@ export function queryToGetGroupsReceivingMoreUsers(slotIndex: number, quality: G
    return (
       g
          .V()
-         .hasLabel('group')
+         .hasLabel("group")
          // Active groups
-         .where(__.has('creationDate', P.gt(moment().unix() - MAX_TIME_GROUPS_RECEIVE_NEW_USERS)))
+         .where(__.has("creationDate", P.gt(moment().unix() - MAX_TIME_GROUPS_RECEIVE_NEW_USERS)))
          // Groups of the target quality. This prevents occupying slots of good quality capable users with low quality groups
-         .where(__.has('initialQuality', quality))
+         .where(__.has("initialQuality", quality))
          // Groups that has space for more users and match the slot config passed
          .where(
-            __.in_('member')
+            __.in_("member")
                .count()
                .is(P.lt(MAX_GROUP_SIZE)) // Not groups already full
                .is(P.gte(GROUP_SLOTS_CONFIGS[slotIndex].minimumSize ?? MIN_GROUP_SIZE)) // Groups bigger than the minimum size in slot
@@ -305,44 +305,44 @@ export function queryToGetUsersToAddInRecentGroups(
    return (
       // Get users to add to these groups
       traversal
-         .project('group', 'usersToAdd')
+         .project("group", "usersToAdd")
          .by()
          .by(
             // Find matches of the member group that are not members of the group
-            __.as('group')
-               .in_('member')
-               .both('Match')
-               .not(__.where(__.out('member').as('group')))
+            __.as("group")
+               .in_("member")
+               .both("Match")
+               .not(__.where(__.out("member").as("group")))
                // Only include users allowed to be in new groups
                .union(queryToGetUsersAllowedToBeOnGroups(slotIndex, quality, __))
                // Find the matches that the user has inside the group
                .group()
-               .by(__.values('userId'))
-               .by(__.both('Match').where(__.out('member').as('group')).dedup().values('userId').fold())
+               .by(__.values("userId"))
+               .by(__.both("Match").where(__.out("member").as("group")).dedup().values("userId").fold())
                .unfold()
-               .project('userId', 'matches')
+               .project("userId", "matches")
                .by(column.keys)
                .by(column.values)
                // Discard users with not enough connections amount
-               .where(__.select('matches').count(scope.local).is(P.gte(MINIMUM_CONNECTIONS_TO_BE_ON_GROUP)))
+               .where(__.select("matches").count(scope.local).is(P.gte(MINIMUM_CONNECTIONS_TO_BE_ON_GROUP)))
                .fold(),
          )
          // Discard groups with no users to add
-         .where(__.select('usersToAdd').unfold())
+         .where(__.select("usersToAdd").unfold())
 
          // Re create the object we have at this point adding "groupMatches" with the members of the
          // group and their matches
-         .project('groupId', 'usersToAdd', 'users')
-         .by(__.select('group').values('groupId'))
-         .by(__.select('usersToAdd'))
+         .project("groupId", "usersToAdd", "users")
+         .by(__.select("group").values("groupId"))
+         .by(__.select("usersToAdd"))
          .by(
             // Get members of the group and their matches (it does not include the possible new member)
-            __.select('group')
-               .as('group')
-               .in_('member')
-               .project('userId', 'matches')
-               .by(__.values('userId'))
-               .by(__.both('SeenMatch').where(__.out('member').as('group')).values('userId').fold())
+            __.select("group")
+               .as("group")
+               .in_("member")
+               .project("userId", "matches")
+               .by(__.values("userId"))
+               .by(__.both("SeenMatch").where(__.out("member").as("group")).values("userId").fold())
                .fold(),
          )
    );

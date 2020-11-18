@@ -1,5 +1,5 @@
-import { ChatMessage } from './common';
-import { User } from './user';
+import { ChatMessage } from "./common";
+import { User } from "./user";
 
 export interface Group {
    groupId: string;
@@ -42,13 +42,13 @@ export interface ExperienceFeedback {
 }
 
 export enum ExperienceFeedbackType {
-   DidntWantToGo = 'DidntWantToGo',
-   CouldNotGo = 'CouldNotGo',
-   NoCommunication = 'NoCommunication',
-   NoInterestFromGroup = 'NoInterestFromGroup',
-   AssistedAndLiked = 'AssistedAndLiked',
-   AssistedAndNotLiked = 'AssistedAndNotLiked',
-   AssistedAndLovedIt = 'AssistedAndLovedIt',
+   DidntWantToGo = "DidntWantToGo",
+   CouldNotGo = "CouldNotGo",
+   NoCommunication = "NoCommunication",
+   NoInterestFromGroup = "NoInterestFromGroup",
+   AssistedAndLiked = "AssistedAndLiked",
+   AssistedAndNotLiked = "AssistedAndNotLiked",
+   AssistedAndLovedIt = "AssistedAndLovedIt",
 }
 
 export interface BasicGroupParams {
@@ -70,7 +70,7 @@ export interface ChatPostParams extends BasicGroupParams {
 }
 
 export interface FeedbackPostParams extends BasicGroupParams {
-   feedback: Omit<ExperienceFeedback, 'userId'>;
+   feedback: Omit<ExperienceFeedback, "userId">;
 }
 
 export interface UserWithMatches {

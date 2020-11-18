@@ -1,34 +1,34 @@
-import 'jest';
+import "jest";
 import {
    dislikedUsersGet,
    notifyAllUsersAboutNewCards,
    recommendationsGet,
-} from '../components/cards-game/models';
-import { setAttractionPost, userGet, userPost } from '../components/user/models';
-import { queryToRemoveUsers } from '../components/user/queries';
-import { AttractionType, Gender, User } from '../shared-tools/endpoints-interfaces/user';
-import { fakeCtx } from './tools/replacements';
-import { createdUsersMatchesFakeData } from './tools/reusable-tests';
+} from "../components/cards-game/models";
+import { setAttractionPost, userGet, userPost } from "../components/user/models";
+import { queryToRemoveUsers } from "../components/user/queries";
+import { AttractionType, Gender, User } from "../shared-tools/endpoints-interfaces/user";
+import { fakeCtx } from "./tools/replacements";
+import { createdUsersMatchesFakeData } from "./tools/reusable-tests";
 import {
    createFakeCompatibleUsers,
    createFakeUser,
    generateRandomUserProps,
    getAllTestUsersCreated,
    setAttraction,
-} from './tools/users';
-import { DeepPartial } from 'ts-essentials';
-import { chance } from './tools/generalTools';
-import { createFakeUser2 } from './tools/_experimental';
+} from "./tools/users";
+import { DeepPartial } from "ts-essentials";
+import { chance } from "./tools/generalTools";
+import { createFakeUser2 } from "./tools/_experimental";
 import {
    blockThemePost,
    createThemePost,
    removeAllThemesCreatedBy,
    subscribeToThemePost,
    themesCreatedByUserGet,
-} from '../components/themes/models';
-import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from '../configurations';
+} from "../components/themes/models";
+import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from "../configurations";
 
-describe('Cards game', () => {
+describe("Cards game", () => {
    let fakeData: Array<DeepPartial<User>>;
    const fakeUsers: User[] = [];
    let searcherUser: User;
@@ -39,8 +39,8 @@ describe('Cards game', () => {
    beforeAll(async () => {
       const searcherParams: DeepPartial<User> = {
          ...generateRandomUserProps(),
-         name: 'searcherParams',
-         profileDescription: '',
+         name: "searcherParams",
+         profileDescription: "",
          gender: Gender.Man,
          age: 32,
          height: 265,
@@ -49,8 +49,8 @@ describe('Cards game', () => {
          targetAgeMin: 20,
          targetAgeMax: 38,
          targetDistance: 30,
-         pictures: ['http://test.com/image.jpg'],
-         dateIdea: 'holis.',
+         pictures: ["http://test.com/image.jpg"],
+         dateIdea: "holis.",
          likesWomanTrans: false,
          likesManTrans: false,
          likesWoman: true,
@@ -59,7 +59,7 @@ describe('Cards game', () => {
       };
 
       const compatibleParams: DeepPartial<User> = {
-         name: 'compatibleParams',
+         name: "compatibleParams",
          gender: Gender.Woman,
          likesMan: true,
          likesWoman: false,
@@ -82,7 +82,7 @@ describe('Cards game', () => {
       const compatible2: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'compatibleParams2',
+         name: "compatibleParams2",
          locationLat: -34.608204,
          locationLon: -58.502031,
          likesWoman: true,
@@ -91,7 +91,7 @@ describe('Cards game', () => {
       const distanceIncompatibleParams: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'distanceIncompatibleParams',
+         name: "distanceIncompatibleParams",
          locationLat: -34.566223,
          locationLon: -59.11482,
       };
@@ -99,35 +99,35 @@ describe('Cards game', () => {
       const sexIncompatibleParams: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'sexIncompatibleParams',
+         name: "sexIncompatibleParams",
          gender: Gender.Man,
       };
 
       const sexIncompatibleParams2: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'sexIncompatibleParams2',
+         name: "sexIncompatibleParams2",
          likesMan: false,
       };
 
       const ageIncompatibleParams: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'ageIncompatibleParams',
+         name: "ageIncompatibleParams",
          age: 40,
       };
 
       const ageIncompatibleParams2: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'ageIncompatibleParams2',
+         name: "ageIncompatibleParams2",
          age: 18,
       };
 
       const ageIncompatibleParams3: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
-         name: 'ageIncompatibleParams3',
+         name: "ageIncompatibleParams3",
          targetAgeMin: 18,
          targetAgeMax: 25,
       };
@@ -153,16 +153,16 @@ describe('Cards game', () => {
       compatibleUser2 = fakeUsers[2];
    });
 
-   test('Test will be done correctly', () => {
+   test("Test will be done correctly", () => {
       createdUsersMatchesFakeData(fakeUsers, fakeData, true);
    });
 
-   test('Recommendations works', async () => {
+   test("Recommendations works", async () => {
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
       expect(recommendations).toHaveLength(2);
    });
 
-   test('Recommendations returns correct users in correct order', async () => {
+   test("Recommendations returns correct users in correct order", async () => {
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
 
       // Check amount
@@ -177,7 +177,7 @@ describe('Cards game', () => {
       expect(recommendations).toHaveLength(0);
    });
 
-   test('Disliked users returns the correct data', async () => {
+   test("Disliked users returns the correct data", async () => {
       recommendations = await dislikedUsersGet({ token: searcherUser.token }, fakeCtx);
 
       // Check amount
@@ -189,7 +189,7 @@ describe('Cards game', () => {
       await queryToRemoveUsers(fakeUsers);
    });
 
-   test('Users gets notified of new cards when they request for it', async () => {
+   test("Users gets notified of new cards when they request for it", async () => {
       await queryToRemoveUsers(fakeUsers);
 
       let mainUser = await createFakeUser();
@@ -221,7 +221,7 @@ describe('Cards game', () => {
       await queryToRemoveUsers(fakeCompatibleUsers);
    });
 
-   test('Users with matching themes appear first', async () => {
+   test("Users with matching themes appear first", async () => {
       const adminUser = await createFakeUser2({ isAdmin: true });
       const searcher = (await createFakeCompatibleUsers(adminUser, 1))[0];
 
@@ -231,7 +231,7 @@ describe('Cards game', () => {
             {
                token: adminUser.token,
                name: `cards test theme ${i}`,
-               category: 'test category 1',
+               category: "test category 1",
             },
             fakeCtx,
          );
@@ -294,7 +294,7 @@ describe('Cards game', () => {
       expect(recommendations[2].userId).toBe(themeCompatibleUsers[2].userId);
    });
 
-   test('Liking users appears in the first places of the results', async () => {
+   test("Liking users appears in the first places of the results", async () => {
       const searcher = await createFakeUser();
       const nonLikingUsers = await createFakeCompatibleUsers(searcher, NON_SEARCHER_LIKING_CHUNK * 3);
       const likingUsers = await createFakeCompatibleUsers(searcher, SEARCHER_LIKING_CHUNK);
@@ -313,7 +313,7 @@ describe('Cards game', () => {
          {
             token: searcher.token,
             name: `searcher theme`,
-            category: 'test category 1',
+            category: "test category 1",
          },
          fakeCtx,
       );

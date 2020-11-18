@@ -1,8 +1,8 @@
-import * as gremlin from 'gremlin';
-import * as ora from 'ora';
-import { Traversal } from './gremlin-typing-tools';
-import { retryPromise } from '../js-tools/js-tools';
-import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from '../../configurations';
+import * as gremlin from "gremlin";
+import * as ora from "ora";
+import { Traversal } from "./gremlin-typing-tools";
+import { retryPromise } from "../js-tools/js-tools";
+import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from "../../configurations";
 
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
@@ -26,14 +26,14 @@ export const t = gremlin.process.t;
 export async function waitForDatabase(silent: boolean = false): Promise<void> {
    let spinner: ora.Ora;
    if (!silent) {
-      spinner = ora({ text: 'Waiting for database...', spinner: 'noise' });
+      spinner = ora({ text: "Waiting for database...", spinner: "noise" });
    }
    let resolvePromise: (v?: void | PromiseLike<void>) => void = null;
    const promise = new Promise<void>(r => (resolvePromise = r));
 
    const timeout = setTimeout(async () => {
       await waitForDatabase(true);
-      spinner?.succeed('Database running!');
+      spinner?.succeed("Database running!");
       resolvePromise();
    }, 300);
 
@@ -42,11 +42,11 @@ export async function waitForDatabase(silent: boolean = false): Promise<void> {
       .toList()
       .then(() => {
          clearTimeout(timeout);
-         spinner?.succeed('Database running!');
+         spinner?.succeed("Database running!");
          resolvePromise();
       })
       .catch(error => {
-         spinner?.fail('Database error');
+         spinner?.fail("Database error");
          console.log(error);
       });
 
@@ -73,14 +73,14 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
    } catch (error) {
       try {
          if (REPORT_DATABASE_RETRYING) {
-            consoleLog('Database retrying');
+            consoleLog("Database retrying");
          }
          // Try again without waiting, maybe a simple retry is enough
          result = await query();
       } catch (error) {
          try {
             if (REPORT_DATABASE_RETRYING) {
-               consoleLog('Database retrying');
+               consoleLog("Database retrying");
             }
             // Try again repeatedly waiting more time on each retry
             result = await retryPromise(query, MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);

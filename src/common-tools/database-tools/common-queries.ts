@@ -1,6 +1,6 @@
-import { serializeAllValuesIfNeeded } from './data-conversion-tools';
-import { __, g, P } from './database-manager';
-import { GremlinValueType, Traversal } from './gremlin-typing-tools';
+import { serializeAllValuesIfNeeded } from "./data-conversion-tools";
+import { __, g, P } from "./database-manager";
+import { GremlinValueType, Traversal } from "./gremlin-typing-tools";
 
 export function valueMap(traversal: Traversal): Traversal {
    return traversal.valueMap().by(__.unfold());
@@ -41,19 +41,19 @@ export function queryToCreateVerticesFromObjects<T>(
    } else {
       return currentTraversal
          .inject([])
-         .as('nothing')
+         .as("nothing")
          .inject(objectsReadyForDB)
          .unfold()
          .map(
-            __.as('data')
+            __.as("data")
                .select(duplicationAvoidanceProperty)
-               .as('dap')
-               .select('data')
+               .as("dap")
+               .select("data")
                .choose(
                   __.V()
                      .hasLabel(verticesLabel)
-                     .has(duplicationAvoidanceProperty, __.where(P.eq('dap'))),
-                  __.select('nothing'),
+                     .has(duplicationAvoidanceProperty, __.where(P.eq("dap"))),
+                  __.select("nothing"),
                   creationTraversal,
                ),
          )
