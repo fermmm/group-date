@@ -4,8 +4,7 @@ import * as appRoot from "app-root-path";
 import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { Slot } from "./components/groups-finder/tools/types";
-import { ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/user";
-import { Theme } from "./shared-tools/endpoints-interfaces/themes";
+import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
 import moment = require("moment");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

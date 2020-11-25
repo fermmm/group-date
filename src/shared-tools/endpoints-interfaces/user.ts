@@ -60,42 +60,9 @@ export interface ProfileStatusServerResponse {
    notShowedThemeQuestions: number[];
 }
 
-export interface QuestionResponseParams {
-   questionId: number;
-   answerId: number;
-   useAsFilter?: boolean;
-}
-
 export interface UserPostParams {
    token: string;
    props?: EditableUserProps;
-   questions?: QuestionResponseParams[];
-}
-
-export interface ThemesAsQuestion {
-   questionId: number;
-   text: string;
-   extraText?: string;
-   answers: QuestionAnswerData[];
-   incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
-}
-
-export interface QuestionAnswerData {
-   themeId: string;
-   text: string;
-   themeName: string;
-   extraText?: string;
-}
-
-export interface QuestionResponse {
-   questionId: number;
-   answerId: number;
-   useAsFilter?: boolean;
-   incompatibleAnswers: number[];
-}
-
-export interface QuestionInDatabase {
-   questionId: number;
 }
 
 export interface FileUploadResponse {

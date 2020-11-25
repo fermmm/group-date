@@ -16,8 +16,9 @@ import {
    ThemeCreateParams,
    ThemeGetParams,
    BasicThemeParams,
+   ThemesAsQuestion,
 } from "../../shared-tools/endpoints-interfaces/themes";
-import { ThemesAsQuestion, User } from "../../shared-tools/endpoints-interfaces/user";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { validateThemeProps } from "../../shared-tools/validators/themes";
 import { retrieveFullyRegisteredUser } from "../user/models";
 import { generateId } from "../../common-tools/string-tools/string-tools";

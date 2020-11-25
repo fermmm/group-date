@@ -31,4 +31,19 @@ export interface BasicThemeParams {
    themeIds: string[];
 }
 
+export interface ThemesAsQuestion {
+   questionId: number;
+   text: string;
+   extraText?: string;
+   answers: QuestionAnswerData[];
+   incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
+}
+
+export interface QuestionAnswerData {
+   themeId: string;
+   text: string;
+   themeName: string;
+   extraText?: string;
+}
+
 export type ThemeRelationShip = "subscribed" | "blocked";

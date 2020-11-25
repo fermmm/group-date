@@ -2,7 +2,7 @@ import "jest";
 import { firstBy } from "thenby";
 import { DeepPartial } from "ts-essentials";
 import { objectsContentIsEqual } from "../../common-tools/js-tools/js-tools";
-import { QuestionResponse, User } from "../../shared-tools/endpoints-interfaces/user";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
 
 /**
  * Checks if the users created contains the information that was passed to create them. Also checks that both

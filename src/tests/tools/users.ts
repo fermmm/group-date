@@ -3,14 +3,7 @@ import ora = require("ora");
 import { sendQuery } from "../../common-tools/database-tools/database-manager";
 import { setAttractionPost, userPost } from "../../components/user/models";
 import { queryToCreateUser } from "../../components/user/queries";
-import {
-   Attraction,
-   AttractionType,
-   Gender,
-   QuestionResponse,
-   QuestionResponseParams,
-   User,
-} from "../../shared-tools/endpoints-interfaces/user";
+import { Attraction, AttractionType, Gender, User } from "../../shared-tools/endpoints-interfaces/user";
 import { EditableUserProps } from "../../shared-tools/validators/user";
 import { chance } from "./generalTools";
 import { fakeCtx } from "./replacements";
@@ -166,9 +159,4 @@ function getGendersLikedByUser(user: User): Gender[] {
    }
 
    return result;
-}
-
-export interface UserResponses {
-   token: string;
-   responses: QuestionResponseParams[];
 }
