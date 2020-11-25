@@ -95,14 +95,20 @@ describe("Groups", () => {
       );
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
-      expect(group.dateIdeasVotes[fakeUsers[4].userId]).toContain(mainUser.userId);
-      expect(group.dateIdeasVotes[fakeUsers[4].userId]).toContain(mainUser2.userId);
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(
+         mainUser.userId,
+      );
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(
+         mainUser2.userId,
+      );
 
       // The idea 3 only by mainUser
-      expect(group.dateIdeasVotes[fakeUsers[3].userId]).toContain(mainUser.userId);
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[3].userId).votersUserId).toContain(
+         mainUser.userId,
+      );
 
       // There should be the correct amount of votes
-      expect(group.dateIdeasVotes[fakeUsers[3].userId]).toHaveLength(1);
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[3].userId).votersUserId).toHaveLength(1);
    });
 
    test("Voting day option works correctly and not cheating is allowed", async () => {

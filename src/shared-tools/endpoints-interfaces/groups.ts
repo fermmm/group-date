@@ -7,7 +7,7 @@ export interface Group {
    membersAmount: number;
    members: User[];
    chat: GroupChat;
-   dateIdeasVotes: Record<string, string[]>;
+   dateIdeasVotes: IdeaOption[];
    dayOptions: DayOption[];
    usersThatAccepted: string[];
    openForMoreUsers: boolean;
@@ -32,6 +32,11 @@ export interface DateIdea {
 
 export interface DayOption {
    date: number;
+   votersUserId: string[];
+}
+
+export interface IdeaOption {
+   ideaOfUser: string;
    votersUserId: string[];
 }
 

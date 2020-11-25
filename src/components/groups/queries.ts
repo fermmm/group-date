@@ -195,7 +195,7 @@ export function queryToGetGroupsToSendReminder(
  * Also optionally includes the members list and date ideas.
  *
  * To experiment with this query:
- * https://gremlify.com/bqey3ricohp
+ * https://gremlify.com/v333jvq76gr
  *
  * @param traversal A traversal that has one or more groups.
  * @param details Include or not the full group details default = true
@@ -213,7 +213,15 @@ export function queryToGetGroupsInFinalFormat(
 
          // Add the details about the usersIds that received a vote to their date idea and who voted
          __.project("dateIdeasVotes").by(
-            __.inE("dateIdeaVote").group().by("ideaOfUser").by(__.outV().values("userId").fold()),
+            __.inE("dateIdeaVote")
+               .group()
+               .by("ideaOfUser")
+               .by(__.outV().values("userId").fold())
+               .unfold()
+               .project("ideaOfUser", "votersUserId")
+               .by(__.select(column.keys))
+               .by(__.select(column.values))
+               .fold(),
          ),
 
          // Add the matches relationships
