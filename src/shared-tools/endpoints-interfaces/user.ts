@@ -31,7 +31,7 @@ export interface User {
    likesWomanTrans: boolean;
    likesManTrans: boolean;
    likesOtherGenders: boolean;
-   pictures: string[];
+   images: string[];
    height?: number;
    dateIdea: string;
    profileDescription: string;

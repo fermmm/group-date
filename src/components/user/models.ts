@@ -284,7 +284,7 @@ const imageSaver = koaBody({
 });
 
 export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
-   // Only valid users can upload pictures
+   // Only valid users can upload images
    const user: Partial<User> = await retrieveUser(ctx.request.query.token, false, ctx);
    if (user == null) {
       return;

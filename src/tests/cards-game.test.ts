@@ -49,7 +49,7 @@ describe("Cards game", () => {
          targetAgeMin: 20,
          targetAgeMax: 38,
          targetDistance: 30,
-         pictures: ["http://test.com/image.jpg"],
+         images: ["http://test.com/image.jpg"],
          dateIdea: "holis.",
          likesWomanTrans: false,
          likesManTrans: false,

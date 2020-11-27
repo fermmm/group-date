@@ -59,7 +59,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       targetAgeMin: chance.integer({ min: 18, max: 20 }),
       targetAgeMax: chance.integer({ min: 30, max: 55 }),
       targetDistance: chance.integer({ min: 25, max: 150 }),
-      pictures: [
+      images: [
          "https://data.whicdn.com/images/75413003/large.jpg",
          "https://i.pinimg.com/originals/f9/dc/16/f9dc1608b6b94b29ed9070ac54b9e3b8.jpg",
       ],

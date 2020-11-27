@@ -55,7 +55,7 @@ export function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinVa
    }
 
    const result = fromGremlinMapToObject<User>(userFromDatabase, [
-      "pictures",
+      "images",
       "notifications",
       "questionsShowed",
    ]);
