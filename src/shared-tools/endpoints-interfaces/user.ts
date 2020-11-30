@@ -110,5 +110,22 @@ export enum NotificationType {
    About,
 }
 
+export type UserPropsAsQuestionsTypes = boolean | Gender;
+
+export interface UserPropAsQuestion<T> {
+   text: string;
+   answers: Array<UserPropAsQuestionAnswer<T>>;
+   propName?: keyof User;
+   multipleAnswersAllowed?: boolean;
+   shortVersion?: string;
+}
+
+export interface UserPropAsQuestionAnswer<T> {
+   propName?: keyof User;
+   text: string;
+   shortVersion?: string;
+   value: T;
+}
+
 export const allAttractionTypes: AttractionType[] = Object.values(AttractionType);
 export const allMatchTypes: MatchType[] = Object.values(MatchType);

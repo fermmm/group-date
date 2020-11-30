@@ -1,10 +1,15 @@
+import * as appRoot from "app-root-path";
 import { I18n } from "i18n";
 import * as path from "path";
-import * as appRoot from "app-root-path";
-import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
+import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./components/groups-finder/tools/types";
 import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
+import {
+   Gender,
+   UserPropAsQuestion,
+   UserPropsAsQuestionsTypes,
+} from "./shared-tools/endpoints-interfaces/user";
 import moment = require("moment");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +294,94 @@ export const APP_AUTHORED_THEMES_AS_QUESTIONS: ThemesAsQuestion[] = [feminismQue
 export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, politicsRightTheme];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////  NOTIFICATIONS  /////////////////////////////////////////////////
+/////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const genderQuestion: UserPropAsQuestion<Gender> = {
+   propName: "gender",
+   text: "What is your gender?",
+   shortVersion: "Gender",
+   answers: [
+      {
+         text: "Woman",
+         value: Gender.Woman,
+      },
+      {
+         text: "Man",
+         value: Gender.Man,
+      },
+      {
+         text: "Trans woman",
+         value: Gender.TransgenderWoman,
+      },
+      {
+         text: "Trans man",
+         value: Gender.TransgenderMan,
+      },
+      {
+         text: "Other / Non binary",
+         value: Gender.Other,
+      },
+   ],
+};
+
+const genderLikeQuestion: UserPropAsQuestion<boolean> = {
+   text: "What genders are you attracted to?",
+   shortVersion: "Attracted to",
+   multipleAnswersAllowed: true,
+   answers: [
+      {
+         text: "Women",
+         propName: "likesWoman",
+         value: true,
+      },
+      {
+         text: "Men",
+         propName: "likesMan",
+         value: true,
+      },
+      {
+         text: "Trans women",
+         propName: "likesWomanTrans",
+         value: true,
+      },
+      {
+         text: "Trans men",
+         propName: "likesManTrans",
+         value: true,
+      },
+      {
+         text: "Others / Non binary",
+         propName: "likesOtherGenders",
+         value: true,
+      },
+   ],
+};
+
+const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
+   propName: "isCoupleProfile",
+   text: "If you go to a group date from this app, do you plan to go with someone?",
+   shortVersion: "Would go on the date with",
+   answers: [
+      {
+         text: "Just me",
+         value: false,
+      },
+      {
+         text: "With my couple",
+         value: true,
+      },
+   ],
+};
+
+export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion<UserPropsAsQuestionsTypes>> = [
+   genderQuestion,
+   genderLikeQuestion,
+   isCoupleProfileQuestion,
+];
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////  NOTIFICATIONS  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**

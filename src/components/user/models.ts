@@ -20,6 +20,8 @@ import {
    SetAttractionParams,
    User,
    UserPostParams,
+   UserPropAsQuestion,
+   UserPropsAsQuestionsTypes,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
    editableUserPropsList,
@@ -47,6 +49,7 @@ import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools
 import { queryToGetUserByTokenOrId } from "./queries";
 import { TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../themes/models";
+import { USER_PROPS_AS_QUESTIONS } from "../../configurations";
 
 export async function initializeUsers(): Promise<void> {
    createFolderOnRoot("uploads");
@@ -146,6 +149,20 @@ function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[]
    });
 
    return result;
+}
+
+export function userPropsAsQuestionsGet(
+   ctx: BaseContext,
+): Array<UserPropAsQuestion<UserPropsAsQuestionsTypes>> {
+   return USER_PROPS_AS_QUESTIONS.map(question => ({
+      ...question,
+      text: t(question.text, { ctx }),
+      shortVersion: t(question.shortVersion, { ctx }),
+      answers: question.answers.map(answer => ({
+         ...answer,
+         text: t(answer.text, { ctx }),
+      })),
+   }));
 }
 
 /**
