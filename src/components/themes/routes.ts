@@ -12,8 +12,8 @@ import {
 } from "./models";
 
 export function themesRoutes(router: Router): void {
-   router.get("/themes", async ctx => (ctx.body = await themesGet(ctx.request.body, ctx)));
-   router.get("/themes/created", async ctx => (ctx.body = await themesCreatedByUserGet(ctx.request.body)));
+   router.get("/themes", async ctx => (ctx.body = await themesGet(ctx.request.query, ctx)));
+   router.get("/themes/created", async ctx => (ctx.body = await themesCreatedByUserGet(ctx.request.query)));
    router.get("/themes/questions", async ctx => (ctx.body = appAuthoredThemesAsQuestionsGet(ctx)));
    router.post("/themes/create", async ctx => (ctx.body = await createThemePost(ctx.request.body, ctx)));
    router.post("/themes/subscribe", async ctx => (ctx.body = await subscribeToThemePost(ctx.request.body)));

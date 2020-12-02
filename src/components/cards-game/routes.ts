@@ -4,14 +4,14 @@ import { dislikedUsersGet, recommendationsFromThemeGet, recommendationsGet } fro
 export function cardsGameRoutes(router: Router): void {
    router.get(
       "/cards-game/recommendations",
-      async ctx => (ctx.body = await recommendationsGet(ctx.request.body, ctx)),
+      async ctx => (ctx.body = await recommendationsGet(ctx.request.query, ctx)),
    );
    router.get(
       "/cards-game/disliked-users",
-      async ctx => (ctx.body = await dislikedUsersGet(ctx.request.body, ctx)),
+      async ctx => (ctx.body = await dislikedUsersGet(ctx.request.query, ctx)),
    );
    router.get(
       "/cards-game/from-theme",
-      async ctx => (ctx.body = await recommendationsFromThemeGet(ctx.request.body, ctx)),
+      async ctx => (ctx.body = await recommendationsFromThemeGet(ctx.request.query, ctx)),
    );
 }

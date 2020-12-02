@@ -10,9 +10,9 @@ import {
 } from "./models";
 
 export function userRoutes(router: Router): void {
-   router.get("/user", async ctx => (ctx.body = await userGet(ctx.request.body, ctx)));
+   router.get("/user", async ctx => (ctx.body = await userGet(ctx.request.query, ctx)));
    router.post("/user", async ctx => (ctx.body = await userPost(ctx.request.body, ctx)));
-   router.get("/user/profile-status", async ctx => (ctx.body = await profileStatusGet(ctx.request.body, ctx)));
+   router.get("/user/profile-status", async ctx => (ctx.body = await profileStatusGet(ctx.request.query, ctx)));
    router.get("/user/props-as-questions", async ctx => (ctx.body = userPropsAsQuestionsGet(ctx)));
    router.post(
       "/user/set-attraction",
