@@ -66,6 +66,7 @@ export async function initializeUsers(): Promise<void> {
  * 5. If not, it means we are dealing with a new user, so it creates it with the email and token and returns it
  *
  * @param token Token from the Facebook login in the client application
+ * @param includeFullInfo Includes themes data
  */
 export async function retrieveUser(
    token: string,

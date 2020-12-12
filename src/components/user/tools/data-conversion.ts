@@ -8,7 +8,7 @@ import { queryToIncludeFullInfoInUserQuery } from "../queries";
 
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
- * @param includeFullInfo Includes questions and themes data
+ * @param includeFullInfo Includes themes data
  */
 export async function fromQueryToUser(queryOfUser: Traversal, includeFullInfo: boolean): Promise<User> {
    if (includeFullInfo) {

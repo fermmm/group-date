@@ -243,8 +243,6 @@ export function queryToIncludeFullInfoInUserQuery(traversal: Traversal): Travers
       __.union(
          // Include all user props
          __.valueMap().by(__.unfold()),
-         // Include questions array
-         __.project("questions").by(__.outE("response").valueMap().by(__.unfold()).fold()),
          // Include themes subscribed
          __.project("themesSubscribed").by(
             __.out("subscribed").valueMap("themeId", "name").by(__.unfold()).fold(),
