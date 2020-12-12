@@ -18,7 +18,6 @@
       "test:watch": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --watch --runInBand",
       "prettier": "prettier --write \"src/**/*.ts\"",
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
-      "lint": "tslint \"src/**/*.ts\"",
       "install-visualizer": "git submodule init && git submodule update && cd gremlin-visualizer && npm install",
       "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm start"
    },
@@ -90,8 +89,7 @@
    },
    "husky": {
       "hooks": {
-         "pre-commit": "npm run prettier-differences",
-         "pre-push": "npm run lint"
+         "pre-commit": "npm run prettier-differences"
       }
    }
 }
