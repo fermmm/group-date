@@ -120,6 +120,7 @@ export async function profileStatusGet(
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
       notShowedThemeQuestions: getNotShowedQuestionIds(user),
+      user,
    };
 
    await queryToUpdateUserProps(user.token, [
@@ -137,7 +138,7 @@ export async function profileStatusGet(
       },
    ]);
 
-   return Promise.resolve(result);
+   return result;
 }
 
 function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[] {

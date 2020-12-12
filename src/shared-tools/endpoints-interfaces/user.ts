@@ -58,6 +58,7 @@ export enum Gender {
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: EditableUserPropKey[];
    notShowedThemeQuestions: number[];
+   user: Partial<User>;
 }
 
 export interface UserPostParams {
