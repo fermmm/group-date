@@ -1,7 +1,6 @@
 import * as Validator from "fastest-validator";
 import { ValidationRule } from "fastest-validator";
-import { Theme } from "../../shared-tools/endpoints-interfaces/themes";
-import { GremlinValueType } from "../database-tools/gremlin-typing-tools";
+import { Theme } from "../endpoints-interfaces/themes";
 
 // fastest-validator TS fix
 const v = new ((Validator as unknown) as typeof Validator.default)();
@@ -31,9 +30,6 @@ const test: keyof Theme = "a" as EditableThemePropKey;
 
 // The editable props
 export type EditableThemePropKey = keyof typeof EDITABLE_THEME_PROPS_SCHEMA;
-
-// The theme object but only with the editable props
-export type EditableThemeProps = Partial<Record<EditableThemePropKey, GremlinValueType>>;
 
 // The editable props as string list
 export const editableUserPropsList: EditableThemePropKey[] = Object.keys(

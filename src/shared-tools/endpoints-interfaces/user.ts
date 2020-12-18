@@ -1,4 +1,4 @@
-import { EditableUserPropKey, EditableUserProps } from "../../common-tools/validators/user";
+import { EditableUserPropKey, EditableUserProps } from "../validators/user";
 import { ThemeBasicInfo } from "./themes";
 import { ValueOf } from "ts-essentials";
 

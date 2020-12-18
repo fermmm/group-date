@@ -1,7 +1,6 @@
 import * as Validator from "fastest-validator";
 import { ValidationRule } from "fastest-validator";
-import { Gender, UserPropsValueTypes, User } from "../../shared-tools/endpoints-interfaces/user";
-import { APP_AUTHORED_THEMES_AS_QUESTIONS } from "../../configurations";
+import { Gender, UserPropsValueTypes, User } from "../endpoints-interfaces/user";
 
 // fastest-validator TS fix
 const v = new ((Validator as unknown) as typeof Validator.default)();
@@ -33,15 +32,7 @@ const EDITABLE_USER_PROPS_SCHEMA = {
    gender: { type: "enum", values: Object.values(Gender), optional: true } as V,
    height: { type: "number", min: 100, max: 300, optional: true } as V,
    sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true } as V,
-   questionsShowed: {
-      type: "array",
-      items: {
-         type: "number",
-         enum: APP_AUTHORED_THEMES_AS_QUESTIONS.map(q => q.questionId),
-      },
-      max: APP_AUTHORED_THEMES_AS_QUESTIONS.length,
-      optional: true,
-   } as V,
+   questionsShowed: { type: "array", items: { type: "number" }, max: 20, optional: true } as V,
 };
 
 // Export the same object casted with more type information
