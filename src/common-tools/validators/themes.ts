@@ -1,7 +1,7 @@
 import * as Validator from "fastest-validator";
 import { ValidationRule } from "fastest-validator";
-import { Theme } from "../endpoints-interfaces/themes";
-import { GremlinValueType } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { Theme } from "../../shared-tools/endpoints-interfaces/themes";
+import { GremlinValueType } from "../database-tools/gremlin-typing-tools";
 
 // fastest-validator TS fix
 const v = new ((Validator as unknown) as typeof Validator.default)();

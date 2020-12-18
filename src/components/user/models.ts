@@ -27,7 +27,7 @@ import {
    editableUserPropsList,
    EditableUserPropKey,
    validateUserProps,
-} from "../../shared-tools/validators/user";
+} from "../../common-tools/validators/user";
 import {
    queryToCreateUser,
    queryToGetAttractionsReceived,

@@ -1,6 +1,6 @@
 import * as Validator from "fastest-validator";
 import { ValidationRule } from "fastest-validator";
-import { Gender, UserPropsValueTypes, User } from "../endpoints-interfaces/user";
+import { Gender, UserPropsValueTypes, User } from "../../shared-tools/endpoints-interfaces/user";
 import { APP_AUTHORED_THEMES_AS_QUESTIONS } from "../../configurations";
 
 // fastest-validator TS fix
