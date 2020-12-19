@@ -19,7 +19,7 @@ export function userRoutes(router: Router): void {
       async ctx => (ctx.body = await setAttractionPost(ctx.request.body, ctx)),
    );
    router.post(
-      "/user/upload-picture",
+      "/user/upload-image",
       onFileReceived,
       async ctx => (ctx.body = await onFileSaved(ctx.request.files.image, ctx)),
    );
