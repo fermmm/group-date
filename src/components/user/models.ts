@@ -49,7 +49,7 @@ import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools
 import { queryToGetUserByTokenOrId } from "./queries";
 import { TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../themes/models";
-import { USER_PROPS_AS_QUESTIONS } from "../../configurations";
+import { MAX_FILE_SIZE_UPLOAD_ALLOWED, USER_PROPS_AS_QUESTIONS } from "../../configurations";
 
 export async function initializeUsers(): Promise<void> {
    createFolderOnRoot("uploads");
@@ -295,7 +295,7 @@ const imageSaver = koaBody({
    formidable: {
       uploadDir: path.join(appRoot.path, "/uploads/"),
       keepExtensions: true,
-      maxFileSize: 0.3 * 1024 * 1024,
+      maxFileSize: MAX_FILE_SIZE_UPLOAD_ALLOWED,
    },
    onError: (error, ctx) => {
       ctx.throw(400, error);
