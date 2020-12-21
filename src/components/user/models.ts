@@ -49,7 +49,12 @@ import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools
 import { queryToGetUserByTokenOrId } from "./queries";
 import { TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../themes/models";
-import { MAX_FILE_SIZE_UPLOAD_ALLOWED, USER_PROPS_AS_QUESTIONS } from "../../configurations";
+import {
+   BIG_IMAGE_SIZE,
+   MAX_FILE_SIZE_UPLOAD_ALLOWED,
+   SMALL_IMAGE_SIZE,
+   USER_PROPS_AS_QUESTIONS,
+} from "../../configurations";
 
 export async function initializeUsers(): Promise<void> {
    createFolderOnRoot("uploads");
@@ -347,15 +352,22 @@ export async function onFileSaved(file: File | undefined, ctx: BaseContext): Pro
    }
 
    /**
-    * Resize image to an optimal format and create a small version to use as profile picture
+    * Resize image to an optimal format.
+    * "sharp.fit.outside" setting resizes the image preserving aspect ratio until width or height
+    * is equal the the numbers provided.
     */
    await sharp(file.path)
-      .resize(512, 512, { fit: sharp.fit.inside })
+      .resize(BIG_IMAGE_SIZE, BIG_IMAGE_SIZE, { fit: sharp.fit.outside })
       .jpeg()
       .toFile(`${folderPath}/${fileNameBig}`);
 
+   /**
+    * Resize a copy of the image to create a small version to use as profile picture
+    * "sharp.fit.outside" setting resizes the image preserving aspect ratio until width or height
+    * is equal the the numbers provided.
+    */
    await sharp(file.path)
-      .resize(64, 64, { fit: sharp.fit.inside })
+      .resize(SMALL_IMAGE_SIZE, SMALL_IMAGE_SIZE, { fit: sharp.fit.outside })
       .jpeg()
       .toFile(`${folderPath}/${fileNameSmall}`);
 
