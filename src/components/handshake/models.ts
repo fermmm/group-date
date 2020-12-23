@@ -18,6 +18,7 @@ export function handshakeGet(params: HandshakeParams, ctx: BaseContext): ServerH
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
       versionIsCompatible: versionIsCompatible(params.version, process.env.MINIMUM_CLIENT_VERSION_ALLOWED),
       locale: getLocaleFromHeader(ctx),
+      imagesHost: process.env.IMAGES_HOST,
       serverConfigurations: {
          maxSimultaneousGroups: GROUP_SLOTS_CONFIGS.reduce((prev, curr) => prev + curr.amount, 0),
          minGroupSize: MIN_GROUP_SIZE,

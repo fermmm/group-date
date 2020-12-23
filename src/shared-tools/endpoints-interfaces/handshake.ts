@@ -7,6 +7,7 @@ export interface ServerHandshakeResponse {
    serverOperating: boolean;
    serverMessage?: string;
    locale: string;
+   imagesHost: string;
    serverConfigurations: {
       maxSimultaneousGroups: number;
       minGroupSize: number;
