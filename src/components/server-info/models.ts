@@ -9,10 +9,10 @@ import {
    THEMES_PER_TIME_FRAME,
    THEME_CREATION_TIME_FRAME,
 } from "../../configurations";
-import { HandshakeParams, ServerHandshakeResponse } from "../../shared-tools/endpoints-interfaces/handshake";
+import { ServerInfoParams, ServerInfoResponse } from "../../shared-tools/endpoints-interfaces/server-info";
 import { getLocaleFromHeader } from "../../common-tools/i18n-tools/i18n-tools";
 
-export function handshakeGet(params: HandshakeParams, ctx: BaseContext): ServerHandshakeResponse {
+export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): ServerInfoResponse {
    return {
       serverOperating: Boolean(process.env.SERVER_OPERATING),
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,

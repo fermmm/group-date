@@ -1,8 +1,8 @@
-export interface HandshakeParams {
+export interface ServerInfoParams {
    version: string;
 }
 
-export interface ServerHandshakeResponse {
+export interface ServerInfoResponse {
    versionIsCompatible: boolean;
    serverOperating: boolean;
    serverMessage?: string;

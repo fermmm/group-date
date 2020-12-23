@@ -15,7 +15,7 @@ import { cardsGameRoutes } from "./components/cards-game/routes";
 import { initializeGroupsFinder } from "./components/groups-finder/models";
 import { initializeGroups } from "./components/groups/models";
 import { groupsRoutes } from "./components/groups/routes";
-import { handshakeRoutes } from "./components/handshake/routes";
+import { serverInfoRoutes } from "./components/server-info/routes";
 import { testingRoutes } from "./components/testing/routes";
 import { initializeThemes } from "./components/themes/models";
 import { themesRoutes } from "./components/themes/routes";
@@ -50,7 +50,7 @@ import { userRoutes } from "./components/user/routes";
    await initializeThemes();
 
    // Routes:
-   handshakeRoutes(router);
+   serverInfoRoutes(router);
    userRoutes(router);
    cardsGameRoutes(router);
    groupsRoutes(router);
