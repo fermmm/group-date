@@ -429,7 +429,7 @@ export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
 
 // Image manipulation before saving:
-export const MAX_FILE_SIZE_UPLOAD_ALLOWED = 2 * 1024 * 1024; /// 1024 * 1024 converts mb to byte
+export const MAX_FILE_SIZE_UPLOAD_ALLOWED = 0.2 * 1024 * 1024; /// 1024 * 1024 converts mb to byte
 export const BIG_IMAGE_SIZE = 512;
 export const SMALL_IMAGE_SIZE = 64;
 
