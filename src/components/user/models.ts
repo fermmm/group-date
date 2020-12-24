@@ -158,9 +158,7 @@ function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[]
    return result;
 }
 
-export function userPropsAsQuestionsGet(
-   ctx: BaseContext,
-): Array<UserPropAsQuestion<UserPropsAsQuestionsTypes>> {
+export function userPropsAsQuestionsGet(ctx: BaseContext): Array<UserPropAsQuestion> {
    return USER_PROPS_AS_QUESTIONS.map(question => ({
       ...question,
       text: t(question.text, { ctx }),

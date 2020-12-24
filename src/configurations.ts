@@ -374,7 +374,7 @@ const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
    ],
 };
 
-export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion<UserPropsAsQuestionsTypes>> = [
+export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [
    genderQuestion,
    genderLikeQuestion,
    isCoupleProfileQuestion,
