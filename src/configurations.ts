@@ -298,29 +298,32 @@ export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, po
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const genderQuestion: UserPropAsQuestion<Gender> = {
-   propName: "gender",
    text: "What is your gender?",
    shortVersion: "Gender",
-   questionId: 0,
    answers: [
       {
          text: "Woman",
+         propName: "gender",
          value: Gender.Woman,
       },
       {
          text: "Man",
+         propName: "gender",
          value: Gender.Man,
       },
       {
          text: "Trans woman",
+         propName: "gender",
          value: Gender.TransgenderWoman,
       },
       {
          text: "Trans man",
+         propName: "gender",
          value: Gender.TransgenderMan,
       },
       {
          text: "Other / Non binary",
+         propName: "gender",
          value: Gender.Other,
       },
    ],
@@ -330,7 +333,6 @@ const genderLikeQuestion: UserPropAsQuestion<boolean> = {
    text: "What genders are you attracted to?",
    shortVersion: "Attracted to",
    multipleAnswersAllowed: true,
-   questionId: 1,
    answers: [
       {
          text: "Women",
@@ -361,17 +363,17 @@ const genderLikeQuestion: UserPropAsQuestion<boolean> = {
 };
 
 const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
-   propName: "isCoupleProfile",
    text: "If you go to a group date from this app, do you plan to go with someone?",
    shortVersion: "Would go on the date with",
-   questionId: 2,
    answers: [
       {
          text: "Just me",
+         propName: "isCoupleProfile",
          value: false,
       },
       {
          text: "With my couple",
+         propName: "isCoupleProfile",
          value: true,
       },
    ],

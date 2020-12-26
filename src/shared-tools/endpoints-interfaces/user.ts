@@ -116,14 +116,12 @@ export type UserPropsAsQuestionsTypes = boolean | Gender;
 export interface UserPropAsQuestion<T = UserPropsAsQuestionsTypes> {
    text: string;
    answers: Array<UserPropAsQuestionAnswer<T>>;
-   questionId: number;
-   propName?: keyof User;
    multipleAnswersAllowed?: boolean;
    shortVersion?: string;
 }
 
 export interface UserPropAsQuestionAnswer<T = UserPropsAsQuestionsTypes> {
-   propName?: keyof User;
+   propName: keyof User;
    text: string;
    shortVersion?: string;
    value: T;
