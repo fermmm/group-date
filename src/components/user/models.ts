@@ -159,6 +159,7 @@ function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[]
 }
 
 export function userPropsAsQuestionsGet(ctx: BaseContext): UserPropAsQuestion[] {
+   // This just returns USER_PROPS_AS_QUESTIONS in the correct language:
    return USER_PROPS_AS_QUESTIONS.map(question => ({
       ...question,
       text: t(question.text, { ctx }),

@@ -301,6 +301,7 @@ const genderQuestion: UserPropAsQuestion<Gender> = {
    propName: "gender",
    text: "What is your gender?",
    shortVersion: "Gender",
+   questionId: 0,
    answers: [
       {
          text: "Woman",
@@ -329,6 +330,7 @@ const genderLikeQuestion: UserPropAsQuestion<boolean> = {
    text: "What genders are you attracted to?",
    shortVersion: "Attracted to",
    multipleAnswersAllowed: true,
+   questionId: 1,
    answers: [
       {
          text: "Women",
@@ -362,6 +364,7 @@ const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
    propName: "isCoupleProfile",
    text: "If you go to a group date from this app, do you plan to go with someone?",
    shortVersion: "Would go on the date with",
+   questionId: 2,
    answers: [
       {
          text: "Just me",
@@ -374,6 +377,7 @@ const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
    ],
 };
 
+// When adding a new question make sure it has a unique questionId number
 export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [
    genderQuestion,
    genderLikeQuestion,
