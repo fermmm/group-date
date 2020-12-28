@@ -40,7 +40,7 @@ export interface User {
    sendNewUsersNotification: number;
    lastGroupJoinedDate: number;
    notifications: Notification[];
-   questionsShowed: number[];
+   questionsShowed: string[];
    themesSubscribed?: ThemeBasicInfo[];
    themesBlocked?: ThemeBasicInfo[];
 }
@@ -57,7 +57,7 @@ export enum Gender {
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: EditableUserPropKey[];
-   notShowedThemeQuestions: number[];
+   notShowedThemeQuestions: string[];
    user: Partial<User>;
 }
 

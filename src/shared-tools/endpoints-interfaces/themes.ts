@@ -32,7 +32,7 @@ export interface BasicThemeParams {
 }
 
 export interface ThemesAsQuestion {
-   questionId: number;
+   questionId: string;
    text: string;
    extraText?: string;
    answers: QuestionAnswerData[];

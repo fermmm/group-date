@@ -244,7 +244,7 @@ const politicsRightTheme: Partial<Theme> = {
  * The themeId can be any string but all should be different for each theme here.
  */
 const feminismQuestion: ThemesAsQuestion = {
-   questionId: 0,
+   questionId: "taq-0",
    text: "Do you agree with feminism in general?",
    answers: [
       {
@@ -265,7 +265,7 @@ const feminismQuestion: ThemesAsQuestion = {
 };
 
 const groupSexQuestion: ThemesAsQuestion = {
-   questionId: 1,
+   questionId: "taq-1",
    text: "Are group sex situations one of your motivations to use the app?",
    answers: [
       {

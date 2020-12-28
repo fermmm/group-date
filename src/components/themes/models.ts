@@ -215,8 +215,8 @@ export async function removeAllThemesCreatedBy(users: User[]): Promise<void> {
    await queryToRemoveThemes(result.map(theme => theme.themeId)).iterate();
 }
 
-export function getNotShowedQuestionIds(user: Partial<User>): number[] {
-   const result: number[] = [];
+export function getNotShowedQuestionIds(user: Partial<User>): string[] {
+   const result: string[] = [];
 
    APP_AUTHORED_THEMES_AS_QUESTIONS.forEach(themeQ => {
       const foundInUser = user.questionsShowed?.find(q => q === themeQ.questionId);
