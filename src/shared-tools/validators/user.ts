@@ -30,7 +30,7 @@ const EDITABLE_USER_PROPS_SCHEMA = {
    likesManTrans: { type: "boolean", optional: true } as V,
    likesOtherGenders: { type: "boolean", optional: true } as V,
    gender: { type: "enum", values: Object.values(Gender), optional: true } as V,
-   height: { type: "number", min: 100, max: 300, optional: true } as V,
+   height: { type: "number", min: 0, max: 300, optional: true } as V,
    sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true } as V,
    questionsShowed: { type: "array", items: { type: "string", min: 1, max: 20 }, max: 50, optional: true } as V,
 };
