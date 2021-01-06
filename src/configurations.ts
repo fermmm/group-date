@@ -280,8 +280,8 @@ const groupSexQuestion: ThemesAsQuestion = {
       },
       {
          themeId: "q01-a02",
-         text: "I'm not very interested on that",
-         themeName: "Group sex: I'm not very interested",
+         text: "No",
+         themeName: "Group sex: Not interested",
       },
    ],
    incompatibilitiesBetweenAnswers: {
