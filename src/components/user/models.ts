@@ -128,20 +128,30 @@ export async function profileStatusGet(
       user,
    };
 
+   const profileCompleted: boolean =
+      result.missingEditableUserProps.length === 0 && result.notShowedThemeQuestions.length === 0;
+   const lastLoginDate = moment().unix();
+   const language = getLocaleFromHeader(ctx);
+
    await queryToUpdateUserProps(user.token, [
       {
          key: "profileCompleted",
-         value: result.missingEditableUserProps.length === 0 && result.notShowedThemeQuestions.length === 0,
+         value: profileCompleted,
       },
       {
          key: "lastLoginDate",
-         value: moment().unix(),
+         value: lastLoginDate,
       },
       {
          key: "language",
-         value: getLocaleFromHeader(ctx),
+         value: language,
       },
    ]);
+
+   // The returned user object should be up to date:
+   result.user.profileCompleted = profileCompleted;
+   result.user.lastLoginDate = lastLoginDate;
+   result.user.language = language;
 
    return result;
 }
