@@ -19,7 +19,7 @@ const EDITABLE_USER_PROPS_SCHEMA = {
    targetAgeMin: { type: "number", min: 18, max: 120, optional: true } as V,
    targetAgeMax: { type: "number", min: 18, max: 120, optional: true } as V,
    targetDistance: { type: "number", min: 25, max: 150, optional: true } as V,
-   images: { type: "array", items: "string", min: 1, max: 6, optional: true } as V,
+   images: { type: "array", items: { type: "string", min: 1, max: 300 }, min: 1, max: 6, optional: true } as V,
    dateIdea: { type: "string", min: 3, max: 300, optional: true } as V,
    profileDescription: { type: "string", max: 4000, optional: true } as V,
    locationLat: { type: "number", optional: true } as V,
