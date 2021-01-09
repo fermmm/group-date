@@ -1,3 +1,4 @@
+import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import * as moment from "moment";
 import ora = require("ora");
 import { sendQuery } from "../../common-tools/database-tools/database-manager";
@@ -55,7 +56,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       token: generateId(),
       userId: generateId(),
       email: chance.email(),
-      age: chance.integer({ min: 18, max: 55 }),
+      birthDate: chance.integer({ max: fromAgeToBirthDate(18), min: fromAgeToBirthDate(55) }),
       targetAgeMin: chance.integer({ min: 18, max: 20 }),
       targetAgeMax: chance.integer({ min: 30, max: 55 }),
       targetDistance: chance.integer({ min: 25, max: 150 }),
@@ -114,10 +115,16 @@ export async function createFakeCompatibleUsers(
    amount: number,
    customProps?: Partial<User>,
 ): Promise<User[]> {
-   const compatibleProps = {
-      age: chance.integer({ min: user.targetAgeMin, max: user.targetAgeMax }),
+   const compatibleProps: Partial<User> = {
+      birthDate: chance.integer({
+         max: fromAgeToBirthDate(user.targetAgeMin),
+         min: fromAgeToBirthDate(user.targetAgeMax),
+      }),
       targetAgeMin: 18,
-      targetAgeMax: chance.integer({ min: user.age, max: user.age + 5 }),
+      targetAgeMax: chance.integer({
+         min: fromBirthDateToAge(user.birthDate),
+         max: fromBirthDateToAge(user.birthDate) + 5,
+      }),
       targetDistance: 25,
       locationLat: user.locationLat,
       locationLon: user.locationLon,

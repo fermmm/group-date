@@ -12,7 +12,7 @@ type V = ValidationRule;
  */
 const EDITABLE_USER_PROPS_SCHEMA = {
    name: { type: "string", min: 2, max: 32, optional: true } as V,
-   age: { type: "number", min: 18, max: 120, optional: true } as V,
+   birthDate: { type: "number", optional: true } as V,
    isCoupleProfile: { type: "boolean", optional: true } as V,
    cityName: { type: "string", min: 2, max: 32, optional: true } as V,
    country: { type: "string", min: 2, max: 32, optional: true } as V,

@@ -1,3 +1,4 @@
+import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import * as moment from "moment";
 import { __, order, P } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
@@ -148,13 +149,22 @@ export function queryToGetCardsRecommendations(
    /**
     * User likes the age
     */
-   traversal = traversal.not(__.has("age", P.outside(searcherUser.targetAgeMin, searcherUser.targetAgeMax)));
+   traversal = traversal.not(
+      __.has(
+         "birthDate",
+         P.outside(
+            fromAgeToBirthDate(searcherUser.targetAgeMax),
+            fromAgeToBirthDate(searcherUser.targetAgeMin),
+         ),
+      ),
+   );
 
    /**
     * Likes the age of the user
     */
-   traversal = traversal.not(__.has("targetAgeMin", P.gt(searcherUser.age)));
-   traversal = traversal.not(__.has("targetAgeMax", P.lt(searcherUser.age)));
+   const searcherUserAge = fromBirthDateToAge(searcherUser.birthDate);
+   traversal = traversal.not(__.has("targetAgeMin", P.gt(searcherUserAge)));
+   traversal = traversal.not(__.has("targetAgeMax", P.lt(searcherUserAge)));
 
    /**
     * Order the results

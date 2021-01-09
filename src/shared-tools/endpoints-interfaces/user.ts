@@ -21,7 +21,7 @@ export interface User {
    country: string;
    language: string;
    name: string;
-   age: number;
+   birthDate: number;
    gender: Gender;
    targetAgeMin: number;
    targetAgeMax: number;

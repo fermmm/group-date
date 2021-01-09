@@ -6,7 +6,6 @@ import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./components/groups-finder/tools/types";
 import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
 import { Gender, UserPropAsQuestion } from "./shared-tools/endpoints-interfaces/user";
-import moment = require("moment");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  GROUP FINDER  //////////////////////////////////////////////////

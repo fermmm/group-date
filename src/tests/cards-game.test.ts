@@ -1,3 +1,4 @@
+import { fromAgeToBirthDate } from "./../common-tools/math-tools/date-tools";
 import "jest";
 import {
    dislikedUsersGet,
@@ -42,7 +43,7 @@ describe("Cards game", () => {
          name: "searcherParams",
          profileDescription: "",
          gender: Gender.Man,
-         age: 32,
+         birthDate: fromAgeToBirthDate(32),
          height: 265,
          locationLat: -34.608404,
          locationLon: -58.387697,
@@ -66,7 +67,7 @@ describe("Cards game", () => {
          likesManTrans: false,
          likesWomanTrans: false,
          likesOtherGenders: false,
-         age: 30,
+         birthDate: fromAgeToBirthDate(30),
          targetAgeMin: 20,
          targetAgeMax: 40,
          targetDistance: 25,
@@ -114,14 +115,14 @@ describe("Cards game", () => {
          ...generateRandomUserProps(),
          ...compatibleParams,
          name: "ageIncompatibleParams",
-         age: 40,
+         birthDate: fromAgeToBirthDate(40),
       };
 
       const ageIncompatibleParams2: DeepPartial<User> = {
          ...generateRandomUserProps(),
          ...compatibleParams,
          name: "ageIncompatibleParams2",
-         age: 18,
+         birthDate: fromAgeToBirthDate(18),
       };
 
       const ageIncompatibleParams3: DeepPartial<User> = {
