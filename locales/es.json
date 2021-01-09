@@ -53,5 +53,10 @@
    "Men": "Varones",
    "Trans women": "Mujeres transexuales",
    "Trans men": "Varones transexuales",
-   "Others / Non binary": "Otrxs / No binarixs"
+   "Others / Non binary": "Otrxs / No binarixs",
+   "Is your goal in this app to meet new people physically?": "¿Tu objetivo en esta app es conocer nuevas personas físicamente?",
+   "Yes, physically": "Si, físicamente",
+   "No, something different, for example: Only watch, only chat, get followers, etc.": "No, otro objetivo, por ejemplo: Solo mirar, solo chatear, conseguir seguidores, promocionar, etc.",
+   "App usage intentions: Only watch, only chat, get followers, etc.": "Uso de la app: Solo mirar, solo chatear, conseguir seguidores, etc.",
+   "App usage intentions: Meet new people physically": "Uso de la app: Conocer nuevas personas físicamente"
 }

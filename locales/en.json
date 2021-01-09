@@ -71,5 +71,10 @@
    "Men": "Men",
    "Trans women": "Trans women",
    "Trans men": "Trans men",
-   "Others / Non binary": "Others / Non binary"
+   "Others / Non binary": "Others / Non binary",
+   "Is your goal in this app to meet new people physically?": "Is your goal in this app to meet new people physically?",
+   "Yes, physically": "Yes, physically",
+   "No, something different, for example: Only watch, only chat, get followers, etc.": "No, something different, for example: Only watch, only chat, get followers, etc.",
+   "App usage intentions: Only watch, only chat, get followers, etc.": "App usage intentions: Only watch, only chat, get followers, etc.",
+   "App usage intentions: Meet new people physically": "App usage intentions: Meet new people physically"
 }

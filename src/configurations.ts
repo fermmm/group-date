@@ -5,11 +5,7 @@ import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-
 import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./components/groups-finder/tools/types";
 import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
-import {
-   Gender,
-   UserPropAsQuestion,
-   UserPropsAsQuestionsTypes,
-} from "./shared-tools/endpoints-interfaces/user";
+import { Gender, UserPropAsQuestion } from "./shared-tools/endpoints-interfaces/user";
 import moment = require("moment");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,27 +266,48 @@ const groupSexQuestion: ThemesAsQuestion = {
    answers: [
       {
          themeId: "q01-a00",
-         text: "I don't know / No comments",
-         themeName: "Group sex: I don't know / No comments",
-      },
-      {
-         themeId: "q01-a01",
          text: "Yes / Could be",
          themeName: "Group sex: Yes / Could be",
       },
       {
-         themeId: "q01-a02",
-         text: "No",
+         themeId: "q01-a01",
+         text: "No / I don't know",
          themeName: "Group sex: Not interested",
       },
    ],
    incompatibilitiesBetweenAnswers: {
-      1: [0, 2],
+      1: [0],
       2: [1],
    },
 };
 
-export const APP_AUTHORED_THEMES_AS_QUESTIONS: ThemesAsQuestion[] = [feminismQuestion, groupSexQuestion];
+// This question may not be required because interest for group sex (the other question) includes the physical interaction intentions
+const meetPeopleQuestion: ThemesAsQuestion = {
+   questionId: "taq-2",
+   text: "Is your goal in this app to meet new people physically?",
+   answers: [
+      {
+         themeId: "q02-a01",
+         text: "Yes, physically",
+         themeName: "App usage intentions: Meet new people physically",
+      },
+      {
+         themeId: "q02-a00",
+         text: "No, something different, for example: Only watch, only chat, get followers, etc.",
+         themeName: "App usage intentions: Only watch, only chat, get followers, etc.",
+      },
+   ],
+   incompatibilitiesBetweenAnswers: {
+      0: [1],
+      1: [0],
+   },
+};
+
+export const APP_AUTHORED_THEMES_AS_QUESTIONS: ThemesAsQuestion[] = [
+   feminismQuestion,
+   groupSexQuestion,
+   meetPeopleQuestion,
+];
 export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, politicsRightTheme];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
