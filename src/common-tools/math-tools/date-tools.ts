@@ -1,4 +1,4 @@
-import moment = require("moment");
+import * as moment from "moment";
 import { YEAR_IN_SECONDS } from "./constants";
 
 export function fromBirthDateToAge(birthDate: number): number {
