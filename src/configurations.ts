@@ -292,8 +292,8 @@ const meetPeopleQuestion: ThemesAsQuestion = {
       },
       {
          themeId: "q02-a00",
-         text: "No, something different, for example: Only watch, only chat, get followers, etc.",
-         themeName: "App usage intentions: Only watch, only chat, get followers, etc.",
+         text: "No, something different. For example: Only watch, get followers, only chat, etc.",
+         themeName: "App usage intentions: Only watch, get followers, only chat, etc.",
       },
    ],
    incompatibilitiesBetweenAnswers: {
