@@ -281,19 +281,19 @@ const groupSexQuestion: ThemesAsQuestion = {
 };
 
 // This question may not be required because interest for group sex (the other question) includes the physical interaction intentions
-const meetPeopleQuestion: ThemesAsQuestion = {
+const spamQuestion: ThemesAsQuestion = {
    questionId: "taq-2",
-   text: "Is your goal in this app to meet new people physically?",
+   text: "Is your goal in this app to meet new people?",
    answers: [
       {
          themeId: "q02-a01",
-         text: "Yes, physically",
-         themeName: "App usage intentions: Meet new people physically",
+         text: "Yes, meet new people",
+         themeName: "App usage intentions: Meet new people",
       },
       {
          themeId: "q02-a00",
-         text: "No, something different. For example: Only watch, get followers, only chat, etc.",
-         themeName: "App usage intentions: Only watch, get followers, only chat, etc.",
+         text: "No, other goal. For example: Get followers, promote something, etc.",
+         themeName: "App usage intentions: Get followers, promote, etc.",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -305,7 +305,7 @@ const meetPeopleQuestion: ThemesAsQuestion = {
 export const APP_AUTHORED_THEMES_AS_QUESTIONS: ThemesAsQuestion[] = [
    feminismQuestion,
    groupSexQuestion,
-   meetPeopleQuestion,
+   spamQuestion,
 ];
 export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, politicsRightTheme];
 
