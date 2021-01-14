@@ -30,9 +30,8 @@
    "Left-wing / Socialism / Anarchism / Other close": "Izquierda / Socialismo / Anarquismo / Otras cercanas",
    "Right-wing / Free market ideas": "Derecha / Libre mercado",
    "Question when registering": "Pregunta al registrarse",
-   "Feminism: I totally agree / I Almost totally agree": "Feminismo: Totalmente de acuerdo / Casi totalmente de acuerdo",
-   "Feminism: I Don't agree very much / Not at all": "Feminismo: No muy de acuerdo / Nada de acuerdo",
-   "Group sex: I don't know / No comments": "Sexo grupal: No lo sé / Sin comentarios",
+   "Feminism: Agree": "Feminismo: De acuerdo",
+   "Feminism: I Don't agree very much": "Feminismo: No muy de acuerdo",
    "Group sex: Yes / Could be": "Sexo grupal: Si / Podría ser",
    "Group sex: Not interested": "Sexo grupal: No estoy interesadx",
    "Yes / Could be": "Si / Podría ser",
@@ -57,6 +56,6 @@
    "Is your goal in this app to meet new people?": "¿Tu objetivo en esta app es conocer nuevas personas?",
    "Yes, meet new people": "Sí, conocer nuevas personas",
    "No, other goal. For example: Get followers, promote something, etc.": "No, otro objetivo. Por ejemplo: Conseguir seguidores, promocionar algo, etc.",
-   "App usage intentions: Get followers, promote, etc.": "Uso de la app: Conseguir seguidores, promocionar algo, etc.",
-   "App usage intentions: Meet new people": "Uso de la app: Conocer nuevas personas"
+   "App usage: Get followers, promote, etc.": "Uso de la app: Conseguir seguidores, promocionar algo, etc.",
+   "App usage: Meet new people": "Uso de la app: Conocer nuevas personas"
 }

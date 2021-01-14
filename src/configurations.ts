@@ -245,12 +245,12 @@ const feminismQuestion: ThemesAsQuestion = {
       {
          themeId: "q00-a00",
          text: "I totally agree / I Almost totally agree",
-         themeName: "Feminism: I totally agree / I Almost totally agree",
+         themeName: "Feminism: Agree",
       },
       {
          themeId: "q00-a01",
          text: "I Don't agree very much / I do not agree at all",
-         themeName: "Feminism: I Don't agree very much / Not at all",
+         themeName: "Feminism: I Don't agree very much",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -288,12 +288,12 @@ const spamQuestion: ThemesAsQuestion = {
       {
          themeId: "q02-a01",
          text: "Yes, meet new people",
-         themeName: "App usage intentions: Meet new people",
+         themeName: "App usage: Meet new people",
       },
       {
          themeId: "q02-a00",
          text: "No, other goal. For example: Get followers, promote something, etc.",
-         themeName: "App usage intentions: Get followers, promote, etc.",
+         themeName: "App usage: Get followers, promote, etc.",
       },
    ],
    incompatibilitiesBetweenAnswers: {

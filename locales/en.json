@@ -49,8 +49,8 @@
    "test category": "test category",
    "duplicated test": "duplicated test",
    "Question when registering": "Question when registering",
-   "Feminism: I totally agree / I Almost totally agree": "Feminism: I totally agree / I Almost totally agree",
-   "Feminism: I Don't agree very much / Not at all": "Feminism: I Don't agree very much / Not at all",
+   "Feminism: Agree": "Feminism: Agree",
+   "Feminism: I Don't agree very much": "Feminism: I Don't agree very much",
    "Group sex: I don't know / No comments": "Group sex: I don't know / No comments",
    "Group sex: Yes / Could be": "Group sex: Yes / Could be",
    "Group sex: Not interested": "Group sex: Not interested",
@@ -75,6 +75,6 @@
    "Is your goal in this app to meet new people?": "Is your goal in this app to meet new people?",
    "Yes, meet new people": "Yes, meet new people",
    "No, other goal. For example: Get followers, promote something, etc.": "No, other goal. For example: Get followers, promote something, etc.",
-   "App usage intentions: Get followers, promote, etc.": "App usage intentions: Get followers, promote, etc.",
-   "App usage intentions: Meet new people": "App usage intentions: Meet new people"
+   "App usage: Get followers, promote, etc.": "App usage: Get followers, promote, etc.",
+   "App usage: Meet new people": "App usage: Meet new people"
 }
