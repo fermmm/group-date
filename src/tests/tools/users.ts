@@ -46,9 +46,13 @@ export async function createFakeUser(customParams?: Partial<User>): Promise<User
  * @param customProps Provide user props that should not be random here.
  */
 export function generateRandomUserProps(customProps?: Partial<User>): User {
+   const gender = chance.pickone(Object.values(Gender));
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
    const randomProps: User = {
-      name: chance.first({ nationality: "it" }),
+      name: chance.first({
+         nationality: "it",
+         gender: gender === Gender.Woman || gender === Gender.TransgenderMan ? "female" : "male",
+      }),
       cityName: chance.city(),
       language: DEFAULT_LANGUAGE,
       isCoupleProfile: chance.bool(),
@@ -70,7 +74,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       likesWomanTrans: genderLikes[2],
       likesManTrans: genderLikes[3],
       likesOtherGenders: genderLikes[4],
-      gender: chance.pickone(Object.values(Gender)),
+      gender,
       height: chance.integer({ min: 100, max: 300 }),
       sendNewUsersNotification: 0,
       notifications: [],
