@@ -60,10 +60,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       targetAgeMin: chance.integer({ min: 18, max: 20 }),
       targetAgeMax: chance.integer({ min: 30, max: 55 }),
       targetDistance: chance.integer({ min: 25, max: 150 }),
-      images: [
-         "https://data.whicdn.com/images/75413003/large.jpg",
-         "https://i.pinimg.com/originals/f9/dc/16/f9dc1608b6b94b29ed9070ac54b9e3b8.jpg",
-      ],
+      images: [getRandomFakeImage()],
       dateIdea: chance.sentence({ words: 5 }),
       profileDescription: chance.paragraph(),
       locationLat: chance.latitude({ min: -38.88147, max: -32.990726 }),
@@ -84,6 +81,18 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
    };
 
    return { ...randomProps, ...(customProps ?? {}) };
+}
+
+let remainingImages: number[] = [];
+export function getRandomFakeImage(): string {
+   const fakeImagesAmount = 40;
+   if (remainingImages.length === 0) {
+      remainingImages = chance.unique(
+         () => chance.integer({ min: 1, max: fakeImagesAmount }),
+         fakeImagesAmount - 1,
+      );
+   }
+   return "fake/" + String(remainingImages.splice(0, 1)[0]).padStart(2, "0") + "_big.jpg";
 }
 
 export async function setAttraction(from: User, to: User[], attractionType: AttractionType): Promise<void> {
