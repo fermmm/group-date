@@ -32,8 +32,8 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
    return users;
 }
 
-export async function createFakeUser(customParams?: Partial<User>): Promise<User> {
-   const userProps: User = generateRandomUserProps(customParams);
+export async function createFakeUser(customProps?: Partial<User>): Promise<User> {
+   const userProps: User = generateRandomUserProps(customProps);
 
    await sendQuery(() => queryToCreateUser(userProps.token, userProps.email, true, userProps.userId).iterate());
    await userPost({ token: userProps.token, props: userProps as EditableUserProps }, fakeCtx);
@@ -46,8 +46,9 @@ export async function createFakeUser(customParams?: Partial<User>): Promise<User
  * @param customProps Provide user props that should not be random here.
  */
 export function generateRandomUserProps(customProps?: Partial<User>): User {
-   const gender = chance.pickone(Object.values(Gender));
+   const gender = customProps?.gender ?? chance.pickone(Object.values(Gender));
    const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
+
    const randomProps: User = {
       name: chance.first({
          nationality: "it",
@@ -128,29 +129,32 @@ export async function createFakeCompatibleUsers(
    amount: number,
    customProps?: Partial<User>,
 ): Promise<User[]> {
-   const compatibleProps: Partial<User> = {
-      birthDate: chance.integer({
-         max: fromAgeToBirthDate(user.targetAgeMin),
-         min: fromAgeToBirthDate(user.targetAgeMax),
-      }),
-      targetAgeMin: 18,
-      targetAgeMax: chance.integer({
-         min: fromBirthDateToAge(user.birthDate),
-         max: fromBirthDateToAge(user.birthDate) + 5,
-      }),
-      targetDistance: 25,
-      locationLat: user.locationLat,
-      locationLon: user.locationLon,
-      likesWoman: true,
-      likesMan: true,
-      likesWomanTrans: true,
-      likesManTrans: true,
-      likesOtherGenders: true,
-      gender: getGendersLikedByUser(user)[0],
-   };
-   const props = generateRandomUserProps({ ...compatibleProps, ...customProps });
-
-   return createFakeUsers(amount, props);
+   const result: User[] = [];
+   for (let i = 0; i < amount; i++) {
+      const compatibleProps: Partial<User> = {
+         birthDate: chance.integer({
+            max: fromAgeToBirthDate(user.targetAgeMin),
+            min: fromAgeToBirthDate(user.targetAgeMax),
+         }),
+         targetAgeMin: 18,
+         targetAgeMax: chance.integer({
+            min: fromBirthDateToAge(user.birthDate),
+            max: fromBirthDateToAge(user.birthDate) + 5,
+         }),
+         targetDistance: 25,
+         locationLat: user.locationLat,
+         locationLon: user.locationLon,
+         likesWoman: true,
+         likesMan: true,
+         likesWomanTrans: true,
+         likesManTrans: true,
+         likesOtherGenders: true,
+         gender: chance.pickone(getGendersLikedByUser(user)),
+      };
+      const props = generateRandomUserProps({ ...compatibleProps, ...customProps });
+      result.push(await createFakeUser(props));
+   }
+   return result;
 }
 
 export function getAllTestUsersCreated(): User[] {
