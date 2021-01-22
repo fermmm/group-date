@@ -1,9 +1,7 @@
 import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import * as moment from "moment";
 import ora = require("ora");
-import { sendQuery } from "../../common-tools/database-tools/database-manager";
-import { setAttractionPost, userPost } from "../../components/user/models";
-import { queryToCreateUser } from "../../components/user/queries";
+import { createUser, setAttractionPost, userPost } from "../../components/user/models";
 import { Attraction, AttractionType, Gender, User } from "../../shared-tools/endpoints-interfaces/user";
 import { EditableUserProps } from "../../shared-tools/validators/user";
 import { chance } from "./generalTools";
@@ -35,7 +33,7 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
 export async function createFakeUser(customProps?: Partial<User>): Promise<User> {
    const userProps: User = generateRandomUserProps(customProps);
 
-   await sendQuery(() => queryToCreateUser(userProps.token, userProps.email, true, userProps.userId).iterate());
+   await createUser(userProps.token, userProps.email, false, true, userProps.userId);
    await userPost({ token: userProps.token, props: userProps as EditableUserProps }, fakeCtx);
 
    fakeUsersCreated.push(userProps);

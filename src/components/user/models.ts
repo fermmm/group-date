@@ -115,6 +115,8 @@ export async function createUser(
    token: string,
    email: string,
    includeFullInfo: boolean,
+   setProfileCompletedForTesting?: boolean,
+   customUserIdForTesting?: string,
 ): Promise<Partial<User>> {
    let isAdmin = false;
 
@@ -126,7 +128,11 @@ export async function createUser(
          isAdmin = true;
       }
    }
-   return fromQueryToUser(queryToCreateUser(token, email, false, null, isAdmin), includeFullInfo);
+
+   return fromQueryToUser(
+      queryToCreateUser(token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin),
+      includeFullInfo,
+   );
 }
 
 /**
