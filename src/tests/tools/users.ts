@@ -94,7 +94,7 @@ export function getRandomFakeImage(): string {
    if (remainingImages.length === 0) {
       remainingImages = chance.unique(
          () => chance.integer({ min: 1, max: fakeImagesAmount }),
-         fakeImagesAmount - 1,
+         fakeImagesAmount,
       );
    }
    return "fake/" + String(remainingImages.splice(0, 1)[0]).padStart(2, "0") + "_big.jpg";
@@ -151,8 +151,7 @@ export async function createFakeCompatibleUsers(
          likesOtherGenders: true,
          gender: chance.pickone(getGendersLikedByUser(user)),
       };
-      const props = generateRandomUserProps({ ...compatibleProps, ...customProps });
-      result.push(await createFakeUser(props));
+      result.push(await createFakeUser({ ...compatibleProps, ...(customProps ?? {}) }));
    }
    return result;
 }
