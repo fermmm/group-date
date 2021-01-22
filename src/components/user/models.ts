@@ -55,6 +55,7 @@ import {
    SMALL_IMAGE_SIZE,
    USER_PROPS_AS_QUESTIONS,
 } from "../../configurations";
+import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models";
 
 export async function initializeUsers(): Promise<void> {
    createFolderOnRoot("uploads");
@@ -107,7 +108,25 @@ export async function retrieveUser(
       return user;
    }
 
-   return fromQueryToUser(queryToCreateUser(token, userDataFromFacebook.content.email), includeFullInfo);
+   return createUser(token, userDataFromFacebook.content.email, includeFullInfo);
+}
+
+export async function createUser(
+   token: string,
+   email: string,
+   includeFullInfo: boolean,
+): Promise<Partial<User>> {
+   let isAdmin = false;
+
+   // The first user registered is set automatically to be admin, just double check that is the first user
+   if (getAmountOfUsersCount() === 0) {
+      await updateAmountOfUsersCount();
+
+      if (getAmountOfUsersCount() === 0) {
+         isAdmin = true;
+      }
+   }
+   return fromQueryToUser(queryToCreateUser(token, email, false, null, isAdmin), includeFullInfo);
 }
 
 /**

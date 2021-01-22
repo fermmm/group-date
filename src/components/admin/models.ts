@@ -10,7 +10,7 @@ import {
 import { ChatMessage } from "../../shared-tools/endpoints-interfaces/common";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveUser } from "../user/models";
-import { queryToUpdateUserProps } from "../user/queries";
+import { queryToGetAllUsers, queryToUpdateUserProps } from "../user/queries";
 import {
    queryToGetAdminChatMessages,
    queryToGetAllChatsWithAdmins,
@@ -18,7 +18,11 @@ import {
 } from "./queries";
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
-import { t } from "../../common-tools/i18n-tools/i18n-tools";
+import { sendQuery } from "../../common-tools/database-tools/database-manager";
+
+export async function initializeAdmin(): Promise<void> {
+   await updateAmountOfUsersCount();
+}
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
@@ -80,4 +84,13 @@ export async function convertToAdminPost(params: AdminConvertPostParams, ctx: Ba
 
 export async function convertToAdmin(token: string): Promise<void> {
    await queryToUpdateUserProps(token, [{ key: "isAdmin", value: true }]);
+}
+
+let amountOfUsersCount: number = null;
+export async function updateAmountOfUsersCount(): Promise<void> {
+   amountOfUsersCount = (await sendQuery(() => queryToGetAllUsers().count().next())).value;
+}
+
+export function getAmountOfUsersCount(): number {
+   return amountOfUsersCount;
 }

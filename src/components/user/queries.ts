@@ -22,6 +22,7 @@ export function queryToCreateUser(
    email: string,
    setProfileCompletedForTesting?: boolean,
    customUserIdForTesting?: string,
+   isAdmin?: boolean,
    currentTraversal?: Traversal,
 ): Traversal {
    return queryToGetUserByToken(token, currentTraversal)
@@ -34,6 +35,7 @@ export function queryToCreateUser(
             .property("email", email)
             .property("language", DEFAULT_LANGUAGE)
             .property("profileCompleted", setProfileCompletedForTesting ?? false)
+            .property("isAdmin", isAdmin === true ? true : false)
             .property("sendNewUsersNotification", 0)
             .property("lastGroupJoinedDate", moment().unix())
             .property("notifications", "[]"),

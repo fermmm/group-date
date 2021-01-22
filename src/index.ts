@@ -9,6 +9,7 @@ import * as serve from "koa-static";
 import * as ora from "ora";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
 import { rateLimiterConfig } from "./common-tools/security-tools/security-tools";
+import { initializeAdmin } from "./components/admin/models";
 import { adminRoutes } from "./components/admin/routes";
 import { initializeCardsGame } from "./components/cards-game/models";
 import { cardsGameRoutes } from "./components/cards-game/routes";
@@ -48,6 +49,7 @@ import { userRoutes } from "./components/user/routes";
    await initializeCardsGame();
    await initializeGroupsFinder();
    await initializeThemes();
+   await initializeAdmin();
 
    // Routes:
    serverInfoRoutes(router);
