@@ -1,7 +1,7 @@
 import * as Router from "@koa/router";
-import { createFakeCompatibleUsers, createFakeUser } from "../../tests/tools/users";
-import { retrieveFullyRegisteredUser, retrieveUser } from "../user/models";
+import { createFakeUser } from "../../tests/tools/users";
 import { queryToRemoveUsers } from "../user/queries";
+import { createFakeUsersPost } from "./models";
 
 export function testingRoutes(router: Router): void {
    router.get("/testing", async ctx => {
@@ -9,11 +9,5 @@ export function testingRoutes(router: Router): void {
       const testUser = await createFakeUser();
    });
 
-   router.get("/testing2", async ctx => {
-      await createFakeCompatibleUsers(
-         await retrieveFullyRegisteredUser(ctx.request.query.token, false, ctx),
-         Number(ctx.request.query.text),
-      );
-      ctx.body = `Finished OK`;
-   });
+   router.get("/createFakeUsers", async ctx => (ctx.body = await createFakeUsersPost(ctx.request.query, ctx)));
 }
