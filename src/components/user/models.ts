@@ -300,6 +300,12 @@ export async function addNotificationToUser(
  */
 export async function setAttractionPost(params: SetAttractionParams, ctx: BaseContext): Promise<void> {
    const attractions = params.attractions;
+   const limit = 200;
+
+   if (attractions.length > limit) {
+      ctx.throw(400, `More than ${limit} attractions are not allowed on the same request`);
+      return;
+   }
 
    await divideArrayCallback(attractions, 50, async attractionsChunk => {
       await sendQuery(() =>
