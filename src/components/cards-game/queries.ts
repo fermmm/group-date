@@ -58,7 +58,7 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.not(
       __.has("lastLoginDate", P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_CARDS))
          .and()
-         .has("sendNewUsersNotification", 0),
+         .has("sendNewUsersNotification", P.lt(1)),
    );
 
    /**

@@ -58,7 +58,8 @@ export async function recommendationsFromThemeGet(params: BasicThemeParams, ctx:
  *    1. Finds all users with sendNewUsersNotification > 0
  *    2. Searches recommendations for that user
  *    3. If the recommendations amount is equal or more than sendNewUsersNotification sends the notification.
- *    4. After sending the notification sets sendNewUsersNotification to 0 to disable this functionality.
+ *    4. After sending the notification sets sendNewUsersNotification to -1, this value means that the functionality
+ *       is disabled because the cycle is complete and not because the user disabled it.
  */
 export async function notifyAllUsersAboutNewCards(): Promise<void> {
    const users: User[] = await fromQueryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
@@ -71,7 +72,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
          await queryToUpdateUserProps(user.token, [
             {
                key: "sendNewUsersNotification",
-               value: 0,
+               value: -1,
             },
          ]);
          await addNotificationToUser(

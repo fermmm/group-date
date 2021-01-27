@@ -36,7 +36,7 @@ export function queryToCreateUser(
             .property("language", DEFAULT_LANGUAGE)
             .property("profileCompleted", setProfileCompletedForTesting ?? false)
             .property("isAdmin", isAdmin === true ? true : false)
-            .property("sendNewUsersNotification", 0)
+            .property("sendNewUsersNotification", -1)
             .property("lastGroupJoinedDate", moment().unix())
             .property("notifications", "[]"),
       )

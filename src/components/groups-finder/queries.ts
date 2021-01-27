@@ -66,7 +66,7 @@ export function queryToGetUsersAllowedToBeOnGroups(
       .not(
          __.has("lastLoginDate", P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
             .and()
-            .has("sendNewUsersNotification", 0),
+            .has("sendNewUsersNotification", P.lt(1)),
       );
 
    if (quality === GroupQuality.Bad) {
