@@ -36,9 +36,12 @@ export async function recommendationsGet(params: TokenParameter, ctx: BaseContex
 
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   const recommendationsQuery: Traversal = queryToGetDislikedUsers(params.token, user);
-   const result: CardsGameResult = await fromQueryToCardsResult(recommendationsQuery);
-   return mergeResults(result);
+   const recommendationsQuery: Traversal = queryToGetDislikedUsers({
+      token: params.token,
+      searcherUser: user,
+      invertOrder: false,
+   });
+   return await fromQueryToUserList(recommendationsQuery);
 }
 
 export async function recommendationsFromThemeGet(params: BasicThemeParams, ctx: BaseContext): Promise<User[]> {
@@ -87,6 +90,10 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
    }
 }
 
+/**
+ * Queries returns an object with the users list divided into different categories, this merges the user
+ * list into a single list in an interleaving pattern of chunks from the categories into the single list.
+ */
 function mergeResults(cardsGameResult: CardsGameResult): User[] {
    const result: User[] = [];
 

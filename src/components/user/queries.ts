@@ -53,12 +53,21 @@ export function queryToGetUserByTokenOrId(tokenOrId: TokenOrId): Traversal {
    }
 }
 
-export function queryToGetUserByToken(token: string, currentTraversal?: Traversal): Traversal {
+export function queryToGetUserByToken(
+   token: string,
+   currentTraversal?: Traversal,
+   onlyCompleteUsers?: boolean,
+): Traversal {
    if (currentTraversal == null) {
       currentTraversal = (g as unknown) as Traversal;
    }
+   currentTraversal = currentTraversal.V().has("user", "token", String(token));
 
-   return currentTraversal.V().has("user", "token", String(token));
+   if (onlyCompleteUsers) {
+      currentTraversal = hasProfileCompleted(currentTraversal);
+   }
+
+   return currentTraversal;
 }
 
 export function queryToGetUserByEmail(email: string, currentTraversal?: Traversal): Traversal {
@@ -69,12 +78,22 @@ export function queryToGetUserByEmail(email: string, currentTraversal?: Traversa
    return currentTraversal.V().has("user", "email", String(email));
 }
 
-export function queryToGetUserById(userId: string, currentTraversal?: Traversal): Traversal {
+export function queryToGetUserById(
+   userId: string,
+   currentTraversal?: Traversal,
+   onlyCompleteUsers?: boolean,
+): Traversal {
    if (currentTraversal == null) {
       currentTraversal = (g as unknown) as Traversal;
    }
 
-   return currentTraversal.V().has("user", "userId", String(userId));
+   currentTraversal = currentTraversal.V().has("user", "userId", String(userId));
+
+   if (onlyCompleteUsers) {
+      currentTraversal = hasProfileCompleted(currentTraversal);
+   }
+
+   return currentTraversal;
 }
 
 export function queryToGetUsersListFromIds(usersIds: string[], currentTraversal?: Traversal): Traversal {
@@ -194,7 +213,7 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
 
             .as("targetUser")
 
-            // Removes all edges pointing to the target user that are labeled as any attraction type
+            // Removes all edges pointing to the target user that are labeled as any attraction type (like or dislike)
             .sideEffect(
                __.inE(...allAttractionTypes)
                   .where(__.outV().as("user"))
@@ -206,6 +225,7 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
 
             // Now we can add the new edge
             .addE(__.select("attractionType"))
+            .property("timestamp", moment().unix())
             .from_("user")
 
             // If the users like each other add a Match edge
@@ -216,7 +236,8 @@ export function queryToSetAttraction(params: SetAttractionParams): Traversal {
                __.not(__.both("Match").where(P.eq("user"))),
             )
             .addE("Match")
-            .from_("user"),
+            .from_("user")
+            .property("timestamp", moment().unix()),
       );
 }
 

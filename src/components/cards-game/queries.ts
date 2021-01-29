@@ -229,9 +229,26 @@ export function queryToDivideLikingUsers(traversal: Traversal, searcherUser: Use
       );
 }
 
-export function queryToGetDislikedUsers(token: string, searcherUser: User): Traversal {
-   let traversal: Traversal = queryToGetUserByToken(token).out(AttractionType.Dislike);
-   traversal = queryToGetCardsRecommendations(searcherUser, { traversal, showAlreadyReviewed: true });
+export function queryToGetDislikedUsers(props: {
+   token: string;
+   searcherUser: User;
+   invertOrder?: boolean;
+}): Traversal {
+   const { token, searcherUser, invertOrder } = props;
+
+   let traversal: Traversal = queryToGetUserByToken(token)
+      .outE(AttractionType.Dislike)
+      .order()
+      .by("timestamp", invertOrder === true ? order.desc : order.asc)
+      .inV();
+
+   traversal = queryToGetCardsRecommendations(searcherUser, {
+      traversal,
+      showAlreadyReviewed: true,
+      unordered: true,
+      singleListResults: true,
+   });
+
    return traversal;
 }
 
