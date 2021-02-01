@@ -478,4 +478,5 @@ export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
  */
 export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
 export const REPORT_DATABASE_RETRYING: boolean = true;
-export const LOG_ROUTES: boolean = true;
+export const LOG_ROUTE_ACCESS: boolean = true;
+export const LOG_IMAGE_ACCESS: boolean = true;

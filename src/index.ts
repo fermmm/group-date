@@ -8,7 +8,7 @@ import * as ratelimit from "koa-ratelimit";
 import * as serve from "koa-static";
 import * as ora from "ora";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
-import { routesLogger } from "./common-tools/log-tools/log-routes";
+import { imagesLogger, routesLogger } from "./common-tools/log-tools/log-routes";
 import { rateLimiterConfig } from "./common-tools/security-tools/security-tools";
 import { initializeAdmin } from "./components/admin/models";
 import { adminRoutes } from "./components/admin/routes";
@@ -28,7 +28,7 @@ import { userRoutes } from "./components/user/routes";
    // Koa initialization:
    const app: Koa = new Koa();
    const router = new Router();
-   router.get("/", (ctx, next) => {
+   router.get("/", ctx => {
       ctx.body = "Poly Dates server";
    });
 
@@ -38,7 +38,12 @@ import { userRoutes } from "./components/user/routes";
       .use(koaBody({ parsedMethods: ["GET", "POST"] }))
       .use(router.routes())
       .use(router.allowedMethods())
-      .use(mount("/images", serve("./uploads/")))
+      .use(
+         mount("/images", (context, next) => {
+            imagesLogger(context);
+            return serve("./uploads/")(context, next);
+         }),
+      )
       .listen(process.env.PORT);
 
    // Database initialization:
