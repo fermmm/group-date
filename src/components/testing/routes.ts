@@ -9,5 +9,8 @@ export function testingRoutes(router: Router): void {
       const testUser = await createFakeUser();
    });
 
-   router.get("/createFakeUsers", async ctx => (ctx.body = await createFakeUsersPost(ctx.request.query, ctx)));
+   router.get(
+      "/testing/create-fake-users",
+      async ctx => (ctx.body = await createFakeUsersPost(ctx.request.query, ctx)),
+   );
 }
