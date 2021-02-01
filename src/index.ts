@@ -8,6 +8,7 @@ import * as ratelimit from "koa-ratelimit";
 import * as serve from "koa-static";
 import * as ora from "ora";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
+import { routesLogger } from "./common-tools/log-tools/log-routes";
 import { rateLimiterConfig } from "./common-tools/security-tools/security-tools";
 import { initializeAdmin } from "./components/admin/models";
 import { adminRoutes } from "./components/admin/routes";
@@ -50,6 +51,9 @@ import { userRoutes } from "./components/user/routes";
    await initializeGroupsFinder();
    await initializeThemes();
    await initializeAdmin();
+
+   // Debugging tools:
+   routesLogger(router);
 
    // Routes:
    serverInfoRoutes(router);
