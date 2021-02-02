@@ -7,7 +7,7 @@ export function routesLogger(router: Router) {
    }
 
    router.use("/", async (ctx, next) => {
-      console.log("Route requested:", ctx.path);
+      console.log("Route requested:", ctx.path, ctx.method);
       await next();
    });
 }
