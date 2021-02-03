@@ -293,16 +293,21 @@ export function reportPossibleDataCorruption(groups: GroupCandidate[] | GroupsAn
 }
 
 /**
- * Removes duplicated groups. Be aware that different order of members are taken as a different group.
+ * Removes duplicated groups. Be aware that different order of members are taken as a different group, so you
+ * need to make sure the groups comes pre-ordered before calling this.
  */
 export function dedupGroupCandidates(groupCandidates: GroupCandidate[]): GroupCandidate[] {
    const evaluated: Set<string> = new Set();
-   return groupCandidates.reduce((result, group) => {
-      const hash: string = group.users.reduce((ids, user) => ids + user.userId, "");
+   return groupCandidates.filter(group => {
+      const hash: string = getGroupUniqueHash(group);
       if (!evaluated.has(hash)) {
-         result.push(group);
          evaluated.add(hash);
+         return true;
       }
-      return result;
-   }, []);
+      return false;
+   });
+}
+
+export function getGroupUniqueHash(group: GroupCandidate): string {
+   return group.users.reduce((ids, user) => ids + user.userId, "");
 }
