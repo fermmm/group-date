@@ -127,7 +127,7 @@ async function createGroupsForSlot(
    let iterations: number = groupCandidatesSorted.size();
 
    /**
-    * Loop all the groups and create them if possible, of not, fix them, reorder after
+    * Loop all the groups and create them if possible, if not, fix them, reorder after
     * fix and try to create again if possible.
     */
    for (let i = 0; i < iterations; i++) {
