@@ -20,7 +20,7 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
       locale: getLocaleFromHeader(ctx),
       imagesHost: process.env.IMAGES_HOST,
       serverConfigurations: {
-         maxSimultaneousGroups: GROUP_SLOTS_CONFIGS.reduce((prev, curr) => prev + curr.amount, 0),
+         groupSlots: GROUP_SLOTS_CONFIGS,
          minGroupSize: MIN_GROUP_SIZE,
          maxGroupSize: MAX_GROUP_SIZE,
          maximumInactivityForCards: MAXIMUM_INACTIVITY_FOR_CARDS,

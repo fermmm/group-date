@@ -13,8 +13,9 @@ import {
 } from "../../configurations";
 import * as moment from "moment";
 import { queryToGetAllCompleteUsers } from "../user/queries";
-import { GroupQuality, SizeRestriction } from "./tools/types";
+import { GroupQuality } from "./tools/types";
 import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from "../../configurations";
+import { SizeRestriction } from "../../shared-tools/endpoints-interfaces/groups";
 
 /**
  * This query returns lists of users arrays where it's users matches between them.

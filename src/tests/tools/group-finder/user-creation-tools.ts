@@ -1,9 +1,9 @@
 import { executePromises } from "../../../common-tools/js-tools/js-tools";
 import { searchAndCreateNewGroups } from "../../../components/groups-finder/models";
-import { GroupCandidate, Slot } from "../../../components/groups-finder/tools/types";
+import { GroupCandidate } from "../../../components/groups-finder/tools/types";
 import { userGroupsGet } from "../../../components/groups/models";
 import { setAttractionPost } from "../../../components/user/models";
-import { Group, UserWithMatches } from "../../../shared-tools/endpoints-interfaces/groups";
+import { Group, Slot, UserWithMatches } from "../../../shared-tools/endpoints-interfaces/groups";
 import { User, AttractionType } from "../../../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "../replacements";
 import { createFakeUser2 } from "../_experimental";

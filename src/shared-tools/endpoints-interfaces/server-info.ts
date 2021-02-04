@@ -1,3 +1,5 @@
+import { Slot } from "./groups";
+
 export interface ServerInfoParams {
    version: string;
 }
@@ -9,7 +11,7 @@ export interface ServerInfoResponse {
    locale: string;
    imagesHost: string;
    serverConfigurations: {
-      maxSimultaneousGroups: number;
+      groupSlots: Slot[];
       minGroupSize: number;
       maxGroupSize: number;
       maximumInactivityForCards: number;

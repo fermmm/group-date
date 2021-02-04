@@ -3,7 +3,7 @@ import { I18n } from "i18n";
 import * as path from "path";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds } from "./common-tools/math-tools/general";
-import { Slot } from "./components/groups-finder/tools/types";
+import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
 import { Gender, UserPropAsQuestion } from "./shared-tools/endpoints-interfaces/user";
 

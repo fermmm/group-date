@@ -24,16 +24,6 @@ export interface GroupCandidateAnalysis {
    averageConnectionsAmountRounded: number;
 }
 
-export interface SizeRestriction {
-   minimumSize?: number;
-   maximumSize?: number;
-}
-
-export interface Slot extends SizeRestriction {
-   amount: number;
-   releaseTime: number;
-}
-
 export enum GroupQuality {
    Good = "good",
    Bad = "bad",

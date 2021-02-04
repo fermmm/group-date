@@ -87,3 +87,13 @@ export interface GroupMembership {
    newMessagesRead: boolean;
    lastNotificationDate: number;
 }
+
+export interface SizeRestriction {
+   minimumSize?: number;
+   maximumSize?: number;
+}
+
+export interface Slot extends SizeRestriction {
+   amount: number;
+   releaseTime: number;
+}

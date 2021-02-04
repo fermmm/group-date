@@ -14,10 +14,10 @@ import {
    MAX_TIME_GROUPS_RECEIVE_NEW_USERS,
    MIN_GROUP_SIZE,
 } from "../configurations";
-import { Group } from "../shared-tools/endpoints-interfaces/groups";
+import { Group, Slot } from "../shared-tools/endpoints-interfaces/groups";
 import { getBiggestGroup } from "./tools/groups";
 import { hoursToMilliseconds } from "../common-tools/math-tools/general";
-import { GroupCandidate, GroupCandidateAnalyzed, Slot } from "../components/groups-finder/tools/types";
+import { GroupCandidate, GroupCandidateAnalyzed } from "../components/groups-finder/tools/types";
 import { queryToRemoveGroups } from "../components/groups/queries";
 import { queryToRemoveUsers } from "../components/user/queries";
 import { getAllTestUsersCreated } from "./tools/users";
