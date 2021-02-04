@@ -1,3 +1,4 @@
+import { TokenParameter } from "./common";
 import { EditableUserPropKey, EditableUserProps } from "../validators/user";
 import { ThemeBasicInfo } from "./themes";
 import { ValueOf } from "ts-essentials";
@@ -59,6 +60,10 @@ export interface ProfileStatusServerResponse {
    missingEditableUserProps: EditableUserPropKey[];
    notShowedThemeQuestions: string[];
    user: Partial<User>;
+}
+
+export interface UserGetParams extends TokenParameter {
+   userId?: string;
 }
 
 export interface UserPostParams {

@@ -1,3 +1,4 @@
+import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
 import * as appRoot from "app-root-path";
 import { ValidationError } from "fastest-validator";
 import { File } from "formidable";
@@ -19,6 +20,7 @@ import {
    ProfileStatusServerResponse,
    SetAttractionParams,
    User,
+   UserGetParams,
    UserPostParams,
    UserPropAsQuestion,
    UserPropsAsQuestionsTypes,
@@ -34,6 +36,7 @@ import {
    queryToGetAttractionsSent,
    queryToGetMatches,
    queryToGetUserByEmail,
+   queryToGetUserById,
    queryToGetUserByToken,
    queryToSetAttraction,
    queryToSetUserProps,
@@ -207,11 +210,19 @@ export function userPropsAsQuestionsGet(ctx: BaseContext): UserPropAsQuestion[] 
 }
 
 /**
- * This endpoint retrieves the user info and is meant to be called only by the person corresponding
- * to the user (token only) because it returns private information.
+ * This endpoint retrieves a user. If userId is not provided it will return the user using the token.
+ * If userId is provided it will return the required user (without personal information) but also it will
+ * check the token for security reasons.
  */
-export async function userGet(params: TokenParameter, ctx: BaseContext): Promise<Partial<User>> {
-   return await retrieveUser(params.token, true, ctx);
+export async function userGet(params: UserGetParams, ctx: BaseContext): Promise<Partial<User>> {
+   const userFromToken = await retrieveUser(params.token, true, ctx);
+   if (params.userId == null) {
+      return userFromToken;
+   } else {
+      if (userFromToken != null) {
+         return removePrivacySensitiveUserProps(await fromQueryToUser(queryToGetUserById(params.userId), true));
+      }
+   }
 }
 
 /**
