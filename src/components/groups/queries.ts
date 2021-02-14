@@ -198,7 +198,7 @@ export function queryToGetGroupsToSendReminder(
  * https://gremlify.com/v333jvq76gr
  *
  * @param traversal A traversal that has one or more groups.
- * @param details Include or not the full group details default = true
+ * @param includeFullDetails Include or not the full group details: members, votes and matches relationships. Default = true
  */
 export function queryToGetGroupsInFinalFormat(
    traversal: Traversal,

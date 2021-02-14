@@ -12,6 +12,8 @@ import { fromGremlinMapToUser } from "../../user/tools/data-conversion";
 
 /**
  * Converts a Gremlin query that returns a single group into a Group object.
+ *
+ * @param includeFullDetails Include or not the full group details: members, votes and matches relationships. Default = true
  */
 export async function fromQueryToGroup(
    queryOfGroup: Traversal,

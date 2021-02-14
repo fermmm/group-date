@@ -19,6 +19,7 @@ import {
    DayOptionsVotePostParams,
    FeedbackPostParams,
    Group,
+   GroupChat,
 } from "../../shared-tools/endpoints-interfaces/groups";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
@@ -122,20 +123,14 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
 
 /**
  * Endpoints to get a specific group that the user is part of.
- * This endpoint is also used to download the chat messages so also interacts with the
- * message read functionality.
  */
 export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Promise<Group> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
       onlyIfAMemberHasUserId: user.userId,
-      includeFullDetails: params.includeFullDetails,
+      includeFullDetails: true,
       ctx,
    });
-
-   await updateAndCleanChat(user, group);
-   await queryToUpdateMembershipProperty(group.groupId, user.userId, { newMessagesRead: true });
-
    return group;
 }
 
@@ -209,6 +204,20 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
    }
 
    await queryToUpdateGroupProperty({ groupId: group.groupId, dayOptions: group.dayOptions, mostVotedDate });
+}
+
+export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<GroupChat> {
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const group: Group = await getGroupById(params.groupId, {
+      onlyIfAMemberHasUserId: user.userId,
+      includeFullDetails: false,
+      ctx,
+   });
+
+   await updateAndCleanChat(user, group);
+   await queryToUpdateMembershipProperty(group.groupId, user.userId, { newMessagesRead: true });
+
+   return group.chat;
 }
 
 /**

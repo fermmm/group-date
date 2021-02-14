@@ -59,7 +59,6 @@ export enum ExperienceFeedbackType {
 export interface BasicGroupParams {
    token: string;
    groupId: string;
-   includeFullDetails?: boolean;
 }
 
 export interface DateIdeaVotePostParams extends BasicGroupParams {

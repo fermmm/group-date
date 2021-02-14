@@ -9,6 +9,7 @@ import {
    getGroupById,
    getSlotIdFromUsersAmount,
    groupGet,
+   chatGet,
    userGroupsGet,
 } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
@@ -25,11 +26,13 @@ describe("Groups", () => {
    let fakeUsers: User[];
    let mainUser: User;
    let mainUser2: User;
+   let mainUser3: User;
 
    beforeAll(async () => {
       fakeUsers = await createFakeUsers(10);
       mainUser = fakeUsers[0];
       mainUser2 = fakeUsers[1];
+      mainUser3 = fakeUsers[2];
       group = await createGroup({
          usersIds: fakeUsers.map(u => u.userId),
          slotToUse: getSlotIdFromUsersAmount(fakeUsers.length),
@@ -41,10 +44,7 @@ describe("Groups", () => {
       for (const user of fakeUsers) {
          await acceptPost({ token: user.token, groupId: group.groupId }, null);
       }
-      group = await groupGet(
-         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
-         fakeCtx,
-      );
+      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
       expect(group.usersThatAccepted.length === fakeUsers.length).toBe(true);
    });
 
@@ -89,10 +89,7 @@ describe("Groups", () => {
          fakeCtx,
       );
 
-      group = await groupGet(
-         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
-         fakeCtx,
-      );
+      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
       expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(
@@ -152,10 +149,7 @@ describe("Groups", () => {
          fakeCtx,
       );
 
-      group = await groupGet(
-         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
-         fakeCtx,
-      );
+      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
       expect(group.dayOptions[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
@@ -174,11 +168,10 @@ describe("Groups", () => {
          fakeCtx,
       );
 
-      group = await groupGet(
-         { token: mainUser.token, groupId: group.groupId, includeFullDetails: true },
-         fakeCtx,
-      );
+      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      const chat = await chatGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
+      expect(chat.messages).toHaveLength(3);
       expect(group.chat.messages).toHaveLength(3);
    });
 
@@ -189,8 +182,11 @@ describe("Groups", () => {
    });
 
    test("The action of a user downloading a message is recorded correctly", async () => {
-      // mainUser downloads the messages, this groupGet call simulates that
-      await groupGet({ token: mainUser.token, groupId: group.groupId, includeFullDetails: true }, null);
+      // mainUser3 sends a message
+      await chatPost({ message: "I'm so happy", token: mainUser3.token, groupId: group.groupId }, fakeCtx);
+
+      // mainUser downloads the messages, this chatGet call simulates that
+      await chatGet({ token: mainUser.token, groupId: group.groupId }, null);
 
       // Now we retrieve the group again to check if stored correctly the read
       group = await getGroupById(group.groupId);
@@ -198,7 +194,7 @@ describe("Groups", () => {
       expect(group.chat.usersDownloadedLastMessage[0]).toBe(mainUser.userId);
 
       // Now mainUser2 downloads the messages
-      await groupGet({ token: mainUser2.token, groupId: group.groupId, includeFullDetails: true }, null);
+      await chatGet({ token: mainUser2.token, groupId: group.groupId }, null);
 
       // Now we retrieve the group again to check if stored correctly the read
       group = await getGroupById(group.groupId);
