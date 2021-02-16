@@ -266,7 +266,7 @@ const groupSexQuestion: ThemesAsQuestion = {
       {
          themeId: "q01-a00",
          text: "Yes / Could be",
-         themeName: "Group sex it's a motivation for the app: Yes / Could be",
+         themeName: "Group sex: Interested / Could be",
       },
       {
          themeId: "q01-a01",
