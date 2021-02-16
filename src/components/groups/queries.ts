@@ -20,18 +20,15 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property(
          "chat",
          serializeIfNeeded<GroupChat>({
-            usersDownloadedLastMessage: [],
             messages: [],
          }),
       )
       .property("creationDate", moment().unix())
       .property("membersAmount", params.initialUsers?.usersIds.length ?? 0)
       .property("dayOptions", serializeIfNeeded(params.dayOptions))
-      .property("usersThatAccepted", serializeIfNeeded([]))
       .property("initialQuality", params.initialQuality ?? GroupQuality.Good)
       .property("reminder1NotificationSent", false)
       .property("reminder2NotificationSent", false)
-      .property("mostVotedDate", 0)
       .property("feedback", serializeIfNeeded([]));
 
    if (params.initialUsers != null) {
@@ -102,6 +99,9 @@ export function queryToFindSlotsToRelease(): Traversal {
       .drop();
 }
 
+/**
+ * Registers a vote to the date idea and returns the group vertex
+ */
 export function queryToVoteDateIdeas(group: Traversal, userId: string, usersIdsToVote: string[]): Traversal {
    let traversal: Traversal = group
       .as("group")
@@ -122,11 +122,15 @@ export function queryToVoteDateIdeas(group: Traversal, userId: string, usersIdsT
    return traversal;
 }
 
-export function queryToGetGroupById(groupId: string, onlyIfAMemberHasUserId?: string): Traversal {
+export function queryToGetGroupById(groupId: string, filters?: GroupFilters): Traversal {
    let traversal = g.V().has("group", "groupId", groupId);
 
-   if (onlyIfAMemberHasUserId != null) {
-      traversal = traversal.where(__.in_("member").has("userId", onlyIfAMemberHasUserId));
+   if (filters?.onlyIfAMemberHasUserId != null) {
+      traversal = traversal.where(__.in_("member").has("userId", filters.onlyIfAMemberHasUserId));
+   }
+
+   if (filters?.onlyIfAMemberHasToken != null) {
+      traversal = traversal.where(__.in_("member").has("token", filters.onlyIfAMemberHasToken));
    }
 
    return traversal;
@@ -138,9 +142,9 @@ export function queryToGetGroupsOfUserByUserId(userId: string): Traversal {
 
 export function queryToUpdateGroupProperty(
    group: MarkRequired<Partial<Group>, "groupId">,
-   onlyIfAMemberHasUserId?: string,
+   filters?: GroupFilters,
 ): Promise<void> {
-   let traversal = queryToGetGroupById(group.groupId, onlyIfAMemberHasUserId);
+   let traversal = queryToGetGroupById(group.groupId, filters);
 
    for (const key of Object.keys(group)) {
       traversal = traversal.property(key, serializeIfNeeded(group[key]));
@@ -149,19 +153,24 @@ export function queryToUpdateGroupProperty(
    return sendQuery(() => traversal.iterate());
 }
 
+/**
+ * Receives a traversal that selects a group and changes the member edge properties of the specified user
+ * returns a traversal with the group selected.
+ */
 export function queryToUpdateMembershipProperty(
-   groupId: string,
-   userId: string,
+   traversal: Traversal,
+   userToken: string,
    properties: Partial<GroupMembership>,
-): Promise<void> {
-   let traversal = queryToGetGroupById(groupId, userId);
-   traversal = traversal.inE("member").where(__.outV().has("user", "userId", userId));
+): Traversal {
+   traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
 
    for (const key of Object.keys(properties)) {
       traversal = traversal.property(key, serializeIfNeeded(properties[key]));
    }
 
-   return sendQuery(() => traversal.iterate());
+   traversal = traversal.inV();
+
+   return traversal;
 }
 
 /**
@@ -283,4 +292,9 @@ export interface CreateNewGroupParameters {
    dayOptions: DayOption[];
    initialQuality: GroupQuality;
    initialUsers?: AddUsersToGroupSettings;
+}
+
+export interface GroupFilters {
+   onlyIfAMemberHasUserId?: string;
+   onlyIfAMemberHasToken?: string;
 }

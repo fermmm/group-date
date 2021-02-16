@@ -2,13 +2,10 @@ import { BaseContext } from "koa";
 import * as moment from "moment";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import {
-   CHAT_READ_FEATURE,
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
    FIRST_DATE_REMINDER_TIME,
    GROUP_SLOTS_CONFIGS,
-   MAX_CHAT_MESSAGES_STORED_ON_SERVER,
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
-   REMOVE_OLD_CHAT_MESSAGES,
    SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY,
    SECOND_DATE_REMINDER_TIME,
 } from "../../configurations";
@@ -22,10 +19,12 @@ import {
    FeedbackPostParams,
    Group,
    GroupChat,
+   IdeaOption,
 } from "../../shared-tools/endpoints-interfaces/groups";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import {
+   GroupFilters,
    queryToFindSlotsToRelease,
    queryToGetGroupsToSendReminder,
    queryToGetMembersForNewMsgNotification,
@@ -45,6 +44,7 @@ import { GroupQuality } from "../groups-finder/tools/types";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { sendQuery } from "../../common-tools/database-tools/database-manager";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
+import { fromQueryToSpecificProps } from "../../common-tools/database-tools/data-conversion-tools";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -90,9 +90,9 @@ export async function createGroup(
  */
 export async function getGroupById(
    groupId: string,
-   { includeFullDetails = false, protectPrivacy = true, onlyIfAMemberHasUserId, ctx }: GetGroupByIdOptions = {},
+   { includeFullDetails = false, protectPrivacy = true, filters, ctx }: GetGroupByIdOptions = {},
 ): Promise<Group> {
-   const groupTraversal = queryToGetGroupById(groupId, onlyIfAMemberHasUserId);
+   const groupTraversal = queryToGetGroupById(groupId, filters);
    const result: Group = await fromQueryToGroup(groupTraversal, protectPrivacy, includeFullDetails);
 
    if (result == null && ctx != null) {
@@ -127,9 +127,8 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
  * Endpoints to get a specific group that the user is part of.
  */
 export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Promise<Group> {
-   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
-      onlyIfAMemberHasUserId: user.userId,
+      filters: { onlyIfAMemberHasToken: params.token },
       includeFullDetails: true,
       ctx,
    });
@@ -145,30 +144,30 @@ export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): P
 }
 
 /**
- * Endpoint to accept being part of a group. Currently this has no much effect other than showing that to others.
- */
-export async function acceptPost(params: BasicGroupParams, ctx: BaseContext): Promise<void> {
-   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
-
-   if (group.usersThatAccepted.indexOf(user.userId) === -1) {
-      group.usersThatAccepted.push(user.userId);
-   }
-   await queryToUpdateGroupProperty({ groupId: group.groupId, usersThatAccepted: group.usersThatAccepted });
-}
-
-/**
  * In this endpoint the user sends an array with the options he/she wants to vote. Votes saved
  * from this user on a previous api call will be removed if the votes are not present in this
  * new call, this is the way to remove a vote.
  */
 export async function dateIdeaVotePost(params: DateIdeaVotePostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   await queryToVoteDateIdeas(
-      queryToGetGroupById(params.groupId, user.userId),
+   const traversal = queryToVoteDateIdeas(
+      queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token }),
       user.userId,
       params.ideasToVoteAuthorsIds,
-   ).iterate();
+   );
+   const group = await fromQueryToGroup(traversal, false, true);
+
+   // Get the most voted idea:
+   let mostVotedIdea: IdeaOption = null;
+   group.dateIdeasVotes.forEach(idea => {
+      if (mostVotedIdea == null || idea?.votersUserId?.length > mostVotedIdea?.votersUserId?.length) {
+         mostVotedIdea = idea;
+      }
+   });
+
+   if (mostVotedIdea != null) {
+      await queryToUpdateGroupProperty({ groupId: group.groupId, mostVotedIdea: mostVotedIdea.ideaOfUser });
+   }
 }
 
 /**
@@ -178,7 +177,10 @@ export async function dateIdeaVotePost(params: DateIdeaVotePostParams, ctx: Base
  */
 export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, { onlyIfAMemberHasUserId: user.userId, ctx });
+   const group: Group = await getGroupById(params.groupId, {
+      filters: { onlyIfAMemberHasToken: params.token },
+      ctx,
+   });
    let mostVotedDate: number = null;
    let mostVotedDateVotes: number = 0;
 
@@ -209,17 +211,22 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
 }
 
 export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<GroupChat> {
-   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, {
-      onlyIfAMemberHasUserId: user.userId,
-      includeFullDetails: false,
-      ctx,
-   });
+   let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
+   traversal = queryToUpdateMembershipProperty(traversal, params.token, { newMessagesRead: true });
+   const result = await fromQueryToSpecificProps<Pick<Group, "chat">>(traversal, ["chat"], ["chat"]);
+   return result.chat;
+}
 
-   await updateAndCleanChat(user, group);
-   await queryToUpdateMembershipProperty(group.groupId, user.userId, { newMessagesRead: true });
-
-   return group.chat;
+export async function voteWinnersGet(
+   params: BasicGroupParams,
+   ctx: BaseContext,
+): Promise<Pick<Group, "mostVotedDate" | "mostVotedIdea">> {
+   let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
+   const result = await fromQueryToSpecificProps<Pick<Group, "mostVotedDate" | "mostVotedIdea">>(traversal, [
+      "mostVotedDate",
+      "mostVotedIdea",
+   ]);
+   return result;
 }
 
 /**
@@ -228,7 +235,7 @@ export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promi
 export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
-      onlyIfAMemberHasUserId: user.userId,
+      filters: { onlyIfAMemberHasToken: params.token },
       includeFullDetails: false,
       ctx,
    });
@@ -239,7 +246,6 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
       time: moment().unix(),
       authorUserId: user.userId,
    });
-   group.chat.usersDownloadedLastMessage = [];
 
    await queryToUpdateGroupProperty({ groupId: group.groupId, chat: group.chat });
 
@@ -270,7 +276,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
 export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext): Promise<void> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    const group: Group = await getGroupById(params.groupId, {
-      onlyIfAMemberHasUserId: user.userId,
+      filters: { onlyIfAMemberHasToken: params.token },
       protectPrivacy: false,
       ctx,
    });
@@ -312,8 +318,6 @@ export async function sendDateReminderNotifications(): Promise<void> {
          true,
       );
 
-      const currentTime: number = moment().unix();
-
       for (const group of groups) {
          for (const user of group.members) {
             await addNotificationToUser(
@@ -331,35 +335,6 @@ export async function sendDateReminderNotifications(): Promise<void> {
             );
          }
       }
-   }
-}
-
-/**
- * Internal function that adds the user to the read list and removes old chat messages when all
- * users downloaded them. But only if this features are enabled, otherwise this function does nothing.
- */
-async function updateAndCleanChat(user: User, group: Group): Promise<void> {
-   let updateChanges: boolean = false;
-
-   // Add user in the list of users that downloaded the last message:
-   if (CHAT_READ_FEATURE && group.chat.usersDownloadedLastMessage.indexOf(user.userId) === -1) {
-      group.chat.usersDownloadedLastMessage.push(user.userId);
-      updateChanges = true;
-   }
-
-   // If all users downloaded the last message and there are many chat messages
-   if (
-      REMOVE_OLD_CHAT_MESSAGES &&
-      group.chat.usersDownloadedLastMessage.length === group.membersAmount &&
-      group.chat.messages.length > MAX_CHAT_MESSAGES_STORED_ON_SERVER
-   ) {
-      // Remove all chat messages except for the last ones to optimize data transfer next time
-      group.chat.messages = group.chat.messages.slice(-1 * MAX_CHAT_MESSAGES_STORED_ON_SERVER);
-      updateChanges = true;
-   }
-
-   if (updateChanges) {
-      await queryToUpdateGroupProperty({ groupId: group.groupId, chat: group.chat });
    }
 }
 
@@ -385,7 +360,7 @@ export function getSlotIdFromUsersAmount(amount: number): number {
 
 interface GetGroupByIdOptions {
    includeFullDetails?: boolean;
-   onlyIfAMemberHasUserId?: string;
+   filters?: GroupFilters;
    protectPrivacy?: boolean;
    ctx?: BaseContext;
 }

@@ -1,9 +1,9 @@
-import { __ } from "./database-manager";
-import { GremlinValueType, SupportedGremlinTypes } from "./gremlin-typing-tools";
+import { sendQuery, __ } from "./database-manager";
+import { GremlinValueType, SupportedGremlinTypes, Traversal } from "./gremlin-typing-tools";
 
 /**
  * Converts the format of the Gremlin Map output into JS object
- * @param serializedPropsToParse If a prop was serializer you need to include it here
+ * @param serializedPropsToParse If a prop was serialized you need to include it here in order to be parsed
  */
 export function fromGremlinMapToObject<T>(
    gremlinMap: Map<keyof T, GremlinValueType>,
@@ -58,4 +58,31 @@ export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, Gremli
       result[key] = serializeIfNeeded(object[key]);
    });
    return result;
+}
+
+/**
+ * Converts a Gremlin query that returns a single vertex or edge, extracts the desired props
+ * from it and return them as a parsed object. Useful for optimization to not retrieve a full object from
+ * the database.
+ * You have to pass a type for the object returned, for example: if you want name and age of a user the
+ * type is {name: string, age:number} or Pick<User, "name" | "age">
+ *
+ * @param serializedPropsToParse If there is any prop to extract that needs to be parsed add it here
+ */
+export async function fromQueryToSpecificProps<T>(
+   query: Traversal,
+   propsToExtract: string[],
+   serializedPropsToParse?: Array<keyof T>,
+): Promise<T> {
+   return fromGremlinMapToObject<T>(
+      (
+         await sendQuery(() =>
+            query
+               .valueMap(...propsToExtract)
+               .by(__.unfold())
+               .next(),
+         )
+      )?.value,
+      serializedPropsToParse,
+   );
 }

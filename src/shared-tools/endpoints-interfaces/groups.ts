@@ -9,17 +9,16 @@ export interface Group {
    chat: GroupChat;
    dateIdeasVotes: IdeaOption[];
    dayOptions: DayOption[];
-   usersThatAccepted: string[];
    openForMoreUsers: boolean;
    feedback: ExperienceFeedback[];
    matches: UserWithMatches[];
-   mostVotedDate: number;
+   mostVotedDate?: number;
+   mostVotedIdea?: string;
    reminder1NotificationSent: boolean;
    reminder2NotificationSent: boolean;
 }
 
 export interface GroupChat {
-   usersDownloadedLastMessage: string[];
    messages: ChatMessage[];
 }
 

@@ -1,6 +1,5 @@
 import "jest";
 import {
-   acceptPost,
    chatPost,
    createGroup,
    dateDayVotePost,
@@ -38,14 +37,6 @@ describe("Groups", () => {
          slotToUse: getSlotIdFromUsersAmount(fakeUsers.length),
       });
       group2 = await createGroup({ usersIds: [mainUser2.userId], slotToUse: getSlotIdFromUsersAmount(1) });
-   });
-
-   test("Users that accept the group are stored correctly", async () => {
-      for (const user of fakeUsers) {
-         await acceptPost({ token: user.token, groupId: group.groupId }, null);
-      }
-      group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
-      expect(group.usersThatAccepted.length === fakeUsers.length).toBe(true);
    });
 
    test("Voting dating ideas works correctly and not cheating is allowed", async () => {
@@ -179,26 +170,6 @@ describe("Groups", () => {
       mainUser2 = await retrieveFullyRegisteredUser(mainUser2.token, false, fakeCtx);
       const chatNotifications = mainUser2.notifications.filter(n => n.targetId === group.groupId);
       expect(chatNotifications).toHaveLength(1);
-   });
-
-   test("The action of a user downloading a message is recorded correctly", async () => {
-      // mainUser3 sends a message
-      await chatPost({ message: "I'm so happy", token: mainUser3.token, groupId: group.groupId }, fakeCtx);
-
-      // mainUser downloads the messages, this chatGet call simulates that
-      await chatGet({ token: mainUser.token, groupId: group.groupId }, null);
-
-      // Now we retrieve the group again to check if stored correctly the read
-      group = await getGroupById(group.groupId);
-      expect(group.chat.usersDownloadedLastMessage.length).toBe(1);
-      expect(group.chat.usersDownloadedLastMessage[0]).toBe(mainUser.userId);
-
-      // Now mainUser2 downloads the messages
-      await chatGet({ token: mainUser2.token, groupId: group.groupId }, null);
-
-      // Now we retrieve the group again to check if stored correctly the read
-      group = await getGroupById(group.groupId);
-      expect(group.chat.usersDownloadedLastMessage.length).toBe(2);
    });
 
    test("Feedback gets saved correctly", async () => {

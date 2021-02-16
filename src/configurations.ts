@@ -445,9 +445,6 @@ export const I18N = new I18n({
 export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
 export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = hoursToMilliseconds(24);
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
-export const CHAT_READ_FEATURE = false; // Stores a list of users that read the last chat message, set false for more performance
-export const REMOVE_OLD_CHAT_MESSAGES = false; // Only works if CHAT_READ_FEATURE = true since is required to know what to remove. This feature prevents multi device client. Not recommended
-export const MAX_CHAT_MESSAGES_STORED_ON_SERVER = 15; // Only works if REMOVE_OLD_CHAT_MESSAGES and CHAT_READ_FEATURE are set to true
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
