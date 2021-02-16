@@ -2,11 +2,13 @@ import { BaseContext } from "koa";
 import * as moment from "moment";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import {
+   CHAT_READ_FEATURE,
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
    FIRST_DATE_REMINDER_TIME,
    GROUP_SLOTS_CONFIGS,
    MAX_CHAT_MESSAGES_STORED_ON_SERVER,
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
+   REMOVE_OLD_CHAT_MESSAGES,
    SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY,
    SECOND_DATE_REMINDER_TIME,
 } from "../../configurations";
@@ -333,20 +335,21 @@ export async function sendDateReminderNotifications(): Promise<void> {
 }
 
 /**
- * Internal function that adds the user to the read list and removes last messages
- * that should be already catched by the client.
+ * Internal function that adds the user to the read list and removes old chat messages when all
+ * users downloaded them. But only if this features are enabled, otherwise this function does nothing.
  */
 async function updateAndCleanChat(user: User, group: Group): Promise<void> {
    let updateChanges: boolean = false;
 
    // Add user in the list of users that downloaded the last message:
-   if (group.chat.usersDownloadedLastMessage.indexOf(user.userId) === -1) {
+   if (CHAT_READ_FEATURE && group.chat.usersDownloadedLastMessage.indexOf(user.userId) === -1) {
       group.chat.usersDownloadedLastMessage.push(user.userId);
       updateChanges = true;
    }
 
    // If all users downloaded the last message and there are many chat messages
    if (
+      REMOVE_OLD_CHAT_MESSAGES &&
       group.chat.usersDownloadedLastMessage.length === group.membersAmount &&
       group.chat.messages.length > MAX_CHAT_MESSAGES_STORED_ON_SERVER
    ) {
