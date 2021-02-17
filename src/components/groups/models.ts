@@ -216,12 +216,17 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
    await queryToUpdateGroupProperty({ groupId: group.groupId, dayOptions: group.dayOptions, mostVotedDate });
 }
 
-export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<GroupChat> {
+/**
+ * Optimized endpoint to receive the chat property of the group and register the messages as read. This endpoint
+ * is optimized as much as possible, so it doesn't parse the chat so the response can be faster and parsing is
+ * done on the client.
+ */
+export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<{ chat: string }> {
    let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
-   traversal = queryToUpdateMembershipProperty(traversal, params.token, { newMessagesRead: true });
    traversal = queryToUpdatedReadMessagesAmount(traversal, params.token);
-   const result = await fromQueryToSpecificProps<Pick<Group, "chat">>(traversal, ["chat"], ["chat"]);
-   return result.chat;
+   traversal = queryToUpdateMembershipProperty(traversal, params.token, { newMessagesRead: true });
+   const result = await fromQueryToSpecificProps<Pick<Group, "chat">>(traversal, ["chat"]);
+   return (result as unknown) as { chat: string };
 }
 
 export async function chatUnreadAmountGet(

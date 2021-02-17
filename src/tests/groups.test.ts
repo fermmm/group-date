@@ -161,7 +161,7 @@ describe("Groups", () => {
       );
 
       group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
-      const chat = await chatGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      const chat = JSON.parse((await chatGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx)).chat);
 
       expect(chat.messages).toHaveLength(3);
       expect(group.chat.messages).toHaveLength(3);

@@ -155,15 +155,19 @@ export function queryToUpdateGroupProperty(
 }
 
 /**
- * Receives a traversal that selects a group and changes the member edge properties of the specified user
- * returns a traversal with the group selected.
+ * Receives a traversal that selects a members edge unless specified in the options parameter. Then
+ * changes the specified member edge properties of the specified user and finally returns a traversal
+ * with the group.
  */
 export function queryToUpdateMembershipProperty(
    traversal: Traversal,
    userToken: string,
    properties: Partial<GroupMembership>,
+   options?: { fromGroup?: boolean },
 ): Traversal {
-   traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
+   if (options?.fromGroup) {
+      traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
+   }
 
    for (const key of Object.keys(properties)) {
       traversal = traversal.property(key, serializeIfNeeded(properties[key]));
@@ -174,11 +178,21 @@ export function queryToUpdateMembershipProperty(
    return traversal;
 }
 
-export function queryToUpdatedReadMessagesAmount(traversal: Traversal, userToken: string): Traversal {
-   traversal = traversal.as("group");
+/**
+ * Receives a traversal that selects a group and transfer the group value "chatMessagesAmount" to the
+ * membership value "readMessagesAmount" to register the action of a user reading all current messages.
+ * Returns the membership edge for more changes unless specified in the options parameter.
+ */
+export function queryToUpdatedReadMessagesAmount(
+   traversal: Traversal,
+   userToken: string,
+   options?: { returnGroup?: boolean },
+): Traversal {
    traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
-   traversal = traversal.property("readMessagesAmount", __.select("group").values("chatMessagesAmount"));
-   traversal = traversal.inV();
+   traversal = traversal.property("readMessagesAmount", __.inV().values("chatMessagesAmount"));
+   if (options?.returnGroup) {
+      traversal = traversal.inV();
+   }
    return traversal;
 }
 
