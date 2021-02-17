@@ -20,14 +20,17 @@ import {
    Group,
    GroupChat,
    IdeaOption,
+   UnreadMessagesAmount,
 } from "../../shared-tools/endpoints-interfaces/groups";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import {
    GroupFilters,
    queryToFindSlotsToRelease,
+   queryToGetReadMessagesAndTotal,
    queryToGetGroupsToSendReminder,
    queryToGetMembersForNewMsgNotification,
+   queryToUpdatedReadMessagesAmount,
    queryToUpdateMembershipProperty,
 } from "./queries";
 import {
@@ -44,7 +47,10 @@ import { GroupQuality } from "../groups-finder/tools/types";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { sendQuery } from "../../common-tools/database-tools/database-manager";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
-import { fromQueryToSpecificProps } from "../../common-tools/database-tools/data-conversion-tools";
+import {
+   fromGremlinMapToObject,
+   fromQueryToSpecificProps,
+} from "../../common-tools/database-tools/data-conversion-tools";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -213,11 +219,24 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
 export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<GroupChat> {
    let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
    traversal = queryToUpdateMembershipProperty(traversal, params.token, { newMessagesRead: true });
+   traversal = queryToUpdatedReadMessagesAmount(traversal, params.token);
    const result = await fromQueryToSpecificProps<Pick<Group, "chat">>(traversal, ["chat"], ["chat"]);
    return result.chat;
 }
 
-export async function voteWinnersGet(
+export async function chatUnreadAmountGet(
+   params: BasicGroupParams,
+   ctx: BaseContext,
+): Promise<UnreadMessagesAmount> {
+   let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
+   traversal = queryToGetReadMessagesAndTotal(traversal, params.token);
+   const result = fromGremlinMapToObject<{ read: number; total: number }>(
+      (await sendQuery(() => traversal.next())).value,
+   );
+   return { unread: (result?.total ?? 0) - (result?.read ?? 0) };
+}
+
+export async function voteResultGet(
    params: BasicGroupParams,
    ctx: BaseContext,
 ): Promise<Pick<Group, "mostVotedDate" | "mostVotedIdea">> {
@@ -247,7 +266,11 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
       authorUserId: user.userId,
    });
 
-   await queryToUpdateGroupProperty({ groupId: group.groupId, chat: group.chat });
+   await queryToUpdateGroupProperty({
+      groupId: group.groupId,
+      chat: group.chat,
+      chatMessagesAmount: group.chat.messages.length,
+   });
 
    // Send a notification to group members informing that there is a new message
    const usersToReceiveNotification: string[] = (await queryToGetMembersForNewMsgNotification(group.groupId)

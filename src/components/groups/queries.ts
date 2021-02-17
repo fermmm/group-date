@@ -3,7 +3,7 @@ import { MarkRequired } from "ts-essentials";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, column, g, P, sendQuery } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { GROUP_SLOTS_CONFIGS, NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL } from "../../configurations";
+import { GROUP_SLOTS_CONFIGS } from "../../configurations";
 import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { queryToGetUserById } from "../user/queries";
@@ -23,6 +23,7 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
             messages: [],
          }),
       )
+      .property("chatMessagesAmount", 0)
       .property("creationDate", moment().unix())
       .property("membersAmount", params.initialUsers?.usersIds.length ?? 0)
       .property("dayOptions", serializeIfNeeded(params.dayOptions))
@@ -59,7 +60,7 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
                   __.addE("member")
                      .to("group")
                      .property("newMessagesRead", true)
-                     .property("lastNotificationDate", 0),
+                     .property("readMessagesAmount", 0),
                )
                // Add the corresponding slot edge, slots avoids adding the users in too many groups
                .sideEffect(__.addE("slot" + settings.slotToUse).to("group"))
@@ -173,6 +174,25 @@ export function queryToUpdateMembershipProperty(
    return traversal;
 }
 
+export function queryToUpdatedReadMessagesAmount(traversal: Traversal, userToken: string): Traversal {
+   traversal = traversal.as("group");
+   traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
+   traversal = traversal.property("readMessagesAmount", __.select("group").values("chatMessagesAmount"));
+   traversal = traversal.inV();
+   return traversal;
+}
+
+/**
+ * Receives a group traversal and returns a gremlin map with the read messages of the user and total group messages.
+ * Useful to implement a badge of unread messages.
+ */
+export function queryToGetReadMessagesAndTotal(traversal: Traversal, userToken: string): Traversal {
+   return traversal
+      .project("read", "total")
+      .by(__.inE("member").where(__.outV().has("user", "token", userToken)).values("readMessagesAmount"))
+      .by(__.values("chatMessagesAmount"));
+}
+
 /**
  * Gets the list of users that are able to receive new chat message notification.
  * Also this function updates membership properties to avoid notification spam
@@ -181,9 +201,7 @@ export function queryToGetMembersForNewMsgNotification(groupId: string): Travers
    return queryToGetGroupById(groupId)
       .inE("member")
       .has("newMessagesRead", true)
-      .has("lastNotificationDate", P.lt(moment().unix() - NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL))
-      .property("newMessagesRead", false)
-      .property("lastNotificationDate", moment().unix())
+      .property("newMessagesRead", false) // This prevents spam
       .outV();
 }
 

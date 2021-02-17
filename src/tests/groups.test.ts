@@ -10,6 +10,7 @@ import {
    groupGet,
    chatGet,
    userGroupsGet,
+   chatUnreadAmountGet,
 } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
 import { retrieveFullyRegisteredUser, retrieveUser } from "../components/user/models";
@@ -170,6 +171,22 @@ describe("Groups", () => {
       mainUser2 = await retrieveFullyRegisteredUser(mainUser2.token, false, fakeCtx);
       const chatNotifications = mainUser2.notifications.filter(n => n.targetId === group.groupId);
       expect(chatNotifications).toHaveLength(1);
+   });
+
+   test("Unread messages counter works", async () => {
+      await chatPost(
+         { message: "Lets check counter!", token: mainUser.token, groupId: group.groupId },
+         fakeCtx,
+      );
+      await chatPost(
+         { message: "With another one also!", token: mainUser.token, groupId: group.groupId },
+         fakeCtx,
+      );
+      const unreadMessages = await chatUnreadAmountGet(
+         { groupId: group.groupId, token: mainUser2.token },
+         fakeCtx,
+      );
+      expect(unreadMessages.unread).toBe(5);
    });
 
    test("Feedback gets saved correctly", async () => {
