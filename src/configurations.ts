@@ -407,12 +407,6 @@ export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * When the user ignores a notification of new chat messages then no more notifications of this kind
- * are sent to the user unless this amount of time passes
- */
-export const NEW_MESSAGE_NOTIFICATION_INSISTING_INTERVAL = DAY_IN_SECONDS * 2;
-
-/**
  * Amount of time before the date to send the first reminder
  */
 export const FIRST_DATE_REMINDER_TIME = DAY_IN_SECONDS * 3;
