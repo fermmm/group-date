@@ -50,6 +50,7 @@ import { t } from "../../common-tools/i18n-tools/i18n-tools";
 import {
    fromGremlinMapToObject,
    fromQueryToSpecificProps,
+   fromQueryToSpecificPropValue,
 } from "../../common-tools/database-tools/data-conversion-tools";
 
 export async function initializeGroups(): Promise<void> {
@@ -217,16 +218,22 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
 }
 
 /**
- * Optimized endpoint to receive the chat property of the group and register the messages as read. This endpoint
+ * Optimized endpoint to get the chat value of the group and register the messages as read. This endpoint
  * is optimized as much as possible, so it doesn't parse the chat so the response can be faster and parsing is
- * done on the client.
+ * done on the client, this means the returned value is a string to be parsed by the client.
+ * The client receives a json string as usual so there is no difference, the difference is when this function
+ * is called inside the server, the response it's not already parsed like the others.
  */
-export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<{ chat: string }> {
+export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<string> {
    let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
-   traversal = queryToUpdatedReadMessagesAmount(traversal, params.token);
-   traversal = queryToUpdateMembershipProperty(traversal, params.token, { newMessagesRead: true });
-   const result = await fromQueryToSpecificProps<Pick<Group, "chat">>(traversal, ["chat"]);
-   return (result as unknown) as { chat: string };
+   traversal = queryToUpdatedReadMessagesAmount(traversal, params.token, { returnGroup: false });
+   traversal = queryToUpdateMembershipProperty(
+      traversal,
+      params.token,
+      { newMessagesRead: true },
+      { fromGroup: false },
+   );
+   return await fromQueryToSpecificPropValue<string>(traversal, "chat");
 }
 
 export async function chatUnreadAmountGet(

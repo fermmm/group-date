@@ -61,7 +61,7 @@ export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, Gremli
 }
 
 /**
- * Converts a Gremlin query that returns a single vertex or edge, extracts the desired props
+ * Takes a traversal that returns a single vertex or edge, extracts the desired props
  * from it and return them as a parsed object. Useful for optimization to not retrieve a full object from
  * the database.
  * You have to pass a type for the object returned, for example: if you want name and age of a user the
@@ -85,4 +85,13 @@ export async function fromQueryToSpecificProps<T>(
       )?.value,
       serializedPropsToParse,
    );
+}
+
+/**
+ * Takes a traversal that returns a single vertex or edge, extracts the value from a specified prop
+ * and returns is parsed. Useful for optimization to not retrieve a full object from the database.
+ * You have to pass a type for the object returned.
+ */
+export async function fromQueryToSpecificPropValue<T>(query: Traversal, propToGetValue: string): Promise<T> {
+   return (await sendQuery(() => query.values(propToGetValue).next()))?.value;
 }

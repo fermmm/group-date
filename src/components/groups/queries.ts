@@ -165,7 +165,7 @@ export function queryToUpdateMembershipProperty(
    properties: Partial<GroupMembership>,
    options?: { fromGroup?: boolean },
 ): Traversal {
-   if (options?.fromGroup) {
+   if (options?.fromGroup !== false) {
       traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
    }
 
@@ -190,7 +190,7 @@ export function queryToUpdatedReadMessagesAmount(
 ): Traversal {
    traversal = traversal.inE("member").where(__.outV().has("user", "token", userToken));
    traversal = traversal.property("readMessagesAmount", __.inV().values("chatMessagesAmount"));
-   if (options?.returnGroup) {
+   if (options?.returnGroup !== false) {
       traversal = traversal.inV();
    }
    return traversal;
