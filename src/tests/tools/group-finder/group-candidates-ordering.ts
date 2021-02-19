@@ -69,7 +69,7 @@ const testGroups: Array<{ name: string; group: GroupCandidate }> = [
    },
    {
       name: "3 for 3",
-      group: createAndAddMultipleUsers(createGroupWith3(), 3, [0, 1, 2]),
+      group: createAndAddMultipleUsers(createGroupWith3(), 3, "all"),
    },
    {
       name: "3 for 4",
@@ -114,6 +114,13 @@ const testGroups: Array<{ name: string; group: GroupCandidate }> = [
    {
       name: "3 All with all",
       group: createGroupCandidate({ amountOfInitialUsers: 3, connectAllWithAll: true }),
+   },
+   {
+      name: "3 All with all + 1 with 2 connections",
+      group: createAndAddOneUser({
+         group: createGroupCandidate({ amountOfInitialUsers: 3, connectAllWithAll: true }),
+         connectWith: [0, 1],
+      }),
    },
    {
       name: "5 All with all",

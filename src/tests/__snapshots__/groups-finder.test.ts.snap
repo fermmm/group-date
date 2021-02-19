@@ -81,12 +81,12 @@ Array [
   },
   Object {
     "analysis": Object {
-      "conAmount": 3,
-      "conCoverage": 0.6,
-      "distConMetaconnection": 0,
-      "inequality": 0,
+      "conAmount": 4,
+      "conCoverage": 0.8,
+      "distConMetaconnection": 0.27,
+      "inequality": 0.15,
     },
-    "approvedReport": "APPROVED",
+    "approvedReport": "NOT MINIMUM QUALITY",
     "name": "3 for 3",
     "problems": "OK",
   },
@@ -209,6 +209,17 @@ Array [
     },
     "approvedReport": "APPROVED",
     "name": "3 All with all",
+    "problems": "OK",
+  },
+  Object {
+    "analysis": Object {
+      "conAmount": 2.5,
+      "conCoverage": 0.83,
+      "distConMetaconnection": 0.21,
+      "inequality": 0.13,
+    },
+    "approvedReport": "APPROVED",
+    "name": "3 All with all + 1 with 2 connections",
     "problems": "OK",
   },
   Object {
@@ -347,6 +358,15 @@ Object {
       "usersAmount": 9,
     },
     Object {
+      "connAmount": 3.6,
+      "connAmountR": 4,
+      "name": "3 for 3 [MODIFIED]",
+      "problems": "OK",
+      "quality": 0.14,
+      "qualityR": 0.1,
+      "usersAmount": 5,
+    },
+    Object {
       "connAmount": 4.167,
       "connAmountR": 4,
       "name": "12 users with 4 to 9 connections",
@@ -410,15 +430,6 @@ Object {
       "usersAmount": 8,
     },
     Object {
-      "connAmount": 3,
-      "connAmountR": 3,
-      "name": "3 for 3",
-      "problems": "OK",
-      "quality": 0,
-      "qualityR": 0,
-      "usersAmount": 6,
-    },
-    Object {
       "connAmount": 3.429,
       "connAmountR": 3,
       "name": "3 for 4",
@@ -426,6 +437,15 @@ Object {
       "quality": 0.143,
       "qualityR": 0.1,
       "usersAmount": 7,
+    },
+    Object {
+      "connAmount": 2.5,
+      "connAmountR": 3,
+      "name": "3 All with all + 1 with 2 connections",
+      "problems": "OK",
+      "quality": 0.208,
+      "qualityR": 0.2,
+      "usersAmount": 4,
     },
     Object {
       "connAmount": 2.8,
