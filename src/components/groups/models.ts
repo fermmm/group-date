@@ -401,7 +401,7 @@ function getComingWeekendDays(limitAmount: number): number[] {
 }
 
 function generateGroupName(group: Group): string {
-   return group.members.join(",");
+   return group.members?.join(",") ?? "";
 }
 
 export function getSlotIdFromUsersAmount(amount: number): number {
