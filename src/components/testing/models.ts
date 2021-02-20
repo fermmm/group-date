@@ -5,6 +5,7 @@ import { createFakeCompatibleUsers } from "../../tests/tools/users";
 import { searchAndCreateNewGroups } from "../groups-finder/models";
 import { retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
 
+const usersCreated = [];
 export async function createFakeUsersPost(
    params: TokenParameter & { text: string },
    ctx: BaseContext,
@@ -15,9 +16,11 @@ export async function createFakeUsersPost(
       return `Error: Only admins can use this`;
    }
 
-   const usersCreated = await createFakeCompatibleUsers(
-      await retrieveFullyRegisteredUser(params.token, false, ctx),
-      Number(params.text),
+   usersCreated.push(
+      ...(await createFakeCompatibleUsers(
+         await retrieveFullyRegisteredUser(params.token, false, ctx),
+         Number(params.text),
+      )),
    );
 
    for (const userCreated of usersCreated) {
