@@ -18,7 +18,6 @@ import {
    DayOptionsVotePostParams,
    FeedbackPostParams,
    Group,
-   GroupChat,
    IdeaOption,
    UnreadMessagesAmount,
 } from "../../shared-tools/endpoints-interfaces/groups";
@@ -74,7 +73,10 @@ export async function createGroup(
    const resultGroup: Group = await fromQueryToGroup(
       queryToCreateGroup({ dayOptions, initialUsers, initialQuality }),
       false,
+      true,
    );
+
+   await queryToUpdateGroupProperty({ groupId: resultGroup.groupId, name: generateGroupName(resultGroup) });
 
    // Send notifications
    for (const userId of initialUsers.usersIds) {
@@ -114,7 +116,13 @@ export async function getGroupById(
  * Add users to a group (this is not an endpoint)
  */
 export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSettings): Promise<void> {
-   await sendQuery(() => queryToAddUsersToGroup(queryToGetGroupById(groupId), users).iterate());
+   const group = await fromQueryToGroup(
+      queryToAddUsersToGroup(queryToGetGroupById(groupId), users),
+      true,
+      true,
+   );
+
+   await queryToUpdateGroupProperty({ groupId: group.groupId, name: generateGroupName(group) });
 
    // Send notifications:
    for (const userId of users.usersIds) {
@@ -387,6 +395,10 @@ function getComingWeekendDays(limitAmount: number): number[] {
    }
 
    return result;
+}
+
+function generateGroupName(group: Group): string {
+   return group.members.join(",");
 }
 
 export function getSlotIdFromUsersAmount(amount: number): number {
