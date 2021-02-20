@@ -37,7 +37,7 @@ import {
    queryToAddUsersToGroup,
    queryToCreateGroup,
    queryToGetGroupById,
-   queryToGetGroupsOfUserByUserId,
+   queryToGetAllGroupsOfUser,
    queryToUpdateGroupProperty,
    queryToVoteDateIdeas,
 } from "./queries";
@@ -153,9 +153,12 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
 /**
  * Endpoint to get all the groups the user is part of.
  */
-export async function userGroupsGet(params: TokenParameter, ctx: BaseContext): Promise<Group[]> {
-   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   return fromQueryToGroupList(queryToGetGroupsOfUserByUserId(user.userId));
+export async function userGroupsGet(
+   params: TokenParameter,
+   ctx: BaseContext,
+   fullInfo?: boolean,
+): Promise<Group[]> {
+   return fromQueryToGroupList(queryToGetAllGroupsOfUser(params.token), true, fullInfo ?? false);
 }
 
 /**

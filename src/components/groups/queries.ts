@@ -6,7 +6,7 @@ import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tool
 import { GROUP_SLOTS_CONFIGS } from "../../configurations";
 import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
 import { GroupQuality } from "../groups-finder/tools/types";
-import { queryToGetUserById } from "../user/queries";
+import { queryToGetUserByToken } from "../user/queries";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 
 /**
@@ -137,8 +137,8 @@ export function queryToGetGroupById(groupId: string, filters?: GroupFilters): Tr
    return traversal;
 }
 
-export function queryToGetGroupsOfUserByUserId(userId: string): Traversal {
-   return queryToGetUserById(userId).out("member");
+export function queryToGetAllGroupsOfUser(userToken: string): Traversal {
+   return queryToGetUserByToken(userToken, null, true).out("member");
 }
 
 export function queryToUpdateGroupProperty(

@@ -64,7 +64,7 @@ export async function retrieveFinalGroupsOf(
       const token: string = typeof user === "string" ? user : user.userId;
 
       // userId and token are the same in these tests
-      const userGroups = await userGroupsGet({ token }, fakeCtx);
+      const userGroups = await userGroupsGet({ token }, fakeCtx, true);
       userGroups.forEach(userGroup => {
          if (result.find(g => g.groupId === userGroup.groupId) == null) {
             result.push(userGroup);
