@@ -43,7 +43,7 @@ import {
 } from "./queries";
 import { fromQueryToGroup, fromQueryToGroupList } from "./tools/data-conversion";
 import { GroupQuality } from "../groups-finder/tools/types";
-import { generateId } from "../../common-tools/string-tools/string-tools";
+import { generateId, toFirstUpperCase } from "../../common-tools/string-tools/string-tools";
 import { sendQuery } from "../../common-tools/database-tools/database-manager";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
 import {
@@ -401,7 +401,8 @@ function getComingWeekendDays(limitAmount: number): number[] {
 }
 
 function generateGroupName(group: Group): string {
-   return group.members?.join(",") ?? "";
+   const membersNames = group.members?.map(member => toFirstUpperCase(member.name));
+   return membersNames.join(", ") ?? "";
 }
 
 export function getSlotIdFromUsersAmount(amount: number): number {
