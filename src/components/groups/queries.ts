@@ -30,6 +30,7 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property("initialQuality", params.initialQuality ?? GroupQuality.Good)
       .property("reminder1NotificationSent", false)
       .property("reminder2NotificationSent", false)
+      .property("seenBy", serializeIfNeeded([]))
       .property("feedback", serializeIfNeeded([]));
 
    if (params.initialUsers != null) {

@@ -9,6 +9,7 @@ import {
    chatGet,
    voteResultGet,
    chatUnreadAmountGet,
+   groupSeenPost,
 } from "./models";
 
 export function groupsRoutes(router: Router): void {
@@ -23,5 +24,6 @@ export function groupsRoutes(router: Router): void {
    router.post("/group/ideas/vote", async ctx => (ctx.body = await dateIdeaVotePost(ctx.request.body, ctx)));
    router.post("/group/days/vote", async ctx => (ctx.body = await dateDayVotePost(ctx.request.body, ctx)));
    router.post("/group/chat", async ctx => (ctx.body = await chatPost(ctx.request.body, ctx)));
+   router.post("/group/seen", async ctx => (ctx.body = await groupSeenPost(ctx.request.body, ctx)));
    router.post("/group/feedback", async ctx => (ctx.body = await feedbackPost(ctx.request.body, ctx)));
 }

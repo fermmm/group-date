@@ -19,6 +19,7 @@ import {
    FeedbackPostParams,
    Group,
    IdeaOption,
+   SeenByPostParams,
    UnreadMessagesAmount,
 } from "../../shared-tools/endpoints-interfaces/groups";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
@@ -159,6 +160,25 @@ export async function userGroupsGet(
    fullInfo?: boolean,
 ): Promise<Group[]> {
    return fromQueryToGroupList(queryToGetAllGroupsOfUser(params.token), true, fullInfo ?? false);
+}
+
+export async function groupSeenPost(params: SeenByPostParams, ctx: BaseContext): Promise<void> {
+   const group = await fromQueryToGroup(
+      queryToGetGroupById(params.groupId, {
+         onlyIfAMemberHasToken: params.token,
+         onlyIfAMemberHasUserId: params.userId,
+      }),
+      true,
+      false,
+   );
+
+   const seenBy = [...group.seenBy];
+
+   if (!seenBy.includes(params.userId)) {
+      seenBy.push(params.userId);
+   }
+
+   await queryToUpdateGroupProperty({ seenBy, groupId: group.groupId });
 }
 
 /**

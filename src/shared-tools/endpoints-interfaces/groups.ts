@@ -18,6 +18,7 @@ export interface Group {
    mostVotedIdea?: string;
    reminder1NotificationSent: boolean;
    reminder2NotificationSent: boolean;
+   seenBy: string[];
 }
 
 export interface GroupChat {
@@ -100,4 +101,8 @@ export interface Slot extends SizeRestriction {
 
 export interface UnreadMessagesAmount {
    unread: number;
+}
+
+export interface SeenByPostParams extends BasicGroupParams {
+   userId: string;
 }
