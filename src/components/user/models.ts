@@ -258,7 +258,7 @@ export async function retrieveFullyRegisteredUser(
    const user = await retrieveUser(token, includeFullInfo, ctx);
 
    if (!user.profileCompleted) {
-      ctx.throw(400, t("Incomplete profiles not allowed in this endpoint", { user }));
+      ctx.throw(400, t("Incomplete profiles not allowed in this endpoint", { ctx }));
       return;
    }
 
