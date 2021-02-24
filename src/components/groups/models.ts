@@ -87,6 +87,7 @@ export async function createGroup(
             type: NotificationType.Group,
             title: "You are in a group!",
             text: "A group just formed and you like each other!",
+            targetId: resultGroup.groupId,
          },
          true,
       );
