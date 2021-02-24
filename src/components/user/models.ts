@@ -59,6 +59,7 @@ import {
    USER_PROPS_AS_QUESTIONS,
 } from "../../configurations";
 import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models";
+import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 
 export async function initializeUsers(): Promise<void> {
    createFolderOnRoot("uploads");
@@ -344,6 +345,11 @@ export async function attractionsReceivedGet(token: string, types?: AttractionTy
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
    return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
+}
+
+export async function notificationsGet(params: TokenParameter, ctx: BaseContext): Promise<string> {
+   const traversal = queryToGetUserByToken(params.token, null, true);
+   return await fromQueryToSpecificPropValue<string>(traversal, "notifications");
 }
 
 const imageSaver = koaBody({

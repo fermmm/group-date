@@ -7,6 +7,7 @@ import {
    userGet,
    userPost,
    userPropsAsQuestionsGet,
+   notificationsGet,
 } from "./models";
 
 export function userRoutes(router: Router): void {
@@ -14,6 +15,7 @@ export function userRoutes(router: Router): void {
    router.post("/user", async ctx => (ctx.body = await userPost(ctx.request.body, ctx)));
    router.get("/user/profile-status", async ctx => (ctx.body = await profileStatusGet(ctx.request.query, ctx)));
    router.get("/user/props-as-questions", async ctx => (ctx.body = userPropsAsQuestionsGet(ctx)));
+   router.get("/user/notifications", async ctx => (ctx.body = await notificationsGet(ctx.request.query, ctx)));
    router.post(
       "/user/set-attraction",
       async ctx => (ctx.body = await setAttractionPost(ctx.request.body, ctx)),
