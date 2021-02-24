@@ -33,7 +33,7 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
 export async function createFakeUser(customProps?: Partial<User>): Promise<User> {
    const userProps: User = generateRandomUserProps(customProps);
 
-   await createUser(userProps.token, userProps.email, false, true, userProps.userId);
+   await createUser(userProps.token, userProps.email, false, fakeCtx, true, userProps.userId);
    await userPost({ token: userProps.token, props: userProps as EditableUserProps }, fakeCtx);
 
    fakeUsersCreated.push(userProps);

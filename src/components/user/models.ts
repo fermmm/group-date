@@ -17,6 +17,7 @@ import {
    AttractionType,
    FileUploadResponse,
    Notification,
+   NotificationType,
    ProfileStatusServerResponse,
    SetAttractionParams,
    User,
@@ -112,13 +113,14 @@ export async function retrieveUser(
       return user;
    }
 
-   return createUser(token, userDataFromFacebook.content.email, includeFullInfo);
+   return createUser(token, userDataFromFacebook.content.email, includeFullInfo, ctx);
 }
 
 export async function createUser(
    token: string,
    email: string,
    includeFullInfo: boolean,
+   ctx: BaseContext,
    setProfileCompletedForTesting?: boolean,
    customUserIdForTesting?: string,
 ): Promise<Partial<User>> {
@@ -133,8 +135,17 @@ export async function createUser(
       }
    }
 
+   const welcomeNotification: Notification = getWelcomeNotification(ctx);
+
    return fromQueryToUser(
-      queryToCreateUser(token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin),
+      queryToCreateUser(
+         token,
+         email,
+         welcomeNotification,
+         setProfileCompletedForTesting,
+         customUserIdForTesting,
+         isAdmin,
+      ),
       includeFullInfo,
    );
 }
@@ -350,6 +361,16 @@ export async function attractionsSentGet(token: string, types?: AttractionType[]
 export async function notificationsGet(params: TokenParameter, ctx: BaseContext): Promise<string> {
    const traversal = queryToGetUserByToken(params.token, null, true);
    return await fromQueryToSpecificPropValue<string>(traversal, "notifications");
+}
+
+export function getWelcomeNotification(ctx: BaseContext): Notification {
+   return {
+      title: t("Welcome to the app!", { ctx }),
+      text: t("Press here if you want to know more details", { ctx }),
+      type: NotificationType.About,
+      notificationId: generateId(),
+      date: moment().unix(),
+   };
 }
 
 const imageSaver = koaBody({

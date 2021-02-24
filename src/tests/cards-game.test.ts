@@ -198,12 +198,12 @@ describe("Cards game", () => {
 
       // The test is going to be done correctly
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(0);
+      expect(mainUser.notifications.length).toBe(1); // Only the welcome notification expected
 
       // If the user does not request for notifications should be not notified
       await notifyAllUsersAboutNewCards();
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(0);
+      expect(mainUser.notifications.length).toBe(1);
 
       // Here user requests for notifications
       await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, fakeCtx);
@@ -211,12 +211,12 @@ describe("Cards game", () => {
       // Now it should be notified
       await notifyAllUsersAboutNewCards();
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(1);
+      expect(mainUser.notifications.length).toBe(2);
 
       // Repetition should not add more notifications
       await notifyAllUsersAboutNewCards();
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(1);
+      expect(mainUser.notifications.length).toBe(2);
 
       await queryToRemoveUsers([mainUser]);
       await queryToRemoveUsers(fakeCompatibleUsers);

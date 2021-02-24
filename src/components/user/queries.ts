@@ -1,3 +1,4 @@
+import { Notification } from "./../../shared-tools/endpoints-interfaces/user";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, P, sendQuery, g, column } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
@@ -20,6 +21,7 @@ import { DEFAULT_LANGUAGE } from "../../configurations";
 export function queryToCreateUser(
    token: string,
    email: string,
+   welcomeNotification: Notification,
    setProfileCompletedForTesting?: boolean,
    customUserIdForTesting?: string,
    isAdmin?: boolean,
@@ -38,7 +40,7 @@ export function queryToCreateUser(
             .property("isAdmin", isAdmin === true ? true : false)
             .property("sendNewUsersNotification", -1)
             .property("lastGroupJoinedDate", moment().unix())
-            .property("notifications", "[]"),
+            .property("notifications", `[${JSON.stringify(welcomeNotification)}]`),
       )
       .unfold();
 }
