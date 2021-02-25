@@ -212,9 +212,10 @@ export function queryToGetReadMessagesAndTotal(traversal: Traversal, userToken: 
  * Gets the list of users that are able to receive new chat message notification.
  * Also this function updates membership properties to avoid notification spam
  */
-export function queryToGetMembersForNewMsgNotification(groupId: string): Traversal {
+export function queryToGetMembersForNewMsgNotification(groupId: string, authorUserId: string): Traversal {
    return queryToGetGroupById(groupId)
       .inE("member")
+      .not(__.outV().has("userId", authorUserId)) // This prevents a notification to the author of the message
       .has("newMessagesRead", true)
       .property("newMessagesRead", false) // This prevents spam
       .outV();

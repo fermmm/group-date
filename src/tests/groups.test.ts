@@ -16,7 +16,7 @@ import { queryToRemoveGroups } from "../components/groups/queries";
 import { retrieveFullyRegisteredUser, retrieveUser } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
 import { ExperienceFeedbackType, Group } from "../shared-tools/endpoints-interfaces/groups";
-import { User } from "../shared-tools/endpoints-interfaces/user";
+import { NotificationType, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createFakeUsers, getAllTestUsersCreated } from "./tools/users";
 
@@ -169,7 +169,9 @@ describe("Groups", () => {
 
    test("Notifications of new chat messages are received and not with a spamming behavior", async () => {
       mainUser2 = await retrieveFullyRegisteredUser(mainUser2.token, false, fakeCtx);
-      const chatNotifications = mainUser2.notifications.filter(n => n.targetId === group.groupId);
+      const chatNotifications = mainUser2.notifications.filter(
+         n => n.targetId === group.groupId && n.type === NotificationType.Chat,
+      );
       expect(chatNotifications).toHaveLength(1);
    });
 

@@ -317,7 +317,10 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    });
 
    // Send a notification to group members informing that there is a new message
-   const usersToReceiveNotification: string[] = (await queryToGetMembersForNewMsgNotification(group.groupId)
+   const usersToReceiveNotification: string[] = (await queryToGetMembersForNewMsgNotification(
+      group.groupId,
+      user.userId,
+   )
       .values("userId")
       .toList()) as string[];
 
