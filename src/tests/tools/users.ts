@@ -81,6 +81,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
       questionsShowed: APP_AUTHORED_THEMES_AS_QUESTIONS.map(q => q.questionId),
+      notificationsToken: generateId(),
    };
 
    return { ...randomProps, ...(customProps ?? {}) };

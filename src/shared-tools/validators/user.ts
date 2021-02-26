@@ -33,6 +33,7 @@ const EDITABLE_USER_PROPS_SCHEMA = {
    height: { type: "number", min: 0, max: 300, optional: true } as V,
    sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true } as V,
    questionsShowed: { type: "array", items: { type: "string", min: 1, max: 20 }, max: 50, optional: true } as V,
+   notificationsToken: { type: "string", min: 0, max: 2000, optional: true } as V,
 };
 
 // Export the same object casted with more type information

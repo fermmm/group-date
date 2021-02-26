@@ -42,6 +42,7 @@ export interface User {
    lastGroupJoinedDate: number;
    notifications: Notification[];
    questionsShowed: string[];
+   notificationsToken: string;
    themesSubscribed?: ThemeBasicInfo[];
    themesBlocked?: ThemeBasicInfo[];
 }
