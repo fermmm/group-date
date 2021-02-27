@@ -9,7 +9,7 @@ import {
    SetAttractionParams,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
-import { editableUserPropsList, EditableUserProps } from "../../shared-tools/validators/user";
+import { EditableUserProps, editableUserPropsList } from "../../shared-tools/validators/user";
 import * as moment from "moment";
 import { ValueOf } from "ts-essentials";
 import { generateId } from "../../common-tools/string-tools/string-tools";

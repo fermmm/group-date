@@ -1,5 +1,5 @@
 import { TokenParameter } from "./common";
-import { EditableUserPropKey, EditableUserProps } from "../validators/user";
+import { RequiredUserPropKey, EditableUserProps } from "../validators/user";
 import { ThemeBasicInfo } from "./themes";
 import { ValueOf } from "ts-essentials";
 
@@ -59,7 +59,7 @@ export enum Gender {
 }
 
 export interface ProfileStatusServerResponse {
-   missingEditableUserProps: EditableUserPropKey[];
+   missingEditableUserProps: RequiredUserPropKey[];
    notShowedThemeQuestions: string[];
    user: Partial<User>;
 }

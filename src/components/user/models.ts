@@ -29,8 +29,8 @@ import {
    UserPropsAsQuestionsTypes,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
-   editableUserPropsList,
-   EditableUserPropKey,
+   requiredUserPropsList,
+   RequiredUserPropKey,
    validateUserProps,
 } from "../../shared-tools/validators/user";
 import {
@@ -199,10 +199,10 @@ export async function profileStatusGet(
    return result;
 }
 
-function getMissingEditableUserProps(user: Partial<User>): EditableUserPropKey[] {
-   const result: EditableUserPropKey[] = [];
+function getMissingEditableUserProps(user: Partial<User>): RequiredUserPropKey[] {
+   const result: RequiredUserPropKey[] = [];
 
-   editableUserPropsList.forEach(editableUserProp => {
+   requiredUserPropsList.forEach(editableUserProp => {
       if (user[editableUserProp] == null) {
          result.push(editableUserProp);
       }
