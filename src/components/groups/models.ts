@@ -134,6 +134,7 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
             type: NotificationType.Group,
             title: "You are in a group!",
             text: "A group just formed and you like each other!",
+            targetId: group.groupId,
          },
          { sendPushNotification: true, translateNotification: true },
       );
