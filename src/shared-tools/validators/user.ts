@@ -54,7 +54,7 @@ export type EditableUserPropKey =
    | keyof typeof OTHER_USER_PROPS_SCHEMA;
 
 // The user object but only with the editable props
-export type EditableUserProps = Partial<Record<RequiredUserPropKey, UserPropsValueTypes>>;
+export type EditableUserProps = Partial<Record<EditableUserPropKey, UserPropsValueTypes>>;
 
 // The editable props as string list
 export const requiredUserPropsList: RequiredUserPropKey[] = Object.keys(
