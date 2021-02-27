@@ -56,7 +56,7 @@ export async function adminChatPost(params: AdminChatPostParams, ctx: BaseContex
             title: "You have a new message from an admin",
             text: "You can respond to the admin",
          },
-         true,
+         { sendPushNotification: true, translateNotification: true },
       );
    }
 }

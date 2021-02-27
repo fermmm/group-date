@@ -1,4 +1,5 @@
 import { Slot } from "./groups";
+import { NotificationChannelInfo } from "./user";
 
 export interface ServerInfoParams {
    version: string;
@@ -19,4 +20,5 @@ export interface ServerInfoResponse {
       themeCreationTimeFrame: number;
       maxThemeSubscriptionsAllowed: number;
    };
+   pushNotificationsChannels: NotificationChannelInfo[];
 }

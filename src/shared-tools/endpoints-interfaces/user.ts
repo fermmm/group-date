@@ -9,6 +9,7 @@ import { ValueOf } from "ts-essentials";
  *    - Make sure the database queries are updated when using or should use your prop
  *    - If the prop is editable by the user search editableUserPropsSchema constant and update it.
  *    - Make sure the tests are updated specially the code that generates users with random data.
+ *    - If the prop should not be visible to other users or hackers make sure you add it to security-tools.ts
  */
 export interface User {
    userId: string;
@@ -135,3 +136,16 @@ export interface UserPropAsQuestionAnswer<T = UserPropsAsQuestionsTypes> {
 
 export const allAttractionTypes: AttractionType[] = Object.values(AttractionType);
 export const allMatchTypes: MatchType[] = Object.values(MatchType);
+
+export enum NotificationChannelId {
+   Default = "default",
+   ChatMessages = "chat",
+   Events = "events",
+   NewUsers = "newUsers",
+   DateReminders = "dateReminders",
+}
+
+export interface NotificationChannelInfo {
+   id: NotificationChannelId;
+   name: string;
+}

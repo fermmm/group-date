@@ -8,7 +8,7 @@ import {
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { BasicThemeParams } from "../../shared-tools/endpoints-interfaces/themes";
-import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
+import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import { queryToUpdateUserProps } from "../user/queries";
 import { fromQueryToUserList } from "../user/tools/data-conversion";
@@ -85,6 +85,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
                title: t(`There is new people in the app!`, { user }),
                text: t("There are %s new users", { user }, String(recommendations)),
             },
+            { sendPushNotification: true, channelId: NotificationChannelId.NewUsers },
          );
       }
    }

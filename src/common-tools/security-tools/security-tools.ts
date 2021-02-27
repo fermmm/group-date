@@ -24,6 +24,7 @@ export const rateLimiterConfig: ratelimit.MiddlewareOptions = {
  */
 export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(user: T): T {
    delete user.token;
+   delete user.notificationsToken;
    delete user.email;
    delete user.locationLat;
    delete user.locationLon;
@@ -41,6 +42,5 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
  */
 export function removePrivacySensitiveGroupProps(group: Group): Group {
    delete group.feedback;
-
    return group;
 }

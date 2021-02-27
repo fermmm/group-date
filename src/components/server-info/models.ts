@@ -6,11 +6,13 @@ import {
    MAX_GROUP_SIZE,
    MAX_THEME_SUBSCRIPTIONS_ALLOWED,
    MIN_GROUP_SIZE,
+   PUSH_NOTIFICATION_CHANNELS,
    THEMES_PER_TIME_FRAME,
    THEME_CREATION_TIME_FRAME,
 } from "../../configurations";
 import { ServerInfoParams, ServerInfoResponse } from "../../shared-tools/endpoints-interfaces/server-info";
-import { getLocaleFromHeader } from "../../common-tools/i18n-tools/i18n-tools";
+import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
+import { NotificationChannelInfo } from "../../shared-tools/endpoints-interfaces/user";
 
 export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): ServerInfoResponse {
    return {
@@ -28,5 +30,10 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
          themeCreationTimeFrame: THEME_CREATION_TIME_FRAME,
          maxThemeSubscriptionsAllowed: MAX_THEME_SUBSCRIPTIONS_ALLOWED,
       },
+      pushNotificationsChannels: translatePushNotificationChannels(PUSH_NOTIFICATION_CHANNELS, ctx),
    };
+}
+
+function translatePushNotificationChannels(channels: NotificationChannelInfo[], ctx: BaseContext) {
+   return channels.map(channel => ({ ...channel, name: t(channel.name, { ctx }) }));
 }

@@ -1,3 +1,4 @@
+import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
 import * as appRoot from "app-root-path";
 import { ValidationError } from "fastest-validator";
@@ -17,6 +18,7 @@ import {
    AttractionType,
    FileUploadResponse,
    Notification,
+   NotificationChannelId,
    NotificationType,
    ProfileStatusServerResponse,
    SetAttractionParams,
@@ -61,6 +63,7 @@ import {
 } from "../../configurations";
 import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models";
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
+import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 
 export async function initializeUsers(): Promise<void> {
    createFolderOnRoot("uploads");
@@ -278,16 +281,20 @@ export async function retrieveFullyRegisteredUser(
 }
 
 /**
- * Internal function to add a notification to the user object.
+ * Internal function to add a notification to the user object and optionally send push notification.
  */
 export async function addNotificationToUser(
    tokenOrId: TokenOrId,
    notification: Omit<Notification, "notificationId" | "date">,
-   translateNotification?: boolean,
+   settings?: {
+      translateNotification?: boolean;
+      sendPushNotification?: boolean;
+      channelId?: NotificationChannelId;
+   },
 ) {
    const user: Partial<User> = await fromQueryToUser(queryToGetUserByTokenOrId(tokenOrId), false);
 
-   if (translateNotification) {
+   if (settings?.translateNotification) {
       notification = {
          ...notification,
          title: t(notification.title, { user }),
@@ -316,6 +323,18 @@ export async function addNotificationToUser(
          value: user.notifications,
       },
    ]);
+
+   if (settings?.sendPushNotification && isValidNotificationsToken(user.notificationsToken)) {
+      sendPushNotifications([
+         {
+            to: user.notificationsToken,
+            title: notification.title,
+            body: notification.text,
+            data: { type: notification.type, targetId: notification.targetId },
+            channelId: settings.channelId ? settings.channelId : NotificationChannelId.Default,
+         },
+      ]);
+   }
 }
 
 /**

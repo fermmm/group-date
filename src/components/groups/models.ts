@@ -22,7 +22,7 @@ import {
    SeenByPostParams,
    UnreadMessagesAmount,
 } from "../../shared-tools/endpoints-interfaces/groups";
-import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
+import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import {
    GroupFilters,
@@ -89,7 +89,7 @@ export async function createGroup(
             text: "A group just formed and you like each other!",
             targetId: resultGroup.groupId,
          },
-         true,
+         { sendPushNotification: true, translateNotification: true },
       );
    }
 
@@ -135,7 +135,7 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
             title: "You are in a group!",
             text: "A group just formed and you like each other!",
          },
-         true,
+         { sendPushNotification: true, translateNotification: true },
       );
    }
 }
@@ -335,7 +335,11 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
             // Previous notifications that has the same value here are replaced
             idForReplacement: group.groupId,
          },
-         true,
+         {
+            sendPushNotification: true,
+            channelId: NotificationChannelId.ChatMessages,
+            translateNotification: true,
+         },
       );
    }
 }
@@ -402,6 +406,7 @@ export async function sendDateReminderNotifications(): Promise<void> {
                   ),
                   targetId: group.groupId,
                },
+               { sendPushNotification: true, channelId: NotificationChannelId.DateReminders },
             );
          }
       }

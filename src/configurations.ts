@@ -5,7 +5,12 @@ import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-
 import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
-import { Gender, UserPropAsQuestion } from "./shared-tools/endpoints-interfaces/user";
+import {
+   Gender,
+   NotificationChannelId,
+   NotificationChannelInfo,
+   UserPropAsQuestion,
+} from "./shared-tools/endpoints-interfaces/user";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////  GROUP FINDER  //////////////////////////////////////////////////
@@ -421,6 +426,34 @@ export const SECOND_DATE_REMINDER_TIME = DAY_IN_SECONDS;
  * How often to execute the search of groups to send the remainder notification to members
  */
 export const SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = hoursToMilliseconds(5);
+
+/**
+ * To update a push notification channel you must also update NotificationChannelId.
+ * This information is sent to the client in the server info endpoint so the device
+ * registers the push notification channels (required un app settings).
+ */
+export const PUSH_NOTIFICATION_CHANNELS: NotificationChannelInfo[] = [
+   {
+      id: NotificationChannelId.Default,
+      name: "General non frequent notifications",
+   },
+   {
+      id: NotificationChannelId.ChatMessages,
+      name: "New group chat messages",
+   },
+   {
+      id: NotificationChannelId.Events,
+      name: "Polyamory organizations' events and parties near you",
+   },
+   {
+      id: NotificationChannelId.NewUsers,
+      name: "New users on the app",
+   },
+   {
+      id: NotificationChannelId.DateReminders,
+      name: "Reminder notification before the voted day of the group date",
+   },
+];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  LOCALIZATION  /////////////////////////////////////////////////
