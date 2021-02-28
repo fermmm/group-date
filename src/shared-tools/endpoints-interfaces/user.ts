@@ -149,3 +149,8 @@ export interface NotificationChannelInfo {
    id: NotificationChannelId;
    name: string;
 }
+
+export interface NotificationData {
+   targetId: string;
+   type: NotificationType;
+}
