@@ -1,3 +1,4 @@
+import { NotificationData } from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
 import * as appRoot from "app-root-path";
@@ -311,11 +312,13 @@ export async function addNotificationToUser(
       }
    }
 
-   user.notifications.push({
+   const finalNotification: Notification = {
       ...notification,
       notificationId: generateId(),
       date: moment().unix(),
-   });
+   };
+
+   user.notifications.push(finalNotification);
 
    await queryToUpdateUserProps(queryToGetUserByTokenOrId(tokenOrId), [
       {
@@ -330,11 +333,20 @@ export async function addNotificationToUser(
             to: user.notificationsToken,
             title: notification.title,
             body: notification.text,
-            data: { type: notification.type, targetId: notification.targetId },
+            data: {
+               type: notification.type,
+               targetId: notification.targetId,
+               notificationId: finalNotification.notificationId,
+            } as NotificationData,
             channelId: settings.channelId ? settings.channelId : NotificationChannelId.Default,
          },
       ]);
    }
+}
+
+export async function notificationsGet(params: TokenParameter, ctx: BaseContext): Promise<string> {
+   const traversal = queryToGetUserByToken(params.token, null, true);
+   return await fromQueryToSpecificPropValue<string>(traversal, "notifications");
 }
 
 /**
@@ -375,11 +387,6 @@ export async function attractionsReceivedGet(token: string, types?: AttractionTy
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
    return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
-}
-
-export async function notificationsGet(params: TokenParameter, ctx: BaseContext): Promise<string> {
-   const traversal = queryToGetUserByToken(params.token, null, true);
-   return await fromQueryToSpecificPropValue<string>(traversal, "notifications");
 }
 
 export function getWelcomeNotification(ctx: BaseContext): Notification {

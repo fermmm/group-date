@@ -153,4 +153,5 @@ export interface NotificationChannelInfo {
 export interface NotificationData {
    targetId: string;
    type: NotificationType;
+   notificationId: string;
 }
