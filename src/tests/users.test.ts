@@ -51,7 +51,7 @@ describe("Users", () => {
       await addNotificationToUser(
          { token: matchingUsersCouple1[0].token },
          {
-            type: NotificationType.FacebookEvent,
+            type: NotificationType.NearbyPartyOrEvent,
             title: "sarasa3",
             text: "sarasa4",
             targetId: "http://sarasa.com",

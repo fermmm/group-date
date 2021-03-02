@@ -113,7 +113,7 @@ export enum NotificationType {
    Group,
    Chat,
    ContactChat,
-   FacebookEvent,
+   NearbyPartyOrEvent,
    CardsGame,
    About,
 }
