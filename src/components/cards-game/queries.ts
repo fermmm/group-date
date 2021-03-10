@@ -125,8 +125,8 @@ export function queryToGetCardsRecommendations(
       // Get the searcher user and save it as "searcherUser"
       .union(queryToGetUserById(searcherUser.userId, __).as("searcherUser"))
       // Save all elements required later
-      .sideEffect(__.out("blocked").store("blockedThemes"))
-      .sideEffect(__.out("subscribed").store("subscribedThemes"))
+      .sideEffect(__.out("blocked").store("blockedTags"))
+      .sideEffect(__.out("subscribed").store("subscribedTags"))
       // Go back to the results
       .select("results")
       .unfold();
@@ -134,12 +134,12 @@ export function queryToGetCardsRecommendations(
    /**
     * Is not a subscriber of any searcher blocked tags:
     */
-   traversal = traversal.not(__.where(__.out("subscribed").where(P.within("blockedThemes"))));
+   traversal = traversal.not(__.where(__.out("subscribed").where(P.within("blockedTags"))));
 
    /**
     * Does not have blocked a subscription of the user:
     */
-   traversal = traversal.not(__.where(__.out("blocked").where(P.within("subscribedThemes"))));
+   traversal = traversal.not(__.where(__.out("blocked").where(P.within("subscribedTags"))));
 
    /**
     * It's another user (not self)
@@ -198,11 +198,11 @@ export function queryToOrderResults(traversal: Traversal, searcherUser: User): T
 
          .order()
 
-         // Sub-order by subscribed matching themes
-         .by(__.out("subscribed").where(P.within("subscribedThemes")).count(), order.desc)
+         // Sub-order by subscribed matching tags
+         .by(__.out("subscribed").where(P.within("subscribedTags")).count(), order.desc)
 
-         // Sub-order by subscribed blocked themes
-         .by(__.out("blocked").where(P.within("blockedThemes")).count(), order.desc)
+         // Sub-order by subscribed blocked tags
+         .by(__.out("blocked").where(P.within("blockedTags")).count(), order.desc)
    );
 }
 

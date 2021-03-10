@@ -55,7 +55,7 @@ import { divideArrayCallback } from "../../common-tools/js-tools/js-tools";
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
 import { queryToGetUserByTokenOrId } from "./queries";
 import { TokenOrId } from "./tools/typings";
-import { getNotShowedQuestionIds } from "../themes/models";
+import { getNotShowedQuestionIds } from "../tags/models";
 import {
    BIG_IMAGE_SIZE,
    MAX_FILE_SIZE_UPLOAD_ALLOWED,
@@ -81,7 +81,7 @@ export async function initializeUsers(): Promise<void> {
  * 5. If not, it means we are dealing with a new user, so it creates it with the email and token and returns it
  *
  * @param token Token from the Facebook login in the client application
- * @param includeFullInfo Includes themes data
+ * @param includeFullInfo Includes tags data
  */
 export async function retrieveUser(
    token: string,
@@ -168,12 +168,12 @@ export async function profileStatusGet(
 
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
-      notShowedThemeQuestions: getNotShowedQuestionIds(user),
+      notShowedTagQuestions: getNotShowedQuestionIds(user),
       user,
    };
 
    const profileCompleted: boolean =
-      result.missingEditableUserProps.length === 0 && result.notShowedThemeQuestions.length === 0;
+      result.missingEditableUserProps.length === 0 && result.notShowedTagQuestions.length === 0;
    const lastLoginDate = moment().unix();
    const language = getLocaleFromHeader(ctx);
 

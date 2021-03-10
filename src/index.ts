@@ -19,8 +19,8 @@ import { initializeGroups } from "./components/groups/models";
 import { groupsRoutes } from "./components/groups/routes";
 import { serverInfoRoutes } from "./components/server-info/routes";
 import { testingRoutes } from "./components/testing/routes";
-import { initializeThemes } from "./components/themes/models";
-import { themesRoutes } from "./components/themes/routes";
+import { initializeTags } from "./components/tags/models";
+import { tagsRoutes } from "./components/tags/routes";
 import { initializeUsers } from "./components/user/models";
 import { userRoutes } from "./components/user/routes";
 
@@ -54,7 +54,7 @@ import { userRoutes } from "./components/user/routes";
    await initializeGroups();
    await initializeCardsGame();
    await initializeGroupsFinder();
-   await initializeThemes();
+   await initializeTags();
    await initializeAdmin();
 
    // Debugging tools:
@@ -65,7 +65,7 @@ import { userRoutes } from "./components/user/routes";
    userRoutes(router);
    cardsGameRoutes(router);
    groupsRoutes(router);
-   themesRoutes(router);
+   tagsRoutes(router);
    adminRoutes(router);
    testingRoutes(router);
 

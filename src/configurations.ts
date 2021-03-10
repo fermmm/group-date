@@ -4,7 +4,7 @@ import * as path from "path";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
-import { Theme, ThemesAsQuestion } from "./shared-tools/endpoints-interfaces/themes";
+import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
 import {
    Gender,
    NotificationChannelId,
@@ -203,61 +203,61 @@ export const NON_SEARCHER_LIKING_CHUNK = 4;
 export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////  THEMES  ////////////////////////////////////////////////////
+////////////////////////////////////////////////////  TAGS  ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * This is the amount of themes a user can create in a time frame specified
- * in THEME_CREATION_LIMIT_TIME_FRAME
+ * This is the amount of tags a user can create in a time frame specified
+ * in TAG_CREATION_LIMIT_TIME_FRAME
  */
-export const THEMES_PER_TIME_FRAME = 4;
+export const TAGS_PER_TIME_FRAME = 4;
 
 /**
- * The user needs to wait this time to create a new theme after reaching the creation limit
- * specified in THEMES_PER_TIME_FRAME
+ * The user needs to wait this time to create a new tag after reaching the creation limit
+ * specified in TAGS_PER_TIME_FRAME
  */
-export const THEME_CREATION_TIME_FRAME = WEEK_IN_SECONDS;
+export const TAG_CREATION_TIME_FRAME = WEEK_IN_SECONDS;
 
 /**
- * A user can subscribe to this maximum amount of themes.
- * This prevents users from being in too many themes to get more visibility.
+ * A user can subscribe to this maximum amount of tags.
+ * This prevents users from being in too many tags to get more visibility.
  */
-export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 10;
+export const MAX_TAG_SUBSCRIPTIONS_ALLOWED = 10;
 
 /**
- * These are the "app authored" themes. The themeId can be any string but all should be different for each theme here.
+ * These are the "app authored" tags. The tagId can be any string but all should be different for each tag here.
  */
-const politicsLeftTheme: Partial<Theme> = {
-   themeId: "aat0",
+const politicsLeftTag: Partial<Tag> = {
+   tagId: "aat0",
    category: "Ideas",
    name: "Left-wing / Anarchism",
 };
 
-const politicsRightTheme: Partial<Theme> = {
-   themeId: "aat1",
+const politicsRightTag: Partial<Tag> = {
+   tagId: "aat1",
    category: "Ideas",
    name: "Right-wing / Free market",
 };
 
 /**
- * These are the "app authored" themes that will be shown as questions and are mandatory to interact on registration.
- * The themeId can be any string but all should be different for each theme here.
+ * These are the "app authored" tags that will be shown as questions and are mandatory to interact on registration.
+ * The tagId can be any string but all should be different for each tag here.
  */
-const feminismQuestion: ThemesAsQuestion = {
+const feminismQuestion: TagsAsQuestion = {
    questionId: "taq-0",
    text: "Do you agree with feminism in general?",
    answers: [
       {
-         themeId: "q00-a00",
+         tagId: "q00-a00",
          text: "I totally agree / I Almost totally agree",
          category: "Ideas",
-         themeName: "Feminism",
+         tagName: "Feminism",
       },
       {
-         themeId: "q00-a01",
+         tagId: "q00-a01",
          text: "I Don't agree very much / I do not agree at all",
          category: "Ideas",
-         themeName: "Feminism: I Don't agree",
+         tagName: "Feminism: I Don't agree",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -266,21 +266,21 @@ const feminismQuestion: ThemesAsQuestion = {
    },
 };
 
-const groupSexQuestion: ThemesAsQuestion = {
+const groupSexQuestion: TagsAsQuestion = {
    questionId: "taq-1",
    text: "Are group sex situations one of your motivations to use the app?",
    answers: [
       {
-         themeId: "q01-a00",
+         tagId: "q01-a00",
          text: "Yes / Could be",
          category: "Sex",
-         themeName: "Group sex",
+         tagName: "Group sex",
       },
       {
-         themeId: "q01-a01",
+         tagId: "q01-a01",
          text: "No / I don't know",
          category: "Sex",
-         themeName: "Group sex: Not interested",
+         tagName: "Group sex: Not interested",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -290,21 +290,21 @@ const groupSexQuestion: ThemesAsQuestion = {
 };
 
 // This question may not be required because interest for group sex (the other question) includes the physical interaction intentions
-const spamQuestion: ThemesAsQuestion = {
+const spamQuestion: TagsAsQuestion = {
    questionId: "taq-2",
    text: "Is your goal in this app to meet new people?",
    answers: [
       {
-         themeId: "q02-a01",
+         tagId: "q02-a01",
          text: "Yes, meet new people",
          category: "App usage",
-         themeName: "Meet new people",
+         tagName: "Meet new people",
       },
       {
-         themeId: "q02-a00",
+         tagId: "q02-a00",
          text: "No, other goal. For example: Get followers, promote something, etc.",
          category: "App usage",
-         themeName: "Get followers, promote, etc.",
+         tagName: "Get followers, promote, etc.",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -313,12 +313,12 @@ const spamQuestion: ThemesAsQuestion = {
    },
 };
 
-export const APP_AUTHORED_THEMES_AS_QUESTIONS: ThemesAsQuestion[] = [
+export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
    feminismQuestion,
    groupSexQuestion,
    spamQuestion,
 ];
-export const APP_AUTHORED_THEMES: Array<Partial<Theme>> = [politicsLeftTheme, politicsRightTheme];
+export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [politicsLeftTag, politicsRightTag];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////

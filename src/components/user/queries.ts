@@ -268,12 +268,10 @@ export function queryToIncludeFullInfoInUserQuery(traversal: Traversal): Travers
       __.union(
          // Include all user props
          __.valueMap().by(__.unfold()),
-         // Include themes subscribed
-         __.project("themesSubscribed").by(
-            __.out("subscribed").valueMap("themeId", "name").by(__.unfold()).fold(),
-         ),
-         // Include themes blocked
-         __.project("themesBlocked").by(__.out("blocked").valueMap("themeId", "name").by(__.unfold()).fold()),
+         // Include tags subscribed
+         __.project("tagsSubscribed").by(__.out("subscribed").valueMap("tagId", "name").by(__.unfold()).fold()),
+         // Include tags blocked
+         __.project("tagsBlocked").by(__.out("blocked").valueMap("tagId", "name").by(__.unfold()).fold()),
       )
          .unfold()
          .group()

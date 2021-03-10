@@ -16,9 +16,9 @@ export interface ServerInfoResponse {
       minGroupSize: number;
       maxGroupSize: number;
       maximumInactivityForCards: number;
-      themesPerTimeFrame: number;
-      themeCreationTimeFrame: number;
-      maxThemeSubscriptionsAllowed: number;
+      tagsPerTimeFrame: number;
+      tagCreationTimeFrame: number;
+      maxTagSubscriptionsAllowed: number;
    };
    pushNotificationsChannels: NotificationChannelInfo[];
 }

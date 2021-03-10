@@ -4,11 +4,11 @@ import {
    GROUP_SLOTS_CONFIGS,
    MAXIMUM_INACTIVITY_FOR_CARDS,
    MAX_GROUP_SIZE,
-   MAX_THEME_SUBSCRIPTIONS_ALLOWED,
+   MAX_TAG_SUBSCRIPTIONS_ALLOWED,
    MIN_GROUP_SIZE,
    PUSH_NOTIFICATION_CHANNELS,
-   THEMES_PER_TIME_FRAME,
-   THEME_CREATION_TIME_FRAME,
+   TAGS_PER_TIME_FRAME,
+   TAG_CREATION_TIME_FRAME,
 } from "../../configurations";
 import { ServerInfoParams, ServerInfoResponse } from "../../shared-tools/endpoints-interfaces/server-info";
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
@@ -26,9 +26,9 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
          minGroupSize: MIN_GROUP_SIZE,
          maxGroupSize: MAX_GROUP_SIZE,
          maximumInactivityForCards: MAXIMUM_INACTIVITY_FOR_CARDS,
-         themesPerTimeFrame: THEMES_PER_TIME_FRAME,
-         themeCreationTimeFrame: THEME_CREATION_TIME_FRAME,
-         maxThemeSubscriptionsAllowed: MAX_THEME_SUBSCRIPTIONS_ALLOWED,
+         tagsPerTimeFrame: TAGS_PER_TIME_FRAME,
+         tagCreationTimeFrame: TAG_CREATION_TIME_FRAME,
+         maxTagSubscriptionsAllowed: MAX_TAG_SUBSCRIPTIONS_ALLOWED,
       },
       pushNotificationsChannels: translatePushNotificationChannels(PUSH_NOTIFICATION_CHANNELS, ctx),
    };

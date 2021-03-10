@@ -2,12 +2,12 @@ import * as moment from "moment";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 import { column, g, P, __ } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { MAX_THEME_SUBSCRIPTIONS_ALLOWED } from "../../configurations";
-import { Theme, ThemeRelationShip } from "../../shared-tools/endpoints-interfaces/themes";
+import { MAX_TAG_SUBSCRIPTIONS_ALLOWED } from "../../configurations";
+import { Tag, TagRelationShip } from "../../shared-tools/endpoints-interfaces/tags";
 import { queryToGetUserById, queryToGetUserByToken } from "../user/queries";
 
-export function queryToCreateThemes(userId: string, themesToCreate: Array<Partial<Theme>>): Traversal {
-   const traversal: Traversal = queryToCreateVerticesFromObjects(themesToCreate, "theme", "themeId");
+export function queryToCreateTags(userId: string, tagsToCreate: Array<Partial<Tag>>): Traversal {
+   const traversal: Traversal = queryToCreateVerticesFromObjects(tagsToCreate, "tag", "tagId");
 
    if (userId == null) {
       return traversal;
@@ -21,13 +21,13 @@ export function queryToCreateThemes(userId: string, themesToCreate: Array<Partia
       .unfold()
       .sideEffect(
          __.map(
-            // Create an edge to keep track of who created the theme
-            __.sideEffect(__.addE("createdTheme").from_("user")),
+            // Create an edge to keep track of who created the tag
+            __.sideEffect(__.addE("createdTag").from_("user")),
          ),
       );
 }
 
-export function queryToGetThemes(filters?: { countryFilter?: string }): Traversal {
+export function queryToGetTags(filters?: { countryFilter?: string }): Traversal {
    const filtersAsTraversal: Traversal[] = [__.has("global", true)];
 
    if (filters?.countryFilter != null) {
@@ -36,17 +36,17 @@ export function queryToGetThemes(filters?: { countryFilter?: string }): Traversa
 
    return g
       .V()
-      .hasLabel("theme")
+      .hasLabel("tag")
       .or(...filtersAsTraversal);
 }
 
 /**
- * @param timeFilter This filter the results by time, for example: pass a week (in seconds) the get the themes created in the last week
+ * @param timeFilter This filter the results by time, for example: pass a week (in seconds) the get the tags created in the last week
  */
-export function queryToGetThemesCreatedByUser(token: string, timeFilter?: number): Traversal {
+export function queryToGetTagsCreatedByUser(token: string, timeFilter?: number): Traversal {
    let traversal: Traversal = queryToGetUserByToken(token)
       .as("user")
-      .out("createdTheme")
+      .out("createdTag")
       .where(P.eq("user"))
       .by("country")
       .by("country");
@@ -65,10 +65,10 @@ export function queryToGetThemesCreatedByUser(token: string, timeFilter?: number
  * @param relation The relation to add or remove
  * @param remove true = adds the relation. false = removes the relation
  */
-export function queryToRelateUserWithTheme(
+export function queryToRelateUserWithTag(
    token: string,
-   themesIds: string[],
-   relation: ThemeRelationShip,
+   tagsIds: string[],
+   relation: TagRelationShip,
    remove: boolean,
 ): Traversal {
    let relationTraversal: Traversal;
@@ -78,42 +78,42 @@ export function queryToRelateUserWithTheme(
    } else {
       relationTraversal = __.coalesce(__.in_(relation).where(P.eq("user")), __.addE(relation).from_("user"));
 
-      // For subscribing there is a maximum of themes a user can subscribe
+      // For subscribing there is a maximum of tags a user can subscribe
       if (relation === "subscribed") {
          relationTraversal = __.coalesce(
             __.select("user")
                .out("subscribed")
-               .where(P.eq("theme"))
+               .where(P.eq("tag"))
                .by("country")
                .by("country")
                .count()
-               .is(P.gte(MAX_THEME_SUBSCRIPTIONS_ALLOWED)),
+               .is(P.gte(MAX_TAG_SUBSCRIPTIONS_ALLOWED)),
             relationTraversal,
          );
       }
    }
 
    return g
-      .inject(themesIds)
-      .as("themes")
+      .inject(tagsIds)
+      .as("tags")
       .union(queryToGetUserByToken(token, __).as("user"))
-      .select("themes")
+      .select("tags")
       .unfold()
       .map(
-         __.as("themeId")
+         __.as("tagId")
             .V()
-            .hasLabel("theme")
-            .has("themeId", __.where(P.eq("themeId")))
-            .as("theme")
+            .hasLabel("tag")
+            .has("tagId", __.where(P.eq("tagId")))
+            .as("tag")
             .sideEffect(relationTraversal)
             .property("lastInteractionDate", moment().unix()),
       );
 }
 
 /**
- * Receives a theme traversal and adds extra info to the theme objects
+ * Receives a tag traversal and adds extra info to the tag objects
  */
-export function queryToIncludeExtraInfoInTheme(traversal: Traversal): Traversal {
+export function queryToIncludeExtraInfoInTag(traversal: Traversal): Traversal {
    return traversal.map(
       __.union(
          __.valueMap().by(__.unfold()),
@@ -127,28 +127,28 @@ export function queryToIncludeExtraInfoInTheme(traversal: Traversal): Traversal 
    );
 }
 
-export function queryToGetUsersSubscribedToThemes(themesIds: string[]): Traversal {
+export function queryToGetUsersSubscribedToTags(tagsIds: string[]): Traversal {
    return g
-      .inject(themesIds)
+      .inject(tagsIds)
       .unfold()
       .flatMap(
-         __.as("themeId")
+         __.as("tagId")
             .V()
-            .hasLabel("theme")
-            .has("themeId", __.where(P.eq("themeId")))
+            .hasLabel("tag")
+            .has("tagId", __.where(P.eq("tagId")))
             .in_("subscribed"),
       );
 }
 
-export function queryToRemoveThemes(themesIds: string[]): Traversal {
+export function queryToRemoveTags(tagsIds: string[]): Traversal {
    return g
-      .inject(themesIds)
+      .inject(tagsIds)
       .unfold()
       .map(
-         __.as("themeId")
+         __.as("tagId")
             .V()
-            .hasLabel("theme")
-            .has("themeId", __.where(P.eq("themeId")))
+            .hasLabel("tag")
+            .has("tagId", __.where(P.eq("tagId")))
             .drop(),
       );
 }

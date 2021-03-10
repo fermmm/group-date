@@ -21,12 +21,12 @@ import { DeepPartial } from "ts-essentials";
 import { chance } from "./tools/generalTools";
 import { createFakeUser2 } from "./tools/_experimental";
 import {
-   blockThemePost,
-   createThemePost,
-   removeAllThemesCreatedBy,
-   subscribeToThemePost,
-   themesCreatedByUserGet,
-} from "../components/themes/models";
+   blockTagPost,
+   createTagPost,
+   removeAllTagsCreatedBy,
+   subscribeToTagPost,
+   tagsCreatedByUserGet,
+} from "../components/tags/models";
 import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from "../configurations";
 
 describe("Cards game", () => {
@@ -222,77 +222,77 @@ describe("Cards game", () => {
       await queryToRemoveUsers(fakeCompatibleUsers);
    });
 
-   test("Users with matching themes appear first", async () => {
+   test("Users with matching tags appear first", async () => {
       const adminUser = await createFakeUser2({ isAdmin: true });
       const searcher = (await createFakeCompatibleUsers(adminUser, 1))[0];
 
-      // Create 5 themes (only admins can create unlimited themes)
+      // Create 5 tags (only admins can create unlimited tags)
       for (let i = 0; i < 5; i++) {
-         await createThemePost(
+         await createTagPost(
             {
                token: adminUser.token,
-               name: `cards test theme ${i}`,
+               name: `cards test tag ${i}`,
                category: "test category 1",
             },
             fakeCtx,
          );
       }
 
-      // Store the themes
-      const themes = await themesCreatedByUserGet(adminUser.token);
-      const themeIds = themes.map(t => t.themeId);
+      // Store the tags
+      const tags = await tagsCreatedByUserGet(adminUser.token);
+      const tagIds = tags.map(t => t.tagId);
 
-      // Create 5 users compatible but not with themes, so we can test these users will appear last
+      // Create 5 users compatible but not with tags, so we can test these users will appear last
       await createFakeCompatibleUsers(searcher, 5);
 
-      // Create 3 users that will be compatible in themes, so we can test that these users appear first
-      const themeCompatibleUsers = await createFakeCompatibleUsers(searcher, 3);
+      // Create 3 users that will be compatible in tags, so we can test that these users appear first
+      const tagCompatibleUsers = await createFakeCompatibleUsers(searcher, 3);
 
       // Create a user that blocks the searcher, so we can test that this user also does not appear
       const userShouldNotAppear1 = (await createFakeCompatibleUsers(searcher, 1))[0];
       const userShouldNotAppear2 = (await createFakeCompatibleUsers(searcher, 1))[0];
 
-      // Searcher user subscribes to 2 themes and blocks 1 theme
-      await subscribeToThemePost({ token: searcher.token, themeIds: [themeIds[0], themeIds[1]] });
-      await blockThemePost({ token: searcher.token, themeIds: [themeIds[2]] });
+      // Searcher user subscribes to 2 tags and blocks 1 tag
+      await subscribeToTagPost({ token: searcher.token, tagIds: [tagIds[0], tagIds[1]] });
+      await blockTagPost({ token: searcher.token, tagIds: [tagIds[2]] });
 
       // The user that should appear first does the same than the searcher
-      await subscribeToThemePost({
-         token: themeCompatibleUsers[0].token,
-         themeIds: [themeIds[0], themeIds[1]],
+      await subscribeToTagPost({
+         token: tagCompatibleUsers[0].token,
+         tagIds: [tagIds[0], tagIds[1]],
       });
-      await blockThemePost({ token: themeCompatibleUsers[0].token, themeIds: [themeIds[2]] });
+      await blockTagPost({ token: tagCompatibleUsers[0].token, tagIds: [tagIds[2]] });
 
-      // This one should appear second because it's subscribed to all themes but does not block any of them
-      await subscribeToThemePost({
-         token: themeCompatibleUsers[1].token,
-         themeIds: [themeIds[0], themeIds[1], themeIds[3], themeIds[4]],
+      // This one should appear second because it's subscribed to all tags but does not block any of them
+      await subscribeToTagPost({
+         token: tagCompatibleUsers[1].token,
+         tagIds: [tagIds[0], tagIds[1], tagIds[3], tagIds[4]],
       });
 
       // Single coincidence
-      await blockThemePost({
-         token: themeCompatibleUsers[2].token,
-         themeIds: [themeIds[2]],
+      await blockTagPost({
+         token: tagCompatibleUsers[2].token,
+         tagIds: [tagIds[2]],
       });
 
-      // User subscribed to theme that the searcher blocks
-      await subscribeToThemePost({
+      // User subscribed to tag that the searcher blocks
+      await subscribeToTagPost({
          token: userShouldNotAppear1.token,
-         themeIds: [themeIds[2]],
+         tagIds: [tagIds[2]],
       });
 
-      // User blocks theme that the searcher subscribes
-      await blockThemePost({
+      // User blocks tag that the searcher subscribes
+      await blockTagPost({
          token: userShouldNotAppear2.token,
-         themeIds: [themeIds[0]],
+         tagIds: [tagIds[0]],
       });
 
       recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);
 
       expect(recommendations).toHaveLength(9);
-      expect(recommendations[0].userId).toBe(themeCompatibleUsers[0].userId);
-      expect(recommendations[1].userId).toBe(themeCompatibleUsers[1].userId);
-      expect(recommendations[2].userId).toBe(themeCompatibleUsers[2].userId);
+      expect(recommendations[0].userId).toBe(tagCompatibleUsers[0].userId);
+      expect(recommendations[1].userId).toBe(tagCompatibleUsers[1].userId);
+      expect(recommendations[2].userId).toBe(tagCompatibleUsers[2].userId);
    });
 
    test("Liking users appears in the first places of the results", async () => {
@@ -310,22 +310,22 @@ describe("Cards game", () => {
          );
       }
 
-      const theme = await createThemePost(
+      const tag = await createTagPost(
          {
             token: searcher.token,
-            name: `searcher theme`,
+            name: `searcher tag`,
             category: "test category 1",
          },
          fakeCtx,
       );
-      await subscribeToThemePost({ token: searcher.token, themeIds: [theme.themeId] });
+      await subscribeToTagPost({ token: searcher.token, tagIds: [tag.tagId] });
 
       /*
-       * We subscribe the nonLiking users to the same theme to make them appear first, but this should
+       * We subscribe the nonLiking users to the same tag to make them appear first, but this should
        * not happen because liking users have their special place.
        */
       for (const usr of nonLikingUsers) {
-         await subscribeToThemePost({ token: usr.token, themeIds: [theme.themeId] });
+         await subscribeToTagPost({ token: usr.token, tagIds: [tag.tagId] });
       }
 
       recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);
@@ -338,6 +338,6 @@ describe("Cards game", () => {
    afterAll(async () => {
       const testUsers = getAllTestUsersCreated();
       await queryToRemoveUsers(testUsers);
-      await removeAllThemesCreatedBy(testUsers);
+      await removeAllTagsCreatedBy(testUsers);
    });
 });

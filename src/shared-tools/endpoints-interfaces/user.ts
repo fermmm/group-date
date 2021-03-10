@@ -1,6 +1,6 @@
 import { TokenParameter } from "./common";
 import { RequiredUserPropKey, EditableUserProps } from "../validators/user";
-import { ThemeBasicInfo } from "./themes";
+import { TagBasicInfo } from "./tags";
 import { ValueOf } from "ts-essentials";
 
 /**
@@ -44,8 +44,8 @@ export interface User {
    notifications: Notification[];
    questionsShowed: string[];
    notificationsToken: string;
-   themesSubscribed?: ThemeBasicInfo[];
-   themesBlocked?: ThemeBasicInfo[];
+   tagsSubscribed?: TagBasicInfo[];
+   tagsBlocked?: TagBasicInfo[];
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
@@ -60,7 +60,7 @@ export enum Gender {
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
-   notShowedThemeQuestions: string[];
+   notShowedTagQuestions: string[];
    user: Partial<User>;
 }
 

@@ -7,7 +7,7 @@ import {
    SHUFFLE_LIKING_NON_LIKING_RESULTS,
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
-import { BasicThemeParams } from "../../shared-tools/endpoints-interfaces/themes";
+import { BasicTagParams } from "../../shared-tools/endpoints-interfaces/tags";
 import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import { queryToUpdateUserProps } from "../user/queries";
@@ -18,7 +18,7 @@ import {
    queryToGetCardsRecommendations,
    queryToGetDislikedUsers,
 } from "./queries";
-import { queryToGetUsersSubscribedToThemes } from "../themes/queries";
+import { queryToGetUsersSubscribedToTags } from "../tags/queries";
 import { CardsGameResult, fromQueryToCardsResult } from "./tools/data-conversion";
 import { divideArrayCallback, shuffleArray } from "../../common-tools/js-tools/js-tools";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
@@ -44,9 +44,9 @@ export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext)
    return await fromQueryToUserList(recommendationsQuery);
 }
 
-export async function recommendationsFromThemeGet(params: BasicThemeParams, ctx: BaseContext): Promise<User[]> {
+export async function recommendationsFromTagGet(params: BasicTagParams, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   let traversal: Traversal = queryToGetUsersSubscribedToThemes(params.themeIds);
+   let traversal: Traversal = queryToGetUsersSubscribedToTags(params.tagIds);
    traversal = queryToGetCardsRecommendations(user, { traversal });
    const result: CardsGameResult = await fromQueryToCardsResult(traversal);
    return mergeResults(result);

@@ -1,9 +1,9 @@
-export interface ThemeBasicInfo {
-   themeId: string;
+export interface TagBasicInfo {
+   tagId: string;
    name: string;
 }
 
-export interface Theme extends ThemeBasicInfo {
+export interface Tag extends TagBasicInfo {
    category: string;
    country: string;
    creationDate: number;
@@ -13,7 +13,7 @@ export interface Theme extends ThemeBasicInfo {
    blockersAmount: number;
 }
 
-export interface ThemeCreateParams {
+export interface TagCreateParams {
    token: string;
    name: string;
    category: string;
@@ -21,17 +21,17 @@ export interface ThemeCreateParams {
    global?: boolean;
 }
 
-export interface ThemeGetParams {
+export interface TagGetParams {
    token: string;
    countryFilter?: string | "all";
 }
 
-export interface BasicThemeParams {
+export interface BasicTagParams {
    token: string;
-   themeIds: string[];
+   tagIds: string[];
 }
 
-export interface ThemesAsQuestion {
+export interface TagsAsQuestion {
    questionId: string;
    text: string;
    extraText?: string;
@@ -40,11 +40,11 @@ export interface ThemesAsQuestion {
 }
 
 export interface QuestionAnswerData {
-   themeId: string;
+   tagId: string;
    text: string;
-   themeName: string;
+   tagName: string;
    category: string;
    extraText?: string;
 }
 
-export type ThemeRelationShip = "subscribed" | "blocked";
+export type TagRelationShip = "subscribed" | "blocked";

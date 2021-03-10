@@ -8,7 +8,7 @@ import { chance } from "./generalTools";
 import { fakeCtx } from "./replacements";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { getAllTestUsersCreatedExperimental } from "./_experimental";
-import { APP_AUTHORED_THEMES_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
+import { APP_AUTHORED_TAGS_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
 
 let fakeUsersCreated: User[] = [];
 
@@ -80,7 +80,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       lastLoginDate: moment().unix(),
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
-      questionsShowed: APP_AUTHORED_THEMES_AS_QUESTIONS.map(q => q.questionId),
+      questionsShowed: APP_AUTHORED_TAGS_AS_QUESTIONS.map(q => q.questionId),
       notificationsToken: generateId(),
    };
 

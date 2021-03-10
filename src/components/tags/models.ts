@@ -1,0 +1,299 @@
+import { ValidationError } from "fastest-validator";
+import { BaseContext } from "koa";
+import * as moment from "moment";
+import {
+   APP_AUTHORED_TAGS,
+   APP_AUTHORED_TAGS_AS_QUESTIONS,
+   TAGS_PER_TIME_FRAME,
+   TAG_CREATION_TIME_FRAME,
+} from "../../configurations";
+import { fromQueryToTag, fromQueryToTagList } from "./tools/data-conversion";
+import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { __ } from "../../common-tools/database-tools/database-manager";
+import { t, LocaleConfigurationSources } from "../../common-tools/i18n-tools/i18n-tools";
+import {
+   Tag,
+   TagCreateParams,
+   TagGetParams,
+   BasicTagParams,
+   TagsAsQuestion,
+} from "../../shared-tools/endpoints-interfaces/tags";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
+import { validateTagProps } from "../../shared-tools/validators/tags";
+import { retrieveFullyRegisteredUser } from "../user/models";
+import { generateId } from "../../common-tools/string-tools/string-tools";
+import {
+   queryToCreateTags,
+   queryToGetTagsCreatedByUser,
+   queryToGetTags,
+   queryToRelateUserWithTag,
+   queryToRemoveTags,
+} from "./queries";
+
+export async function initializeTags(): Promise<void> {
+   await creteAppAuthoredTags();
+}
+
+export async function createTagPost(params: TagCreateParams, ctx: BaseContext): Promise<Tag> {
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+
+   if (params.global && !user.isAdmin) {
+      ctx.throw(400, t("Only admin users can create global tags", { user }));
+      return;
+   }
+
+   if (params.country && !user.isAdmin) {
+      ctx.throw(400, t("Only admin users can set the tag country", { user }));
+      return;
+   }
+
+   const validationResult: true | ValidationError[] = validateTagProps(params);
+   if (validationResult !== true) {
+      ctx.throw(400, JSON.stringify(validationResult));
+      return;
+   }
+
+   const tagsCreatedByUserTraversal: Traversal = queryToGetTagsCreatedByUser(
+      user.token,
+      TAG_CREATION_TIME_FRAME,
+   );
+   const tagsCreatedByUser: Tag[] = await fromQueryToTagList(tagsCreatedByUserTraversal);
+
+   if (tagsCreatedByUser.length >= TAGS_PER_TIME_FRAME && !user.isAdmin) {
+      const remaining = moment
+         .duration(getRemainingTimeToCreateNewTag(tagsCreatedByUser), "seconds")
+         .locale(user.language)
+         .humanize();
+
+      ctx.throw(400, t("Sorry you created too many tags", { user }, remaining));
+      return;
+   }
+
+   const userTagsTraversal: Traversal = queryToGetTags({ countryFilter: params.country ?? user.country });
+   const userTags: Tag[] = await fromQueryToTagList(userTagsTraversal);
+   const matchingTag: Tag = userTags.find(tag => tag.name.toLowerCase() === params.name.toLowerCase());
+
+   if (matchingTag != null) {
+      ctx.throw(400, t("A tag with the same name already exists in your country", { user }));
+      return;
+   }
+
+   const tagToCreate: Partial<Tag> = {
+      tagId: generateId(),
+      name: params.name,
+      category: params.category.toLowerCase(),
+      country: params.country ?? user.country,
+      creationDate: moment().unix(),
+      lastInteractionDate: moment().unix(),
+      global: params.global ?? false,
+   };
+
+   return await fromQueryToTag(queryToCreateTags(user.userId, [tagToCreate]), false);
+}
+
+export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<Tag[]> {
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   let result: Tag[];
+
+   if (!user.isAdmin) {
+      result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }), true);
+   } else {
+      // In the query the countryFilter must be null to return all app tags
+      if (params.countryFilter === "all") {
+         params.countryFilter = null;
+      }
+      result = await fromQueryToTagList(queryToGetTags({ countryFilter: params.countryFilter }), true);
+   }
+
+   result = translateAppAuthoredTags(result, { user });
+   return result;
+}
+
+export function appAuthoredTagsAsQuestionsGet(ctx: BaseContext): TagsAsQuestion[] {
+   return translateAppAuthoredTagsAsQuestions(APP_AUTHORED_TAGS_AS_QUESTIONS, ctx);
+}
+
+export async function tagsCreatedByUserGet(token: string) {
+   return await fromQueryToTagList(queryToGetTagsCreatedByUser(token), true);
+}
+
+export async function subscribeToTagPost(params: BasicTagParams): Promise<Tag[]> {
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false),
+      false,
+   );
+}
+
+export async function blockTagPost(params: BasicTagParams): Promise<Tag[]> {
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag(params.token, params.tagIds, "blocked", false),
+      false,
+   );
+}
+
+export async function removeSubscriptionToTagPost(params: BasicTagParams): Promise<Tag[]> {
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", true),
+      false,
+   );
+}
+
+export async function removeBlockToTagPost(params: BasicTagParams): Promise<Tag[]> {
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag(params.token, params.tagIds, "blocked", true),
+      false,
+   );
+}
+
+export async function removeTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<void> {
+   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+
+   if (!user.isAdmin) {
+      const tagsCreatedByUser: Tag[] = await tagsCreatedByUserGet(params.token);
+
+      for (const tag of params.tagIds) {
+         const tagFound = tagsCreatedByUser.find(ut => ut.tagId === tag);
+         if (tagFound == null) {
+            ctx.throw(400, t("Only admin users can remove tags created by anyone", { user }));
+            return;
+         }
+         if (tagFound.subscribersAmount > 0 || tagFound.blockersAmount > 0) {
+            ctx.throw(
+               400,
+               t(
+                  "Sorry, %s users have interacted with your tag, it cannot be removed anymore",
+                  { user },
+                  String(tagFound.subscribersAmount + tagFound.blockersAmount),
+               ),
+            );
+            return;
+         }
+      }
+   }
+
+   await queryToRemoveTags(params.tagIds).iterate();
+}
+
+export async function creteAppAuthoredTags() {
+   // Create raw app authored tags
+   const tagsReady: Array<Partial<Tag>> = APP_AUTHORED_TAGS.map(tag => ({
+      ...tag,
+      country: "all",
+      creationDate: moment().unix(),
+      lastInteractionDate: moment().unix(),
+      global: true,
+   }));
+
+   // Crete app authored tags that are saved as questions
+   tagsReady.push(
+      ...APP_AUTHORED_TAGS_AS_QUESTIONS.map(question =>
+         question.answers.map(answer => ({
+            tagId: answer.tagId,
+            category: answer.category,
+            name: answer.tagName,
+            country: "all",
+            creationDate: moment().unix(),
+            lastInteractionDate: moment().unix(),
+            global: true,
+         })),
+      ).flat(),
+   );
+
+   await fromQueryToTag(queryToCreateTags(null, tagsReady), false);
+}
+
+/**
+ * This is currently being used to clean tests only
+ */
+export async function removeAllTagsCreatedBy(users: User[]): Promise<void> {
+   const result: Tag[] = [];
+   for (const user of users) {
+      result.push(...(await tagsCreatedByUserGet(user.token)));
+   }
+   await queryToRemoveTags(result.map(tag => tag.tagId)).iterate();
+}
+
+export function getNotShowedQuestionIds(user: Partial<User>): string[] {
+   const result: string[] = [];
+
+   APP_AUTHORED_TAGS_AS_QUESTIONS.forEach(tagQ => {
+      const foundInUser = user.questionsShowed?.find(q => q === tagQ.questionId);
+      if (foundInUser == null) {
+         result.push(tagQ.questionId);
+      }
+   });
+   return result;
+}
+
+function getRemainingTimeToCreateNewTag(tags: Tag[]): number {
+   const oldestTag: Tag = tags.reduce((result, tag) => {
+      // Tag is not inside the creation time frame
+      if (tag.creationDate < moment().unix() - TAG_CREATION_TIME_FRAME) {
+         return result;
+      }
+
+      if (result == null) {
+         return tag;
+      }
+
+      // Tag is older than current
+      if (tag.creationDate < result.creationDate) {
+         return tag;
+      }
+
+      return result;
+   }, null);
+
+   let secondsLeft: number = 0;
+   if (oldestTag != null) {
+      secondsLeft = TAG_CREATION_TIME_FRAME - (moment().unix() - oldestTag.creationDate);
+   }
+
+   return secondsLeft;
+}
+
+/**
+ * App authored tags are global, this means any country will see the tags, so translation is needed.
+ */
+function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfigurationSources): Tag[] {
+   const appAuthoredIds: Set<string> = getAppAuthoredQuestionsIdsAsSet();
+
+   return tags.map(tag => {
+      if (!appAuthoredIds.has(tag.tagId)) {
+         return tag;
+      }
+
+      return {
+         ...tag,
+         category: t(tag.category, localeSource),
+         name: t(tag.name, localeSource),
+      };
+   });
+}
+
+function translateAppAuthoredTagsAsQuestions(
+   rawQuestions: TagsAsQuestion[],
+   ctx: BaseContext,
+): TagsAsQuestion[] {
+   return rawQuestions.map(q => ({
+      ...q,
+      text: t(q.text, { ctx }),
+      extraText: q.extraText != null ? t(q.extraText, { ctx }) : null,
+      answers: q.answers.map(a => ({
+         ...a,
+         text: t(a.text, { ctx }),
+         tagName: t(a.tagName, { ctx }),
+      })),
+   }));
+}
+
+let catchedAppAuthoredQuestions = null;
+export function getAppAuthoredQuestionsIdsAsSet(): Set<string> {
+   if (catchedAppAuthoredQuestions == null) {
+      const result = new Set<string>();
+      APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
+      APP_AUTHORED_TAGS_AS_QUESTIONS.forEach(q => q.answers.forEach(a => result.add(a.tagId)));
+      catchedAppAuthoredQuestions = result;
+   }
+   return catchedAppAuthoredQuestions;
+}
