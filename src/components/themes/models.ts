@@ -191,7 +191,7 @@ export async function creteAppAuthoredThemes() {
       ...APP_AUTHORED_THEMES_AS_QUESTIONS.map(question =>
          question.answers.map(answer => ({
             themeId: answer.themeId,
-            category: "Question when registering",
+            category: answer.category,
             name: answer.themeName,
             country: "all",
             creationDate: moment().unix(),

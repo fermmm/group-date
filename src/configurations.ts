@@ -229,14 +229,14 @@ export const MAX_THEME_SUBSCRIPTIONS_ALLOWED = 10;
  */
 const politicsLeftTheme: Partial<Theme> = {
    themeId: "aat0",
-   category: "Politics",
-   name: "Left-wing / Socialism / Anarchism / Other close",
+   category: "Ideas",
+   name: "Left-wing / Anarchism",
 };
 
 const politicsRightTheme: Partial<Theme> = {
    themeId: "aat1",
-   category: "Politics",
-   name: "Right-wing / Free market ideas",
+   category: "Ideas",
+   name: "Right-wing / Free market",
 };
 
 /**
@@ -250,12 +250,14 @@ const feminismQuestion: ThemesAsQuestion = {
       {
          themeId: "q00-a00",
          text: "I totally agree / I Almost totally agree",
-         themeName: "Feminism: Agree",
+         category: "Ideas",
+         themeName: "Feminism",
       },
       {
          themeId: "q00-a01",
          text: "I Don't agree very much / I do not agree at all",
-         themeName: "Feminism: I Don't agree very much",
+         category: "Ideas",
+         themeName: "Feminism: I Don't agree",
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -271,11 +273,13 @@ const groupSexQuestion: ThemesAsQuestion = {
       {
          themeId: "q01-a00",
          text: "Yes / Could be",
-         themeName: "Group sex: Interested / Could be",
+         category: "Sex",
+         themeName: "Group sex",
       },
       {
          themeId: "q01-a01",
          text: "No / I don't know",
+         category: "Sex",
          themeName: "Group sex: Not interested",
       },
    ],
@@ -293,12 +297,14 @@ const spamQuestion: ThemesAsQuestion = {
       {
          themeId: "q02-a01",
          text: "Yes, meet new people",
-         themeName: "App usage: Meet new people",
+         category: "App usage",
+         themeName: "Meet new people",
       },
       {
          themeId: "q02-a00",
          text: "No, other goal. For example: Get followers, promote something, etc.",
-         themeName: "App usage: Get followers, promote, etc.",
+         category: "App usage",
+         themeName: "Get followers, promote, etc.",
       },
    ],
    incompatibilitiesBetweenAnswers: {

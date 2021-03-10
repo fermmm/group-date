@@ -10,8 +10,8 @@ type V = ValidationRule;
  * This object contains the theme props required to create them also the validation restrictions.
  */
 const EDITABLE_THEME_PROPS_SCHEMA = {
-   name: { type: "string", min: 2, max: 300, optional: false } as V,
-   category: { type: "string", min: 2, max: 300, optional: false } as V,
+   name: { type: "string", min: 2, max: 35, optional: false } as V,
+   category: { type: "string", min: 2, max: 35, optional: false } as V,
    country: { type: "string", optional: true } as V,
    global: { type: "boolean", optional: true } as V,
 };

@@ -43,6 +43,7 @@ export interface QuestionAnswerData {
    themeId: string;
    text: string;
    themeName: string;
+   category: string;
    extraText?: string;
 }
 
