@@ -47,8 +47,14 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       return;
    }
 
-   if (!user.isAdmin && (params.fakeSubscribersAmount != null || params.fakeBlockersAmount != null)) {
-      ctx.throw(400, t("Only admin users can set a fake subscribers or blockers amount", { user }));
+   if (
+      !user.isAdmin &&
+      (params.fakeSubscribersAmount != null ||
+         params.fakeBlockersAmount != null ||
+         params.creationDate != null ||
+         params.lastInteractionDate != null)
+   ) {
+      ctx.throw(400, t("Only admin users can set a fake information", { user }));
       return;
    }
 
@@ -88,8 +94,8 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       name: params.name,
       category: params.category.toLowerCase(),
       country: params.country ?? user.country,
-      creationDate: moment().unix(),
-      lastInteractionDate: moment().unix(),
+      creationDate: params.creationDate ?? moment().unix(),
+      lastInteractionDate: params.lastInteractionDate ?? moment().unix(),
       global: params.global ?? false,
       subscribersAmount: params.fakeSubscribersAmount ?? 0,
       blockersAmount: params.fakeBlockersAmount ?? 0,

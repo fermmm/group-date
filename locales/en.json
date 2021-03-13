@@ -2,7 +2,7 @@
    "Sorry you created too many tags": "Sorry you created many tags in a short period of time, you will be allowed to create more tags in %s. Although you can send us a message and we can evaluate adding your tags",
    "Only admin users can create global tags": "Only admin users can create global tags",
    "Only admin users can set the tag country": "Only admin users can set the tag country",
-   "Only admin users can set a fake subscribers or blockers amount": "Only admin users can set a fake subscribers or blockers amount",
+   "Only admin users can set a fake information": "Only admin users can set a fake information",
    "A tag with the same name already exists in your country": "A tag with the same name already exists in your country",
    "Only admin users can remove tags created by anyone": "Only admin users can remove tags created by anyone",
    "Sorry, %s users have interacted with your tag, it cannot be removed anymore": "Sorry, %s users have interacted with your tag, it cannot be removed anymore",
