@@ -19,6 +19,8 @@ export interface TagCreateParams {
    category: string;
    country?: string;
    global?: boolean;
+   fakeSubscribersAmount?: number;
+   fakeBlockersAmount?: number;
 }
 
 export interface TagGetParams {

@@ -78,7 +78,7 @@ export function queryToRelateUserWithTag(
    } else {
       relationTraversal = __.coalesce(__.in_(relation).where(P.eq("user")), __.addE(relation).from_("user"));
 
-      // For subscribing there is a maximum of tags a user can subscribe
+      // For subscribing there is a maximum of tags a user can subscribe per country
       if (relation === "subscribed") {
          relationTraversal = __.coalesce(
             __.select("user")
@@ -106,25 +106,10 @@ export function queryToRelateUserWithTag(
             .has("tagId", __.where(P.eq("tagId")))
             .as("tag")
             .sideEffect(relationTraversal)
-            .property("lastInteractionDate", moment().unix()),
+            .property("lastInteractionDate", moment().unix())
+            .property("subscribersAmount", __.inE("subscribed").count())
+            .property("blockersAmount", __.inE("blocked").count()),
       );
-}
-
-/**
- * Receives a tag traversal and adds extra info to the tag objects
- */
-export function queryToIncludeExtraInfoInTag(traversal: Traversal): Traversal {
-   return traversal.map(
-      __.union(
-         __.valueMap().by(__.unfold()),
-         __.project("subscribersAmount").by(__.inE("subscribed").count()),
-         __.project("blockersAmount").by(__.inE("blocked").count()),
-      )
-         .unfold()
-         .group()
-         .by(__.select(column.keys))
-         .by(__.select(column.values)),
-   );
 }
 
 export function queryToGetUsersSubscribedToTags(tagsIds: string[]): Traversal {

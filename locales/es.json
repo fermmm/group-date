@@ -2,6 +2,7 @@
    "Sorry you created too many tags": "Has creado muchos tags en un periodo corto de tiempo. Podrás crear nuevamente en %s. Sin embargo nos puedes enviar un mensaje para que evaluemos agregar tu tag.",
    "Only admin users can create global tags": "Solo lxs admins pueden crear tags globales",
    "Only admin users can set the tag country": "Solo lxs admins pueden establecer el país del tag",
+   "Only admin users can set a fake subscribers or blockers amount": "Solo lxs admins pueden crear tags con conteo de suscripciones o bloqueos falsos para pruebas",
    "A tag with the same name already exists in your country": "Ya existe en tu país un tag con el mismo nombre",
    "Only admin users can remove tags created by anyone": "Solo lxs admins pueden eliminar tags creadas por otrxs",
    "Sorry, %s users have interacted with your tag, it cannot be removed anymore": "%s usuarixs ya interactuaron con tu tag, por lo que ya no puede ser eliminado",

@@ -37,13 +37,18 @@ export async function initializeTags(): Promise<void> {
 export async function createTagPost(params: TagCreateParams, ctx: BaseContext): Promise<Tag> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
 
-   if (params.global && !user.isAdmin) {
+   if (!user.isAdmin && params.global) {
       ctx.throw(400, t("Only admin users can create global tags", { user }));
       return;
    }
 
-   if (params.country && !user.isAdmin) {
+   if (!user.isAdmin && params.country) {
       ctx.throw(400, t("Only admin users can set the tag country", { user }));
+      return;
+   }
+
+   if (!user.isAdmin && (params.fakeSubscribersAmount != null || params.fakeBlockersAmount != null)) {
+      ctx.throw(400, t("Only admin users can set a fake subscribers or blockers amount", { user }));
       return;
    }
 
@@ -78,7 +83,7 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       return;
    }
 
-   const tagToCreate: Partial<Tag> = {
+   const tagToCreate: Tag = {
       tagId: generateId(),
       name: params.name,
       category: params.category.toLowerCase(),
@@ -86,9 +91,11 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       creationDate: moment().unix(),
       lastInteractionDate: moment().unix(),
       global: params.global ?? false,
+      subscribersAmount: params.fakeSubscribersAmount ?? 0,
+      blockersAmount: params.fakeBlockersAmount ?? 0,
    };
 
-   return await fromQueryToTag(queryToCreateTags(user.userId, [tagToCreate]), false);
+   return await fromQueryToTag(queryToCreateTags(user.userId, [tagToCreate]));
 }
 
 export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<Tag[]> {
@@ -96,13 +103,13 @@ export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<T
    let result: Tag[];
 
    if (!user.isAdmin) {
-      result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }), true);
+      result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }));
    } else {
       // In the query the countryFilter must be null to return all app tags
       if (params.countryFilter === "all") {
          params.countryFilter = null;
       }
-      result = await fromQueryToTagList(queryToGetTags({ countryFilter: params.countryFilter }), true);
+      result = await fromQueryToTagList(queryToGetTags({ countryFilter: params.countryFilter }));
    }
 
    result = translateAppAuthoredTags(result, { user });
@@ -114,35 +121,23 @@ export function appAuthoredTagsAsQuestionsGet(ctx: BaseContext): TagsAsQuestion[
 }
 
 export async function tagsCreatedByUserGet(token: string) {
-   return await fromQueryToTagList(queryToGetTagsCreatedByUser(token), true);
+   return await fromQueryToTagList(queryToGetTagsCreatedByUser(token));
 }
 
 export async function subscribeToTagPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(
-      queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false),
-      false,
-   );
+   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false));
 }
 
 export async function blockTagPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(
-      queryToRelateUserWithTag(params.token, params.tagIds, "blocked", false),
-      false,
-   );
+   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "blocked", false));
 }
 
 export async function removeSubscriptionToTagPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(
-      queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", true),
-      false,
-   );
+   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", true));
 }
 
 export async function removeBlockToTagPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(
-      queryToRelateUserWithTag(params.token, params.tagIds, "blocked", true),
-      false,
-   );
+   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "blocked", true));
 }
 
 export async function removeTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<void> {
@@ -199,7 +194,7 @@ export async function creteAppAuthoredTags() {
       ).flat(),
    );
 
-   await fromQueryToTag(queryToCreateTags(null, tagsReady), false);
+   await fromQueryToTag(queryToCreateTags(null, tagsReady));
 }
 
 /**
