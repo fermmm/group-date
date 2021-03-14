@@ -268,22 +268,19 @@ const feminismQuestion: TagsAsQuestion = {
 
 const groupSexQuestion: TagsAsQuestion = {
    questionId: "taq-1",
-   text: "Are group sex situations one of your motivations to use the app?",
+   text: "Do you find interesting the idea of group sex?",
    answers: [
       {
-         text: "Yes / Could be",
+         text: "Yes",
          tagId: "q01-a00",
          category: "Sex",
-         tagName: "Group sex",
+         tagName: "Group sex: Sounds good",
       },
       {
          text: "No",
          tagId: "q01-a01",
          category: "Sex",
          tagName: "Group sex: Not interested",
-      },
-      {
-         text: "I don't know",
       },
    ],
    incompatibilitiesBetweenAnswers: {
