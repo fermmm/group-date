@@ -27,7 +27,6 @@ import {
    UserGetParams,
    UserPostParams,
    UserPropAsQuestion,
-   UserPropsAsQuestionsTypes,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
    requiredUserPropsList,
@@ -105,8 +104,13 @@ export async function retrieveUser(
       return;
    }
 
-   if (!userDataFromFacebook.content || !userDataFromFacebook.content.email) {
-      ctx.throw(400, "Facebook error 01");
+   if (!userDataFromFacebook.content) {
+      ctx.throw(400, "userDataFromFacebook.content is null");
+      return;
+   }
+
+   if (!userDataFromFacebook.content.email) {
+      ctx.throw(400, "userDataFromFacebook.content.email is null");
       return;
    }
 
