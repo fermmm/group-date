@@ -27,11 +27,16 @@ export function queryToCreateTags(userId: string, tagsToCreate: Array<Partial<Ta
       );
 }
 
+/**
+ * Set countryFilter as "all" to return tags from all countries, useful for admins.
+ */
 export function queryToGetTags(filters?: { countryFilter?: string }): Traversal {
    const filtersAsTraversal: Traversal[] = [__.has("global", true)];
 
-   if (filters?.countryFilter != null) {
+   if (filters?.countryFilter != "all") {
       filtersAsTraversal.push(__.has("country", filters.countryFilter));
+   } else {
+      filtersAsTraversal.push(__.has("country")); // This includes all countries into the query
    }
 
    return g

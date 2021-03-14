@@ -107,17 +107,7 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
 export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<Tag[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
    let result: Tag[];
-
-   if (!user.isAdmin) {
-      result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }));
-   } else {
-      // In the query the countryFilter must be null to return all app tags
-      if (params.countryFilter === "all") {
-         params.countryFilter = null;
-      }
-      result = await fromQueryToTagList(queryToGetTags({ countryFilter: params.countryFilter }));
-   }
-
+   result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }));
    result = translateAppAuthoredTags(result, { user });
    return result;
 }
