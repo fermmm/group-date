@@ -1,6 +1,5 @@
-import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import * as moment from "moment";
-import ora = require("ora");
+import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import { createUser, setAttractionPost, userPost } from "../../components/user/models";
 import { Attraction, AttractionType, Gender, User } from "../../shared-tools/endpoints-interfaces/user";
 import { EditableUserProps } from "../../shared-tools/validators/user";
