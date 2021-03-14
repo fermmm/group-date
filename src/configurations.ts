@@ -248,14 +248,14 @@ const feminismQuestion: TagsAsQuestion = {
    text: "Do you agree with feminism in general?",
    answers: [
       {
-         tagId: "q00-a00",
          text: "I totally agree / I Almost totally agree",
+         tagId: "q00-a00",
          category: "Ideas",
          tagName: "Feminism",
       },
       {
-         tagId: "q00-a01",
          text: "I Don't agree very much / I do not agree at all",
+         tagId: "q00-a01",
          category: "Ideas",
          tagName: "Feminism: I Don't agree",
       },
@@ -271,16 +271,19 @@ const groupSexQuestion: TagsAsQuestion = {
    text: "Are group sex situations one of your motivations to use the app?",
    answers: [
       {
-         tagId: "q01-a00",
          text: "Yes / Could be",
+         tagId: "q01-a00",
          category: "Sex",
          tagName: "Group sex",
       },
       {
+         text: "No",
          tagId: "q01-a01",
-         text: "No / I don't know",
          category: "Sex",
          tagName: "Group sex: Not interested",
+      },
+      {
+         text: "I don't know",
       },
    ],
    incompatibilitiesBetweenAnswers: {

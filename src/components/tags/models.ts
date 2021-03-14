@@ -283,7 +283,7 @@ function translateAppAuthoredTagsAsQuestions(
       answers: q.answers.map(a => ({
          ...a,
          text: t(a.text, { ctx }),
-         tagName: t(a.tagName, { ctx }),
+         tagName: a.tagName != null ? t(a.tagName, { ctx }) : null,
       })),
    }));
 }
