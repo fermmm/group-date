@@ -120,19 +120,19 @@ export async function tagsCreatedByUserGet(token: string) {
    return await fromQueryToTagList(queryToGetTagsCreatedByUser(token));
 }
 
-export async function subscribeToTagPost(params: BasicTagParams): Promise<Tag[]> {
+export async function subscribeToTagsPost(params: BasicTagParams): Promise<Tag[]> {
    return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false));
 }
 
-export async function blockTagPost(params: BasicTagParams): Promise<Tag[]> {
+export async function blockTagsPost(params: BasicTagParams): Promise<Tag[]> {
    return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "blocked", false));
 }
 
-export async function removeSubscriptionToTagPost(params: BasicTagParams): Promise<Tag[]> {
+export async function removeSubscriptionToTagsPost(params: BasicTagParams): Promise<Tag[]> {
    return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", true));
 }
 
-export async function removeBlockToTagPost(params: BasicTagParams): Promise<Tag[]> {
+export async function removeBlockToTagsPost(params: BasicTagParams): Promise<Tag[]> {
    return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "blocked", true));
 }
 

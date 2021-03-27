@@ -1,13 +1,13 @@
 import "jest";
 import * as JestDateMock from "jest-date-mock";
 import {
-   blockTagPost,
+   blockTagsPost,
    createTagPost,
    removeAllTagsCreatedBy,
-   removeBlockToTagPost,
-   removeSubscriptionToTagPost,
+   removeBlockToTagsPost,
+   removeSubscriptionToTagsPost,
    removeTagsPost,
-   subscribeToTagPost,
+   subscribeToTagsPost,
    tagsCreatedByUserGet,
    tagsGet,
 } from "../components/tags/models";
@@ -164,7 +164,7 @@ describe("Tags", () => {
    test("Subscribing and retrieving subscribed tags works", async () => {
       user1Tags = await tagsGet({ token: user1.token }, fakeCtx);
       const tagIds: string[] = [user1Tags[0].tagId, user1Tags[1].tagId];
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: user1.token,
          tagIds,
       });
@@ -187,7 +187,7 @@ describe("Tags", () => {
       user1 = await retrieveFullyRegisteredUser(user1.token, true, fakeCtx);
       const originalSubscriptions = [...user1.tagsSubscribed];
 
-      await removeSubscriptionToTagPost({
+      await removeSubscriptionToTagsPost({
          token: user1.token,
          tagIds: [originalSubscriptions[0].tagId],
       });
@@ -201,18 +201,18 @@ describe("Tags", () => {
          ),
       ).toBe(true);
 
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: user1.token,
          tagIds: [originalSubscriptions[0].tagId],
       });
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: user2.token,
          tagIds: [originalSubscriptions[0].tagId],
       });
 
       user1 = await retrieveFullyRegisteredUser(user1.token, true, fakeCtx);
 
-      await removeSubscriptionToTagPost({
+      await removeSubscriptionToTagsPost({
          token: user1.token,
          tagIds: user1.tagsSubscribed.map(t => t.tagId),
       });
@@ -227,7 +227,7 @@ describe("Tags", () => {
    test("Adding and removing block works", async () => {
       user1Tags = await tagsGet({ token: user1.token }, fakeCtx);
       const tagIds: string[] = [user1Tags[0].tagId];
-      await blockTagPost({
+      await blockTagsPost({
          token: user1.token,
          tagIds,
       });
@@ -244,7 +244,7 @@ describe("Tags", () => {
 
       expect(user2.tagsBlocked ?? []).toHaveLength(0);
 
-      await removeBlockToTagPost({
+      await removeBlockToTagsPost({
          token: user1.token,
          tagIds,
       });
@@ -258,12 +258,12 @@ describe("Tags", () => {
       user1Tags = await tagsCreatedByUserGet(user1.token);
       const tagIds: string[] = [user1Tags[0].tagId, user1Tags[1].tagId];
 
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: user2.token,
          tagIds: [tagIds[0]],
       });
 
-      await blockTagPost({
+      await blockTagsPost({
          token: user2.token,
          tagIds: [tagIds[1]],
       });
@@ -272,22 +272,22 @@ describe("Tags", () => {
 
       expect(await tagsCreatedByUserGet(user1.token)).toHaveLength(user1Tags.length);
 
-      await removeSubscriptionToTagPost({
+      await removeSubscriptionToTagsPost({
          token: user2.token,
          tagIds,
       });
 
-      await removeBlockToTagPost({
+      await removeBlockToTagsPost({
          token: user2.token,
          tagIds,
       });
 
-      await removeSubscriptionToTagPost({
+      await removeSubscriptionToTagsPost({
          token: user1.token,
          tagIds,
       });
 
-      await removeBlockToTagPost({
+      await removeBlockToTagsPost({
          token: user1.token,
          tagIds,
       });
@@ -312,7 +312,7 @@ describe("Tags", () => {
          );
       }
 
-      await subscribeToTagPost({ token: user.token, tagIds: tags.map(t => t.tagId) });
+      await subscribeToTagsPost({ token: user.token, tagIds: tags.map(t => t.tagId) });
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
 
@@ -325,7 +325,7 @@ describe("Tags", () => {
          fakeCtx,
       );
 
-      await subscribeToTagPost({ token: user.token, tagIds: [finalTag.tagId] });
+      await subscribeToTagsPost({ token: user.token, tagIds: [finalTag.tagId] });
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
       expect(user.tagsSubscribed).toHaveLength(MAX_TAG_SUBSCRIPTIONS_ALLOWED);
@@ -337,7 +337,7 @@ describe("Tags", () => {
          fakeCtx,
       );
 
-      await subscribeToTagPost({ token: user.token, tagIds: [otherCountryTag.tagId] });
+      await subscribeToTagsPost({ token: user.token, tagIds: [otherCountryTag.tagId] });
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
       expect(user.tagsSubscribed).toHaveLength(MAX_TAG_SUBSCRIPTIONS_ALLOWED + 1);

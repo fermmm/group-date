@@ -35,6 +35,11 @@ export interface BasicTagParams {
    tagIds: string[];
 }
 
+export interface BasicSingleTagParams {
+   token: string;
+   tagId: string;
+}
+
 export interface TagsAsQuestion {
    questionId: string;
    text: string;

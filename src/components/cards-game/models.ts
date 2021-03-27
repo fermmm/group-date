@@ -7,7 +7,7 @@ import {
    SHUFFLE_LIKING_NON_LIKING_RESULTS,
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
-import { BasicTagParams } from "../../shared-tools/endpoints-interfaces/tags";
+import { BasicSingleTagParams } from "../../shared-tools/endpoints-interfaces/tags";
 import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
 import { queryToUpdateUserProps } from "../user/queries";
@@ -44,9 +44,12 @@ export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext)
    return await fromQueryToUserList(recommendationsQuery);
 }
 
-export async function recommendationsFromTagGet(params: BasicTagParams, ctx: BaseContext): Promise<User[]> {
+export async function recommendationsFromTagGet(
+   params: BasicSingleTagParams,
+   ctx: BaseContext,
+): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
-   let traversal: Traversal = queryToGetUsersSubscribedToTags(params.tagIds);
+   let traversal: Traversal = queryToGetUsersSubscribedToTags([params.tagId]);
    traversal = queryToGetCardsRecommendations(user, { traversal });
    const result: CardsGameResult = await fromQueryToCardsResult(traversal);
    return mergeResults(result);

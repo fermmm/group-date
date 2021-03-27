@@ -21,10 +21,10 @@ import { DeepPartial } from "ts-essentials";
 import { chance } from "./tools/generalTools";
 import { createFakeUser2 } from "./tools/_experimental";
 import {
-   blockTagPost,
+   blockTagsPost,
    createTagPost,
    removeAllTagsCreatedBy,
-   subscribeToTagPost,
+   subscribeToTagsPost,
    tagsCreatedByUserGet,
 } from "../components/tags/models";
 import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from "../configurations";
@@ -253,36 +253,36 @@ describe("Cards game", () => {
       const userShouldNotAppear2 = (await createFakeCompatibleUsers(searcher, 1))[0];
 
       // Searcher user subscribes to 2 tags and blocks 1 tag
-      await subscribeToTagPost({ token: searcher.token, tagIds: [tagIds[0], tagIds[1]] });
-      await blockTagPost({ token: searcher.token, tagIds: [tagIds[2]] });
+      await subscribeToTagsPost({ token: searcher.token, tagIds: [tagIds[0], tagIds[1]] });
+      await blockTagsPost({ token: searcher.token, tagIds: [tagIds[2]] });
 
       // The user that should appear first does the same than the searcher
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: tagCompatibleUsers[0].token,
          tagIds: [tagIds[0], tagIds[1]],
       });
-      await blockTagPost({ token: tagCompatibleUsers[0].token, tagIds: [tagIds[2]] });
+      await blockTagsPost({ token: tagCompatibleUsers[0].token, tagIds: [tagIds[2]] });
 
       // This one should appear second because it's subscribed to all tags but does not block any of them
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: tagCompatibleUsers[1].token,
          tagIds: [tagIds[0], tagIds[1], tagIds[3], tagIds[4]],
       });
 
       // Single coincidence
-      await blockTagPost({
+      await blockTagsPost({
          token: tagCompatibleUsers[2].token,
          tagIds: [tagIds[2]],
       });
 
       // User subscribed to tag that the searcher blocks
-      await subscribeToTagPost({
+      await subscribeToTagsPost({
          token: userShouldNotAppear1.token,
          tagIds: [tagIds[2]],
       });
 
       // User blocks tag that the searcher subscribes
-      await blockTagPost({
+      await blockTagsPost({
          token: userShouldNotAppear2.token,
          tagIds: [tagIds[0]],
       });
@@ -318,14 +318,14 @@ describe("Cards game", () => {
          },
          fakeCtx,
       );
-      await subscribeToTagPost({ token: searcher.token, tagIds: [tag.tagId] });
+      await subscribeToTagsPost({ token: searcher.token, tagIds: [tag.tagId] });
 
       /*
        * We subscribe the nonLiking users to the same tag to make them appear first, but this should
        * not happen because liking users have their special place.
        */
       for (const usr of nonLikingUsers) {
-         await subscribeToTagPost({ token: usr.token, tagIds: [tag.tagId] });
+         await subscribeToTagsPost({ token: usr.token, tagIds: [tag.tagId] });
       }
 
       recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);

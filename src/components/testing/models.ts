@@ -7,10 +7,11 @@ import { AttractionType } from "../../shared-tools/endpoints-interfaces/user";
 import { chance } from "../../tests/tools/generalTools";
 import { createFakeCompatibleUsers } from "../../tests/tools/users";
 import { searchAndCreateNewGroups } from "../groups-finder/models";
-import { createTagPost } from "../tags/models";
+import { createTagPost, subscribeToTagsPost } from "../tags/models";
 import { retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
+import { APP_AUTHORED_TAGS } from "../../configurations";
 
-const usersCreated = [];
+const allUsersCreated = [];
 export async function createFakeUsersPost(
    params: TokenParameter & { text: string },
    ctx: BaseContext,
@@ -21,19 +22,22 @@ export async function createFakeUsersPost(
       return `Error: Only admins can use this`;
    }
 
-   usersCreated.push(
-      ...(await createFakeCompatibleUsers(
-         await retrieveFullyRegisteredUser(params.token, false, ctx),
-         Number(params.text),
-      )),
+   const usersCreated = await createFakeCompatibleUsers(
+      await retrieveFullyRegisteredUser(params.token, false, ctx),
+      Number(params.text),
    );
+   allUsersCreated.push(...usersCreated);
 
    for (const userCreated of usersCreated) {
+      await subscribeToTagsPost({ token: userCreated.token, tagIds: APP_AUTHORED_TAGS.map(t => t.tagId) });
+   }
+
+   for (const userCreated of allUsersCreated) {
       await setAttractionPost(
          {
             token: userCreated.token,
             attractions: [
-               ...usersCreated.map(otherUser => ({
+               ...allUsersCreated.map(otherUser => ({
                   userId: otherUser.userId,
                   attractionType: AttractionType.Like,
                })),
