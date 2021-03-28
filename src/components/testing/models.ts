@@ -28,8 +28,13 @@ export async function createFakeUsersPost(
    );
    allUsersCreated.push(...usersCreated);
 
-   for (const userCreated of usersCreated) {
-      await subscribeToTagsPost({ token: userCreated.token, tagIds: APP_AUTHORED_TAGS.map(t => t.tagId) });
+   for (let i = 0; i < usersCreated.length; i++) {
+      const userCreated = usersCreated[i];
+      if (i % 2 == 0) {
+         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[0].tagId] });
+      } else {
+         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[1].tagId] });
+      }
    }
 
    for (const userCreated of allUsersCreated) {
