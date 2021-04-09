@@ -19,7 +19,8 @@
       "prettier": "prettier --write \"src/**/*.ts\"",
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
       "install-visualizer": "git submodule init && git submodule update && cd gremlin-visualizer && npm install",
-      "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm start"
+      "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm start",
+      "dashboard": "cd dashboard && SKIP_PREFLIGHT_CHECK=true npm start"
    },
    "devDependencies": {
       "@types/app-root-path": "^1.2.4",
