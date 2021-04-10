@@ -1,5 +1,6 @@
 import { BaseContext } from "koa";
 import * as moment from "moment";
+import * as fs from "fs";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -93,4 +94,30 @@ export async function updateAmountOfUsersCount(): Promise<void> {
 
 export function getAmountOfUsersCount(): number {
    return amountOfUsersCount;
+}
+
+export async function logFileListGet(ctx: BaseContext): Promise<string[]> {
+   let resolvePromise: (value: string[] | PromiseLike<string[]>) => void;
+   const promise = new Promise<string[]>(resolve => (resolvePromise = resolve));
+
+   fs.readdir("./logs/", (err, files) => {
+      resolvePromise(files.map(file => file));
+   });
+
+   return promise;
+}
+
+export async function logGet(file: string, ctx: BaseContext): Promise<string> {
+   let resolvePromise: (value: string | PromiseLike<string>) => void;
+   const promise = new Promise<string>(resolve => (resolvePromise = resolve));
+
+   fs.readFile("./logs/" + file, { encoding: "utf-8" }, function (err, data) {
+      if (!err) {
+         resolvePromise(data);
+      } else {
+         ctx.throw(err);
+      }
+   });
+
+   return promise;
 }
