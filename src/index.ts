@@ -6,6 +6,7 @@ import * as koaBody from "koa-body";
 import * as mount from "koa-mount";
 import * as ratelimit from "koa-ratelimit";
 import * as serve from "koa-static";
+import * as cors from "@koa/cors";
 import * as ora from "ora";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
 import { imagesLogger, routesLogger } from "./common-tools/log-tools/log-routes";
@@ -34,6 +35,7 @@ import { userRoutes } from "./components/user/routes";
 
    // Koa middlewares:
    const a = app
+      .use(cors({ origin: "*" }))
       .use(ratelimit(rateLimiterConfig))
       .use(koaBody({ parsedMethods: ["GET", "POST"] }))
       .use(router.routes())
