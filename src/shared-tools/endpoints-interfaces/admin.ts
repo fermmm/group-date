@@ -24,3 +24,7 @@ export interface ChatWithAdmins {
 export interface AdminConvertPostParams extends TokenParameter {
    targetUserToken?: string;
 }
+
+export interface AdminLogGetParams extends TokenParameter {
+   fileName: string;
+}

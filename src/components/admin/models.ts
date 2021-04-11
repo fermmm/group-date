@@ -6,9 +6,10 @@ import {
    AdminChatGetParams,
    AdminChatPostParams,
    AdminConvertPostParams,
+   AdminLogGetParams,
    ChatWithAdmins,
 } from "../../shared-tools/endpoints-interfaces/admin";
-import { ChatMessage } from "../../shared-tools/endpoints-interfaces/common";
+import { ChatMessage, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveUser } from "../user/models";
 import { queryToGetAllUsers, queryToUpdateUserProps } from "../user/queries";
@@ -96,7 +97,12 @@ export function getAmountOfUsersCount(): number {
    return amountOfUsersCount;
 }
 
-export async function logFileListGet(ctx: BaseContext): Promise<string[]> {
+export async function logFileListGet(params: TokenParameter, ctx: BaseContext): Promise<string[]> {
+   const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
+   if (!callerUser.isAdmin) {
+      return null;
+   }
+
    let resolvePromise: (value: string[] | PromiseLike<string[]>) => void;
    const promise = new Promise<string[]>(resolve => (resolvePromise = resolve));
 
@@ -107,11 +113,18 @@ export async function logFileListGet(ctx: BaseContext): Promise<string[]> {
    return promise;
 }
 
-export async function logGet(file: string, ctx: BaseContext): Promise<string> {
+export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promise<string> {
+   const { token, fileName } = params;
+
+   const callerUser: Partial<User> = await retrieveUser(token, false, ctx);
+   if (!callerUser.isAdmin) {
+      return null;
+   }
+
    let resolvePromise: (value: string | PromiseLike<string>) => void;
    const promise = new Promise<string>(resolve => (resolvePromise = resolve));
 
-   fs.readFile("./logs/" + file, { encoding: "utf-8" }, function (err, data) {
+   fs.readFile("./logs/" + fileName, { encoding: "utf-8" }, function (err, data) {
       if (!err) {
          resolvePromise(data);
       } else {
