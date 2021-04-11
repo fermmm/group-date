@@ -1,64 +1,81 @@
 import React, { FC, ReactElement, useState } from "react";
-import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import Paper from "@material-ui/core/Paper";
+import MenuList from "@material-ui/core/MenuList";
+import { MenuStyled, UnanchoredContainer } from "./styles.ContextMenu";
 
 export interface SimpleDialogProps {
-  buttonToOpen: (
-    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
-  ) => ReactElement;
-  buttons: Array<{ label: string; value: string; icon?: () => ReactElement }>;
-  onClose: (value: string | null) => void;
+   buttonToOpen: (onClick: (e: React.MouseEvent<HTMLButtonElement>) => void) => ReactElement;
+   buttons: DialogButton[];
+   onClose: (label: string | null, value: string | null) => void;
+   startOpened?: boolean;
 }
 
-const ContextMenu: FC<SimpleDialogProps> = (props) => {
-  const { onClose, buttons, buttonToOpen } = props;
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [open, setOpen] = useState(true);
+export interface DialogButton {
+   label: string;
+   value: string;
+   icon?: () => ReactElement;
+}
 
-  const handleClose = () => {
-    setOpen(false);
-    onClose(null);
-  };
+const ContextMenu: FC<SimpleDialogProps> = props => {
+   const { onClose, buttons, buttonToOpen, startOpened } = props;
+   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+   const [open, setOpen] = useState(startOpened ?? false);
 
-  const handleListItemClick = (value: string) => {
-    setOpen(false);
-    onClose(value);
-  };
+   const handleClose = () => {
+      setOpen(false);
+      onClose(null, null);
+   };
 
-  const handleOpenerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    setOpen(true);
-  };
+   const handleListItemClick = (label: string, value: string) => {
+      setOpen(false);
+      onClose(label, value);
+   };
 
-  return (
-    <>
-      {buttonToOpen(handleOpenerClick)}
-      <Menu
-        onClose={handleClose}
-        open={open}
-        anchorEl={anchorEl ?? undefined}
-        keepMounted
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-      >
-        {buttons.map((button) => (
-          <MenuItem
-            onClick={() => handleListItemClick(button.value)}
+   const handleOpenerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+      setOpen(true);
+   };
+
+   const renderButton = (button: DialogButton) => {
+      return (
+         <MenuItem
+            onClick={() => handleListItemClick(button.label, button.value)}
             key={button.value}
-          >
+         >
             {button.icon && button.icon()}
             {button.label}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
+         </MenuItem>
+      );
+   };
+
+   return (
+      <>
+         {buttonToOpen(handleOpenerClick)}
+         {anchorEl ? (
+            <MenuStyled
+               onClose={handleClose}
+               open={open}
+               anchorEl={anchorEl}
+               keepMounted
+               transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left"
+               }}
+            >
+               {buttons.map(button => renderButton(button))}
+            </MenuStyled>
+         ) : (
+            open && (
+               <UnanchoredContainer>
+                  <Paper elevation={6}>
+                     <MenuList>{buttons.map(button => renderButton(button))}</MenuList>
+                  </Paper>
+               </UnanchoredContainer>
+            )
+         )}
+      </>
+   );
 };
 
 export default ContextMenu;
