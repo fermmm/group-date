@@ -32,10 +32,10 @@ const Logs: FC = () => {
    return (
       <RequestsStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
          <LogsContainer>
-            {selectedLogFile && (
+            {log && (
                <LazyLog
                   enableSearch
-                  text={log ?? " "}
+                  text={log}
                   caseInsensitive
                   containerStyle={{ color: "#48b951" }}
                />

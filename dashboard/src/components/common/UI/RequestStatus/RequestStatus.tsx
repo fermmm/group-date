@@ -18,19 +18,21 @@ export const RequestsStatus: FC<PropsRequestsStatus> = props => {
    const { loading, error, children, loadingScaleMode = LoadingScaleMode.FillViewport } = props;
    const isLoading: boolean = Array.isArray(loading) ? loading.includes(true) : loading ?? false;
    const isError = Array.isArray(error) ? error.find(e => e != null) : error ?? null;
-
-   if (isError == null && !isLoading) {
-      return <>{children}</>;
-   }
+   const showChildren = isError == null && !isLoading;
 
    return (
-      <RequestStatusContainer
-         style={{
-            height: loadingScaleMode === LoadingScaleMode.FillViewport ? "100vh" : "100%"
-         }}
-      >
-         {isLoading && !isError && <CircularProgress color="inherit" />}
-         {isError && "Error: " + tryToGetErrorMessage(isError)}
-      </RequestStatusContainer>
+      <>
+         <div style={showChildren ? {} : { display: "none" }}>{children}</div>
+         {!showChildren && (
+            <RequestStatusContainer
+               style={{
+                  height: loadingScaleMode === LoadingScaleMode.FillViewport ? "100vh" : "100%"
+               }}
+            >
+               {isLoading && !isError && <CircularProgress color="inherit" />}
+               {isError && "Error: " + tryToGetErrorMessage(isError)}
+            </RequestStatusContainer>
+         )}
+      </>
    );
 };
