@@ -45,7 +45,9 @@ export async function initializeGroupsFinder(): Promise<void> {
  * Also searches for users available to be added to recently created groups that are still open for more users.
  */
 export async function searchAndCreateNewGroups(): Promise<Group[]> {
+   const profiler = logTimeToFile("groupFinderTask");
    let groupsCreated: Group[] = [];
+   let groupsModified: string[] = [];
 
    /**
     * A user becomes unavailable after entering into a group, we need to store users that entered into a group
@@ -64,20 +66,24 @@ export async function searchAndCreateNewGroups(): Promise<Group[]> {
    // For each quality and slot search for users that can form a group and create the groups
    for (const quality of qualitiesToSearch) {
       for (const slotIndex of slotsIndexesOrdered()) {
-         groupsCreated = [
-            ...groupsCreated,
+         groupsCreated.push(
             ...(await createGroupsForSlot(slotIndex, quality, notAvailableUsersBySlot[slotIndex])),
-         ];
+         );
       }
    }
 
    // For each quality and slot search for users available to be added to recently created groups that are still open for more users.
    for (const quality of qualitiesToSearch) {
       for (const slotIndex of slotsIndexesOrdered()) {
-         await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsersBySlot[slotIndex]);
+         groupsModified.push(
+            ...(await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsersBySlot[slotIndex])),
+         );
       }
    }
 
+   profiler.done({
+      message: `Group finder finished, created ${groupsCreated.length} groups. Modified ${groupsModified.length} groups`,
+   });
    return groupsCreated;
 }
 

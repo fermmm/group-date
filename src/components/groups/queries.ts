@@ -142,6 +142,11 @@ export function queryToGetAllGroupsOfUser(userToken: string): Traversal {
    return queryToGetUserByToken(userToken, null, true).out("member");
 }
 
+// For admin usage only
+export function queryToGetAllGroups(): Traversal {
+   return g.V().hasLabel("group");
+}
+
 export function queryToUpdateGroupProperty(
    group: MarkRequired<Partial<Group>, "groupId">,
    filters?: GroupFilters,

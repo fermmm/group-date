@@ -1,6 +1,8 @@
 import { BaseContext } from "koa";
 import * as moment from "moment";
 import * as fs from "fs";
+import { setIntervalAsync } from "set-interval-async/dynamic";
+import { performance } from "perf_hooks";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -8,11 +10,12 @@ import {
    AdminConvertPostParams,
    AdminLogGetParams,
    ChatWithAdmins,
+   UsageReport,
 } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveUser } from "../user/models";
-import { queryToGetAllUsers, queryToUpdateUserProps } from "../user/queries";
+import { queryToGetAllCompleteUsers, queryToGetAllUsers, queryToUpdateUserProps } from "../user/queries";
 import {
    queryToGetAdminChatMessages,
    queryToGetAllChatsWithAdmins,
@@ -21,9 +24,16 @@ import {
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { sendQuery } from "../../common-tools/database-tools/database-manager";
+import { queryToGetAllGroups } from "../groups/queries";
+import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
+import { GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
+import { GroupQuality } from "../groups-finder/tools/types";
 
 export async function initializeAdmin(): Promise<void> {
    await updateAmountOfUsersCount();
+   setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
+   // To create a report when server boots and preview database:
+   logUsageReport();
 }
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
@@ -95,6 +105,37 @@ export async function updateAmountOfUsersCount(): Promise<void> {
 
 export function getAmountOfUsersCount(): number {
    return amountOfUsersCount;
+}
+
+export async function logUsageReport(): Promise<void> {
+   const timeStart = performance.now();
+
+   const amountOfUsers = (await sendQuery(() => queryToGetAllUsers().count().next())).value;
+   const amountOfFullyRegisteredUsers = (await sendQuery(() => queryToGetAllCompleteUsers().count().next()))
+      .value;
+   const incompleteUsers = amountOfUsers - amountOfFullyRegisteredUsers;
+   const amountOfGroups = (await sendQuery(() => queryToGetAllGroups().count().next())).value;
+   let totalOpenGroups = 0;
+   const openGroupsBySlot: number[] = [];
+
+   for (let i = 0; i < GROUP_SLOTS_CONFIGS.length; i++) {
+      const amount = (await queryToGetGroupsReceivingMoreUsers(i, GroupQuality.Good).toList()).length;
+      openGroupsBySlot.push(amount);
+      totalOpenGroups += amount;
+   }
+
+   const timeSpentOnReportMs = Math.round(performance.now() - timeStart);
+
+   const report: UsageReport = {
+      amountOfUsers,
+      incompleteUsers,
+      amountOfGroups,
+      totalOpenGroups,
+      openGroupsBySlot,
+      timeSpentOnReportMs,
+   };
+
+   logToFile(JSON.stringify(report), "usageReports");
 }
 
 export async function logFileListGet(params: TokenParameter, ctx: BaseContext): Promise<string[]> {

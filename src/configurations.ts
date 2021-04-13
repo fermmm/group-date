@@ -1,6 +1,7 @@
 import * as appRoot from "app-root-path";
 import { I18n } from "i18n";
 import * as path from "path";
+import { createLog } from "./common-tools/log-tools/winstonCreateLogger";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
@@ -505,10 +506,34 @@ export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Log files that can be written and retrieved in the dashboard
+ */
+export const LOG_FILES = {
+   groupFinderTask: createLog("group_finder_tasks.log"),
+   groupsTasks: createLog("groups_tasks.log"),
+   notifyUsersAboutNewCardsTask: createLog("notify_users_about_new_cards_task.log"),
+   groupFinderProblems: createLog("group_finder_problems.log"),
+   usageReports: createLog("usage_reports.log"),
+   serverStatus: createLog("server_status.log"),
+};
+
+export const LOG_USAGE_REPORT_FREQUENCY = hoursToMilliseconds(12);
+
+/**
  * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
  * trust that the query and multithreading is working correctly.
  */
 export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
+
+/**
+ * Database retrying is important in "thread collisions", this reports such retries, disable if you trust
+ * everything is working correctly regarding database queries.
+ */
 export const REPORT_DATABASE_RETRYING: boolean = true;
+
+/**
+ * Logs into the console all endpoint requests, useful to check if the client is optimizing correctly the
+ * amount of requests.
+ */
 export const LOG_ROUTE_ACCESS: boolean = true;
 export const LOG_IMAGE_ACCESS: boolean = true;

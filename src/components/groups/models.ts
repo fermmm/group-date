@@ -368,7 +368,9 @@ export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext)
 }
 
 export async function findSlotsToRelease(): Promise<void> {
-   return await queryToFindSlotsToRelease().iterate();
+   const porfiler = logTimeToFile("groupsTasks");
+   await queryToFindSlotsToRelease().iterate();
+   porfiler.done("Find slots to release finished");
 }
 
 export async function sendDateReminderNotifications(): Promise<void> {

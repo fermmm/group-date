@@ -28,3 +28,12 @@ export interface AdminConvertPostParams extends TokenParameter {
 export interface AdminLogGetParams extends TokenParameter {
    fileName: string;
 }
+
+export interface UsageReport {
+   amountOfUsers: number;
+   incompleteUsers: number;
+   amountOfGroups: number;
+   totalOpenGroups: number;
+   openGroupsBySlot: number[];
+   timeSpentOnReportMs: number;
+}

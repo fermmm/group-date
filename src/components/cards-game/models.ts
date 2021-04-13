@@ -68,6 +68,8 @@ export async function recommendationsFromTagGet(
  *       is disabled because the cycle is complete and not because the user disabled it.
  */
 export async function notifyAllUsersAboutNewCards(): Promise<void> {
+   const porfiler = logTimeToFile("notifyUsersAboutNewCardsTask");
+
    const users: User[] = await fromQueryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
    for (const user of users) {
       const recommendations: number = (
@@ -92,6 +94,8 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
          );
       }
    }
+
+   porfiler.done("Notifying users about new cards finished");
 }
 
 /**

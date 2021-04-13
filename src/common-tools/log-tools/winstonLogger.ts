@@ -1,38 +1,31 @@
-import * as winston from "winston";
+import { LOG_FILES } from "../../configurations";
+import { LogChannels } from "./winstonCreateLogger";
 
-export enum LogChannels {
-   Info = "info",
-}
-
-const logger = winston.createLogger({
-   level: LogChannels.Info,
-   format: winston.format.json(),
-   defaultMeta: { service: "user-service" },
-   transports: [
-      //
-      // - Write all logs with level `error` and below to `error.log`
-      // - Write all logs with level `info` and below to `combined.log`
-      //
-      new winston.transports.File({ dirname: "logs", filename: "error.log", level: "error" }),
-      new winston.transports.File({ dirname: "logs", filename: "combined.log" }),
-   ],
-});
-
-//
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
-if (process.env.NODE_ENV !== "production") {
-   logger.add(
-      new winston.transports.Console({
-         format: winston.format.simple(),
-      }),
-   );
+/**
+ * Like a console.log() that saves the log to files using winston.js library.
+ */
+function logToFileFn(
+   message: string,
+   file: keyof typeof LOG_FILES,
+   logChannel: LogChannels = LogChannels.Info,
+) {
+   LOG_FILES[file].log(logChannel, message);
 }
 
 /**
- * Like and advanced console.log() that saves the log to files using winston.js library.
+ * This returns a profiler variable where you have to call done() to log the time:
+ * const profiler = logTimeToFileFn("file");
+ * ...
+ * profiler.done({ message: 'Task was done in' });
  */
-export function logToFiles(message: string, channel: LogChannels = LogChannels.Info) {
-   logger.log(channel, message);
+function logTimeToFileFn(file: keyof typeof LOG_FILES) {
+   return LOG_FILES[file].startTimer();
+}
+
+// This is here to allow using the functions without an import line
+globalThis.logToFile = logToFileFn;
+globalThis.logTimeToFile = logTimeToFileFn;
+declare global {
+   var logToFile: typeof logToFileFn;
+   var logTimeToFile: typeof logTimeToFileFn;
 }

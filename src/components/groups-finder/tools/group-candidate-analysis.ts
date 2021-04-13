@@ -286,8 +286,13 @@ export function reportPossibleDataCorruption(groups: GroupCandidate[] | GroupsAn
    if (REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER) {
       const problems = getDataCorruptionProblemsInMultipleGroupCandidates(groups);
       if (problems.length > 0) {
-         console.log(`Database problem! Returned corrupted data in group candidates:`);
-         console.log(getDataCorruptionProblemsInMultipleGroupCandidates(groups));
+         const problems = getDataCorruptionProblemsInMultipleGroupCandidates(groups);
+         consoleLog("Database problem! Returned corrupted data in group candidates:");
+         consoleLog(problems);
+         logToFile(
+            "Database problem! Returned corrupted data in group candidates: " + JSON.stringify(problems),
+            "groupFinderProblems",
+         );
       }
    }
 }

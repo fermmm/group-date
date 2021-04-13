@@ -1,5 +1,6 @@
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
+import "./common-tools/log-tools/winstonLogger";
 import * as Router from "@koa/router";
 import * as Koa from "koa";
 import * as koaBody from "koa-body";
@@ -74,4 +75,6 @@ import { userRoutes } from "./components/user/routes";
    // Final messages
    ora("Application initialized!").succeed();
    ora(`Server running on ${process.env.PORT}!`).succeed();
+
+   logToFile("Server started", "serverStatus");
 })();
