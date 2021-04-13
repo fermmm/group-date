@@ -4,7 +4,7 @@ import { LazyLog } from "react-lazylog";
 import { useLog, useLogsFileList } from "../../../api/server/logs";
 import ContextMenu from "../../common/UI/ContextMenu/ContextMenu";
 import { RequestsStatus } from "../../common/UI/RequestStatus/RequestStatus";
-import { ContextMenuContainer, LogsContainer } from "./styles.Logs";
+import { ContextMenuContainer, LogFileFeedbackMessage, LogsContainer } from "./styles.Logs";
 import { useFileListToRender } from "./tools/useFileListToRender";
 
 const Logs: FC = () => {
@@ -32,13 +32,15 @@ const Logs: FC = () => {
    return (
       <RequestsStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
          <LogsContainer>
-            {log && (
+            {log ? (
                <LazyLog
                   enableSearch
                   text={log}
                   caseInsensitive
                   containerStyle={{ color: "#48b951" }}
                />
+            ) : (
+               <LogFileFeedbackMessage>Log file is empty</LogFileFeedbackMessage>
             )}
             <ContextMenuContainer>
                <ContextMenu
