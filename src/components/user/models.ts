@@ -118,7 +118,7 @@ export async function retrieveUser(
 
    if (user != null) {
       await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
-      return user;
+      return { ...user, token };
    }
 
    return createUser(token, userDataFromFacebook.content.email, includeFullInfo, ctx);
