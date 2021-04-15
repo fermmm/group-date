@@ -98,3 +98,14 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
 
    return result;
 }
+
+/**
+ * @param path File extension should be xml so gremlin knows it should save with the GraphML format (the most popular and supported).Example: "graph.xml"
+ */
+export async function saveDatabaseToFile(path: string) {
+   await g.io(path).write().iterate();
+}
+
+export async function loadDatabaseFromDisk(path: string) {
+   await g.io(path).read().iterate();
+}

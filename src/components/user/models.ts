@@ -12,7 +12,7 @@ import * as moment from "moment";
 import * as path from "path";
 import * as sharp from "sharp";
 import { HttpRequestResponse } from "../../common-tools/database-tools/typing-tools/typing-tools";
-import { createFolderOnRoot } from "../../common-tools/files-tools/files-tools";
+import { createFolder } from "../../common-tools/files-tools/files-tools";
 import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
 import { FacebookResponse, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
@@ -66,7 +66,7 @@ import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 
 export async function initializeUsers(): Promise<void> {
-   createFolderOnRoot("uploads");
+   createFolder("uploads");
 }
 
 /**

@@ -501,6 +501,29 @@ export const SINGLE_QUERY_GROUP_FINDER: boolean = false;
  */
 export const ENABLE_MULTITHREADING_IN_GROUP_FINDER: boolean = false;
 
+/**
+ * Stores a database backup for each day. For example monday.xml file will be replaced every monday and the same
+ * for all the days of the week.
+ */
+export const DATABASE_BACKUP_DAILY: boolean = true;
+
+/**
+ * Stores a database backup for each week. For example week1.xml file will be replaced every week. There will be
+ * 4 backup files for each week of the month.
+ */
+export const DATABASE_BACKUP_WEEKLY: boolean = true;
+
+/**
+ * Stores a database backup for each month. For example january.xml file will be replaced in the first day of
+ * january and the same for all the months of the year, creating a maximum of 12 files.
+ */
+export const DATABASE_BACKUP_MONTHLY: boolean = true;
+
+/**
+ * Hour of the day to make a database backups 0 = 00:00
+ */
+export const DATABASE_BACKUP_HOUR: number = 0;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  DEBUGGING  ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -515,6 +538,7 @@ export const LOG_FILES = {
    groupFinderProblems: createLog("group_finder_problems.log"),
    usageReports: createLog("usage_reports.log"),
    serverStatus: createLog("server_status.log"),
+   backups: createLog("backups.log"),
 };
 
 export const LOG_USAGE_REPORT_FREQUENCY = hoursToMilliseconds(12);

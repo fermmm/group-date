@@ -53,12 +53,12 @@ import { userRoutes } from "./components/user/routes";
    await waitForDatabase();
 
    // Initializers that contains scheduled tasks and other initialization stuff
+   await initializeAdmin();
    await initializeUsers();
    await initializeGroups();
    await initializeCardsGame();
    await initializeGroupsFinder();
    await initializeTags();
-   await initializeAdmin();
 
    // Debugging tools:
    routesLogger(router);

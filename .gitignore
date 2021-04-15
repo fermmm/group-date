@@ -1,6 +1,7 @@
 # Application generated files
 uploads
 logs
+database-backups
 
 # Dev. environment
 .vscode/
