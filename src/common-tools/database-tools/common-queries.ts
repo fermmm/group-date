@@ -60,3 +60,7 @@ export function queryToCreateVerticesFromObjects<T>(
          .unfold();
    }
 }
+
+export async function databaseIsEmpty(): Promise<boolean> {
+   return (await g.V().limit(1).toList()).length === 0;
+}

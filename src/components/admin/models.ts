@@ -1,3 +1,4 @@
+import { fileOrFolderExists } from "./../../common-tools/files-tools/files-tools";
 import { BaseContext } from "koa";
 import * as moment from "moment";
 import * as fs from "fs";
@@ -38,9 +39,12 @@ import {
    DATABASE_BACKUP_WEEKLY,
    GROUP_SLOTS_CONFIGS,
    LOG_USAGE_REPORT_FREQUENCY,
+   RESTORE_DATABASE_ON_INIT,
 } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { copyFile, createFolder } from "../../common-tools/files-tools/files-tools";
+import { executeFunctionBeforeExiting } from "../../common-tools/process/process-tools";
+import { databaseIsEmpty } from "../../common-tools/database-tools/common-queries";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -52,9 +56,13 @@ export async function initializeAdmin(): Promise<void> {
    setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
 
    if (process.env.PERFORM_DATABASE_BACKUPS) {
+      const databaseEmpty = await databaseIsEmpty();
       // Load database contents from latest backup if any
-      await loadDatabaseFromDisk("../../database-backups/latest.xml");
+      if (RESTORE_DATABASE_ON_INIT && databaseEmpty && fileOrFolderExists("database-backups/latest.xml")) {
+         await loadDatabaseFromDisk("../../database-backups/latest.xml");
+      }
       await initializeBackupDatabaseSchedule();
+      backupDatabaseWhenExiting();
    }
 
    // To create a report when server boots and preview database:
@@ -250,4 +258,10 @@ async function backupDatabaseToFile(folderName: string, fileName: string) {
    await saveDatabaseToFile("../../database-backups/latest.xml");
    copyFile("database-backups/latest.xml", `database-backups/${folderName}/${fileName}.xml`);
    profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
+}
+
+function backupDatabaseWhenExiting() {
+   executeFunctionBeforeExiting(async () => {
+      await saveDatabaseToFile("../../database-backups/latest.xml");
+   });
 }

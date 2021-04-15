@@ -7,9 +7,11 @@ import * as path from "path";
  * If the folder is nested inside other folders that also doesn't exist it creates all of them.
  */
 export function createFolder(folderName: string) {
-   if (!fs.existsSync(appRoot.path + `/${folderName}`)) {
-      fs.mkdirSync(appRoot.path + `/${folderName}`, { recursive: true });
+   if (fileOrFolderExists(folderName)) {
+      return;
    }
+
+   fs.mkdirSync(appRoot.path + `/${folderName}`, { recursive: true });
 }
 
 /**
@@ -17,9 +19,15 @@ export function createFolder(folderName: string) {
  * The path is relative to the root of the project.
  */
 export function copyFile(source: string, destination: string) {
-   // File destination.txt will be created or overwritten by default.
    createFolder(path.dirname(destination));
    fs.copyFile(appRoot.path + `/${source}`, appRoot.path + `/${destination}`, err => {
       if (err) throw err;
    });
+}
+
+/**
+ * Synchronously tests whether or not the given path exists by checking with the file system.
+ */
+export function fileOrFolderExists(path: string): boolean {
+   return fs.existsSync(appRoot.path + `/${path}`);
 }
