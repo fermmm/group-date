@@ -1,5 +1,6 @@
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
+import "./common-tools/ts-tools/globals";
 import "./common-tools/log-tools/winstonLogger";
 import * as Router from "@koa/router";
 import * as Koa from "koa";
@@ -25,6 +26,7 @@ import { initializeTags } from "./components/tags/models";
 import { tagsRoutes } from "./components/tags/routes";
 import { initializeUsers } from "./components/user/models";
 import { userRoutes } from "./components/user/routes";
+import { initializeDatabaseBackups } from "./common-tools/database-tools/backups";
 
 (async () => {
    // Koa initialization:
@@ -51,14 +53,15 @@ import { userRoutes } from "./components/user/routes";
 
    // Database initialization:
    await waitForDatabase();
+   await initializeDatabaseBackups();
 
    // Initializers that contains scheduled tasks and other initialization stuff
-   await initializeAdmin();
    await initializeUsers();
    await initializeGroups();
    await initializeCardsGame();
    await initializeGroupsFinder();
    await initializeTags();
+   await initializeAdmin();
 
    // Debugging tools:
    routesLogger(router);
