@@ -1,5 +1,5 @@
 import * as appRoot from "app-root-path";
-import { I18n } from "i18n";
+import * as i18n from "i18n";
 import * as path from "path";
 import { createLog } from "./common-tools/log-tools/winstonCreateLogger";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
@@ -467,7 +467,7 @@ export const PUSH_NOTIFICATION_CHANNELS: NotificationChannelInfo[] = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const DEFAULT_LANGUAGE = "en";
-export const I18N = new I18n({
+i18n.configure({
    defaultLocale: DEFAULT_LANGUAGE,
    directory: path.join(appRoot.path, "/locales/"),
 });
