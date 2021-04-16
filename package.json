@@ -14,6 +14,7 @@
       "dev": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && nodemon --watch",
       "start": "TS_NODE_FILES=true ./vendor/gremlin-local-server/bin/gremlin-server.sh restart && node --inspect=localhost:5858 --nolazy -r ts-node/register src/index.ts",
       "database-only": "TS_NODE_FILES=true ./vendor/gremlin-local-server/bin/gremlin-server.sh restart && node --inspect=localhost:5858 --nolazy -r ts-node/register src/database-only.ts",
+      "no-database": "TS_NODE_FILES=true NO_DATABASE=true node --inspect=localhost:5858 --nolazy -r ts-node/register src/index.ts",
       "test": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --verbose --runInBand --forceExit",
       "test:coverage": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --coverage",
       "test:watch": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart && jest --watch --runInBand",
