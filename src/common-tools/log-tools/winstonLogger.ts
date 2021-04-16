@@ -4,7 +4,7 @@ import { LogChannels } from "./winstonCreateLogger";
 /**
  * Like a console.log() that saves the log to files using winston.js library.
  */
-function logToFileFn(
+export function _logToFile(
    message: string,
    file: keyof typeof LOG_FILES,
    logChannel: LogChannels = LogChannels.Info,
@@ -18,14 +18,10 @@ function logToFileFn(
  * ...
  * profiler.done({ message: 'Task was done in' });
  */
-function logTimeToFileFn(file: keyof typeof LOG_FILES) {
+export function _logTimeToFile(file: keyof typeof LOG_FILES) {
    return LOG_FILES[file].startTimer();
 }
 
 // This is here to allow using the functions without an import line
-globalThis.logToFile = logToFileFn;
-globalThis.logTimeToFile = logTimeToFileFn;
-declare global {
-   var logToFile: typeof logToFileFn;
-   var logTimeToFile: typeof logTimeToFileFn;
-}
+globalThis.logToFile = _logToFile;
+globalThis.logTimeToFile = _logTimeToFile;
