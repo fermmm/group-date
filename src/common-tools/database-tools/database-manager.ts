@@ -46,7 +46,8 @@ export async function waitForDatabase(): Promise<void> {
                clearInterval(interval);
                resolvePromise();
             }
-         });
+         })
+         .catch(error => {});
    };
 
    checkDatabase();
