@@ -9,7 +9,6 @@ import * as mount from "koa-mount";
 import * as ratelimit from "koa-ratelimit";
 import * as serve from "koa-static";
 import * as cors from "@koa/cors";
-import * as ora from "ora";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
 import { imagesLogger, routesLogger } from "./common-tools/log-tools/log-routes";
 import { rateLimiterConfig } from "./common-tools/security-tools/security-tools";
@@ -76,8 +75,8 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    testingRoutes(router);
 
    // Final messages
-   ora("Application initialized!").succeed();
-   ora(`Server running on ${process.env.PORT}!`).succeed();
+   console.log("✓ Application initialized!");
+   console.log(`✓ Server running on ${process.env.PORT}!`);
 
    logToFile("Server started", "serverStatus");
 })();

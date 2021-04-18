@@ -1,5 +1,4 @@
 import * as gremlin from "gremlin";
-import * as ora from "ora";
 import { Traversal } from "./gremlin-typing-tools";
 import { retryPromise } from "../js-tools/js-tools";
 import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from "../../configurations";
@@ -24,29 +23,35 @@ export const t = gremlin.process.t;
  * The promise of this function resolves only when database starts working
  */
 export async function waitForDatabase(silent: boolean = false): Promise<void> {
-   let spinner: ora.Ora;
    if (!silent) {
-      spinner = ora({ text: "Waiting for database...", spinner: "noise" });
+      console.log("");
+      console.log("Waiting for database...");
    }
+   let completed = false;
    let resolvePromise: (v?: void | PromiseLike<void>) => void = null;
    const promise = new Promise<void>(r => (resolvePromise = r));
 
    const timeout = setTimeout(async () => {
       await waitForDatabase(true);
-      spinner?.succeed("Database running!");
+      if (completed) {
+         return;
+      }
+      console.log("✓ Database running!");
       resolvePromise();
    }, 300);
 
-   spinner?.start();
    g.inject(0)
       .toList()
       .then(() => {
          clearTimeout(timeout);
-         spinner?.succeed("Database running!");
+         if (!silent) {
+            console.log("✓ Database running!");
+         }
+         completed = true;
          resolvePromise();
       })
       .catch(error => {
-         spinner?.fail("Database error");
+         console.log("Database error");
          console.log(error);
       });
 
