@@ -1,5 +1,5 @@
 {
-  "watch": ["src"],
-  "exec": "npm start",
-  "ext": "ts"
+   "watch": ["src"],
+   "ext": "ts",
+   "exec": "TS_NODE_FILES=true ./vendor/gremlin-local-server/bin/gremlin-server.sh restart && node --inspect=localhost:5858 --nolazy -r ts-node/register src/index.ts"
 }
