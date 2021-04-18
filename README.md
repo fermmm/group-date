@@ -9,28 +9,15 @@ You can run all in local for development or host it on a hosting provider that s
 You can also use a hosting provider for the code and another company hosting the database, here is a list of database hosting providers that supports Gremlin queries:
 http://tinkerpop.apache.org/providers.html
 
-## Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune (recommended)
-
-1. Follow [this tutorial](https://medium.com/@sommershurbaji/deploying-a-docker-container-to-aws-with-elastic-beanstalk-28adfd6e7e95) to upload the code:
-
-## Tutorial to upload to Azure App Engine + Cosmos DB
-
-> :warning: :warning: :warning: Only use Azure Cosmos DB to host the database if they implemented Gremlin bytecode see [this thread](https://feedback.azure.com/forums/263030-azure-cosmos-db/suggestions/33632779-support-gremlin-bytecode-to-enable-the-fluent-api?page=1&per_page=20). At the moment of writing this they didn't implement it yet. Not implementing this feature means that this project does not work with Cosmos DB. Also means you need to write the queries in a specific way that only works on thier servers, making the code incompatible with other hosting providers and community tools and libraries.
-
-1. At the root of this project rename `.env.example` file to `.env` and fill the variables of that file with the information from [this tutorial](https://docs.microsoft.com/en-us/azure/cosmos-db/create-graph-nodejs#update-your-connection-string) that you need to follow to create the database.
-2. Download and install Visual Studio Code from the official page: https://code.visualstudio.com/
-3. Install `Azure Tools` extension for Visual Studio Code and upload the project following the instructions provided by the extension.
-
-## Tutorial to install the project on your computer or server
+## Installing the project on your computer or server
 
 1. Make sure the full path to this repo does not contain any spaces because that breaks gremlin database (the database that runs in local).
 
-2. Make sure you have Java installed (JDK or OpenJDK), at least version 8 (or 1.8 it's the same). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/)
+2. Make sure you have Java installed (JDK or OpenJDK), at least version 8 (or 1.8 it's the same). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, you can install it with `sudo apt install default-jdk` on Linux or use these links in other OS: [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/)
 
 3. Make sure you have Node.js installed at least version 12, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
-4. Duplicate the file `.env.example` and rename it: `.env`. In unix you can use this command:
-   `cp .env.example .env`
+4. Duplicate the file `.env.example` and rename it: `.env`. In unix you can use this command: `cp .env.example .env`. If you are in a server you may need to change the IMAGES_HOST variable in the .env file.
 
 5. Run: `npm install`
 
@@ -41,16 +28,24 @@ To run the project keep reading.
 
 ## Running the project on your computer or server
 
-Linux / MacOS: Start a local development server with automatic restart
+If you want to code first run
 
 ```
 npm run dev
 ```
 
-Windows: Start a local development server with automatic restart
+This runs the server with error reporting and automatic restart.
+
+In windows
 
 ```
 npm run dev-win
+```
+
+To run the server in production run
+
+```
+npm run start
 ```
 
 **Optional**: Database visualizer application (see installation step 6 if it's not installed):
@@ -63,11 +58,21 @@ Then run a query like `g.V()`
 
 ## Other commands
 
-Build the project:
+Run the project without database (for production):
 
 ```
-npm run build
+npm run no-database
 ```
+
+This is useful when you want to run the database in another server or you have a managed database service like AWS Neptune so you don't need to run the database. You need to change the .env file for this setup.
+
+Only run the database (for production):
+
+```
+npm run database-only
+```
+
+This is useful if you want to run the database in one server and the application logic in another one. This process makes some basic database backups every day, week and month, could be an alternative to a managed database service.
 
 Run the tests (optionally with coverage or in watch mode):
 
@@ -88,6 +93,18 @@ Lint the code with TSLint:
 ```
 npm run lint
 ```
+
+## Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune (recommended)
+
+1. Follow [this tutorial](https://medium.com/@sommershurbaji/deploying-a-docker-container-to-aws-with-elastic-beanstalk-28adfd6e7e95) to upload the code:
+
+## Tutorial to upload to Azure App Engine + Cosmos DB
+
+> :warning: :warning: :warning: Only use Azure Cosmos DB to host the database if they implemented Gremlin bytecode see [this thread](https://feedback.azure.com/forums/263030-azure-cosmos-db/suggestions/33632779-support-gremlin-bytecode-to-enable-the-fluent-api?page=1&per_page=20). At the moment of writing this they didn't implement it yet. Not implementing this feature means that this project does not work with Cosmos DB. Also means you need to write the queries in a specific way that only works on thier servers, making the code incompatible with other hosting providers and community tools and libraries.
+
+1. At the root of this project rename `.env.example` file to `.env` and fill the variables of that file with the information from [this tutorial](https://docs.microsoft.com/en-us/azure/cosmos-db/create-graph-nodejs#update-your-connection-string) that you need to follow to create the database.
+2. Download and install Visual Studio Code from the official page: https://code.visualstudio.com/
+3. Install `Azure Tools` extension for Visual Studio Code and upload the project following the instructions provided by the extension.
 
 ## Git hooks
 
