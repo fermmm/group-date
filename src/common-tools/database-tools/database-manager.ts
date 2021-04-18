@@ -8,7 +8,7 @@ const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
 export const g = (traversal().withRemote(
-   new DriverRemoteConnection(process.env.DATABASE_URL_LOCAL, {}),
+   new DriverRemoteConnection(process.env.DATABASE_URL, {}),
 ) as unknown) as gremlin.process.GraphTraversalSource;
 export const __ = (gremlin.process.statics as unknown) as Traversal;
 export const withOptions = gremlin.process.withOptions;

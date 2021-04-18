@@ -27,9 +27,10 @@ http://tinkerpop.apache.org/providers.html
 
 2. Make sure you have Java installed, at least version 8 (or 1.8). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/)
 
-3. Make sure you have Node.js installed at least version 8.10.0, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
+3. Make sure you have Node.js installed at least version 10, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
-4. Duplicate the file `.env.example` and rename it: `.env`
+4. Duplicate the file `.env.example` and rename it: `.env`. In unix you can use this command:
+   `cp .env.example .env`
 
 5. Run: `npm install`
 
