@@ -53,18 +53,18 @@ async function initializeBackupDatabaseSchedule() {
    }
 
    if (DATABASE_BACKUP_MONTHLY) {
-      schedule.scheduleJob({ ...hour, month: 0 }, () => backupDatabaseToFile("monthly", "january"));
-      schedule.scheduleJob({ ...hour, month: 1 }, () => backupDatabaseToFile("monthly", "february"));
-      schedule.scheduleJob({ ...hour, month: 2 }, () => backupDatabaseToFile("monthly", "march"));
-      schedule.scheduleJob({ ...hour, month: 3 }, () => backupDatabaseToFile("monthly", "april"));
-      schedule.scheduleJob({ ...hour, month: 4 }, () => backupDatabaseToFile("monthly", "may"));
-      schedule.scheduleJob({ ...hour, month: 5 }, () => backupDatabaseToFile("monthly", "june"));
-      schedule.scheduleJob({ ...hour, month: 6 }, () => backupDatabaseToFile("monthly", "july"));
-      schedule.scheduleJob({ ...hour, month: 7 }, () => backupDatabaseToFile("monthly", "august"));
-      schedule.scheduleJob({ ...hour, month: 8 }, () => backupDatabaseToFile("monthly", "september"));
-      schedule.scheduleJob({ ...hour, month: 9 }, () => backupDatabaseToFile("monthly", "october"));
-      schedule.scheduleJob({ ...hour, month: 10 }, () => backupDatabaseToFile("monthly", "november"));
-      schedule.scheduleJob({ ...hour, month: 11 }, () => backupDatabaseToFile("monthly", "december"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 0 }, () => backupDatabaseToFile("monthly", "january"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 1 }, () => backupDatabaseToFile("monthly", "february"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 2 }, () => backupDatabaseToFile("monthly", "march"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 3 }, () => backupDatabaseToFile("monthly", "april"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 4 }, () => backupDatabaseToFile("monthly", "may"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 5 }, () => backupDatabaseToFile("monthly", "june"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 6 }, () => backupDatabaseToFile("monthly", "july"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 7 }, () => backupDatabaseToFile("monthly", "august"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 8 }, () => backupDatabaseToFile("monthly", "september"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 9 }, () => backupDatabaseToFile("monthly", "october"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 10 }, () => backupDatabaseToFile("monthly", "november"));
+      schedule.scheduleJob({ ...hour, date: 0, month: 11 }, () => backupDatabaseToFile("monthly", "december"));
    }
 }
 
