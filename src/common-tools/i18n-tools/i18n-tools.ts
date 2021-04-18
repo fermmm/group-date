@@ -1,5 +1,6 @@
 import { BaseContext } from "koa";
-import { DEFAULT_LANGUAGE, I18N } from "../../configurations";
+import * as i18n from "i18n";
+import { DEFAULT_LANGUAGE } from "../../configurations";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 
 /**
@@ -10,8 +11,8 @@ export const t = (
    sources: LocaleConfigurationSources,
    ...replace: string[]
 ): string => {
-   I18N.setLocale(findLocaleIn(sources));
-   return I18N.__(phraseOrOptions, ...replace);
+   i18n.setLocale(findLocaleIn(sources));
+   return i18n.__(phraseOrOptions, ...replace);
 };
 
 /**

@@ -175,10 +175,7 @@ export function shuffleArray<T>(array: T[]): void {
 /**
  * Calls console.log() with colors and more levels of data (without showing [Object])
  */
-function consoleComplete<T>(obj: T): void {
+export function _consoleLog<T>(obj: T): void {
    console.log(util.inspect(obj, false, null, true));
 }
-globalThis.consoleLog = consoleComplete;
-declare global {
-   var consoleLog: typeof consoleComplete;
-}
+globalThis.consoleLog = _consoleLog;
