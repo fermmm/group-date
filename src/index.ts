@@ -1,7 +1,6 @@
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
 import "./common-tools/ts-tools/globals";
-import "./common-tools/log-tools/winstonLogger";
 import * as Router from "@koa/router";
 import * as Koa from "koa";
 import * as koaBody from "koa-body";
@@ -75,8 +74,8 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    testingRoutes(router);
 
    // Final messages
-   console.log("✓ Application initialized!");
-   console.log(`✓ Server running on ${process.env.PORT}!`);
+   console.log("✓ Server initialized!");
+   console.log(`✓ Endpoints available on port ${process.env.PORT}`);
 
    logToFile("Server started", "serverStatus");
 })();

@@ -20,42 +20,38 @@ export const scope = gremlin.process.scope;
 export const t = gremlin.process.t;
 
 /**
- * The promise of this function resolves only when database starts working
+ * The promise of this function resolves only when database responds to a simple query
+ *
+ *  @param silent Default = false. When true does not send any console.log()
  */
-export async function waitForDatabase(silent: boolean = false): Promise<void> {
-   if (!silent) {
-      console.log("");
-      console.log("Waiting for database...");
-   }
-   let completed = false;
-   let resolvePromise: (v?: void | PromiseLike<void>) => void = null;
-   const promise = new Promise<void>(r => (resolvePromise = r));
+export async function waitForDatabase(): Promise<void> {
+   let resolvePromise: (value: void | PromiseLike<void>) => void;
+   const result = new Promise<void>(r => (resolvePromise = r));
+   let promiseSolved = false;
 
-   const timeout = setTimeout(async () => {
-      await waitForDatabase(true);
-      if (completed) {
-         return;
-      }
-      console.log("✓ Database running!");
-      resolvePromise();
-   }, 300);
+   console.log("");
+   console.log("Waiting for database...");
 
-   g.inject(0)
-      .toList()
-      .then(() => {
-         clearTimeout(timeout);
-         if (!silent) {
-            console.log("✓ Database running!");
-         }
-         completed = true;
-         resolvePromise();
-      })
-      .catch(error => {
-         console.log("Database error");
-         console.log(error);
-      });
+   const interval = setInterval(() => {
+      checkDatabase();
+   }, 1000);
 
-   return promise;
+   const checkDatabase = () => {
+      g.inject(0)
+         .toList()
+         .then(() => {
+            if (!promiseSolved) {
+               promiseSolved = true;
+               console.log("✓ Database responding!");
+               clearInterval(interval);
+               resolvePromise();
+            }
+         });
+   };
+
+   checkDatabase();
+
+   return result;
 }
 
 /**
@@ -64,8 +60,8 @@ export async function waitForDatabase(silent: boolean = false): Promise<void> {
  * This is required because of the "ConcurrentModificationException" internal error of a Gremlin database,
  * this error happens because the database accepts more requests even when did not finish a modification of
  * a previous request, so when a request tries to write or read the same information still being saved by a
- * previous request there is a "collision" that generates this error and one or more a retries are needed to
- * solve the problem, it uses the "Exponential Backoff" approach.
+ * previous request there is a "collision" that generates this error and one or more retries are needed to
+ * solve the problem, it uses the "Exponential Backoff" retry approach.
  *
  * @param query The query wrapped into a arrow function like this: retryOnError(() => g.V().toList())
  * @param logResult Default = false. Executes a console.log() with the query response that is configured to show more information than the default console.log()

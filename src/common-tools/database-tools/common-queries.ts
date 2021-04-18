@@ -62,5 +62,5 @@ export function queryToCreateVerticesFromObjects<T>(
 }
 
 export async function databaseIsEmpty(): Promise<boolean> {
-   return (await g.V().limit(1).toList()).length === 0;
+   return (await g.V().limit(1).toList()).length === 0 && (await g.E().limit(1).toList()).length === 0;
 }

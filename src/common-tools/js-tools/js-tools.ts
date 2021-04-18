@@ -178,4 +178,3 @@ export function shuffleArray<T>(array: T[]): void {
 export function _consoleLog<T>(obj: T): void {
    console.log(util.inspect(obj, false, null, true));
 }
-globalThis.consoleLog = _consoleLog;

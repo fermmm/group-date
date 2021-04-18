@@ -6,6 +6,10 @@ export enum LogChannels {
 }
 
 export function createLog(fileName: string) {
+   if (process.env.GENERATE_LOGS !== "true") {
+      return;
+   }
+
    return winston.createLogger({
       level: LogChannels.Info,
       format: winston.format.combine(

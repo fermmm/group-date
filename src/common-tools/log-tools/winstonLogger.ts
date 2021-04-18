@@ -9,6 +9,10 @@ export function _logToFile(
    file: keyof typeof LOG_FILES,
    logChannel: LogChannels = LogChannels.Info,
 ) {
+   if (process.env.GENERATE_LOGS !== "true") {
+      return;
+   }
+
    LOG_FILES[file].log(logChannel, message);
 }
 
@@ -19,9 +23,11 @@ export function _logToFile(
  * profiler.done({ message: 'Task was done in' });
  */
 export function _logTimeToFile(file: keyof typeof LOG_FILES) {
+   if (process.env.GENERATE_LOGS !== "true") {
+      return {
+         done: (info?: any) => true,
+      };
+   }
+
    return LOG_FILES[file].startTimer();
 }
-
-// This is here to allow using the functions without an import line
-globalThis.logToFile = _logToFile;
-globalThis.logTimeToFile = _logTimeToFile;

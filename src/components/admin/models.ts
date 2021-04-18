@@ -1,10 +1,8 @@
-import { fileOrFolderExists } from "./../../common-tools/files-tools/files-tools";
 import { BaseContext } from "koa";
 import * as moment from "moment";
 import * as fs from "fs";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import { performance } from "perf_hooks";
-import * as schedule from "node-schedule";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -25,26 +23,11 @@ import {
 } from "./queries";
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
-import {
-   loadDatabaseFromDisk,
-   saveDatabaseToFile,
-   sendQuery,
-} from "../../common-tools/database-tools/database-manager";
+import { sendQuery } from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
-import {
-   DATABASE_BACKUP_DAILY,
-   DATABASE_BACKUP_HOUR,
-   DATABASE_BACKUP_MONTHLY,
-   DATABASE_BACKUP_WEEKLY,
-   GROUP_SLOTS_CONFIGS,
-   LOG_USAGE_REPORT_FREQUENCY,
-   RESTORE_DATABASE_ON_INIT,
-} from "../../configurations";
+import { GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
-import { copyFile, createFolder } from "../../common-tools/files-tools/files-tools";
-import { executeFunctionBeforeExiting } from "../../common-tools/process/process-tools";
-import { databaseIsEmpty } from "../../common-tools/database-tools/common-queries";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores

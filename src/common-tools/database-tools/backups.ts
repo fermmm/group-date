@@ -13,8 +13,9 @@ import { executeFunctionBeforeExiting } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
 
 export async function initializeDatabaseBackups() {
-   if (process.env.PERFORM_DATABASE_BACKUPS && !process.env.NO_DATABASE) {
+   if (process.env.PERFORM_DATABASE_BACKUPS === "true" && process.env.NO_DATABASE !== "true") {
       const databaseEmpty = await databaseIsEmpty();
+
       // Load database contents from latest backup if any
       if (RESTORE_DATABASE_ON_INIT && databaseEmpty && fileOrFolderExists("database-backups/latest.xml")) {
          await loadDatabaseFromDisk("../../database-backups/latest.xml");

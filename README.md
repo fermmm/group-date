@@ -21,13 +21,13 @@ http://tinkerpop.apache.org/providers.html
 2. Download and install Visual Studio Code from the official page: https://code.visualstudio.com/
 3. Install `Azure Tools` extension for Visual Studio Code and upload the project following the instructions provided by the extension.
 
-## Tutorial to install the project on your local computer (in case you are going to modify the project)
+## Tutorial to install the project on your computer or server
 
-1. Make sure the full path to this repo does not contain any spaces because that breaks gremlin database (the database that runs in local for development).
+1. Make sure the full path to this repo does not contain any spaces because that breaks gremlin database (the database that runs in local).
 
-2. Make sure you have Java installed, at least version 8 (or 1.8). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/)
+2. Make sure you have Java installed (JDK or OpenJDK), at least version 8 (or 1.8 it's the same). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, install the [latest Java Development Kit (JDK) from Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/)
 
-3. Make sure you have Node.js installed at least version 10, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
+3. Make sure you have Node.js installed at least version 12, if you don't have it download from nodejs.org or using NVM (Node Version Manager)
 
 4. Duplicate the file `.env.example` and rename it: `.env`. In unix you can use this command:
    `cp .env.example .env`
@@ -39,7 +39,7 @@ http://tinkerpop.apache.org/providers.html
 That's all.
 To run the project keep reading.
 
-## Running the project in local (in case you are going to modify the project)
+## Running the project on your computer or server
 
 Linux / MacOS: Start a local development server with automatic restart
 
