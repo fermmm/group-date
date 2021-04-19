@@ -85,6 +85,9 @@
       "typescript-transpile-only": "0.0.4",
       "winston": "^3.3.3"
    },
+   "config": {
+      "unsafe-perm": true
+   },
    "jest": {
       "preset": "ts-jest",
       "testEnvironment": "node",
