@@ -118,8 +118,7 @@ npm run lint
 
 ### About PM2:
 
-The production (for final users) commands works with PM2, which is a wrapper of node that converts the process into a deamon process (a process that will not close when closing terminal). You can manage and view information about processes with the `pm2` command, see the documentation
-In production you may want to setup a [startup script](https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/#setup-startup-script).
+The production (for final users) commands works with PM2, which is a wrapper of node that converts the process into a deamon process (a process that will not close when closing terminal). You can manage and view information about processes with the `pm2` command, see thier [documentation](https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/).
 
 ## Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune (recommended)
 
