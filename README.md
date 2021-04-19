@@ -28,25 +28,27 @@ To run the project keep reading.
 
 ## Running the project on your computer or server
 
-If you want to code first run
+### If you want to make code changes first run
 
 ```
 npm run dev
 ```
 
-This runs the server with error reporting and automatic restart.
+This runs the server with error reporting and automatic restart when the code changes.
 
-In windows
+### In windows
 
 ```
 npm run dev-win
 ```
 
-To run the server in production run
+### To run the server in production
 
 ```
 npm run start
 ```
+
+This runs everything, the database and the application logic. The database has a schedule of backups every day, week and month, also makes a backup when the applications exists and when application starts restores the backup if any. The database is memory only, so making backups in files is the way to not lose the information.
 
 **Optional**: Database visualizer application (see installation step 6 if it's not installed):
 
@@ -58,7 +60,7 @@ Then run a query like `g.V()`
 
 ## Other commands
 
-Run the project without database (for production):
+### Run the project without database (for production):
 
 ```
 npm run no-database
@@ -66,15 +68,15 @@ npm run no-database
 
 This is useful when you want to run the database in another server or you have a managed database service like AWS Neptune so you don't need to run the database. You need to change the .env file for this setup.
 
-Only run the database (for production):
+### Only run the database (for production):
 
 ```
 npm run database-only
 ```
 
-This is useful if you want to run the database in one server and the application logic in another one. This process makes some basic database backups every day, week and month, could be an alternative to a managed database service.
+This is useful if you want to run the database in one server and the application logic in another one. This command starts the database and a node.js application that schedules database backups every day, week, month and at exit (same than npm start). Could be an alternative to a managed database service.
 
-Run the tests (optionally with coverage or in watch mode):
+### Run the tests (optionally with coverage or in watch mode):
 
 ```
 npm run test
@@ -82,13 +84,13 @@ npm run test:coverage
 npm run test:watch
 ```
 
-Format the code with Prettier (required for commits):
+### Format the code with Prettier (required for commits):
 
 ```
 npm run format
 ```
 
-Lint the code with TSLint:
+### Lint the code with TSLint:
 
 ```
 npm run lint
