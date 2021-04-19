@@ -116,7 +116,7 @@ export function queryToGetCardsRecommendations(
    }
 
    /**
-    * Here we get the searcher user so he/she will be available in the future steps as "searcherUser"
+    * Here we get the searcher user so he/she will be available in the future traversal steps as "searcherUser"
     * Also we store any data from the user that we need to have later.
     */
    traversal = traversal
