@@ -561,9 +561,3 @@ export const REPORT_DATABASE_RETRYING: boolean = true;
  */
 export const LOG_ROUTE_ACCESS: boolean = true;
 export const LOG_IMAGE_ACCESS: boolean = true;
-
-/**
- * When the server starts restores the database from database-backups/latest.xml. Disable for debugging to
- * restart database when restarting server.
- */
-export const RESTORE_DATABASE_ON_INIT: boolean = true;

@@ -6,23 +6,30 @@ import {
    DATABASE_BACKUP_HOUR,
    DATABASE_BACKUP_MONTHLY,
    DATABASE_BACKUP_WEEKLY,
-   RESTORE_DATABASE_ON_INIT,
 } from "../../configurations";
 import { copyFile, createFolder } from "../files-tools/files-tools";
 import { executeFunctionBeforeExiting } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
 
 export async function initializeDatabaseBackups() {
-   if (process.env.PERFORM_DATABASE_BACKUPS === "true" && process.env.NO_DATABASE !== "true") {
+   if (backupIsEnabled()) {
       const databaseEmpty = await databaseIsEmpty();
 
       // Load database contents from latest backup if any
-      if (RESTORE_DATABASE_ON_INIT && databaseEmpty && fileOrFolderExists("database-backups/latest.xml")) {
+      if (
+         process.env.RESTORE_DATABASE_ON_INIT !== "false" &&
+         databaseEmpty &&
+         fileOrFolderExists("database-backups/latest.xml")
+      ) {
          await loadDatabaseFromDisk("../../database-backups/latest.xml");
       }
       await initializeBackupDatabaseSchedule();
       backupDatabaseWhenExiting();
    }
+}
+
+export function backupIsEnabled(): boolean {
+   return process.env.PERFORM_DATABASE_BACKUPS === "true" && process.env.NO_DATABASE !== "true";
 }
 
 /**
@@ -71,13 +78,17 @@ async function initializeBackupDatabaseSchedule() {
 async function backupDatabaseToFile(folderName: string, fileName: string) {
    const profiler = logTimeToFile("backups");
    // The ../../ are here because the path is relative to the database program folder (vendor/gremlin-local-server)
-   await saveDatabaseToFile("../../database-backups/latest.xml");
+   await makeSimpleBackup();
    copyFile("database-backups/latest.xml", `database-backups/${folderName}/${fileName}.xml`);
    profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
 }
 
 function backupDatabaseWhenExiting() {
    executeFunctionBeforeExiting(async () => {
-      await saveDatabaseToFile("../../database-backups/latest.xml");
+      await makeSimpleBackup();
    });
+}
+
+export async function makeSimpleBackup() {
+   await saveDatabaseToFile("../../database-backups/latest.xml");
 }

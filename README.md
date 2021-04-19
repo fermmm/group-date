@@ -4,9 +4,11 @@
 >
 > You need to be an experience developer and know how to code in these technologies to modify the project. To create your own version of the project you don't need to know how to code but you may need to have a programmer to guide you.
 
-You can run all in local for development or host it on a hosting provider that supports Node.js and a graph database hosting that supports Gremlin queries, for example: AWS Elastic Beanstalk + AWS Neptune (recommended) or Azure App Engine + Cosmos DB.
+You can run all in local for development or host it on a hosting provider that let's you install anything and run any command in an Ubuntu or other Linux distro like Digital Ocean. This is the easiest and cheapest and it's recommended at the beginning.
+When you have many users and you need to scale the computing power it's recommended to migrate the database to a managed database compatible with gremlin like AWS Neptune and run the app logic in something like AWS Elastic Beanstalk, also you may need a CDN.
+Also Azure has products for that like: Azure App Engine + Cosmos DB.
 
-You can also use a hosting provider for the code and another company hosting the database, here is a list of database hosting providers that supports Gremlin queries:
+You can also use a hosting provider for the code and another company hosting the database, but that may have a speed cost. Here is a list of all database hosting providers that supports Gremlin queries:
 http://tinkerpop.apache.org/providers.html
 
 ## Installing the project on your computer or server
@@ -34,7 +36,13 @@ To run the project keep reading.
 npm run dev
 ```
 
-This runs the server with error reporting and automatic restart when the code changes.
+This runs the server with error reporting and automatic restart when the code changes. Also database information is not permanent between restarts (when pressing Ctrl + C), this is recommended to force user registration to be well debugged.
+
+```
+npm run dev-persistent
+```
+
+The same than `npm run dev` but in this case the database information is persistent (all backup logic enabled)
 
 ### In windows
 
@@ -42,15 +50,27 @@ This runs the server with error reporting and automatic restart when the code ch
 npm run dev-win
 ```
 
+`npm run dev` version for MS Windows.
+
 ### To run the server in production
 
 ```
-npm run start
+npm start
 ```
 
-This runs everything, the database and the application logic. The database has a schedule of backups every day, week and month, also makes a backup when the applications exists and when application starts restores the backup if any. The database is memory only, so making backups in files is the way to not lose the information.
+This runs everything, the database and the application logic. The database has a schedule of backups every day, week and month, also makes a backup when the applications exits and when application starts restores the backup if any. The database is memory only, so making backups in files is the way to not lose the information.
 
-**Optional**: Database visualizer application (see installation step 6 if it's not installed):
+### To stop the server in production
+
+```
+npm run stop
+```
+
+If you want the server to be updated to the latest changes call this command and then `npm start` again.
+This command makes a backup of the database before closing (otherwise latest database data is lost).
+Also call this when restarting or turning off the server so there is no database information lost.
+
+### **Optional**: Database visualizer application (see installation step 6 if it's not installed):
 
 ```
 npm run visualizer
@@ -95,6 +115,11 @@ npm run format
 ```
 npm run lint
 ```
+
+### About PM2:
+
+The production (for final users) commands works with PM2, which is a wrapper of node that converts the process into a deamon process (a process that will not close when closing terminal). You can manage and view information about processes with the `pm2` command, see the documentation
+In production you may want to setup a [startup script](https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/#setup-startup-script).
 
 ## Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune (recommended)
 
