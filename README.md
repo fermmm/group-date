@@ -4,7 +4,7 @@
 >
 > You need to be an experience developer and know how to code in these technologies to modify the project. To create your own version of the project you don't need to know how to code but you may need to have a programmer to guide you.
 
-You can run all in local for development or host it on a hosting provider that let's you install anything and run any command in an Ubuntu or other Linux distro like Digital Ocean. This is the easiest and cheapest and it's recommended at the beginning.
+You can run all in local for development or host it on a hosting provider that let's you install anything and run any command in an Ubuntu or other Linux distro like you can do with Digital Ocean. This is the easiest and cheapest and it's recommended at the beginning.
 When you have many users and you need to scale the computing power it's recommended to migrate the database to a managed database compatible with gremlin like AWS Neptune and run the app logic in something like AWS Elastic Beanstalk, also you may need a CDN.
 Also Azure has products for that like: Azure App Engine + Cosmos DB.
 
