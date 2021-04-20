@@ -28,7 +28,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "preinstall": "npm install -g serve && npm install -g react-app-rewired",
+    "preinstall": "npm install -g serve && npm i -g react-dev-utils && npm install -g react-app-rewired",
     "dev": "react-app-rewired start",
     "start": "npm run build && pm2 serve build 8082 --spa --name dashboard && echo Dashboard running in port 8082",
     "stop": "pm2 stop dashboard",
