@@ -21,11 +21,13 @@ http://tinkerpop.apache.org/providers.html
 
 4. Duplicate the file `.env.example` and rename it: `.env`. In unix you can use this command: `cp .env.example .env`. If you are in a server you may need to change the IMAGES_HOST variable in the .env file.
 
-5. Repeat the previous step in the dashboard subfolder (this is the admin page of the server). Open the dashboard/.env file you created and complete the missing variable `REACT_APP_FACEBOOK_APP_ID`. Since the login in this control panel works with Facebook (also in the mobile app) you need to create a Facebook app in the Facebook developer panel, [more info here](https://developers.facebook.com/docs/development/). This step can be ignored but the dashboard won't work.
+5. Repeat the previous step in the dashboard subfolder
 
-6. Run: `npm install`
+6. **Optional**: To enable the dashboard (an admin page of the server) open the /dashboard/.env file you created in the previous step and complete the missing variable `REACT_APP_FACEBOOK_APP_ID` with the App ID of your Facebook app, this is required because the login in the dashboard and in the app works with Facebook, for both you need to create one Facebook app in the Facebook developer panel. [more info here](https://developers.facebook.com/docs/development/). If you are installing on a production server you'll also need a domain configured to serve the dashboard in https, otherwise the login in the dashboard will throw a security error, this is a Facebook requirement.
 
-7. **Optional**: To install a database visualizer application to use in local development run: `npm run install-visualizer`
+7. Run: `npm install`
+
+8. **Optional**: To install a database visualizer application to use in local development run: `npm run install-visualizer`
 
 That's all.
 To run the project keep reading.
