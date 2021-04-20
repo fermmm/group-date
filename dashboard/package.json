@@ -28,7 +28,9 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-app-rewired start",
+    "preinstall": "npm install -g serve",
+    "dev": "react-app-rewired start",
+    "start": "npm run build && serve -s build",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
