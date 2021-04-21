@@ -16,7 +16,7 @@ import { NotificationChannelInfo } from "../../shared-tools/endpoints-interfaces
 
 export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): ServerInfoResponse {
    return {
-      serverOperating: Boolean(process.env.SERVER_OPERATING),
+      serverOperating: process.env.SERVER_OPERATING === "false" ? false : true,
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
       versionIsCompatible: versionIsCompatible(params.version, process.env.MINIMUM_CLIENT_VERSION_ALLOWED),
       locale: getLocaleFromHeader(ctx),
