@@ -30,9 +30,6 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    // Koa initialization:
    const app: Koa = new Koa();
    const router = new Router();
-   router.get("/", ctx => {
-      ctx.body = "Poly Dates server";
-   });
 
    // Koa middlewares:
    const a = app
@@ -47,6 +44,7 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
             return serve("./uploads/")(context, next);
          }),
       )
+      .use(mount("/", (context, next) => serve("./dashboard/build/")(context, next)))
       .listen(process.env.PORT);
 
    // Database initialization:
@@ -75,7 +73,7 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
 
    // Final messages
    console.log("✓ Server initialized!");
-   console.log(`✓ Endpoints available on port ${process.env.PORT}`);
+   console.log(`✓ Endpoints and dashboard available on port ${process.env.PORT}`);
 
    logToFile("Server started", "serverStatus");
 })();

@@ -145,6 +145,7 @@ export async function logUsageReport(): Promise<void> {
 
 export async function logFileListGet(params: TokenParameter, ctx: BaseContext): Promise<string[]> {
    const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
+
    if (!callerUser.isAdmin) {
       return null;
    }

@@ -11,14 +11,14 @@
       "prebuild": "npm run clean",
       "clean": "rimraf ./build",
       "build": "tsc-transpile-only",
-      "init-database": "./vendor/gremlin-local-server/bin/gremlin-server.sh start; echo Gremlin appeared!!",
+      "init-database": "echo && echo Starting database server... && ./vendor/gremlin-local-server/bin/gremlin-server.sh start || echo ",
       "dev-persistent": "npm run init-database; nodemon --watch",
       "dev": "RESTORE_DATABASE_ON_INIT=false npm run dev-persistent",
       "start": "npm run build && pm2 start build/index.js --name poly && npm run dashboard && npm run init-database",
       "database-only": "npm run build && pm2 start build/database-only.js --name poly-database && npm run init-database",
       "no-database": "NO_DATABASE=true npm run build && pm2 start build/index.js --name poly && npm run dashboard",
       "backup": "node build/force-backup.js",
-      "stop": "npm run backup && pm2 stop poly && npm run stop-dashboard",
+      "stop": "npm run backup && pm2 stop poly",
       "test": "npm run init-database; jest --verbose --runInBand --forceExit --detectOpenHandles",
       "test:coverage": "npm run init-database; jest --coverage",
       "test:watch": "npm run init-database; jest --watch --runInBand",
@@ -26,8 +26,7 @@
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
       "install-visualizer": "git submodule init && git submodule update && cd gremlin-visualizer && npm install",
       "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm start",
-      "dashboard": "cd dashboard && npm start",
-      "stop-dashboard": "cd dashboard && npm run stop"
+      "dashboard": "cd dashboard && npm start"
    },
    "devDependencies": {
       "@types/app-root-path": "^1.2.4",
