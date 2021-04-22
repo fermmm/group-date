@@ -15,9 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 
-host: localhost
+host: 0.0.0.0
 port: 8182
-evaluationTimeout: 30000
+evaluationTimeout: 90000
 channelizer: org.apache.tinkerpop.gremlin.server.channel.WebSocketChannelizer
 graphs: {
   graph: conf/tinkergraph-empty.properties}
