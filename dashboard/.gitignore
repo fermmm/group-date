@@ -8,8 +8,8 @@
 # testing
 /coverage
 
-# production
-/build
+# production (For the moment it's more optimal to upload the build)
+# /build
 
 # misc
 .DS_Store
