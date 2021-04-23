@@ -273,6 +273,7 @@ function translateAppAuthoredTagsAsQuestions(
       answers: q.answers.map(a => ({
          ...a,
          text: t(a.text, { ctx }),
+         category: t(a.category, { ctx }),
          tagName: a.tagName != null ? t(a.tagName, { ctx }) : null,
       })),
    }));
