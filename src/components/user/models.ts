@@ -1,4 +1,4 @@
-import { NotificationData } from "./../../shared-tools/endpoints-interfaces/user";
+import { NotificationData, ReportUserPostParams } from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
 import * as appRoot from "app-root-path";
@@ -370,6 +370,20 @@ export async function setAttractionPost(params: SetAttractionParams, ctx: BaseCo
          queryToSetAttraction({ token: params.token, attractions: attractionsChunk }).iterate(),
       );
    });
+}
+
+export async function reportUserPost(params: ReportUserPostParams, ctx: BaseContext) {
+   const user: Partial<User> = await retrieveUser(params.token as string, false, ctx);
+   if (user == null) {
+      return;
+   }
+
+   const objectToLog: Omit<ReportUserPostParams, "token"> & { reportedBy: string } = {
+      ...params,
+      reportedBy: user.userId,
+   };
+
+   logToFile(JSON.stringify(objectToLog), "usersReported");
 }
 
 /**

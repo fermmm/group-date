@@ -155,3 +155,13 @@ export interface NotificationData {
    type: NotificationType;
    notificationId: string;
 }
+
+export interface ReportUserPostParams extends TokenParameter {
+   reportedUserId: string;
+   reportType: ReportUserType;
+   notes?: string;
+}
+export enum ReportUserType {
+   Inadequate = "inadequate",
+   IncompleteProfile = "incomplete",
+}

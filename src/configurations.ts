@@ -539,6 +539,7 @@ export const LOG_FILES = {
    usageReports: createLog("usage_reports.log"),
    serverStatus: createLog("server_status.log"),
    backups: createLog("backups.log"),
+   usersReported: createLog("users_reported.log"),
 };
 
 export const LOG_USAGE_REPORT_FREQUENCY = hoursToMilliseconds(12);

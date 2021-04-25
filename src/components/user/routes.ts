@@ -10,6 +10,7 @@ import {
    userPost,
    userPropsAsQuestionsGet,
    notificationsGet,
+   reportUserPost,
 } from "./models";
 
 export function userRoutes(r: Router): void {
@@ -21,6 +22,7 @@ export function userRoutes(r: Router): void {
    createRoute(r, "/user/notifications", "GET", notificationsGet);
 
    createRoute(r, "/user/set-attraction", "POST", setAttractionPost);
+   createRoute(r, "/user/report", "POST", reportUserPost);
 
    r.post(
       "/user/upload-image",
