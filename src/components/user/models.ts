@@ -216,7 +216,7 @@ function getMissingEditableUserProps(user: Partial<User>): RequiredUserPropKey[]
    return result;
 }
 
-export function userPropsAsQuestionsGet(ctx: BaseContext): UserPropAsQuestion[] {
+export function userPropsAsQuestionsGet(params: null, ctx: BaseContext): UserPropAsQuestion[] {
    // This just returns USER_PROPS_AS_QUESTIONS in the correct language:
    return USER_PROPS_AS_QUESTIONS.map(question => ({
       ...question,
@@ -417,7 +417,7 @@ const imageSaver = koaBody({
 
 export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
    // Only valid users can upload images
-   const user: Partial<User> = await retrieveUser(ctx.request.query.token, false, ctx);
+   const user: Partial<User> = await retrieveUser(ctx.request.query.token as string, false, ctx);
    if (user == null) {
       return;
    }

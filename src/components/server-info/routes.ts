@@ -1,6 +1,7 @@
 import * as Router from "@koa/router";
+import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { serverInfoGet } from "./models";
 
-export function serverInfoRoutes(router: Router): void {
-   router.get("/server-info", ctx => (ctx.body = serverInfoGet(ctx.request.query, ctx)));
+export function serverInfoRoutes(r: Router): void {
+   createRoute(r, "/server-info", "GET", serverInfoGet);
 }

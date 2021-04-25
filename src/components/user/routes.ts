@@ -1,4 +1,6 @@
 import * as Router from "@koa/router";
+import { File } from "formidable";
+import { createRoute } from "../../common-tools/route-tools/route-tools";
 import {
    onFileReceived,
    onFileSaved,
@@ -10,19 +12,19 @@ import {
    notificationsGet,
 } from "./models";
 
-export function userRoutes(router: Router): void {
-   router.get("/user", async ctx => (ctx.body = await userGet(ctx.request.query, ctx)));
-   router.post("/user", async ctx => (ctx.body = await userPost(ctx.request.body, ctx)));
-   router.get("/user/profile-status", async ctx => (ctx.body = await profileStatusGet(ctx.request.query, ctx)));
-   router.get("/user/props-as-questions", async ctx => (ctx.body = userPropsAsQuestionsGet(ctx)));
-   router.get("/user/notifications", async ctx => (ctx.body = await notificationsGet(ctx.request.query, ctx)));
-   router.post(
-      "/user/set-attraction",
-      async ctx => (ctx.body = await setAttractionPost(ctx.request.body, ctx)),
-   );
-   router.post(
+export function userRoutes(r: Router): void {
+   createRoute(r, "/user", "GET", userGet);
+   createRoute(r, "/user", "POST", userPost);
+
+   createRoute(r, "/user/profile-status", "GET", profileStatusGet);
+   createRoute(r, "/user/props-as-questions", "GET", userPropsAsQuestionsGet);
+   createRoute(r, "/user/notifications", "GET", notificationsGet);
+
+   createRoute(r, "/user/set-attraction", "POST", setAttractionPost);
+
+   r.post(
       "/user/upload-image",
       onFileReceived,
-      async ctx => (ctx.body = await onFileSaved(ctx.request.files.image, ctx)),
+      async ctx => (ctx.body = await onFileSaved(ctx.request.files.image as File, ctx)),
    );
 }

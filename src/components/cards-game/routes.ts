@@ -1,17 +1,9 @@
 import * as Router from "@koa/router";
+import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { dislikedUsersGet, recommendationsFromTagGet, recommendationsGet } from "./models";
 
-export function cardsGameRoutes(router: Router): void {
-   router.get(
-      "/cards-game/recommendations",
-      async ctx => (ctx.body = await recommendationsGet(ctx.request.query, ctx)),
-   );
-   router.get(
-      "/cards-game/disliked-users",
-      async ctx => (ctx.body = await dislikedUsersGet(ctx.request.query, ctx)),
-   );
-   router.get(
-      "/cards-game/from-tag",
-      async ctx => (ctx.body = await recommendationsFromTagGet(ctx.request.query, ctx)),
-   );
+export function cardsGameRoutes(r: Router): void {
+   createRoute(r, "/cards-game/recommendations", "GET", recommendationsGet);
+   createRoute(r, "/cards-game/disliked-users", "GET", dislikedUsersGet);
+   createRoute(r, "/cards-game/from-tag", "GET", recommendationsFromTagGet);
 }

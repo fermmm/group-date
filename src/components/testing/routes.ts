@@ -1,26 +1,9 @@
 import * as Router from "@koa/router";
-import { createFakeUser } from "../../tests/tools/users";
-import { queryToRemoveUsers } from "../user/queries";
+import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { createFakeTagsPost, createFakeUsersPost, forceGroupSearch } from "./models";
 
-export function testingRoutes(router: Router): void {
-   router.get("/testing/temp", async ctx => {
-      await queryToRemoveUsers();
-      const testUser = await createFakeUser();
-   });
-
-   router.get(
-      "/testing/create-fake-users",
-      async ctx => (ctx.body = await createFakeUsersPost(ctx.request.query, ctx)),
-   );
-
-   router.get(
-      "/testing/create-fake-tags",
-      async ctx => (ctx.body = await createFakeTagsPost(ctx.request.query, ctx)),
-   );
-
-   router.get(
-      "/testing/force-groups-search",
-      async ctx => (ctx.body = await forceGroupSearch(ctx.request.query, ctx)),
-   );
+export function testingRoutes(r: Router): void {
+   createRoute(r, "/testing/create-fake-users", "GET", createFakeUsersPost);
+   createRoute(r, "/testing/create-fake-tags", "GET", createFakeTagsPost);
+   createRoute(r, "/testing/force-groups-search", "GET", forceGroupSearch);
 }
