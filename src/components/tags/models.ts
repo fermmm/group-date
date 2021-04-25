@@ -112,7 +112,7 @@ export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<T
    return result;
 }
 
-export function appAuthoredTagsAsQuestionsGet(ctx: BaseContext): TagsAsQuestion[] {
+export function appAuthoredTagsAsQuestionsGet(params: null, ctx: BaseContext): TagsAsQuestion[] {
    return translateAppAuthoredTagsAsQuestions(APP_AUTHORED_TAGS_AS_QUESTIONS, ctx);
 }
 
