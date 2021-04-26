@@ -378,6 +378,8 @@ export async function reportUserPost(params: ReportUserPostParams, ctx: BaseCont
       return;
    }
 
+   delete params.token;
+
    const objectToLog: Omit<ReportUserPostParams, "token"> & { reportedBy: string } = {
       ...params,
       reportedBy: user.userId,
