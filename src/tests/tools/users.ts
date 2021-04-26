@@ -73,7 +73,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       likesManTrans: genderLikes[3],
       likesOtherGenders: genderLikes[4],
       gender,
-      height: chance.integer({ min: 100, max: 300 }),
+      height: chance.integer({ min: 160, max: 190 }),
       sendNewUsersNotification: 0,
       notifications: [],
       lastLoginDate: moment().unix(),
