@@ -161,7 +161,8 @@ export interface ReportUserPostParams extends TokenParameter {
    reportType: ReportUserType;
    notes?: string;
 }
+
 export enum ReportUserType {
-   Inadequate = "inadequate",
-   IncompleteProfile = "incomplete",
+   NonEthical = "non-ethical",
+   MissingPicture = "missing-picture",
 }
