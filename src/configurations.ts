@@ -476,9 +476,9 @@ i18n.configure({
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
-export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = minutesToMilliseconds(5); // This should be like 24hs, this value is just for testing
-export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
+export const SEARCH_GROUPS_FREQUENCY = minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(4)
+export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(24)
+export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(24);
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
