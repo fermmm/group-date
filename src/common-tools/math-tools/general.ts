@@ -2,6 +2,10 @@ export function hoursToMilliseconds(hours: number): number {
    return hours * 60 * 60 * 1000;
 }
 
+export function minutesToMilliseconds(hours: number): number {
+   return hours * 60 * 1000;
+}
+
 /**
  * If the number provided is NaN or Infinity replaces it with another value provided in the second parameter
  */

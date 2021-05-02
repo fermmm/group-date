@@ -3,7 +3,7 @@ import * as i18n from "i18n";
 import * as path from "path";
 import { createLog } from "./common-tools/log-tools/winstonCreateLogger";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
-import { hoursToMilliseconds } from "./common-tools/math-tools/general";
+import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
 import {
@@ -477,7 +477,7 @@ i18n.configure({
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const SEARCH_GROUPS_FREQUENCY = hoursToMilliseconds(0.5);
-export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = hoursToMilliseconds(24);
+export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = minutesToMilliseconds(5); // This should be like 24hs, this value is just for testing
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(25);
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
