@@ -9,6 +9,7 @@ import {
    AdminChatPostParams,
    AdminConvertPostParams,
    AdminLogGetParams,
+   AdminNotificationPostParams,
    ChatWithAdmins,
    UsageReport,
 } from "../../shared-tools/endpoints-interfaces/admin";
@@ -180,4 +181,24 @@ export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promi
    });
 
    return promise;
+}
+
+/**
+ * This endpoint can be extended to search users by user props and other options so many users can be reached.
+ * To implement events notifications this endpoint must be extended.
+ */
+export async function adminNotificationPost(
+   params: AdminNotificationPostParams,
+   ctx: BaseContext,
+): Promise<ChatWithAdmins[]> {
+   const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
+   if (!callerUser.isAdmin) {
+      return null;
+   }
+
+   await addNotificationToUser({ userId: params.targetUserId }, params.notification, {
+      sendPushNotification: true,
+      translateNotification: false,
+      channelId: params.channelId,
+   });
 }

@@ -108,6 +108,8 @@ export interface Notification {
    targetId?: string;
 }
 
+export type NotificationContent = Omit<Notification, "notificationId" | "date">;
+
 export enum NotificationType {
    TextOnly,
    Group,

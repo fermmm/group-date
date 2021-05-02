@@ -1,5 +1,5 @@
 import { ChatMessage, TokenParameter } from "./common";
-import { User } from "./user";
+import { NotificationChannelId, NotificationContent, User } from "./user";
 
 export interface AdminChatPostParams extends TokenParameter {
    messageText: string;
@@ -36,4 +36,10 @@ export interface UsageReport {
    totalOpenGroups: number;
    openGroupsBySlot: number[];
    timeSpentOnReportMs: number;
+}
+
+export interface AdminNotificationPostParams extends TokenParameter {
+   targetUserId: string;
+   notification: NotificationContent;
+   channelId: NotificationChannelId;
 }

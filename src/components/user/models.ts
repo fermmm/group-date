@@ -1,4 +1,8 @@
-import { NotificationData, ReportUserPostParams } from "./../../shared-tools/endpoints-interfaces/user";
+import {
+   NotificationData,
+   NotificationContent,
+   ReportUserPostParams,
+} from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
 import * as appRoot from "app-root-path";
@@ -290,7 +294,7 @@ export async function retrieveFullyRegisteredUser(
  */
 export async function addNotificationToUser(
    tokenOrId: TokenOrId,
-   notification: Omit<Notification, "notificationId" | "date">,
+   notification: NotificationContent,
    settings?: {
       translateNotification?: boolean;
       sendPushNotification?: boolean;
