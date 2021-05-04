@@ -15,10 +15,8 @@ import * as koaBody from "koa-body";
 import * as moment from "moment";
 import * as path from "path";
 import * as sharp from "sharp";
-import { HttpRequestResponse } from "../../common-tools/database-tools/typing-tools/typing-tools";
 import { createFolder } from "../../common-tools/files-tools/files-tools";
-import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
-import { FacebookResponse, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
+import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
    AttractionType,
    FileUploadResponse,
@@ -68,6 +66,7 @@ import {
 import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models";
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
+import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -99,33 +98,17 @@ export async function retrieveUser(
       return user;
    }
 
-   const userDataFromFacebook: HttpRequestResponse<FacebookResponse> = await httpRequest({
-      url: `https://graph.facebook.com/me?fields=email&access_token=${token}`,
-   });
+   // This function throws ctx error if the email cannot be retrieved
+   const email = await getUserEmailFromAuthProvider(token, ctx);
 
-   if (userDataFromFacebook.success === false) {
-      ctx.throw(400, userDataFromFacebook.error.message);
-      return;
-   }
-
-   if (!userDataFromFacebook.content) {
-      ctx.throw(400, "userDataFromFacebook.content is null");
-      return;
-   }
-
-   if (!userDataFromFacebook.content.email) {
-      ctx.throw(400, "userDataFromFacebook.content.email is null");
-      return;
-   }
-
-   user = await fromQueryToUser(queryToGetUserByEmail(userDataFromFacebook.content.email), includeFullInfo);
+   user = await fromQueryToUser(queryToGetUserByEmail(email), includeFullInfo);
 
    if (user != null) {
-      await queryToUpdateUserToken(userDataFromFacebook.content.email, token);
+      await queryToUpdateUserToken(email, token);
       return { ...user, token };
    }
 
-   return createUser(token, userDataFromFacebook.content.email, includeFullInfo, ctx);
+   return createUser(token, email, includeFullInfo, ctx);
 }
 
 export async function createUser(
