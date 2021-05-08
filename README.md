@@ -26,7 +26,7 @@ http://tinkerpop.apache.org/providers.html
 
 5. Repeat the previous step in the dashboard subfolder
 
-6. **Optional**: To enable the dashboard (an admin page of the server) open the /dashboard/.env file you created in the previous step and complete the missing variable `REACT_APP_FACEBOOK_APP_ID` with the App ID of your Facebook app, this is required because the login in the dashboard and in the mobile app works with Facebook, for both you need to create one Facebook app in the Facebook developer panel ([more info here](https://developers.facebook.com/docs/development/)). If you are installing on a production server you'll also need a domain configured to serve the dashboard in https, otherwise the login in the dashboard will throw a security error, this is a Facebook requirement.
+6. **Optional**: To enable the dashboard (an admin page of the server) open the /websites/dashboard/.env file you created in the previous step and complete the missing variable `REACT_APP_FACEBOOK_APP_ID` with the App ID of your Facebook app, this is required because the login in the dashboard and in the mobile app works with Facebook, for both you need to create one Facebook app in the Facebook developer panel ([more info here](https://developers.facebook.com/docs/development/)). If you are installing on a production server you'll also need a domain configured to serve the dashboard in https, otherwise the login in the dashboard will throw a security error, this is a Facebook requirement.
 
 7. Run: `npm install`
 
