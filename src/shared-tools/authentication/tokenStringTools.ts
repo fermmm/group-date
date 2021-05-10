@@ -27,6 +27,11 @@ export function getTokenInfo(extendedInfoToken: string): TokenInfo {
    }
 
    const spitted = extendedInfoToken.split("[poly]");
+
+   if (spitted.length !== 2) {
+      return null;
+   }
+
    return {
       provider: spitted[0] as AuthenticationProvider,
       originalToken: spitted[1],
