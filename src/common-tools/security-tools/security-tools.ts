@@ -8,7 +8,7 @@ export const rateLimiterConfig: ratelimit.MiddlewareOptions = {
    driver: "memory",
    db,
    duration: 2 * 1000,
-   max: 10,
+   max: 20,
    errorMessage: "Too many interactions in a short period of time",
    id: ctx => ctx.ip,
    headers: {
