@@ -71,6 +71,7 @@ export interface UserGetParams extends TokenParameter {
 export interface UserPostParams {
    token: string;
    props?: EditableUserProps;
+   updateProfileCompletedProp?: boolean;
 }
 
 export interface FileUploadResponse {

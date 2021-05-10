@@ -191,6 +191,10 @@ export async function profileStatusGet(
    return result;
 }
 
+function profileStatusIsCompleted(user: Partial<User>): boolean {
+   return getMissingEditableUserProps(user).length === 0 && getNotShowedQuestionIds(user).length === 0;
+}
+
 function getMissingEditableUserProps(user: Partial<User>): RequiredUserPropKey[] {
    const result: RequiredUserPropKey[] = [];
 
@@ -249,6 +253,15 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
    }
 
    await sendQuery(() => query.iterate());
+
+   if (params.updateProfileCompletedProp) {
+      const user = await retrieveUser(params.token, false, ctx);
+      await sendQuery(() =>
+         queryToGetUserByToken(params.token)
+            .property("profileCompleted", profileStatusIsCompleted(user))
+            .iterate(),
+      );
+   }
 }
 
 /**
