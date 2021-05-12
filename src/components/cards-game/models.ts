@@ -89,6 +89,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
                type: NotificationType.CardsGame,
                title: t(`There is new people in the app!`, { user }),
                text: t("There are %s new users", { user }, String(recommendations)),
+               idForReplacement: "newUsers",
             },
             { sendPushNotification: true, channelId: NotificationChannelId.NewUsers },
          );
