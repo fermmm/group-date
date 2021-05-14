@@ -14,7 +14,7 @@ const App: FC = () => {
          <ThemeProvider theme={defaultTheme}>
             <MuiThemeProvider theme={muiTheme}>
                <GlobalStyles />
-               <Router>
+               <Router basename="/dashboard">
                   <Main />
                </Router>
             </MuiThemeProvider>

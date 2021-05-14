@@ -44,7 +44,8 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
             return serve("./uploads/")(context, next);
          }),
       )
-      .use(mount("/", (context, next) => serve("./websites/dashboard/build/")(context, next)))
+      .use(mount("/dashboard", (context, next) => serve("./websites/dashboard/build/")(context, next)))
+      .use(mount("/", (context, next) => serve("./websites/promo/")(context, next)))
       .listen(process.env.PORT);
 
    // Database initialization:
