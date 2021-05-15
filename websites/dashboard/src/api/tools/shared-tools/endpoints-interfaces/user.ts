@@ -71,6 +71,7 @@ export interface UserGetParams extends TokenParameter {
 export interface UserPostParams {
    token: string;
    props?: EditableUserProps;
+   updateProfileCompletedProp?: boolean;
 }
 
 export interface FileUploadResponse {
@@ -107,6 +108,8 @@ export interface Notification {
    text: string;
    targetId?: string;
 }
+
+export type NotificationContent = Omit<Notification, "notificationId" | "date">;
 
 export enum NotificationType {
    TextOnly,
@@ -154,4 +157,15 @@ export interface NotificationData {
    targetId: string;
    type: NotificationType;
    notificationId: string;
+}
+
+export interface ReportUserPostParams extends TokenParameter {
+   reportedUserId: string;
+   reportType: ReportUserType;
+   notes?: string;
+}
+
+export enum ReportUserType {
+   NonEthical = "non-ethical",
+   MissingPicture = "missing-picture",
 }
