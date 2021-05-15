@@ -1,6 +1,7 @@
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
 import "./common-tools/ts-tools/globals";
+import * as http from "http";
 import * as Router from "@koa/router";
 import * as Koa from "koa";
 import * as koaBody from "koa-body";
@@ -45,8 +46,8 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
          }),
       )
       .use(mount("/dashboard", (context, next) => serve("./websites/dashboard/build/")(context, next)))
-      .use(mount("/", (context, next) => serve("./websites/promo/")(context, next)))
-      .listen(process.env.PORT);
+      .use(mount("/", (context, next) => serve("./websites/promo/")(context, next)));
+   http.createServer(app.callback()).listen(process.env.PORT);
 
    // Database initialization:
    await waitForDatabase();
@@ -72,9 +73,11 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    adminRoutes(router);
    testingRoutes(router);
 
-   // Final messages
+   // Final console messages
    console.log("✓ Server initialized!");
-   console.log(`✓ Endpoints and dashboard available on port ${process.env.PORT}`);
+   console.log(`✓ Api endpoints available in https://localhost:${process.env.PORT}/api`);
+   console.log(`✓ Promo website available in https://localhost:${process.env.PORT}/`);
+   console.log(`✓ Admin dashboard available in https://localhost:${process.env.PORT}/dashboard`);
 
    logToFile("Server started", "serverStatus");
 })();
