@@ -3,5 +3,5 @@
  * @param subpath
  */
 export function serverUrlComposer(subpath: string): string {
-   return `http://${window.location.hostname}:${process.env.REACT_APP_SERVER_ENDPOINTS_PORT}/${subpath}/`;
+   return `http://${window.location.hostname}:${process.env.REACT_APP_SERVER_ENDPOINTS_PORT}/api/${subpath}/`;
 }

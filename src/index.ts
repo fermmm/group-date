@@ -30,7 +30,7 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
 (async () => {
    // Koa initialization:
    const app: Koa = new Koa();
-   const router = new Router();
+   const router = new Router({ prefix: "/api" });
 
    // Koa middlewares:
    const a = app
@@ -40,7 +40,7 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
       .use(router.routes())
       .use(router.allowedMethods())
       .use(
-         mount("/images", (context, next) => {
+         mount("/api/images", (context, next) => {
             imagesLogger(context);
             return serve("./uploads/")(context, next);
          }),
