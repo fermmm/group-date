@@ -1,8 +1,14 @@
 import * as ratelimit from "koa-ratelimit";
+import { setIntervalAsync } from "set-interval-async/dynamic";
+import { RATE_LIMITER_CACHE_CLEAR_INTERVAL } from "../../configurations";
 import { Group } from "../../shared-tools/endpoints-interfaces/groups";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 
 const db = new Map();
+
+export async function initializeSecurityTools() {
+   setIntervalAsync(clearRateLimiterCache, RATE_LIMITER_CACHE_CLEAR_INTERVAL);
+}
 
 export const rateLimiterConfig: ratelimit.MiddlewareOptions = {
    driver: "memory",
@@ -43,4 +49,8 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
 export function removePrivacySensitiveGroupProps(group: Group): Group {
    delete group.feedback;
    return group;
+}
+
+export function clearRateLimiterCache() {
+   db.clear();
 }

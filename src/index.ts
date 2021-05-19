@@ -11,7 +11,7 @@ import * as serve from "koa-static";
 import * as cors from "@koa/cors";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
 import { imagesLogger, routesLogger } from "./common-tools/log-tools/log-routes";
-import { rateLimiterConfig } from "./common-tools/security-tools/security-tools";
+import { initializeSecurityTools, rateLimiterConfig } from "./common-tools/security-tools/security-tools";
 import { initializeAdmin } from "./components/admin/models";
 import { adminRoutes } from "./components/admin/routes";
 import { initializeCardsGame } from "./components/cards-game/models";
@@ -60,6 +60,7 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    await initializeGroupsFinder();
    await initializeTags();
    await initializeAdmin();
+   await initializeSecurityTools();
 
    // Debugging tools:
    routesLogger(router);
