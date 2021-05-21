@@ -68,6 +68,7 @@ import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
+import { getUserGenderSelection } from "../../shared-tools/user-tools/getUserGenderSelection";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -442,20 +443,6 @@ export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Ko
    }
 
    return imageSaver(ctx, next);
-}
-
-export function getUserGenderSelection(user: Partial<User>) {
-   const genderIds = Object.values(Gender);
-   return {
-      subscribed:
-         user?.tagsSubscribed
-            ?.filter(tag => genderIds.includes(tag.tagId as Gender))
-            ?.map(tag => tag.tagId as Gender) ?? [],
-      blocked:
-         user?.tagsBlocked
-            ?.filter(tag => genderIds.includes(tag.tagId as Gender))
-            ?.map(tag => tag.tagId as Gender) ?? [],
-   };
 }
 
 export async function onFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {
