@@ -68,7 +68,7 @@ import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
-import { getUserGenderSelection } from "../../shared-tools/user-tools/getUserGenderSelection";
+import { getGenderTagsTheUserIsSubscribed } from "../../shared-tools/user-tools/getUserGenderSelection";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -158,12 +158,11 @@ export async function profileStatusGet(
    ctx: BaseContext,
 ): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retrieveUser(params.token, true, ctx);
-   const genderTagsOfUser = getUserGenderSelection(user);
 
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
       notShowedTagQuestions: getNotShowedQuestionIds(user),
-      genderIsSelected: genderTagsOfUser.subscribed.length > 0,
+      genderIsSelected: getGenderTagsTheUserIsSubscribed(user, Object.values(Gender)).length > 0,
       user,
    };
 
