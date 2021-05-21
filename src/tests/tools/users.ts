@@ -71,6 +71,7 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
       questionsShowed: APP_AUTHORED_TAGS_AS_QUESTIONS.map(q => q.questionId),
+      targetGenderIsSelected: true,
       notificationsToken: generateId(),
    };
 
