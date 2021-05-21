@@ -168,7 +168,10 @@ export async function profileStatusGet(
    };
 
    const profileCompleted: boolean =
-      result.missingEditableUserProps.length === 0 && result.notShowedTagQuestions.length === 0;
+      result.missingEditableUserProps.length === 0 &&
+      result.notShowedTagQuestions.length === 0 &&
+      result.genderIsSelected;
+
    const lastLoginDate = moment().unix();
    const language = getLocaleFromHeader(ctx);
 
