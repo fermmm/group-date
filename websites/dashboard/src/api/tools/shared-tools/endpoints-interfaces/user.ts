@@ -24,15 +24,9 @@ export interface User {
    language: string;
    name: string;
    birthDate: number;
-   gender: Gender;
    targetAgeMin: number;
    targetAgeMax: number;
    targetDistance: number;
-   likesWoman: boolean;
-   likesMan: boolean;
-   likesWomanTrans: boolean;
-   likesManTrans: boolean;
-   likesOtherGenders: boolean;
    images: string[];
    height?: number;
    dateIdea: string;
@@ -50,17 +44,33 @@ export interface User {
 
 export type UserPropsValueTypes = ValueOf<User>;
 
+/**
+ * The order here in this enum determines the order the genders will appear everywhere
+ */
 export enum Gender {
    Woman = "Woman",
    Man = "Man",
-   TransgenderWoman = "TransgenderWoman",
-   TransgenderMan = "TransgenderMan",
+
+   NonBinary = "Non binary",
+   Agender = "Agender",
+   Androgynous = "Androgynous",
+   Bigender = "Bigender",
+   Genderfluid = "Genderfluid",
+   Genderqueer = "Genderqueer",
+   GenderNonConforming = "Gender Nonconforming",
+   Hijra = "Hijra",
+   Intersex = "Intersex",
    Other = "Other",
+   Pangender = "Pangender",
+   TransgenderWoman = "Transgender Woman",
+   TransgenderMan = "Transgender Man",
+   TwoSpirit = "Two Spirit",
 }
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
    notShowedTagQuestions: string[];
+   genderIsSelected: boolean;
    user: Partial<User>;
 }
 
@@ -121,7 +131,7 @@ export enum NotificationType {
    About,
 }
 
-export type UserPropsAsQuestionsTypes = boolean | Gender;
+export type UserPropsAsQuestionsTypes = boolean;
 
 export interface UserPropAsQuestion<T = UserPropsAsQuestionsTypes> {
    text: string;

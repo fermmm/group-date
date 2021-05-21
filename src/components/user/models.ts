@@ -2,6 +2,7 @@ import {
    NotificationData,
    NotificationContent,
    ReportUserPostParams,
+   Gender,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
@@ -156,10 +157,12 @@ export async function profileStatusGet(
    ctx: BaseContext,
 ): Promise<ProfileStatusServerResponse> {
    const user: Partial<User> = await retrieveUser(params.token, true, ctx);
+   const genderTagsOfUser = getUserGenderSelection(user);
 
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
       notShowedTagQuestions: getNotShowedQuestionIds(user),
+      genderIsSelected: genderTagsOfUser.subscribed.length > 0,
       user,
    };
 
@@ -439,6 +442,20 @@ export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Ko
    }
 
    return imageSaver(ctx, next);
+}
+
+export function getUserGenderSelection(user: Partial<User>) {
+   const genderIds = Object.values(Gender);
+   return {
+      subscribed:
+         user?.tagsSubscribed
+            ?.filter(tag => genderIds.includes(tag.tagId as Gender))
+            ?.map(tag => tag.tagId as Gender) ?? [],
+      blocked:
+         user?.tagsBlocked
+            ?.filter(tag => genderIds.includes(tag.tagId as Gender))
+            ?.map(tag => tag.tagId as Gender) ?? [],
+   };
 }
 
 export async function onFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {

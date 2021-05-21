@@ -12,7 +12,6 @@ import {
    allAttractionTypes,
    allMatchTypes,
    AttractionType,
-   Gender,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
@@ -76,44 +75,6 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.not(
       __.bothE(...allMatchTypes).where(__.bothV().simplePath().has("token", searcherUser.token)),
    );
-
-   /**
-    * User likes the gender
-    */
-   if (!searcherUser.likesWoman) {
-      traversal = traversal.has("gender", P.neq(Gender.Woman));
-   }
-   if (!searcherUser.likesMan) {
-      traversal = traversal.has("gender", P.neq(Gender.Man));
-   }
-   if (!searcherUser.likesWomanTrans) {
-      traversal = traversal.has("gender", P.neq(Gender.TransgenderWoman));
-   }
-   if (!searcherUser.likesManTrans) {
-      traversal = traversal.has("gender", P.neq(Gender.TransgenderMan));
-   }
-   if (!searcherUser.likesOtherGenders) {
-      traversal = traversal.has("gender", P.neq(Gender.Other));
-   }
-
-   /**
-    * Likes the gender of the user
-    */
-   if (searcherUser.gender === Gender.Woman) {
-      traversal = traversal.has("likesWoman", P.neq(false));
-   }
-   if (searcherUser.gender === Gender.Man) {
-      traversal = traversal.has("likesMan", P.neq(false));
-   }
-   if (searcherUser.gender === Gender.TransgenderWoman) {
-      traversal = traversal.has("likesWomanTrans", P.neq(false));
-   }
-   if (searcherUser.gender === Gender.TransgenderMan) {
-      traversal = traversal.has("likesManTrans", P.neq(false));
-   }
-   if (searcherUser.gender === Gender.Other) {
-      traversal = traversal.has("likesOtherGenders", P.neq(false));
-   }
 
    /**
     * Here we get the searcher user so he/she will be available in the future traversal steps as "searcherUser"

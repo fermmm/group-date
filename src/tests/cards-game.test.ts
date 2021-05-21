@@ -7,7 +7,7 @@ import {
 } from "../components/cards-game/models";
 import { setAttractionPost, userGet, userPost } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
-import { AttractionType, Gender, User } from "../shared-tools/endpoints-interfaces/user";
+import { AttractionType, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createdUsersMatchesFakeData } from "./tools/reusable-tests";
 import {
@@ -18,7 +18,6 @@ import {
    setAttraction,
 } from "./tools/users";
 import { DeepPartial } from "ts-essentials";
-import { chance } from "./tools/generalTools";
 import { createFakeUser2 } from "./tools/_experimental";
 import {
    blockTagsPost,
@@ -42,7 +41,6 @@ describe("Cards game", () => {
          ...generateRandomUserProps(),
          name: "searcherParams",
          profileDescription: "",
-         gender: Gender.Man,
          birthDate: fromAgeToBirthDate(32),
          height: 265,
          locationLat: -34.608404,
@@ -52,21 +50,10 @@ describe("Cards game", () => {
          targetDistance: 30,
          images: ["http://test.com/image.jpg"],
          dateIdea: "holis.",
-         likesWomanTrans: false,
-         likesManTrans: false,
-         likesWoman: true,
-         likesMan: false,
-         likesOtherGenders: true,
       };
 
       const compatibleParams: DeepPartial<User> = {
          name: "compatibleParams",
-         gender: Gender.Woman,
-         likesMan: true,
-         likesWoman: false,
-         likesManTrans: false,
-         likesWomanTrans: false,
-         likesOtherGenders: false,
          birthDate: fromAgeToBirthDate(30),
          targetAgeMin: 20,
          targetAgeMax: 40,
@@ -86,7 +73,6 @@ describe("Cards game", () => {
          name: "compatibleParams2",
          locationLat: -34.608204,
          locationLon: -58.502031,
-         likesWoman: true,
       };
 
       const distanceIncompatibleParams: DeepPartial<User> = {
@@ -95,20 +81,6 @@ describe("Cards game", () => {
          name: "distanceIncompatibleParams",
          locationLat: -34.566223,
          locationLon: -59.11482,
-      };
-
-      const sexIncompatibleParams: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "sexIncompatibleParams",
-         gender: Gender.Man,
-      };
-
-      const sexIncompatibleParams2: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "sexIncompatibleParams2",
-         likesMan: false,
       };
 
       const ageIncompatibleParams: DeepPartial<User> = {
@@ -138,8 +110,6 @@ describe("Cards game", () => {
          compatible,
          compatible2,
          distanceIncompatibleParams,
-         sexIncompatibleParams,
-         sexIncompatibleParams2,
          ageIncompatibleParams,
          ageIncompatibleParams2,
          ageIncompatibleParams3,

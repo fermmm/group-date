@@ -10,6 +10,8 @@ export function valueMap(traversal: Traversal): Traversal {
  * Given a list of objects, creates vertices with the same properties. Be aware this is done all in the
  * same query and Gremlin has a limit on the query size, if the query never responds you need to divide
  * the list of objects in chunks and call this multiple times.
+ * Also be aware that the properties of the first object will be created, properties from following objects
+ * that are not present in the first one will be ignored.
  *
  * @param objects The objects list to create vertices from them.
  * @param verticesLabel The label of the vertices

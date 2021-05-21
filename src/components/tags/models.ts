@@ -18,7 +18,7 @@ import {
    BasicTagParams,
    TagsAsQuestion,
 } from "../../shared-tools/endpoints-interfaces/tags";
-import { User } from "../../shared-tools/endpoints-interfaces/user";
+import { Gender, User } from "../../shared-tools/endpoints-interfaces/user";
 import { validateTagProps } from "../../shared-tools/validators/tags";
 import { retrieveFullyRegisteredUser } from "../user/models";
 import { generateId } from "../../common-tools/string-tools/string-tools";
@@ -167,16 +167,31 @@ export async function removeTagsPost(params: BasicTagParams, ctx: BaseContext): 
 
 export async function creteAppAuthoredTags() {
    // Create raw app authored tags
-   const tagsReady: Array<Partial<Tag>> = APP_AUTHORED_TAGS.map(tag => ({
+   const tagsToCreate: Array<Partial<Tag>> = APP_AUTHORED_TAGS.map(tag => ({
       ...tag,
       country: "all",
       creationDate: moment().unix(),
       lastInteractionDate: moment().unix(),
       global: true,
+      visible: true,
    }));
 
+   // Create gender selection tags (these are invisible)
+   tagsToCreate.push(
+      ...Object.values(Gender).map(genderName => ({
+         tagId: genderName,
+         category: "gender",
+         name: genderName,
+         country: "all",
+         creationDate: moment().unix(),
+         lastInteractionDate: moment().unix(),
+         global: true,
+         visible: false,
+      })),
+   );
+
    // Crete app authored tags that are saved as questions
-   tagsReady.push(
+   tagsToCreate.push(
       ...APP_AUTHORED_TAGS_AS_QUESTIONS.map(question =>
          question.answers.map(answer => ({
             tagId: answer.tagId,
@@ -186,11 +201,12 @@ export async function creteAppAuthoredTags() {
             creationDate: moment().unix(),
             lastInteractionDate: moment().unix(),
             global: true,
+            visible: true,
          })),
       ).flat(),
    );
 
-   await fromQueryToTag(queryToCreateTags(null, tagsReady));
+   await fromQueryToTag(queryToCreateTags(null, tagsToCreate));
 }
 
 /**

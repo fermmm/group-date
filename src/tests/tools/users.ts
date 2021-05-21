@@ -43,13 +43,10 @@ export async function createFakeUser(customProps?: Partial<User>): Promise<User>
  * @param customProps Provide user props that should not be random here.
  */
 export function generateRandomUserProps(customProps?: Partial<User>): User {
-   const gender = customProps?.gender ?? chance.pickone(Object.values(Gender));
-   const genderLikes = chance.pickset([true, chance.bool(), chance.bool(), chance.bool(), chance.bool()], 5);
-
    const randomProps: User = {
       name: chance.first({
          nationality: "it",
-         gender: gender === Gender.Woman || gender === Gender.TransgenderMan ? "female" : "male",
+         gender: chance.bool() ? "female" : "male",
       }),
       cityName: chance.city(),
       language: DEFAULT_LANGUAGE,
@@ -67,12 +64,6 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       profileDescription: chance.paragraph(),
       locationLat: chance.latitude({ min: -38.88147, max: -32.990726 }),
       locationLon: chance.longitude({ min: -63.346051, max: -56.729749 }),
-      likesWoman: genderLikes[0],
-      likesMan: genderLikes[1],
-      likesWomanTrans: genderLikes[2],
-      likesManTrans: genderLikes[3],
-      likesOtherGenders: genderLikes[4],
-      gender,
       height: chance.integer({ min: 160, max: 190 }),
       sendNewUsersNotification: 0,
       notifications: [],
@@ -142,12 +133,6 @@ export async function createFakeCompatibleUsers(
          targetDistance: 25,
          locationLat: user.locationLat,
          locationLon: user.locationLon,
-         likesWoman: true,
-         likesMan: true,
-         likesWomanTrans: true,
-         likesManTrans: true,
-         likesOtherGenders: true,
-         gender: chance.pickone(getGendersLikedByUser(user)),
       };
       result.push(await createFakeUser({ ...compatibleProps, ...(customProps ?? {}) }));
    }
@@ -157,27 +142,5 @@ export async function createFakeCompatibleUsers(
 export function getAllTestUsersCreated(): User[] {
    const result = [...fakeUsersCreated, ...getAllTestUsersCreatedExperimental()];
    fakeUsersCreated = [];
-   return result;
-}
-
-function getGendersLikedByUser(user: User): Gender[] {
-   const result: Gender[] = [];
-
-   if (user.likesWoman) {
-      result.push(Gender.Woman);
-   }
-   if (user.likesMan) {
-      result.push(Gender.Man);
-   }
-   if (user.likesWomanTrans) {
-      result.push(Gender.TransgenderWoman);
-   }
-   if (user.likesManTrans) {
-      result.push(Gender.TransgenderMan);
-   }
-   if (user.likesOtherGenders) {
-      result.push(Gender.Other);
-   }
-
    return result;
 }

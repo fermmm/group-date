@@ -7,7 +7,6 @@ import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
 import {
-   Gender,
    NotificationChannelId,
    NotificationChannelInfo,
    UserPropAsQuestion,
@@ -325,71 +324,6 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [politicsLeftTag, politics
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const genderQuestion: UserPropAsQuestion<Gender> = {
-   text: "What is your gender?",
-   shortVersion: "Gender",
-   answers: [
-      {
-         text: "Woman",
-         propName: "gender",
-         value: Gender.Woman,
-      },
-      {
-         text: "Man",
-         propName: "gender",
-         value: Gender.Man,
-      },
-      {
-         text: "Trans woman",
-         propName: "gender",
-         value: Gender.TransgenderWoman,
-      },
-      {
-         text: "Trans man",
-         propName: "gender",
-         value: Gender.TransgenderMan,
-      },
-      {
-         text: "Other / Non binary",
-         propName: "gender",
-         value: Gender.Other,
-      },
-   ],
-};
-
-const genderLikeQuestion: UserPropAsQuestion<boolean> = {
-   text: "What genders are you attracted to?",
-   shortVersion: "Attracted to",
-   multipleAnswersAllowed: true,
-   answers: [
-      {
-         text: "Women",
-         propName: "likesWoman",
-         value: true,
-      },
-      {
-         text: "Men",
-         propName: "likesMan",
-         value: true,
-      },
-      {
-         text: "Trans women",
-         propName: "likesWomanTrans",
-         value: true,
-      },
-      {
-         text: "Trans men",
-         propName: "likesManTrans",
-         value: true,
-      },
-      {
-         text: "Others / Non binary",
-         propName: "likesOtherGenders",
-         value: true,
-      },
-   ],
-};
-
 const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
    text: "If you go to a group date from this app, do you plan to go with someone?",
    shortVersion: "Would go on the date with",
@@ -408,11 +342,7 @@ const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
 };
 
 // When adding a new question make sure it has a unique questionId number
-export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [
-   genderQuestion,
-   genderLikeQuestion,
-   isCoupleProfileQuestion,
-];
+export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [isCoupleProfileQuestion];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  NOTIFICATIONS  ////////////////////////////////////////////////

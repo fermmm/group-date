@@ -9,6 +9,7 @@ export interface Tag extends TagBasicInfo {
    creationDate: number;
    lastInteractionDate: number;
    global: boolean;
+   visible?: boolean;
    subscribersAmount: number;
    blockersAmount: number;
 }
@@ -19,6 +20,7 @@ export interface TagCreateParams {
    category: string;
    country?: string;
    global?: boolean;
+   visible?: boolean;
    fakeSubscribersAmount?: number;
    fakeBlockersAmount?: number;
    creationDate?: number;
