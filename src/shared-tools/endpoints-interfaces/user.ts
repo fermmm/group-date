@@ -46,13 +46,12 @@ export interface User {
 export type UserPropsValueTypes = ValueOf<User>;
 
 /**
- * The order here in this enum determines the order the genders will appear everywhere
+ * The order here in this enum determines the order the genders will appear in some places
  */
 export enum Gender {
    Woman = "Woman",
    Man = "Man",
 
-   NonBinary = "Non binary",
    Agender = "Agender",
    Androgynous = "Androgynous",
    Bigender = "Bigender",
@@ -61,6 +60,7 @@ export enum Gender {
    GenderNonConforming = "Gender Nonconforming",
    Hijra = "Hijra",
    Intersex = "Intersex",
+   NonBinary = "Non binary",
    Other = "Other",
    Pangender = "Pangender",
    TransgenderWoman = "Transgender Woman",
