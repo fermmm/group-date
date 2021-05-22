@@ -20,11 +20,11 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
       versionIsCompatible: false, // TODO: For legacy support, remove later
       buildVersionIsCompatible: versionIsCompatible(
-         params.buildVersion,
+         params.buildVersion ?? "0.0.0",
          process.env.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
       ),
       codeVersionIsCompatible: versionIsCompatible(
-         params.codeVersion,
+         params.codeVersion ?? "0.0.0",
          process.env.MINIMUM_CLIENT_CODE_VERSION_ALLOWED,
       ),
       locale: getLocaleFromHeader(ctx),
