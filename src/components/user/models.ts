@@ -2,7 +2,6 @@ import {
    NotificationData,
    NotificationContent,
    ReportUserPostParams,
-   Gender,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
@@ -135,17 +134,8 @@ export async function createUser(
       }
    }
 
-   const welcomeNotification: Notification = getWelcomeNotification(ctx);
-
    return fromQueryToUser(
-      queryToCreateUser(
-         token,
-         email,
-         welcomeNotification,
-         setProfileCompletedForTesting,
-         customUserIdForTesting,
-         isAdmin,
-      ),
+      queryToCreateUser(token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin),
       includeFullInfo,
    );
 }
@@ -194,6 +184,14 @@ export async function profileStatusGet(
          value: language,
       },
    ]);
+
+   /**
+    * When this if executes it means the user just finished with all registration steps
+    * Also this can happen inside the userPost function
+    */
+   if (!user.profileCompleted && profileCompleted) {
+      sendWelcomeNotification(user, ctx);
+   }
 
    // The returned user object should be up to date:
    result.user.profileCompleted = profileCompleted;
@@ -268,11 +266,18 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
 
    if (params.updateProfileCompletedProp) {
       const user = await retrieveUser(params.token, false, ctx);
+      const profileCompleted = profileStatusIsCompleted(user);
       await sendQuery(() =>
-         queryToGetUserByToken(params.token)
-            .property("profileCompleted", profileStatusIsCompleted(user))
-            .iterate(),
+         queryToGetUserByToken(params.token).property("profileCompleted", profileCompleted).iterate(),
       );
+
+      /**
+       * When this if executes it means the user just finished with all registration steps
+       * Also this can happen inside the profileStatusGet function
+       */
+      if (!user.profileCompleted && profileCompleted) {
+         sendWelcomeNotification(user, ctx);
+      }
    }
 }
 
@@ -421,14 +426,25 @@ export async function attractionsSentGet(token: string, types?: AttractionType[]
    return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
 }
 
-export function getWelcomeNotification(ctx: BaseContext): Notification {
-   return {
-      title: t("Welcome to the app!", { ctx }),
-      text: t("Press here if you want to know more details", { ctx }),
+export async function sendWelcomeNotification(user: Partial<User>, ctx: BaseContext): Promise<void> {
+   if (user?.notifications?.find(n => n.idForReplacement === "welcome") != null) {
+      return;
+   }
+
+   const notificationContent: Notification = {
+      title: t("Welcome to Poly!", { ctx }),
+      text: t("Press this notification if you are someone curious", { ctx }),
       type: NotificationType.About,
       notificationId: generateId(),
       date: moment().unix(),
+      idForReplacement: "welcome",
    };
+
+   await addNotificationToUser({ userId: user.userId }, notificationContent, {
+      sendPushNotification: true,
+      channelId: NotificationChannelId.Default,
+      translateNotification: false,
+   });
 }
 
 const imageSaver = koaBody({

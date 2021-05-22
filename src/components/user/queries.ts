@@ -21,7 +21,6 @@ import { DEFAULT_LANGUAGE } from "../../configurations";
 export function queryToCreateUser(
    token: string,
    email: string,
-   welcomeNotification: Notification,
    setProfileCompletedForTesting?: boolean,
    customUserIdForTesting?: string,
    isAdmin?: boolean,
@@ -40,7 +39,7 @@ export function queryToCreateUser(
             .property("isAdmin", isAdmin === true ? true : false)
             .property("sendNewUsersNotification", -1)
             .property("lastGroupJoinedDate", moment().unix())
-            .property("notifications", `[${JSON.stringify(welcomeNotification)}]`),
+            .property("notifications", `[]`),
       )
       .unfold();
 }
