@@ -69,6 +69,8 @@ export enum Gender {
 }
 
 export const ALL_GENDERS: readonly Gender[] = Object.values(Gender);
+export const CIS_GENDERS: readonly Gender[] = [Gender.Woman, Gender.Man];
+export const NON_CIS_GENDERS: readonly Gender[] = ALL_GENDERS.filter(gender => !CIS_GENDERS.includes(gender));
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
