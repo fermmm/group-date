@@ -1,17 +1,8 @@
 import { nanoid } from "nanoid";
+import * as semver from "semver";
 
 export function versionIsCompatible(current: string, required: string): boolean {
-   for (let i = 0; i < required.length; i++) {
-      if ((current[i] || 0) < required[i]) {
-         return false;
-      }
-
-      if (current[i] > required[i]) {
-         return true;
-      }
-   }
-
-   return true;
+   return semver.gte(current, required);
 }
 
 export function generateId(): string {
