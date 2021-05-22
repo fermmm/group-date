@@ -18,7 +18,15 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
    return {
       serverOperating: process.env.SERVER_OPERATING === "false" ? false : true,
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
-      versionIsCompatible: versionIsCompatible(params.version, process.env.MINIMUM_CLIENT_VERSION_ALLOWED),
+      versionIsCompatible: false, // TODO: For legacy support, remove later
+      buildVersionIsCompatible: versionIsCompatible(
+         params.buildVersion,
+         process.env.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
+      ),
+      codeVersionIsCompatible: versionIsCompatible(
+         params.codeVersion,
+         process.env.MINIMUM_CLIENT_CODE_VERSION_ALLOWED,
+      ),
       locale: getLocaleFromHeader(ctx),
       imagesHost: process.env.IMAGES_HOST,
       serverConfigurations: {
