@@ -269,9 +269,13 @@ export function queryToIncludeFullInfoInUserQuery(traversal: Traversal): Travers
          // Include all user props
          __.valueMap().by(__.unfold()),
          // Include tags subscribed
-         __.project("tagsSubscribed").by(__.out("subscribed").valueMap("tagId", "name").by(__.unfold()).fold()),
+         __.project("tagsSubscribed").by(
+            __.out("subscribed").valueMap("tagId", "name", "visible").by(__.unfold()).fold(),
+         ),
          // Include tags blocked
-         __.project("tagsBlocked").by(__.out("blocked").valueMap("tagId", "name").by(__.unfold()).fold()),
+         __.project("tagsBlocked").by(
+            __.out("blocked").valueMap("tagId", "name", "visible").by(__.unfold()).fold(),
+         ),
       )
          .unfold()
          .group()
