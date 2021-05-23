@@ -1,5 +1,5 @@
 .mainContainer {
    width: 100vw;
    height: 100vh;
-   background: linear-gradient(180deg, rgba(76, 107, 209, 1) 0%, rgba(99, 66, 208, 1) 100%);
+   background: linear-gradient(180deg, #9b63f8 0%, #809ffc 100%);
 }
