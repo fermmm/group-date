@@ -9,25 +9,32 @@
 
       <!-- Social media share data -->
       <meta property="og:type" content="website" />
-      <meta property="og:description" content="Poly app. LLegó la primera app de citas grupales" />
-      <meta property="og:image" content="share-image.png" />
+      <meta property="og:description" content="Poly, la primera app de citas grupales" />
+      <meta property="og:image" content="img/share-image.png" />
 
       <!-- Global code -->
       <link href="globals/globals.css" media="screen" rel="stylesheet" />
 
       <!-- Page code -->
       <link href="index.css" media="screen" rel="stylesheet" />
+      <link href="css/section1.css" media="screen" rel="stylesheet" />
       <script src="index.js"></script>
    </head>
    <body ondragstart="return false">
-      <div class="mainContainer">
-         <h1>Website running.</h1>
-         <img src="img/logo.svg" />
-         <img src="img/appStoreButton.png" />
-         <img src="img/buttonGooglePlay.png" />
-         <img src="img/screenshotChat.png" />
-         <img src="img/screenshotProfiles.png" />
-         <img src="img/logoImproved.png" />
+      <div class="section1-mainContainer">
+         <div class="section1-content-container">
+            <img src="img/logo.svg" class="section1-logo" />
+            <h1 class="section1-text"><b>Poly</b> es la primera app de <b>citas grupales</b></h1>
+            <div class="section1-store-buttons-container">
+               <a
+                  href="https://play.google.com/store/apps/details?id=com.poly.dates"
+                  class="section1-button-store"
+               >
+                  <img src="img/buttonGooglePlay.png" />
+               </a>
+               <img src="img/appStoreButton.png" class="section1-button-store" />
+            </div>
+         </div>
       </div>
    </body>
 </html>
