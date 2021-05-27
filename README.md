@@ -133,6 +133,18 @@ The production (for final users) commands works with PM2, which is a wrapper of 
 2. Download and install Visual Studio Code from the official page: https://code.visualstudio.com/
 3. Install `Azure Tools` extension for Visual Studio Code and upload the project following the instructions provided by the extension.
 
+## Tutorial to upload to a server like Digital Ocean
+
+1. Follow the instructions on [Installing the project on your computer or server](###installing-the-project-on-your-computer-or-server)
+2. In the .env file change the port to 80 (also in the application client .env and in the dasboard/.env)
+3. You need to be root to run a process in the port 80, if you are not then run these 2 commands:
+
+   `sudo apt-get install libcap2-bin`
+
+   `` sudo setcap 'cap_net_bind_service=+ep' `which node`  ``
+
+   You may need to run them again in the future if you update node.
+
 ## Git hooks
 
 The project contains a pre-commit git hook which checks the code with Prettier and a pre-push hook for checking TSLint. You can disable these hooks by adding `--no-verify` flag to your `git commit` or `git push` command.
