@@ -41,24 +41,6 @@
    align-items: center;
    justify-content: space-evenly;
    padding: 21px 32px;
-   animation: background-animation 7s infinite;
-   animation-play-state: running;
-   animation-direction: alternate;
-}
-
-@keyframes background-animation {
-   0% {
-      background: linear-gradient(0deg, #9b63f8 0%, #809ffc 100%);
-   }
-   50% {
-      background: linear-gradient(90deg, #9b63f8 0%, #809ffc 100%);
-   }
-   70% {
-      background: linear-gradient(180deg, #9b63f8 0%, #809ffc 100%);
-   }
-   100% {
-      background: linear-gradient(270deg, #9b63f8 0%, #809ffc 100%);
-   }
 }
 
 @media only screen and (max-width: 600px) {
@@ -77,7 +59,7 @@
 
 @media only screen and (max-width: 600px) {
    .section1-logo {
-      height: 25vh;
+      height: 20vh;
    }
 }
 
@@ -98,7 +80,6 @@
    height: 47px;
    justify-content: space-between;
    flex-direction: row;
-   row-gap: 16px;
 }
 
 .section1-button-store {
@@ -110,7 +91,7 @@
 }
 
 .section1-button-store:hover {
-   transform: scale(1.2);
+   transform: scale(1.1);
 }
 
 .section1-button-store img {
@@ -122,11 +103,16 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      row-gap: 14px;
    }
 
    .section1-button-store {
       width: 100%;
       max-width: 166px;
       height: auto;
+   }
+
+   .section1-button-store img {
+      width: 100%;
    }
 }
