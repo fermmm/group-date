@@ -47,7 +47,13 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
       )
       .use(mount("/dashboard", (context, next) => serve("./websites/dashboard/build/")(context, next)))
       .use(mount("/", (context, next) => serve("./websites/promo/")(context, next)));
-   http.createServer(app.callback()).listen(process.env.PORT);
+   const appCallback = app.callback();
+
+   http.createServer(appCallback).listen(process.env.PORT);
+   const secondaryPortConfigured = Boolean(process.env.SECONDARY_PORT);
+   if (secondaryPortConfigured) {
+      http.createServer(appCallback).listen(process.env.SECONDARY_PORT);
+   }
 
    // Database initialization:
    await waitForDatabase();
@@ -76,9 +82,12 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
 
    // Final console messages
    console.log("✓ Server initialized!");
-   console.log(`✓ Api endpoints available in https://localhost:${process.env.PORT}/api`);
-   console.log(`✓ Promo website available in https://localhost:${process.env.PORT}/`);
-   console.log(`✓ Admin dashboard available in https://localhost:${process.env.PORT}/dashboard`);
+   console.log(`✓ Promo website available in http://localhost:${process.env.PORT}/`);
+   console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}/api`);
+   console.log(`✓ Admin dashboard available in http://localhost:${process.env.PORT}/dashboard`);
+   if (secondaryPortConfigured) {
+      console.log(`✓ Also a secondary port is available: ${process.env.SECONDARY_PORT}`);
+   }
 
    logToFile("Server started", "serverStatus");
 })();
