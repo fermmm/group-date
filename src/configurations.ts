@@ -268,13 +268,13 @@ const feminismQuestion: TagsAsQuestion = {
 
 const groupSexQuestion: TagsAsQuestion = {
    questionId: "taq-1",
-   text: "Do you find interesting the idea of group sex?",
+   text: "Do you think group sex might be interesting to try one day?",
    answers: [
       {
          text: "Yes",
          tagId: "q01-a00",
          category: "Sex",
-         tagName: "Group sex: Sounds good",
+         tagName: "Group sex: Could be interesting",
       },
       {
          text: "No",
