@@ -97,7 +97,7 @@ import { strToBool } from "./common-tools/string-tools/string-tools";
    console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}/api`);
    console.log(`✓ Admin dashboard available in http://localhost:${process.env.PORT}/dashboard`);
    if (httpsPortEnabled) {
-      console.log(`✓ Also https port enabled: ${process.env.SECONDARY_PORT}`);
+      console.log(`✓ Also https port enabled`);
    }
 
    logToFile("Server started", "serverStatus");
