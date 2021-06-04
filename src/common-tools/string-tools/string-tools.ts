@@ -23,3 +23,7 @@ export function toFirstUpperCase(str: string): string {
 
    return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function strToBool(str: string | undefined): boolean {
+   return str?.toLowerCase().split(" ").join("") === "true";
+}

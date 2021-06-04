@@ -1,5 +1,5 @@
 import { BaseContext } from "koa";
-import { versionIsCompatible } from "../../common-tools/string-tools/string-tools";
+import { strToBool, versionIsCompatible } from "../../common-tools/string-tools/string-tools";
 import {
    GROUP_SLOTS_CONFIGS,
    MAXIMUM_INACTIVITY_FOR_CARDS,
@@ -16,7 +16,7 @@ import { NotificationChannelInfo } from "../../shared-tools/endpoints-interfaces
 
 export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): ServerInfoResponse {
    return {
-      serverOperating: process.env.SERVER_OPERATING === "false" ? false : true,
+      serverOperating: strToBool(process.env.SERVER_OPERATING),
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
       versionIsCompatible: false, // TODO: For legacy support, remove later
       buildVersionIsCompatible: versionIsCompatible(

@@ -2,6 +2,8 @@
 require("dotenv").config();
 import "./common-tools/ts-tools/globals";
 import * as http from "http";
+import * as https from "https";
+import * as fs from "fs";
 import * as Router from "@koa/router";
 import * as Koa from "koa";
 import * as koaBody from "koa-body";
@@ -26,6 +28,7 @@ import { tagsRoutes } from "./components/tags/routes";
 import { initializeUsers } from "./components/user/models";
 import { userRoutes } from "./components/user/routes";
 import { initializeDatabaseBackups } from "./common-tools/database-tools/backups";
+import { strToBool } from "./common-tools/string-tools/string-tools";
 
 (async () => {
    // Koa initialization:
@@ -50,9 +53,17 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    const appCallback = app.callback();
 
    http.createServer(appCallback).listen(process.env.PORT);
-   const secondaryPortConfigured = Boolean(process.env.SECONDARY_PORT);
-   if (secondaryPortConfigured) {
-      http.createServer(appCallback).listen(process.env.SECONDARY_PORT);
+   const httpsPortEnabled = strToBool(process.env.HTTPS_PORT_ENABLED);
+   if (httpsPortEnabled) {
+      https
+         .createServer(
+            {
+               cert: fs.readFileSync(process.env.HTTPS_CERTIFICATE_PATH),
+               key: fs.readFileSync(process.env.HTTPS_KEY_PATH),
+            },
+            appCallback,
+         )
+         .listen(443);
    }
 
    // Database initialization:
@@ -85,8 +96,8 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
    console.log(`✓ Promo website available in http://localhost:${process.env.PORT}/`);
    console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}/api`);
    console.log(`✓ Admin dashboard available in http://localhost:${process.env.PORT}/dashboard`);
-   if (secondaryPortConfigured) {
-      console.log(`✓ Also a secondary port is available: ${process.env.SECONDARY_PORT}`);
+   if (httpsPortEnabled) {
+      console.log(`✓ Also https port enabled: ${process.env.SECONDARY_PORT}`);
    }
 
    logToFile("Server started", "serverStatus");

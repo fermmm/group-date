@@ -145,6 +145,21 @@ The production (for final users) commands works with PM2, which is a wrapper of 
 
    You may need to run them again in the future if you update node.
 
+## Setup HTTPS
+
+First you should have a domain working with the hosting of this server.
+Certbot will generate and renew the SSL certificate and key needed to enable https requests.
+Also it will add a cron job in the OS to renew the certificates.
+
+1. Go to the [certbot instructions website](https://certbot.eff.org/instructions)
+2. On "My HTTP website is running" select "None of the above"
+3. Then select the operative system of the computer that is going to run this server
+4. Follow all the instructions there
+5. When finishing you should see 2 paths certificate and key
+6. Paste the paths on the .env on the variables `HTTPS_CERTIFICATE_PATH` and `HTTPS_KEY_PATH`
+7. In the .env file set `HTTPS_PORT_ENABLED` to true
+8. Run this: `certbot renew --pre-hook "pm2 stop poly" --post-hook "pm2 start poly"`
+
 ## Git hooks
 
 The project contains a pre-commit git hook which checks the code with Prettier and a pre-push hook for checking TSLint. You can disable these hooks by adding `--no-verify` flag to your `git commit` or `git push` command.
