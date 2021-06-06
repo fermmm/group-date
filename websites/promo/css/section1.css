@@ -2,7 +2,7 @@
    display: flex;
    position: relative;
    width: 100vw;
-   height: 100vh;
+   min-height: 100vh;
    animation: background-image-move-animation 45s ease-in-out 1s infinite reverse;
    animation-direction: alternate;
    animation-play-state: running;
@@ -47,7 +47,7 @@
 @media only screen and (max-width: 600px) {
    .section1-content-container {
       width: 100vw;
-      height: 100vh;
+      min-height: 100vh;
       left: 0;
       border-radius: 0;
       padding: 20px 27px;
@@ -104,6 +104,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      height: fit-content;
       row-gap: 14px;
    }
 
@@ -129,6 +130,7 @@
    row-gap: 4px;
    text-decoration: underline;
    text-underline-offset: 2px;
+   text-align: center;
 }
 
 .section1-legal-buttons-container a {
