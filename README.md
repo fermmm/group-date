@@ -158,7 +158,12 @@ Also it will add a cron job in the OS to renew the certificates.
 5. When finishing you should see 2 paths certificate and key
 6. Paste the paths on the .env on the variables `HTTPS_CERTIFICATE_PATH` and `HTTPS_KEY_PATH`
 7. In the .env file set `HTTPS_PORT_ENABLED` to true
-8. Run this: `certbot renew --pre-hook "pm2 stop poly" --post-hook "pm2 start poly"`
+8. With the following command a scheduled task is added to the OS to keep certificates renewed, also the command includes other hook commands to execute during renewal to stop and start the server because it needs port 80 for a moment to validate domain, so run one of these commands:
+   If you are using the root user:
+   `certbot renew --pre-hook "bash -c '. ~/.bashrc; pm2 stop poly'" --post-hook "bash -c '. ~/.bashrc; pm2 start poly'"`
+
+   If you are using another user (replace USER the 2 times):
+   `certbot renew --pre-hook "sudo -u USER bash -c '. ~/.bashrc; pm2 stop poly'" --post-hook "sudo -u USER bash -c '. ~/.bashrc; pm2 start poly'"`
 
 ## Git hooks
 
