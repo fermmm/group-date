@@ -64,8 +64,7 @@ export enum Gender {
    Other = "Other",
    Pangender = "Pangender",
    TransgenderWoman = "Transgender Woman",
-   TransgenderMan = "Transgender Man",
-   TwoSpirit = "Two Spirit",
+   TransgenderMan = "Transgender Man"
 }
 
 export const ALL_GENDERS: readonly Gender[] = Object.values(Gender);
@@ -105,12 +104,12 @@ export interface Attraction {
 
 export enum AttractionType {
    Like = "Like",
-   Dislike = "Dislike",
+   Dislike = "Dislike"
 }
 
 export enum MatchType {
    Like = "Match",
-   Dislike = "SeenMatch",
+   Dislike = "SeenMatch"
 }
 
 export interface Notification {
@@ -132,7 +131,7 @@ export enum NotificationType {
    ContactChat,
    NearbyPartyOrEvent,
    CardsGame,
-   About,
+   About
 }
 
 export type UserPropsAsQuestionsTypes = boolean;
@@ -159,7 +158,7 @@ export enum NotificationChannelId {
    ChatMessages = "chat",
    Events = "events",
    NewUsers = "newUsers",
-   DateReminders = "dateReminders",
+   DateReminders = "dateReminders"
 }
 
 export interface NotificationChannelInfo {
@@ -181,5 +180,5 @@ export interface ReportUserPostParams extends TokenParameter {
 
 export enum ReportUserType {
    NonEthical = "non-ethical",
-   MissingPicture = "missing-picture",
+   MissingPicture = "missing-picture"
 }

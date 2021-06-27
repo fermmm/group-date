@@ -65,7 +65,6 @@ export enum Gender {
    Pangender = "Pangender",
    TransgenderWoman = "Transgender Woman",
    TransgenderMan = "Transgender Man",
-   TwoSpirit = "Two Spirit",
 }
 
 export const ALL_GENDERS: readonly Gender[] = Object.values(Gender);
