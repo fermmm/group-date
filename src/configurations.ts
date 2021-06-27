@@ -314,8 +314,8 @@ const spamQuestion: TagsAsQuestion = {
 };
 
 export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
-   feminismQuestion,
    groupSexQuestion,
+   feminismQuestion,
    spamQuestion,
 ];
 export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [politicsLeftTag, politicsRightTag];
