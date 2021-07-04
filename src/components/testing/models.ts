@@ -8,8 +8,11 @@ import { chance } from "../../tests/tools/generalTools";
 import { createFakeCompatibleUsers } from "../../tests/tools/users";
 import { searchAndCreateNewGroups } from "../groups-finder/models";
 import { createTagPost, subscribeToTagsPost } from "../tags/models";
-import { retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
+import { onFileReceived, retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
 import { APP_AUTHORED_TAGS } from "../../configurations";
+import { chatPost, userGroupsGet } from "../groups/models";
+import { fromQueryToUser } from "../user/tools/data-conversion";
+import { queryToGetUserById } from "../user/queries";
 
 const allUsersCreated = [];
 export async function createFakeUsersPost(
@@ -94,4 +97,41 @@ export async function forceGroupSearch(params: TokenParameter, ctx: BaseContext)
    const groupsCreated = await searchAndCreateNewGroups();
 
    return `Created ${groupsCreated.length} groups.`;
+}
+
+export async function createFakeChatConversation(params: TokenParameter, ctx: BaseContext): Promise<string> {
+   const user = await retrieveFullyRegisteredUser(params.token, false, ctx);
+
+   if (!user.isAdmin) {
+      return `Error: Only admins can use this`;
+   }
+
+   const fakeConversation = [
+      "holaaa son muy bellos todos",
+      "lo mismo digo",
+      "esta lindo el dia, vamos a la playa?",
+      "sii, yo puedo =)",
+      "yo tambien puedo!!!",
+      "yendo",
+      "yo me libero en 10",
+      "si vamos",
+      "yo no! pero la proxima me sumo! =)",
+      "eh... me parece una muy buena idea",
+   ];
+
+   const groups = await userGroupsGet({ token: params.token }, ctx, true);
+   let currentConversationMessage = 0;
+   for (const group of groups) {
+      for (const member of group.members) {
+         const message = fakeConversation[currentConversationMessage];
+         const chatUser = await fromQueryToUser(queryToGetUserById(member.userId), true);
+         await chatPost({ token: chatUser.token, groupId: group.groupId, message }, ctx);
+         currentConversationMessage++;
+         if (currentConversationMessage >= fakeConversation.length) {
+            currentConversationMessage = 0;
+         }
+      }
+   }
+
+   return `Created fake conversation.`;
 }
