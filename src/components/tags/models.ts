@@ -20,7 +20,7 @@ import {
 } from "../../shared-tools/endpoints-interfaces/tags";
 import { Gender, User } from "../../shared-tools/endpoints-interfaces/user";
 import { validateTagProps } from "../../shared-tools/validators/tags";
-import { retrieveFullyRegisteredUser } from "../user/models";
+import { retrieveFullyRegisteredUser, retrieveUser } from "../user/models";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    queryToCreateTags,
@@ -105,7 +105,13 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
 }
 
 export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<Tag[]> {
-   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
+   const user: Partial<User> = await retrieveUser(params.token, false, ctx);
+
+   if (!user.country) {
+      ctx.throw(400, "Reading tags without country selected, please report this error", { user });
+      return;
+   }
+
    let result: Tag[];
    result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }));
    result = translateAppAuthoredTags(result, { user });

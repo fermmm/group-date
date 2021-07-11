@@ -242,6 +242,7 @@ const politicsRightTag: Partial<Tag> = {
 /**
  * These are the "app authored" tags that will be shown as questions and are mandatory to interact on registration.
  * The tagId can be any string but all should be different for each tag here.
+ * If you change or remove a tag id it's required to be changed for analytics when sending user data.
  */
 const feminismQuestion: TagsAsQuestion = {
    questionId: "taq-0",
@@ -266,6 +267,9 @@ const feminismQuestion: TagsAsQuestion = {
    },
 };
 
+/**
+ * If you change or remove a tag id it's required to be changed for analytics when sending user data.
+ */
 const groupSexQuestion: TagsAsQuestion = {
    questionId: "taq-1",
    text: "Do you think group sex might be interesting to try one day?",
@@ -289,7 +293,9 @@ const groupSexQuestion: TagsAsQuestion = {
    },
 };
 
-// This question may not be required because interest for group sex (the other question) includes the physical interaction intentions
+/**
+ * If you change or remove a tag id it's required to be changed for analytics when sending user data.
+ */
 const spamQuestion: TagsAsQuestion = {
    questionId: "taq-2",
    text: "Is your goal in this app to meet new people?",
@@ -313,6 +319,7 @@ const spamQuestion: TagsAsQuestion = {
    },
 };
 
+// Spam question may not be required because interest for group sex question includes the physical interaction intentions
 export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
    groupSexQuestion,
    feminismQuestion,
