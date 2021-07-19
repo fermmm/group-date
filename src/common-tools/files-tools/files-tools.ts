@@ -31,3 +31,11 @@ export function copyFile(source: string, destination: string) {
 export function fileOrFolderExists(path: string): boolean {
    return fs.existsSync(appRoot.path + `/${path}`);
 }
+
+export function getFileContent(path: string, encoding: BufferEncoding = "utf8") {
+   return fs.readFileSync(appRoot.path + `/${path}`, { encoding });
+}
+
+export function writeFile(path: string, data: string, encoding: BufferEncoding = "utf8") {
+   return fs.writeFileSync(appRoot.path + `/${path}`, data, { encoding });
+}

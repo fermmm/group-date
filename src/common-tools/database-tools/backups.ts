@@ -10,6 +10,7 @@ import {
 import { copyFile, createFolder } from "../files-tools/files-tools";
 import { executeFunctionBeforeExiting } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
+import { fixGraphMlBug } from "./fix-graphml-bug";
 
 export async function initializeDatabaseBackups() {
    if (backupIsEnabled()) {
@@ -91,4 +92,5 @@ function backupDatabaseWhenExiting() {
 
 export async function makeSimpleBackup() {
    await saveDatabaseToFile("../../database-backups/latest.xml");
+   fixGraphMlBug("database-backups/latest.xml");
 }
