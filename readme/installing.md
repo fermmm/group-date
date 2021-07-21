@@ -7,7 +7,13 @@
 
 2. Make sure you have Java installed (JDK or OpenJDK), at least version 8 (or 1.8 it's the same). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, in an Ubuntu compatible OS you can install it with `sudo apt install default-jdk`. [In MacOS you can instal it with Brew](https://devqa.io/brew-install-java/).
 
-3. Make sure you have Node.js installed at least version 14, to verify run `node -v`. If you don't have it download from nodejs.org or better: [using NVM (Node Version Manager)](https://tecadmin.net/install-nodejs-with-nvm/)
+3. Make sure you have Node.js at least version 14, to verify run `node -v`. If it's not installed you should follow these steps:
+
+   1. Make sure you have curl installed on your system: `sudo apt update && sudo apt install curl -y`
+   2. Install nvm (Node Version Manager) for current logged user: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash`
+   3. Refresh system environment to have nvm command available, in Debian based systems: `source ~/.profile`, in CentOS, Fedora and Redhat systems: `source ~/.bashrc`
+   4. Install latest Node.js version: `nvm install lts/*`
+   5. Set the Node.js version just installed as the permanent to use: `nvm alias default node`
 
 4. Duplicate the file `.env.example` and rename it: `.env`. In Unix you can use this command: `cp .env.example .env`. If you are in a server you may need to change the IMAGES_HOST variable in the .env file replacing localhost with the server public address.
 
