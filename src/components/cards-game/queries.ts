@@ -2,7 +2,7 @@ import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/mat
 import * as moment from "moment";
 import { __, order, P } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { KM_IN_GPS_FORMAT } from "../../common-tools/math-tools/constants";
+import { GPS_TO_KM, KM_TO_GPS } from "../../common-tools/math-tools/constants";
 import {
    CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING,
    CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS,
@@ -38,18 +38,34 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.has(
       "locationLat",
       P.inside(
-         searcherUser.locationLat - searcherUser.targetDistance * KM_IN_GPS_FORMAT,
-         searcherUser.locationLat + searcherUser.targetDistance * KM_IN_GPS_FORMAT,
+         searcherUser.locationLat - searcherUser.targetDistance * KM_TO_GPS,
+         searcherUser.locationLat + searcherUser.targetDistance * KM_TO_GPS,
       ),
    );
 
    traversal = traversal.has(
       "locationLon",
       P.inside(
-         searcherUser.locationLon - searcherUser.targetDistance * KM_IN_GPS_FORMAT,
-         searcherUser.locationLon + searcherUser.targetDistance * KM_IN_GPS_FORMAT,
+         searcherUser.locationLon - searcherUser.targetDistance * KM_TO_GPS,
+         searcherUser.locationLon + searcherUser.targetDistance * KM_TO_GPS,
       ),
    );
+
+   /**
+    * The user is inside the distance the result wants
+    * For testing of this weird syntax: https://gremlify.com/sva6t6120s
+    */
+   traversal = traversal
+      .as("a")
+      .where(P.gte("a"))
+      .by("targetDistance")
+      .by(__.math(`abs(_ - ${searcherUser.locationLat}) * ${GPS_TO_KM}`).by("locationLat"));
+
+   traversal = traversal
+      .as("a")
+      .where(P.gte("a"))
+      .by("targetDistance")
+      .by(__.math(`abs(_ - ${searcherUser.locationLon}) * ${GPS_TO_KM}`).by("locationLon"));
 
    /**
     * Don't show inactive accounts. Inactive means many time without login and no new users notifications pending

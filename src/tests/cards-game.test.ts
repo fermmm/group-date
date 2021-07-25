@@ -13,6 +13,7 @@ import { createdUsersMatchesFakeData } from "./tools/reusable-tests";
 import {
    createFakeCompatibleUsers,
    createFakeUser,
+   createMultipleFakeCustomUsers,
    generateRandomUserProps,
    getAllTestUsersCreated,
    setAttraction,
@@ -29,108 +30,166 @@ import {
 import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from "../configurations";
 
 describe("Cards game", () => {
-   let fakeData: Array<DeepPartial<User>>;
-   const fakeUsers: User[] = [];
+   let fakeUsersData: Array<DeepPartial<User>>;
+   let fakeUsers: User[] = [];
    let searcherUser: User;
    let compatibleUser: User;
    let compatibleUser2: User;
    let recommendations: User[];
 
+   const searcherParams: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      name: "searcherParams",
+      profileDescription: "",
+      birthDate: fromAgeToBirthDate(32),
+      height: 265,
+      locationLat: -34.608404,
+      locationLon: -58.387697,
+      targetAgeMin: 20,
+      targetAgeMax: 38,
+      targetDistance: 60,
+      images: ["http://test.com/image.jpg"],
+      dateIdea: "holis.",
+   };
+
+   const compatibleParams: DeepPartial<User> = {
+      name: "compatibleParams",
+      birthDate: fromAgeToBirthDate(30),
+      targetAgeMin: 20,
+      targetAgeMax: 40,
+      targetDistance: 60,
+      locationLat: -34.597917,
+      locationLon: -58.412001,
+   };
+
+   const compatible: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+   };
+
+   const compatible2: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "compatibleParams2",
+      locationLat: -34.608204,
+      locationLon: -58.502031,
+   };
+
+   // This is incompatible because the distance is too far for the user
+   const incompatibleTooFar: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "distanceIncompatibleParams",
+      locationLat: -34.652713,
+      locationLon: -59.425083,
+   };
+
+   // This is incompatible because his target distance is to low
+   const incompatibleWantsCloser: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "distanceIncompatibleParams2",
+      targetDistance: 25,
+      locationLat: -34.628378,
+      locationLon: -58.734897,
+   };
+
+   const incompatibleTooOld: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "ageIncompatibleParams",
+      birthDate: fromAgeToBirthDate(40),
+   };
+
+   const incompatibleTooYoung: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "ageIncompatibleParams2",
+      birthDate: fromAgeToBirthDate(18),
+   };
+
+   const incompatibleSearcherUserTooOld: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "ageIncompatibleParams3",
+      targetAgeMin: 18,
+      targetAgeMax: 25,
+   };
+
+   const incompatibleSearcherUserTooYoung: DeepPartial<User> = {
+      ...generateRandomUserProps(),
+      ...compatibleParams,
+      name: "ageIncompatibleParams3",
+      targetAgeMin: 35,
+      targetAgeMax: 48,
+   };
+
+   fakeUsersData = [
+      searcherParams,
+      compatible,
+      compatible2,
+      incompatibleTooFar,
+      incompatibleWantsCloser,
+      incompatibleTooOld,
+      incompatibleTooYoung,
+      incompatibleSearcherUserTooOld,
+      incompatibleSearcherUserTooYoung,
+   ];
+
    beforeAll(async () => {
-      const searcherParams: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         name: "searcherParams",
-         profileDescription: "",
-         birthDate: fromAgeToBirthDate(32),
-         height: 265,
-         locationLat: -34.608404,
-         locationLon: -58.387697,
-         targetAgeMin: 20,
-         targetAgeMax: 38,
-         targetDistance: 30,
-         images: ["http://test.com/image.jpg"],
-         dateIdea: "holis.",
-      };
-
-      const compatibleParams: DeepPartial<User> = {
-         name: "compatibleParams",
-         birthDate: fromAgeToBirthDate(30),
-         targetAgeMin: 20,
-         targetAgeMax: 40,
-         targetDistance: 25,
-         locationLat: -34.597917,
-         locationLon: -58.412001,
-      };
-
-      const compatible: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-      };
-
-      const compatible2: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "compatibleParams2",
-         locationLat: -34.608204,
-         locationLon: -58.502031,
-      };
-
-      const distanceIncompatibleParams: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "distanceIncompatibleParams",
-         locationLat: -34.566223,
-         locationLon: -59.11482,
-      };
-
-      const ageIncompatibleParams: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "ageIncompatibleParams",
-         birthDate: fromAgeToBirthDate(40),
-      };
-
-      const ageIncompatibleParams2: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "ageIncompatibleParams2",
-         birthDate: fromAgeToBirthDate(18),
-      };
-
-      const ageIncompatibleParams3: DeepPartial<User> = {
-         ...generateRandomUserProps(),
-         ...compatibleParams,
-         name: "ageIncompatibleParams3",
-         targetAgeMin: 18,
-         targetAgeMax: 25,
-      };
-
-      fakeData = [
-         searcherParams,
-         compatible,
-         compatible2,
-         distanceIncompatibleParams,
-         ageIncompatibleParams,
-         ageIncompatibleParams2,
-         ageIncompatibleParams3,
+      fakeUsers = [
+         ...fakeUsers,
+         ...(await createMultipleFakeCustomUsers([searcherParams, compatible, compatible2])),
       ];
-
-      for (const data of fakeData) {
-         fakeUsers.push(await createFakeUser(data as User));
-      }
 
       searcherUser = fakeUsers[0];
       compatibleUser = fakeUsers[1];
       compatibleUser2 = fakeUsers[2];
    });
 
-   test("Test will be done correctly", () => {
-      createdUsersMatchesFakeData(fakeUsers, fakeData, true);
-   });
-
-   test("Recommendations works", async () => {
+   test("Compatible users appear on the recommendations", async () => {
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
       expect(recommendations).toHaveLength(2);
+   });
+
+   test("Too far users does not appear on recommendations", async () => {
+      fakeUsers = [...fakeUsers, ...(await createMultipleFakeCustomUsers([incompatibleTooFar]))];
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
+   test("Don't recommend users that consider the searcher to be too far", async () => {
+      fakeUsers = [...fakeUsers, ...(await createMultipleFakeCustomUsers([incompatibleWantsCloser]))];
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
+   test("Too old user does not appear on recommendations", async () => {
+      fakeUsers = [...fakeUsers, ...(await createMultipleFakeCustomUsers([incompatibleTooOld]))];
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
+   test("Too young user does not appear on recommendations", async () => {
+      fakeUsers = [...fakeUsers, ...(await createMultipleFakeCustomUsers([incompatibleTooYoung]))];
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
+   test("Don't recommend users that consider the searcher too old", async () => {
+      fakeUsers = [...fakeUsers, ...(await createMultipleFakeCustomUsers([incompatibleSearcherUserTooOld]))];
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
+   test("Don't recommend users that consider the searcher too young", async () => {
+      fakeUsers = [...fakeUsers, ...(await createMultipleFakeCustomUsers([incompatibleSearcherUserTooYoung]))];
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+      expect(recommendations).toHaveLength(2);
+   });
+
+   test("Incompatible recommendations tests were done correctly", () => {
+      createdUsersMatchesFakeData(fakeUsers, fakeUsersData, true);
    });
 
    test("Recommendations returns correct users in correct order", async () => {
@@ -168,12 +227,13 @@ describe("Cards game", () => {
 
       // The test is going to be done correctly
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(1); // Only the welcome notification expected
+      // The welcome notification is not working on tests so we should have 0 notifications
+      expect(mainUser.notifications.length).toBe(0);
 
       // If the user does not request for notifications should be not notified
       await notifyAllUsersAboutNewCards();
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(1);
+      expect(mainUser.notifications.length).toBe(0);
 
       // Here user requests for notifications
       await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, fakeCtx);
@@ -181,12 +241,12 @@ describe("Cards game", () => {
       // Now it should be notified
       await notifyAllUsersAboutNewCards();
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(2);
+      expect(mainUser.notifications.length).toBe(1);
 
       // Repetition should not add more notifications
       await notifyAllUsersAboutNewCards();
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(2);
+      expect(mainUser.notifications.length).toBe(1);
 
       await queryToRemoveUsers([mainUser]);
       await queryToRemoveUsers(fakeCompatibleUsers);
