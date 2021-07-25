@@ -52,22 +52,6 @@ export function queryToGetCardsRecommendations(
    );
 
    /**
-    * The user is inside the distance the result wants
-    * For testing of this weird syntax: https://gremlify.com/sva6t6120s
-    */
-   traversal = traversal
-      .as("a")
-      .where(P.gte("a"))
-      .by("targetDistance")
-      .by(__.math(`abs(_ - ${searcherUser.locationLat}) * ${GPS_TO_KM}`).by("locationLat"));
-
-   traversal = traversal
-      .as("a")
-      .where(P.gte("a"))
-      .by("targetDistance")
-      .by(__.math(`abs(_ - ${searcherUser.locationLon}) * ${GPS_TO_KM}`).by("locationLon"));
-
-   /**
     * Don't show inactive accounts. Inactive means many time without login and no new users notifications pending
     */
    traversal = traversal.not(
@@ -142,6 +126,23 @@ export function queryToGetCardsRecommendations(
    const searcherUserAge = fromBirthDateToAge(searcherUser.birthDate);
    traversal = traversal.not(__.has("targetAgeMin", P.gt(searcherUserAge)));
    traversal = traversal.not(__.has("targetAgeMax", P.lt(searcherUserAge)));
+
+   /**
+    * The user is inside the distance the result wants
+    * For testing of this weird syntax: https://gremlify.com/sva6t6120s
+    * This is here to make sure this is done after filtering most users
+    */
+   traversal = traversal
+      .as("a")
+      .where(P.gte("a"))
+      .by("targetDistance")
+      .by(__.math(`abs(_ - ${searcherUser.locationLat}) * ${GPS_TO_KM}`).by("locationLat"));
+
+   traversal = traversal
+      .as("a")
+      .where(P.gte("a"))
+      .by("targetDistance")
+      .by(__.math(`abs(_ - ${searcherUser.locationLon}) * ${GPS_TO_KM}`).by("locationLon"));
 
    /**
     * Order the results
