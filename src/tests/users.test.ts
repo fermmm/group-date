@@ -61,8 +61,8 @@ describe("Users", () => {
       );
 
       const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
-      // Expects these 2 notifications and the welcome notifications that is added when the user is created:
-      expect(updatedUser.notifications.length).toBe(3);
+      // There is a notification created when the user is created but it does not get created in the tests
+      expect(updatedUser.notifications.length).toBe(2);
    });
 
    test("Attraction works", async () => {

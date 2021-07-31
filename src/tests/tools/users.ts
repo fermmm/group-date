@@ -8,6 +8,7 @@ import { fakeCtx } from "./replacements";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { getAllTestUsersCreatedExperimental } from "./_experimental";
 import { APP_AUTHORED_TAGS_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
+import { DeepPartial } from "ts-essentials";
 
 let fakeUsersCreated: User[] = [];
 
@@ -37,6 +38,14 @@ export async function createFakeUser(customProps?: Partial<User>): Promise<User>
 
    fakeUsersCreated.push(userProps);
    return userProps;
+}
+
+export async function createMultipleFakeCustomUsers(customProps: Array<DeepPartial<User>>): Promise<User[]> {
+   const result: User[] = [];
+   for (const data of customProps) {
+      result.push(await createFakeUser(data as User));
+   }
+   return result;
 }
 
 /**
