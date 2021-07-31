@@ -56,11 +56,11 @@ async function generateAndCreateFakeUsers(
    }
 
    await sendQuery(() =>
-      queryToCreateVerticesFromObjects(
-         users,
-         "user",
-         !useMultithreading ? "userId" : null, // Checking for duplication is not supported in multithreading
-      ).iterate(),
+      queryToCreateVerticesFromObjects({
+         objects: users,
+         label: "user",
+         duplicationAvoidanceProperty: !useMultithreading ? "userId" : null, // Checking for duplication is not supported in multithreading
+      }).iterate(),
    );
 
    fakeUsersCreated.push(...users);

@@ -29,6 +29,7 @@ import {
    queryToRelateUserWithTag,
    queryToRemoveTags,
 } from "./queries";
+import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 
 export async function initializeTags(): Promise<void> {
    await creteAppAuthoredTags();
@@ -212,7 +213,13 @@ export async function creteAppAuthoredTags() {
       ).flat(),
    );
 
-   await fromQueryToTag(queryToCreateTags(null, tagsToCreate));
+   await fromQueryToTag(
+      queryToCreateVerticesFromObjects({
+         objects: tagsToCreate,
+         label: "tag",
+         duplicationAvoidanceProperty: "tagId",
+      }),
+   );
 }
 
 /**

@@ -14,17 +14,19 @@ export function valueMap(traversal: Traversal): Traversal {
  * that are not present in the first one will be ignored.
  *
  * @param objects The objects list to create vertices from them.
- * @param verticesLabel The label of the vertices
+ * @param label The label of the vertices
  * @param duplicationAvoidanceProperty Property name usually the id, if a vertex already exists with the same value on this property then the vertex will not be created
  * @param serializeProperties Serialize all properties to types that are compatible with Gremlin. default = true
  */
-export function queryToCreateVerticesFromObjects<T>(
-   objects: T[],
-   verticesLabel: string,
-   duplicationAvoidanceProperty?: keyof T,
-   serializeProperties: boolean = true,
-   currentTraversal?: Traversal,
-): Traversal {
+export function queryToCreateVerticesFromObjects<T>(props: {
+   objects: T[];
+   label: string;
+   duplicationAvoidanceProperty?: keyof T;
+   serializeProperties?: boolean;
+   currentTraversal?: Traversal;
+}): Traversal {
+   let { objects, label, duplicationAvoidanceProperty, serializeProperties = true, currentTraversal } = props;
+
    if (currentTraversal == null) {
       currentTraversal = (g as unknown) as Traversal;
    }
@@ -33,7 +35,7 @@ export function queryToCreateVerticesFromObjects<T>(
 
    objectsReadyForDB = !serializeProperties ? objects : objects.map(o => serializeAllValuesIfNeeded(o));
 
-   let creationTraversal: Traversal = __.addV(verticesLabel);
+   let creationTraversal: Traversal = __.addV(label);
    Object.keys(objectsReadyForDB[0]).forEach(
       key => (creationTraversal = creationTraversal.property(key, __.select(key))),
    );
@@ -53,7 +55,7 @@ export function queryToCreateVerticesFromObjects<T>(
                .select("data")
                .choose(
                   __.V()
-                     .hasLabel(verticesLabel)
+                     .hasLabel(label)
                      .has(duplicationAvoidanceProperty, __.where(P.eq("dap"))),
                   __.select("nothing"),
                   creationTraversal,

@@ -4,9 +4,11 @@ import * as path from "path";
 import { createLog } from "./common-tools/log-tools/winstonCreateLogger";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
+import { CardsGameGenderBehavior, GenderFilterLogic } from "./components/cards-game/tools/types";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
 import {
+   Gender,
    NotificationChannelId,
    NotificationChannelInfo,
    UserPropAsQuestion,
@@ -202,8 +204,31 @@ export const NON_SEARCHER_LIKING_CHUNK = 4;
  */
 export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 
+/**
+ * This list determines what to do in the cards game when genders are selected or not selected, the genders
+ * not present in this list will be displayed in the cards game regardless of whether the genre is wanted or not.
+ */
+export const GENDERS_FILTER_LOGIC: GenderFilterLogic[] = [
+   {
+      genderId: Gender.Woman,
+      behaviorWhenWanted: CardsGameGenderBehavior.NeedToHave,
+   },
+   {
+      genderId: Gender.Man,
+      behaviorWhenWanted: CardsGameGenderBehavior.NeedToHave,
+   },
+   {
+      genderId: Gender.TransgenderMan,
+      behaviorWhenNotWanted: CardsGameGenderBehavior.HideIt,
+   },
+   {
+      genderId: Gender.TransgenderWoman,
+      behaviorWhenNotWanted: CardsGameGenderBehavior.HideIt,
+   },
+];
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////  TAGS  ////////////////////////////////////////////////////
+////////////////////////////////////////////////////  TAGS  //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**

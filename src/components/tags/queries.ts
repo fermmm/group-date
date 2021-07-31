@@ -1,13 +1,17 @@
 import * as moment from "moment";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
-import { column, g, P, __ } from "../../common-tools/database-tools/database-manager";
+import { g, P, __ } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { MAX_TAG_SUBSCRIPTIONS_ALLOWED } from "../../configurations";
 import { Tag, TagRelationShip } from "../../shared-tools/endpoints-interfaces/tags";
 import { queryToGetUserById, queryToGetUserByToken } from "../user/queries";
 
 export function queryToCreateTags(userId: string, tagsToCreate: Array<Partial<Tag>>): Traversal {
-   const traversal: Traversal = queryToCreateVerticesFromObjects(tagsToCreate, "tag", "tagId");
+   const traversal: Traversal = queryToCreateVerticesFromObjects({
+      objects: tagsToCreate,
+      label: "tag",
+      duplicationAvoidanceProperty: "tagId",
+   });
 
    if (userId == null) {
       return traversal;
