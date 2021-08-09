@@ -67,6 +67,9 @@ export enum Gender {
    TransgenderMan = "Transgender Man",
 }
 
+export type CisGender = Gender.Woman | Gender.Man;
+export type NonCisGender = Exclude<Gender, CisGender>;
+
 export const ALL_GENDERS: readonly Gender[] = Object.values(Gender);
 export const CIS_GENDERS: readonly Gender[] = [Gender.Woman, Gender.Man];
 export const NON_CIS_GENDERS: readonly Gender[] = ALL_GENDERS.filter(gender => !CIS_GENDERS.includes(gender));

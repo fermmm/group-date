@@ -66,6 +66,7 @@ export async function recommendationsFromTagGet(
  *    3. If the recommendations amount is equal or more than sendNewUsersNotification sends the notification.
  *    4. After sending the notification sets sendNewUsersNotification to -1, this value means that the functionality
  *       is disabled because the cycle is complete and not because the user disabled it.
+ *    5. When the user swipe cards and there are no more the client sets  sendNewUsersNotification again to repeat the cycle
  */
 export async function notifyAllUsersAboutNewCards(): Promise<void> {
    const porfiler = logTimeToFile("notifyUsersAboutNewCardsTask");

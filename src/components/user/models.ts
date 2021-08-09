@@ -2,6 +2,7 @@ import {
    NotificationData,
    NotificationContent,
    ReportUserPostParams,
+   ALL_GENDERS,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
@@ -71,9 +72,11 @@ import {
    getGenderTagsTheUserDontBlock,
    getGenderTagsTheUserIsSubscribed,
 } from "../../shared-tools/user-tools/getUserGenderSelection";
+import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
+   createGenders();
 }
 
 /**
@@ -424,6 +427,16 @@ export async function attractionsReceivedGet(token: string, types?: AttractionTy
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
    return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
+}
+
+export async function createGenders() {
+   await sendQuery(() =>
+      queryToCreateVerticesFromObjects({
+         objects: ALL_GENDERS.map(gender => ({ genderId: gender })),
+         label: "gender",
+         duplicationAvoidanceProperty: "genderId",
+      }).iterate(),
+   );
 }
 
 export async function sendWelcomeNotification(user: Partial<User>, ctx: BaseContext): Promise<void> {

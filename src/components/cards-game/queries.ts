@@ -163,6 +163,11 @@ export function queryToGetCardsRecommendations(
    return traversal;
 }
 
+// TODO: Complete
+export function queryToFilterByGender(traversal: Traversal, searcherUser: User): Traversal {
+   return null;
+}
+
 export function queryToOrderResults(traversal: Traversal, searcherUser: User): Traversal {
    return (
       traversal
