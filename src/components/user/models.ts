@@ -250,7 +250,7 @@ export async function userGet(params: UserGetParams, ctx: BaseContext): Promise<
 }
 
 /**
- * This endpoint should be used to send the user props.
+ * This endpoint is used to send the user props.
  */
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
    let query: Traversal = queryToGetUserByToken(params.token);
@@ -266,6 +266,14 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
    }
 
    await sendQuery(() => query.iterate());
+
+   if (params.genders != null && params.genders.length > 0) {
+      // TODO: Complete
+   }
+
+   if (params.targetGenders != null && params.targetGenders.length > 0) {
+      // TODO: Complete
+   }
 
    if (params.updateProfileCompletedProp) {
       const user = await retrieveUser(params.token, false, ctx);

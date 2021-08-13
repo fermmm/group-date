@@ -1,4 +1,3 @@
-import { Notification } from "./../../shared-tools/endpoints-interfaces/user";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, P, sendQuery, g, column } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";

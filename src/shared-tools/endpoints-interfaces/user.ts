@@ -89,6 +89,8 @@ export interface UserGetParams extends TokenParameter {
 export interface UserPostParams {
    token: string;
    props?: EditableUserProps;
+   genders?: Gender[];
+   targetGenders?: Gender[];
    updateProfileCompletedProp?: boolean;
 }
 
