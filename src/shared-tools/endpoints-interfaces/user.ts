@@ -41,6 +41,8 @@ export interface User {
    notificationsToken: string;
    tagsSubscribed?: TagBasicInfo[];
    tagsBlocked?: TagBasicInfo[];
+   genders: Gender[];
+   likesGenders: Gender[];
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
@@ -88,9 +90,7 @@ export interface UserGetParams extends TokenParameter {
 
 export interface UserPostParams {
    token: string;
-   props?: EditableUserProps;
-   genders?: Gender[];
-   targetGenders?: Gender[];
+   props?: Partial<User>;
    updateProfileCompletedProp?: boolean;
 }
 

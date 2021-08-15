@@ -5,6 +5,7 @@ import {
    allAttractionTypes,
    allMatchTypes,
    AttractionType,
+   Gender,
    SetAttractionParams,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
@@ -274,10 +275,44 @@ export function queryToIncludeFullInfoInUserQuery(traversal: Traversal): Travers
          __.project("tagsBlocked").by(
             __.out("blocked").valueMap("tagId", "name", "visible").by(__.unfold()).fold(),
          ),
+         // Include gender
+         __.project("genders").by(__.out("isGender").values("genderId")),
+         // Include genders liked
+         __.project("likesGenders").by(__.out("likesGender").values("genderId")),
       )
          .unfold()
          .group()
          .by(__.select(column.keys))
          .by(__.select(column.values)),
    );
+}
+
+/**
+ * Receives a traversal that selects one or more users and sets the gender
+ */
+export function queryToSetUserGender(traversal: Traversal, genders: Gender[]): Traversal {
+   return traversal
+      .as("user")
+      .sideEffect(__.outE("isGender").drop())
+      .sideEffect(
+         __.V()
+            .union(...genders.map(gender => __.has("gender", "genderId", gender)))
+            .addE("isGender")
+            .from_("user"),
+      );
+}
+
+/**
+ * Receives a traversal that selects one or more users and sets the gender liked
+ */
+export function queryToSetLikingGender(traversal: Traversal, genders: Gender[]): Traversal {
+   return traversal
+      .as("user")
+      .sideEffect(__.outE("likesGender").drop())
+      .sideEffect(
+         __.V()
+            .union(...genders.map(gender => __.has("gender", "genderId", gender)))
+            .addE("likesGender")
+            .from_("user"),
+      );
 }

@@ -1,6 +1,6 @@
 import * as Validator from "fastest-validator";
 import { ValidationRule } from "fastest-validator";
-import { UserPropsValueTypes, User } from "../endpoints-interfaces/user";
+import { UserPropsValueTypes, User, ALL_GENDERS } from "../endpoints-interfaces/user";
 
 // fastest-validator TS fix
 const v = new ((Validator as unknown) as typeof Validator.default)();
@@ -28,6 +28,19 @@ const REGISTRATION_USER_PROPS_SCHEMA = {
    height: { type: "number", min: 0, max: 300, optional: true } as V,
    sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true } as V,
    questionsShowed: { type: "array", items: { type: "string", min: 1, max: 20 }, max: 50, optional: true } as V,
+   genders: {
+      type: "array",
+      items: { type: "string", min: 1, max: 100 },
+      max: ALL_GENDERS.length,
+      optional: true,
+   } as V,
+   likesGenders: {
+      type: "array",
+      items: { type: "string", min: 1, max: 100 },
+      max: ALL_GENDERS.length,
+      optional: true,
+   } as V,
+   // TODO: Borrar esto y asegurarse que la lógica actual lo reemplaza
    targetGenderIsSelected: {
       type: "boolean",
       optional: true,
