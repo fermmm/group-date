@@ -7,7 +7,6 @@ export interface ServerInfoParams {
 }
 
 export interface ServerInfoResponse {
-   versionIsCompatible: boolean; // TODO: For legacy support, remove later
    buildVersionIsCompatible: boolean;
    codeVersionIsCompatible: boolean;
    serverOperating: boolean;

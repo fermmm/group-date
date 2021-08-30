@@ -40,11 +40,6 @@ const REGISTRATION_USER_PROPS_SCHEMA = {
       max: ALL_GENDERS.length,
       optional: true,
    } as V,
-   // TODO: Borrar esto y asegurarse que la lógica actual lo reemplaza
-   targetGenderIsSelected: {
-      type: "boolean",
-      optional: true,
-   } as V,
 };
 
 const OTHER_USER_PROPS_SCHEMA = {

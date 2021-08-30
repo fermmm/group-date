@@ -1,7 +1,13 @@
 import * as moment from "moment";
 import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import { createUser, setAttractionPost, userPost } from "../../components/user/models";
-import { Attraction, AttractionType, Gender, User } from "../../shared-tools/endpoints-interfaces/user";
+import {
+   Attraction,
+   AttractionType,
+   CIS_GENDERS,
+   NON_CIS_GENDERS,
+   User,
+} from "../../shared-tools/endpoints-interfaces/user";
 import { EditableUserProps } from "../../shared-tools/validators/user";
 import { chance } from "./generalTools";
 import { fakeCtx } from "./replacements";
@@ -34,7 +40,7 @@ export async function createFakeUser(customProps?: Partial<User>): Promise<User>
    const userProps: User = generateRandomUserProps(customProps);
 
    await createUser(userProps.token, userProps.email, false, fakeCtx, true, userProps.userId);
-   await userPost({ token: userProps.token, props: userProps as EditableUserProps }, fakeCtx);
+   await userPost({ token: userProps.token, props: userProps }, fakeCtx);
 
    fakeUsersCreated.push(userProps);
    return userProps;
@@ -59,6 +65,11 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       }),
       cityName: chance.city(),
       language: DEFAULT_LANGUAGE,
+      genders: [chance.pickone([...CIS_GENDERS])],
+      likesGenders: [
+         chance.pickone([...CIS_GENDERS]),
+         ...chance.pickset([...NON_CIS_GENDERS], chance.integer({ min: 0, max: NON_CIS_GENDERS.length })),
+      ],
       isCoupleProfile: chance.bool(),
       country: chance.country(),
       token: generateId(),
@@ -80,7 +91,6 @@ export function generateRandomUserProps(customProps?: Partial<User>): User {
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
       questionsShowed: APP_AUTHORED_TAGS_AS_QUESTIONS.map(q => q.questionId),
-      targetGenderIsSelected: true,
       notificationsToken: generateId(),
    };
 

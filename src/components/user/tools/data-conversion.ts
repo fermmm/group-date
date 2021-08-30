@@ -58,6 +58,8 @@ export function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinVa
       "images",
       "notifications",
       "questionsShowed",
+      "genders",
+      "likesGenders",
    ]);
 
    return result;

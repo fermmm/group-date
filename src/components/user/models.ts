@@ -70,10 +70,6 @@ import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
-import {
-   getGenderTagsTheUserDontBlock,
-   getGenderTagsTheUserIsSubscribed,
-} from "../../shared-tools/user-tools/getUserGenderSelection";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 
 export async function initializeUsers(): Promise<void> {
@@ -160,17 +156,11 @@ export async function profileStatusGet(
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
       notShowedTagQuestions: getNotShowedQuestionIds(user),
-      genderIsSelected: getGenderTagsTheUserIsSubscribed(user).length > 0,
-      targetGenderIsSelected:
-         user.targetGenderIsSelected === true && getGenderTagsTheUserDontBlock(user).length > 0,
       user,
    };
 
    const profileCompleted: boolean =
-      result.missingEditableUserProps.length === 0 &&
-      result.notShowedTagQuestions.length === 0 &&
-      result.genderIsSelected &&
-      result.targetGenderIsSelected;
+      result.missingEditableUserProps.length === 0 && result.notShowedTagQuestions.length === 0;
 
    const lastLoginDate = moment().unix();
    const language = getLocaleFromHeader(ctx);
@@ -214,7 +204,9 @@ function getMissingEditableUserProps(user: Partial<User>): RequiredUserPropKey[]
    const result: RequiredUserPropKey[] = [];
 
    requiredUserPropsList.forEach(editableUserProp => {
-      if (user[editableUserProp] == null) {
+      const propValue = user[editableUserProp];
+
+      if (propValue == null) {
          result.push(editableUserProp);
       }
    });

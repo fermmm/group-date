@@ -37,7 +37,6 @@ export interface User {
    lastGroupJoinedDate: number;
    notifications: Notification[];
    questionsShowed: string[];
-   targetGenderIsSelected: boolean;
    notificationsToken: string;
    tagsSubscribed?: TagBasicInfo[];
    tagsBlocked?: TagBasicInfo[];
@@ -72,8 +71,6 @@ export const ALL_GENDERS: readonly Gender[] = Object.values(Gender);
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
    notShowedTagQuestions: string[];
-   genderIsSelected: boolean;
-   targetGenderIsSelected: boolean;
    user: Partial<User>;
 }
 

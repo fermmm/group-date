@@ -7,7 +7,7 @@ import {
 } from "../components/cards-game/models";
 import { setAttractionPost, userGet, userPost } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
-import { AttractionType, User } from "../shared-tools/endpoints-interfaces/user";
+import { AttractionType, Gender, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createdUsersMatchesFakeData } from "./tools/reusable-tests";
 import {
@@ -50,6 +50,8 @@ describe("Cards game", () => {
       targetDistance: 60,
       images: ["http://test.com/image.jpg"],
       dateIdea: "holis.",
+      genders: [Gender.Woman],
+      likesGenders: [Gender.Man],
    };
 
    const compatibleParams: DeepPartial<User> = {
@@ -60,6 +62,8 @@ describe("Cards game", () => {
       targetDistance: 60,
       locationLat: -34.597917,
       locationLon: -58.412001,
+      genders: [Gender.Man],
+      likesGenders: [Gender.Woman],
    };
 
    const compatible: DeepPartial<User> = {

@@ -40,7 +40,6 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
    delete user.lastGroupJoinedDate;
    delete user.lastLoginDate;
    delete user.questionsShowed;
-   delete user.targetGenderIsSelected;
    return user;
 }
 

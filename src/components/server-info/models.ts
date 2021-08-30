@@ -18,7 +18,6 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
    return {
       serverOperating: strToBool(process.env.SERVER_OPERATING),
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
-      versionIsCompatible: false, // TODO: For legacy support, remove later
       buildVersionIsCompatible: versionIsCompatible(
          params.buildVersion ?? "0.0.0",
          process.env.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
