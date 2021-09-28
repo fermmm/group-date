@@ -10,6 +10,7 @@ import {
 import { copyFile, createFolder } from "../files-tools/files-tools";
 import { executeFunctionBeforeExiting } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
+import { fixGraphMlBug } from "./fix-graphml-bug";
 
 export async function initializeDatabaseBackups() {
    if (backupIsEnabled()) {
@@ -21,6 +22,7 @@ export async function initializeDatabaseBackups() {
          databaseEmpty &&
          fileOrFolderExists("database-backups/latest.xml")
       ) {
+         fixGraphMlBug("database-backups/latest.xml");
          await loadDatabaseFromDisk("../../database-backups/latest.xml");
       }
       await initializeBackupDatabaseSchedule();
@@ -91,4 +93,6 @@ function backupDatabaseWhenExiting() {
 
 export async function makeSimpleBackup() {
    await saveDatabaseToFile("../../database-backups/latest.xml");
+   // This should be here but for some reason sometimes it has no effect, so this is being called before loading backup instead.
+   // fixGraphMlBug("database-backups/latest.xml");
 }
