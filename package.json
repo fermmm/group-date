@@ -7,7 +7,7 @@
    "license": "ISC",
    "private": true,
    "scripts": {
-      "preinstall": "npm install pm2@latest -g",
+      "preinstall": "npm install pm2@latest -g; npm i -g rimraf",
       "prebuild": "npm run clean",
       "clean": "rimraf ./build",
       "build": "tsc-transpile-only",
