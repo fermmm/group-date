@@ -1,0 +1,22 @@
+# Application generated files
+uploads
+logs
+database-backups
+
+# Dev. environment
+.vscode/
+node_modules/
+/build
+coverage/
+yarn.lock
+package-lock.json
+*.log
+
+# Vendor
+vendor
+vendor/gremlin-local-server/run
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
