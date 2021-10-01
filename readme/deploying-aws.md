@@ -8,12 +8,8 @@
 
 4. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website.
 
-5. Setup SSH by running: `eb ssh --setup`.
-
-6. Connect using ssh to the server running: `eb ssh`
+5. To upload the app and a new version of it, make a commit and then run: `eb deploy`.
 
 ## Enable a new computer to upload changes to the server
 
-1. Follow steps: 2 and 5 of the previous guide.
-
-That is all.
+1. Follow step 2 of the previous guide. That is all.
