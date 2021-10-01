@@ -7,9 +7,9 @@
    "license": "ISC",
    "private": true,
    "scripts": {
-      "preinstall": "npm install pm2@latest -g; npm i -g rimraf",
+      "preinstall": "npm install pm2@latest -g",
       "prebuild": "npm run clean",
-      "clean": "",
+      "clean": "rimraf ./build",
       "build": "tsc-transpile-only",
       "database-init": "./vendor/gremlin-local-server/bin/gremlin-server.sh start || echo ",
       "database-stop": "./vendor/gremlin-local-server/bin/gremlin-server.sh stop",
