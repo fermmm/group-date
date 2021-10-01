@@ -1,1 +1,1 @@
-web: npm run no-database
+web: npm run no-database-no-pm2

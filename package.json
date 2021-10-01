@@ -19,6 +19,7 @@
       "start": "npm run build && pm2 start build/index.js --name poly && npm run database-init",
       "database-only": "npm run build && pm2 start build/database-only.js --name poly-database && npm run database-init",
       "no-database": "npm run build && NO_DATABASE=true pm2 start build/index.js --name poly",
+      "no-database-no-pm2": "npm run build && NO_DATABASE=true node build/index.js",
       "backup": "node build/force-backup.js",
       "stop": "npm run backup && pm2 stop poly",
       "test": "npm run database-restart; jest --verbose --runInBand --forceExit --detectOpenHandles",
