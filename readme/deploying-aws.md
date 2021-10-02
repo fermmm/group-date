@@ -13,3 +13,10 @@
 ## Enable a new computer to upload changes to the server
 
 1. Follow step 2 of the previous guide. That is all.
+
+## Connecting using SSH
+
+Connecting with SSH can be useful to troubleshoot issues since everything done from there will have less security abstacles.
+
+1. Setup SSH by running: `eb ssh --setup`.
+2. Connect using ssh to the server running: `eb ssh`
