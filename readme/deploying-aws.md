@@ -6,17 +6,18 @@
 
 3. Get the access keys required to make automatic changes. To do that follow [this guide](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys)
 
-4. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website.
+4. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work).
 
 5. To upload the app and a new version of it, make a commit and then run: `eb deploy`.
 
-## Enable a new computer to upload changes to the server
+### Enable a new computer to upload changes to the server
 
-1. Follow step 2 of the previous guide. That is all.
+1. Follow steps 2 and 4 of the previous guide. That is all.
 
-## Connecting using SSH
+### Connecting using SSH
 
-Connecting with SSH can be useful to troubleshoot issues since everything done from there will have less security abstacles.
+Connecting with SSH can be useful to troubleshoot some issues since accessing resources from inside AWS servers will have less security obstacles than accessing them from your local computer.
 
-1. Setup SSH by running: `eb ssh --setup`.
+1. Setup SSH by running: `eb ssh --setup`. When prompts to select a keyPair select the option "[ Create new KeyPair ]"
+
 2. Connect using ssh to the server running: `eb ssh`
