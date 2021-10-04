@@ -13,7 +13,15 @@
 6. To upload the app and a new version of it, make a commit and then run: `eb deploy`.
 
 Acomodar:
+
 If connection to the database cannot be established there could be a problem related with Amazon security, specifically with: "Virtual Private Cloud (VPC)" and "Security Groups" [see this page](https://docs.aws.amazon.com/neptune/latest/userguide/security-vpc-setup.html)
+
+// Pingear la base desde ssh
+yum install nmap
+nmap -Pn -p 8182 my-db.xxxxxxxxxxx.us-east-1.neptune.amazonaws.com
+
+// Con esto se terminaron los problemas con codeCommit, lo desactiva parece
+eb codesource local
 
 ### Enable a new computer to upload changes to the server
 
@@ -26,7 +34,3 @@ Connecting with SSH can be useful to troubleshoot some issues since accessing re
 1. Setup SSH by running: `eb ssh --setup`. When prompts to select a keyPair select the option "[ Create new KeyPair ]"
 
 2. Connect using ssh to the server running: `eb ssh`
-
-// Pingear la base desde ssh
-yum install nmap
-nmap -Pn -p 8182 my-db.xxxxxxxxxxx.us-east-1.neptune.amazonaws.com
