@@ -30,6 +30,7 @@ export async function waitForDatabase(): Promise<void> {
    let promiseSolved = false;
 
    console.log("");
+   console.log(`Database URL is: ${process.env.DATABASE_URL}`);
    console.log("Waiting for database...");
 
    const interval = setInterval(() => {
