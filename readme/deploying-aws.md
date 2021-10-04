@@ -23,6 +23,9 @@ nmap -Pn -p 8182 my-db.xxxxxxxxxxx.us-east-1.neptune.amazonaws.com
 // Con esto se terminaron los problemas con codeCommit, lo desactiva parece
 eb codesource local
 
+// Seria mejor para testear la db:
+g.inject(0)
+
 ### Enable a new computer to upload changes to the server
 
 1. Follow steps 2 and 4 of the previous guide. That is all.
