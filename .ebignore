@@ -11,6 +11,7 @@ coverage/
 yarn.lock
 package-lock.json
 *.log
+.git/
 
 # Vendor
 vendor

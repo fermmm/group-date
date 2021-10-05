@@ -8,23 +8,22 @@
 
 4. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work).
 
-5.
+5. Execute this command: `eb codesource local`
 
-6. To upload the app and a new version of it, make a commit and then run: `eb deploy`.
+6. From this step we will enable the connection between Beanstalk and Neptune, looks like it should be enabled by default but it's not. Open the "VPC Management Console", you can use [this link](https://console.aws.amazon.com/vpc/).
 
-Acomodar:
+7. On the left navigation panel go to Security Groups then click "Create Security Group", in the name field enter "All open" or whatever you want. In the "Inbound rules" panel click "Add rule", for the type set "All TCP" on the Source field set "Anywhere-IPv4" then click "Create security group" on the bottom
 
-If connection to the database cannot be established there could be a problem related with Amazon security, specifically with: "Virtual Private Cloud (VPC)" and "Security Groups" [see this page](https://docs.aws.amazon.com/neptune/latest/userguide/security-vpc-setup.html)
+8. Go to the Amazon Neptune dashboard [you can use this link](https://console.aws.amazon.com/neptune/home), select your database cluster and click "Modify"
 
-// Pingear la base desde ssh
-yum install nmap
-nmap -Pn -p 8182 my-db.xxxxxxxxxxx.us-east-1.neptune.amazonaws.com
+9. Under "VPC security group" add the security group you just created (on step 7)
 
-// Con esto se terminaron los problemas con codeCommit, lo desactiva parece
-eb codesource local
+10.   Click "Continue" on the bottom > select "Immediately" > click "Modify"
 
-// Seria mejor para testear la db:
-g.inject(0)
+11.   In the Neptune dashboard click on the database name, you should see 2 endpoints one of type "Writer" and one of type "Reader", copy the endpoint name of the writer, something that should look like: `database-1.cluster-abc123.us-east-1.neptune.amazonaws.com`. Paste the address on the .env file on the `DATABASE_URL` variable, add `wss://` at the beginning and `:8080/gremlin` at the end, like in the comment of that variable.
+      It should look like this: `DATABASE_URL = wss://database-1.cluster-abc123.us-east-1.neptune.amazonaws.com:8182/gremlin`. Save the file.
+
+12.   To upload the app or a new version run: `eb deploy`.
 
 ### Enable a new computer to upload changes to the server
 
@@ -34,6 +33,14 @@ g.inject(0)
 
 Connecting with SSH can be useful to troubleshoot some issues since accessing resources from inside AWS servers will have less security obstacles than accessing them from your local computer.
 
-1. Setup SSH by running: `eb ssh --setup`. When prompts to select a keyPair select the option "[ Create new KeyPair ]"
+1. Setup SSH by running: `eb ssh --setup`. If this is the first computer where you are making this setup then when you see the prompt `Select a keyPair.` select the option "[ Create new KeyPair ]". If this is not the first computer that you are making this setup then you should have the keyPair files in the .ssh folder before executing this step, see step 2. Then execute this step again selecting the keyPair file names you have when prompted.
 
-2. Connect using ssh to the server running: `eb ssh`
+2. In your `user_home_dir/.ssh` folder you are going to find 2 files: `aws-eb` and `aws-eb.pub`. Store them in a safe place. All the computers you want to be able to connect using SSH should have these files in the .ssh folder.
+
+3. Connect using ssh to the server running: `eb ssh`
+
+### Troubleshooting
+
+If connection to the database cannot be established there could be a problem related with Amazon security, specifically with: "Virtual Private Cloud (VPC)" and "Security Groups" [see this page](https://docs.aws.amazon.com/neptune/latest/userguide/security-vpc-setup.html)
+
+To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something.
