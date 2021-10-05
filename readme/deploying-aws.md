@@ -1,6 +1,6 @@
 ## Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune
 
-1. Register on AWS and open a Elastic Beanstalk service and then an AWS Neptune service, all in the same AWS Region.
+1. Register on AWS with a normal root user (not IAM roles, it's more complicated and you can do that later) then open a Elastic Beanstalk service and then an AWS Neptune service, all in the same AWS Region.
 
 2. Install `eb` (Elastic Beanstalk client), you can use the [official instructions](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html). After finishing you should have the `eb` command in your console.
 
@@ -14,9 +14,9 @@
 
 7. On the left navigation panel go to Security Groups then click "Create Security Group", in the name field enter "All open" or whatever you want. In the "Inbound rules" panel click "Add rule", for the type set "All TCP" on the Source field set "Anywhere-IPv4" then click "Create security group" on the bottom
 
-8. Go to the Amazon Neptune dashboard [you can use this link](https://console.aws.amazon.com/neptune/home), select your database cluster and click "Modify"
+8. Go to the "Neptune Console" [you can use this link](https://console.aws.amazon.com/neptune/home), select your database cluster and click "Modify"
 
-9. Under "VPC security group" add the security group you just created (on step 7)
+9. Under "VPC security group" add the security group you just created (in step 7)
 
 10.   Click "Continue" on the bottom > select "Immediately" > click "Modify"
 
