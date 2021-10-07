@@ -9,7 +9,7 @@ Also Azure is working in similar compatible products: Azure App Engine + Cosmos 
 
 You can also use a hosting provider for the code and another company hosting the database, but that may have a speed cost. [Here](http://tinkerpop.apache.org/providers.html) there is a list of all database hosting providers that supports Gremlin queries
 
-You can also run everything in the same machine using any provider with ssh access like Digital Ocean, that is easy at the beginning but it's not the best idea since after some time you will be forced to port everything to another provider adding extra work in the end.
+You can also run everything in the same machine using any provider like Digital Ocean, that is easy and cheap at the beginning but when you have many users it's much more expensive.
 
 # Table of contents
 
