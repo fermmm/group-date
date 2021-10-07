@@ -178,20 +178,22 @@ export function queryToGetCardsRecommendations(
 
 // TODO: Make tests for this
 /**
- * Not all the genders are the same thing, some are used in the app to know the genitals (cis and trans),
- * the others describe only a feeling or a look.
+ * Not all the genders are covered by the same logic here because some genders contain information about the
+ * user's genitals, others describe a feeling.
  * The users who don't care about genitals usually configures the app to not filter any gender and that's all.
- * But the users who are interested in filtering genders what they really want is to filter by genitals, to
- * please these users the cis gender selection is mandatory and trans genders can be filtered if they want.
- * The rest of the genders should not be related to any filtering logic.
+ * But there are users interested in filtering by genitals, to enable this all users must select at least one
+ * cis gender in the gender selection screen and also in the wanted gender screen. This is a way of specifying
+ * the genitals without asking directly. Users can filter cis and trans genders because contains information
+ * about genitals. The rest of the genders are not related to any filtering logic because it's not useful and
+ * to keep code simple and efficient.
  *
- * With this concept in mind, this is how the programming is done:
+ * With this concept in mind, this is how it works:
  *
- *    There are 3 logic types for filtering genders defined by the app:
+ *    There are 3 logic types applied to the genders without asking the user:
  *       "I need this gender", "Filter this gender" and "I don't care"
  *
- *    "I need this gender" = For selected cis genders: Users must have at least one if the cis genders that the searcher wants. Because hetero couples usually selects both cis genders.
- *    "Filter this gender" = For not selected trans genders: Users with a not wanted trans gender are filtered out.
+ *    "I need this gender" = For selected cis genders: Users must have at least one of the cis genders that the searcher wants. Because hetero couples usually selects both cis genders and that should not be a problem.
+ *    "Filter this gender" = For not selected trans genders: Transgender users with a trans gender that the searcher don't like are filtered out.
  *    "I don't care" = For the rest of the genders: Can't be filtered, no programming required.
  *
  * For testing:
