@@ -45,9 +45,7 @@ import {
    queryToGetUserById,
    queryToGetUserByToken,
    queryToSetAttraction,
-   queryToSetUserGender,
    queryToSetUserProps,
-   queryToSetLikingGender,
    queryToUpdateUserProps,
    queryToUpdateUserToken,
 } from "./queries";
@@ -257,14 +255,6 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       }
 
       query = queryToSetUserProps(query, params.props);
-
-      if (params.props.genders != null && params.props.genders.length > 0) {
-         query = queryToSetUserGender(query, params.props.genders);
-      }
-
-      if (params.props.likesGenders != null && params.props.likesGenders.length > 0) {
-         query = queryToSetLikingGender(query, params.props.likesGenders);
-      }
    }
 
    await sendQuery(() => query.iterate());

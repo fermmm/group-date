@@ -174,7 +174,7 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
  * Receives a query that returns a user and adds properties to it.
  * @param query A query with one user vertex
  */
-export function queryToSetUserProps(query: Traversal, userProps: EditableUserProps): Traversal {
+export function queryToSetUserProps(query: Traversal, userProps: Partial<User>): Traversal {
    editableUserPropsList.forEach(editableUserProp => {
       if (userProps[editableUserProp] == null) {
          return;
@@ -182,6 +182,14 @@ export function queryToSetUserProps(query: Traversal, userProps: EditableUserPro
 
       query = query.property(editableUserProp, serializeIfNeeded(userProps[editableUserProp]));
    });
+
+   if (userProps.genders != null && userProps.genders.length > 0) {
+      query = queryToSetUserGender(query, userProps.genders);
+   }
+
+   if (userProps.likesGenders != null && userProps.likesGenders.length > 0) {
+      query = queryToSetLikingGender(query, userProps.likesGenders);
+   }
 
    return query;
 }

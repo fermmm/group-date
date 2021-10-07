@@ -12,6 +12,9 @@ import {
    allAttractionTypes,
    allMatchTypes,
    AttractionType,
+   CIS_GENDERS,
+   Gender,
+   TRANS_GENDERS,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
@@ -59,6 +62,16 @@ export function queryToGetCardsRecommendations(
          .and()
          .has("sendNewUsersNotification", P.lt(1)),
    );
+
+   /**
+    * Has the genders wanted by the user
+    */
+   traversal = queryToFilterByLikedGender(traversal, searcherUser.likesGenders);
+
+   /**
+    * The users wants the searcher genders
+    */
+   traversal = queryToFilterUsersNotLikingSearcherGenders(traversal, searcherUser.genders);
 
    /**
     * Was not already reviewed by the user
@@ -163,9 +176,77 @@ export function queryToGetCardsRecommendations(
    return traversal;
 }
 
-// TODO: Complete
-export function queryToFilterByGender(traversal: Traversal, searcherUser: User): Traversal {
-   return null;
+// TODO: Make tests for this
+/**
+ * Not all the genders are the same thing, some are used in the app to know the genitals (cis and trans),
+ * the others describe only a feeling or a look.
+ * The users who don't care about genitals usually configures the app to not filter any gender and that's all.
+ * But the users who are interested in filtering genders what they really want is to filter by genitals, to
+ * please these users the cis gender selection is mandatory and trans genders can be filtered if they want.
+ * The rest of the genders should not be related to any filtering logic.
+ *
+ * With this concept in mind, this is how the programming is done:
+ *
+ *    There are 3 logic types for filtering genders defined by the app:
+ *       "I need this gender", "Filter this gender" and "I don't care"
+ *
+ *    "I need this gender" = For selected cis genders: Users must have at least one if the cis genders that the searcher wants. Because hetero couples usually selects both cis genders.
+ *    "Filter this gender" = For not selected trans genders: Users with a not wanted trans gender are filtered out.
+ *    "I don't care" = For the rest of the genders: Can't be filtered, no programming required.
+ *
+ * For testing:
+ * https://gremlify.com/jkmf8yt8zzg
+ */
+export function queryToFilterByLikedGender(traversal: Traversal, likedGenders: Gender[]): Traversal {
+   const selectedCisGenders = likedGenders.filter(gender => CIS_GENDERS.includes(gender));
+   const notSelectedTransGenders = [...TRANS_GENDERS].filter(gender => !likedGenders.includes(gender));
+
+   // Pick the users that has al least one of the cis genders selected
+   if (selectedCisGenders.length > 0) {
+      traversal = traversal.where(
+         __.or(...selectedCisGenders.map(gender => __.out("isGender").has("genderId", gender))),
+      );
+   }
+
+   // Remove users that has a trans gender that is not selected
+   if (notSelectedTransGenders.length > 0) {
+      traversal = traversal.not(
+         __.where(__.or(...notSelectedTransGenders.map(gender => __.out("isGender").has("genderId", gender)))),
+      );
+   }
+
+   return traversal;
+}
+
+// TODO: Make tests for this
+/**
+ * To understand why this works like it does read the comment of queryToFilterByLikedGender() function.
+ *
+ * For testing:
+ * https://gremlify.com/qzmyc00lsqh
+ */
+export function queryToFilterUsersNotLikingSearcherGenders(
+   traversal: Traversal,
+   searcherGenders: Gender[],
+): Traversal {
+   const searcherCisGenders = searcherGenders.filter(gender => CIS_GENDERS.includes(gender));
+   const searcherTransGenders = searcherGenders.filter(gender => TRANS_GENDERS.includes(gender));
+
+   // User likes one of the searcher cis genders
+   if (searcherCisGenders.length > 0) {
+      traversal = traversal.where(
+         __.or(...searcherCisGenders.map(gender => __.out("likesGender").has("genderId", gender))),
+      );
+   }
+
+   // User likes all searcher trans genders (if any)
+   if (searcherTransGenders.length > 0) {
+      traversal = traversal.where(
+         __.and(...searcherTransGenders.map(gender => __.out("likesGender").has("genderId", gender))),
+      );
+   }
+
+   return traversal;
 }
 
 export function queryToOrderResults(traversal: Traversal, searcherUser: User): Traversal {
