@@ -176,7 +176,6 @@ export function queryToGetCardsRecommendations(
    return traversal;
 }
 
-// TODO: Make tests for this
 /**
  * Not all the genders are covered by the same logic here because some genders contain information about the
  * user's genitals, others describe a feeling.
@@ -220,7 +219,6 @@ export function queryToFilterByLikedGender(traversal: Traversal, likedGenders: G
    return traversal;
 }
 
-// TODO: Make tests for this
 /**
  * To understand why this works like it does read the comment of queryToFilterByLikedGender() function.
  *

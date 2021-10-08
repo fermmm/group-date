@@ -103,7 +103,6 @@ export async function retrieveUser(
 
    // This function throws ctx error if the email cannot be retrieved
    const email = await getUserEmailFromAuthProvider(token, ctx);
-
    user = await fromQueryToUser(queryToGetUserByEmail(email), includeFullInfo);
 
    if (user != null) {

@@ -20,7 +20,6 @@ import { hoursToMilliseconds } from "../common-tools/math-tools/general";
 import { Tag } from "../shared-tools/endpoints-interfaces/tags";
 import { retrieveFullyRegisteredUser } from "../components/user/models";
 import { objectsContentIsEqual } from "../common-tools/js-tools/js-tools";
-import { createFakeUser2 } from "./tools/_experimental";
 
 describe("Tags", () => {
    let user1: User;
@@ -344,7 +343,7 @@ describe("Tags", () => {
    });
 
    test("Admin users can create unlimited tags", async () => {
-      const adminUser = await createFakeUser2({ isAdmin: true });
+      const adminUser = await createFakeUser(undefined, { makeItAdmin: true });
 
       for (let i = 0; i < TAGS_PER_TIME_FRAME + 2; i++) {
          await createTagPost(

@@ -172,26 +172,26 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
 
 /**
  * Receives a query that returns a user and adds properties to it.
- * @param query A query with one user vertex
+ * @param traversal A query with one user vertex
  */
-export function queryToSetUserProps(query: Traversal, userProps: Partial<User>): Traversal {
+export function queryToSetUserProps(traversal: Traversal, userProps: Partial<User>): Traversal {
    editableUserPropsList.forEach(editableUserProp => {
       if (userProps[editableUserProp] == null) {
          return;
       }
 
-      query = query.property(editableUserProp, serializeIfNeeded(userProps[editableUserProp]));
+      traversal = traversal.property(editableUserProp, serializeIfNeeded(userProps[editableUserProp]));
    });
 
-   if (userProps.genders != null && userProps.genders.length > 0) {
-      query = queryToSetUserGender(query, userProps.genders);
+   if (userProps.genders?.length > 0) {
+      traversal = queryToSetUserGender(traversal, userProps.genders);
    }
 
-   if (userProps.likesGenders != null && userProps.likesGenders.length > 0) {
-      query = queryToSetLikingGender(query, userProps.likesGenders);
+   if (userProps.likesGenders?.length > 0) {
+      traversal = queryToSetLikingGender(traversal, userProps.likesGenders);
    }
 
-   return query;
+   return traversal;
 }
 
 export function queryToSetAttraction(params: SetAttractionParams): Traversal {
@@ -283,10 +283,15 @@ export function queryToIncludeFullInfoInUserQuery(traversal: Traversal): Travers
          __.project("tagsBlocked").by(
             __.out("blocked").valueMap("tagId", "name", "visible").by(__.unfold()).fold(),
          ),
+
+         /**
+          * This is not required because genders list are also saved as user props and that
+          * is faster to get than browsing the edges.
+          */
          // Include gender
-         __.project("genders").by(__.out("isGender").values("genderId")),
+         // __.project("genders").by(__.out("isGender").values("genderId").fold()),
          // Include genders liked
-         __.project("likesGenders").by(__.out("likesGender").values("genderId")),
+         // __.project("likesGenders").by(__.out("likesGender").values("genderId").fold()),
       )
          .unfold()
          .group()

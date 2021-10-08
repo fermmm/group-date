@@ -8,15 +8,15 @@ import {
    NON_CIS_GENDERS,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
-import { EditableUserProps } from "../../shared-tools/validators/user";
 import { chance } from "./generalTools";
 import { fakeCtx } from "./replacements";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { getAllTestUsersCreatedExperimental } from "./_experimental";
 import { APP_AUTHORED_TAGS_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
 import { DeepPartial } from "ts-essentials";
+import { convertToAdmin } from "../../components/admin/models";
 
-let fakeUsersCreated: User[] = [];
+let fakeUsersCreated: DeepPartial<User>[] = [];
 
 export async function createFakeUsers(amount: number, customParams?: Partial<User>): Promise<User[]> {
    const users: User[] = [];
@@ -36,20 +36,27 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
    return users;
 }
 
-export async function createFakeUser(customProps?: Partial<User>): Promise<User> {
-   const userProps: User = generateRandomUserProps(customProps);
+export async function createFakeUser(
+   customProps?: DeepPartial<User>,
+   options?: { makeItAdmin?: boolean },
+): Promise<User> {
+   const userProps = generateRandomUserProps(customProps);
 
    await createUser(userProps.token, userProps.email, false, fakeCtx, true, userProps.userId);
-   await userPost({ token: userProps.token, props: userProps }, fakeCtx);
+   await userPost({ token: userProps.token, props: userProps as Partial<User> }, fakeCtx);
+   if (options?.makeItAdmin) {
+      await convertToAdmin(userProps.token);
+   }
 
    fakeUsersCreated.push(userProps);
-   return userProps;
+
+   return userProps as User;
 }
 
 export async function createMultipleFakeCustomUsers(customProps: Array<DeepPartial<User>>): Promise<User[]> {
    const result: User[] = [];
    for (const data of customProps) {
-      result.push(await createFakeUser(data as User));
+      result.push(await createFakeUser(data));
    }
    return result;
 }
@@ -57,7 +64,7 @@ export async function createMultipleFakeCustomUsers(customProps: Array<DeepParti
 /**
  * @param customProps Provide user props that should not be random here.
  */
-export function generateRandomUserProps(customProps?: Partial<User>): User {
+export function generateRandomUserProps(customProps?: DeepPartial<User>): DeepPartial<User> {
    const randomProps: User = {
       name: chance.first({
          nationality: "it",
@@ -150,6 +157,8 @@ export async function createFakeCompatibleUsers(
             min: fromBirthDateToAge(user.birthDate),
             max: fromBirthDateToAge(user.birthDate) + 5,
          }),
+         genders: [...user.likesGenders],
+         likesGenders: [...user.genders],
          targetDistance: 25,
          locationLat: user.locationLat,
          locationLon: user.locationLon,
@@ -162,5 +171,5 @@ export async function createFakeCompatibleUsers(
 export function getAllTestUsersCreated(): User[] {
    const result = [...fakeUsersCreated, ...getAllTestUsersCreatedExperimental()];
    fakeUsersCreated = [];
-   return result;
+   return result as User[];
 }

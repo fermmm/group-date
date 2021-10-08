@@ -1,5 +1,10 @@
 /**
- * This version of createFakeUsers creates many users on the same database request but seems to
+ * The tools on this file should be used carefully. This is why:
+ *
+ * 1. Contains optimized versions of test tools that makes tests execution faster but can't
+ *    support new features, so the tests may fail because of that.
+ *
+ * 2. This version of createFakeUsers creates many users on the same database request but seems to
  * be a limit in the amount of data per request, if this limit is passed the request never responds.
  * The solution is to call many requests of 40 users each. Performance and it's not much better than
  * one request per user but it seems to be multithreading safe.
@@ -52,7 +57,7 @@ async function generateAndCreateFakeUsers(
    }
 
    for (let i = 0; i < amount; i++) {
-      users.push(generateRandomUserProps(finalParams));
+      users.push(generateRandomUserProps(finalParams) as User);
    }
 
    await sendQuery(() =>

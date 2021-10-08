@@ -70,7 +70,11 @@ import { strToBool } from "./common-tools/string-tools/string-tools";
    await waitForDatabase();
    await initializeDatabaseBackups();
 
-   // Initializers that contains scheduled tasks and other initialization stuff
+   /**
+    * Initializers that contains scheduled tasks and other initialization stuff.
+    * Important: This is not executed on the tests unless you add it to beforeAllTests.ts, if
+    * you add new initialization logic make sure it's also executed on the tests.
+    */
    await initializeUsers();
    await initializeGroups();
    await initializeCardsGame();

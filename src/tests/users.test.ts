@@ -1,7 +1,6 @@
 import "jest";
 import { createGroup, getSlotIdFromUsersAmount } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
-import { subscribeToTagsPost } from "../components/tags/models";
 import {
    addNotificationToUser,
    attractionsReceivedGet,
@@ -34,7 +33,6 @@ describe("Users", () => {
    });
 
    test("A user profile can be completed", async () => {
-      await subscribeToTagsPost({ token: matchingUsersCouple1[0].token, tagIds: [Gender.Woman] });
       await profileStatusGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       expect(updatedUser.profileCompleted).toBe(true);
