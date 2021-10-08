@@ -55,6 +55,10 @@ export function queryToGetUsersAllowedToBeOnGroups(
 ): Traversal {
    traversal = traversal ?? queryToGetAllCompleteUsers();
    traversal = traversal
+
+      // Optimization. Discards all users that don't have matches.
+      .where(__.bothE("Match").count().is(P.gt(1)))
+
       // Only users with not too many groups already active can be part of new group searches
       .where(
          __.outE("slot" + targetSlotIndex)
