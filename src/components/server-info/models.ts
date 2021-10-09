@@ -5,6 +5,8 @@ import {
    MAXIMUM_INACTIVITY_FOR_CARDS,
    MAX_GROUP_SIZE,
    MAX_TAG_SUBSCRIPTIONS_ALLOWED,
+   MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
+   MINIMUM_CLIENT_CODE_VERSION_ALLOWED,
    MIN_GROUP_SIZE,
    PUSH_NOTIFICATION_CHANNELS,
    TAGS_PER_TIME_FRAME,
@@ -20,11 +22,11 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
       buildVersionIsCompatible: versionIsCompatible(
          params.buildVersion ?? "0.0.0",
-         process.env.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
+         MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
       ),
       codeVersionIsCompatible: versionIsCompatible(
          params.codeVersion ?? "0.0.0",
-         process.env.MINIMUM_CLIENT_CODE_VERSION_ALLOWED,
+         MINIMUM_CLIENT_CODE_VERSION_ALLOWED,
       ),
       locale: getLocaleFromHeader(ctx),
       imagesHost: process.env.IMAGES_HOST,
