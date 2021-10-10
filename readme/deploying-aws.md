@@ -1,4 +1,4 @@
-## Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune
+# Tutorial to upload to AWS Elastic Beanstalk + AWS Neptune
 
 1. Register on AWS with a normal root user (not IAM roles, it's more complicated and you can do that later) then open a Elastic Beanstalk service and then an AWS Neptune service, all in the same AWS Region.
 
@@ -25,11 +25,11 @@
 
 12.   To upload the app or a new version run: `eb deploy`.
 
-### Enable a new computer to upload changes to the server
+## Enable a new computer to upload changes to the server
 
 1. Follow steps 2 and 4 of the previous guide. That is all.
 
-### Connecting using SSH
+## Connecting using SSH
 
 Connecting with SSH can be useful to troubleshoot some issues since accessing resources from inside AWS servers will have less security obstacles than accessing them from your local computer.
 
@@ -44,3 +44,9 @@ Connecting with SSH can be useful to troubleshoot some issues since accessing re
 If connection to the database cannot be established there could be a problem related with Amazon security, specifically with: "Virtual Private Cloud (VPC)" and "Security Groups" [see this page](https://docs.aws.amazon.com/neptune/latest/userguide/security-vpc-setup.html)
 
 To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something.
+
+## Migrating database content from Gremlin Server to AWS Neptune
+
+If you have database content in GraphML (xml) in the database-backups folder and you want to migrate that into Neptune follow these steps:
+
+1. This repo includes a converter from GraphML to CSV (The format Neptune can import), is [this script they did](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) with an issue fixed. To generate a CSV from **database-backups/current.xml** run this command: `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`. This will generate 2 CSV files in the same folder, one containing the vertices and one containing the edges. Maybe you need to give execution permissions to the file **graphml2csv.py**
