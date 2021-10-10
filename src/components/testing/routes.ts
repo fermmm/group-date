@@ -2,7 +2,13 @@ import * as Router from "@koa/router";
 import { BaseContext } from "koa";
 import { g, sendQuery, __ } from "../../common-tools/database-tools/database-manager";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
-import { ALL_GENDERS, Gender } from "../../shared-tools/endpoints-interfaces/user";
+import {
+   ALL_GENDERS,
+   CIS_GENDERS,
+   Gender,
+   NON_CIS_GENDERS,
+   TRANS_GENDERS,
+} from "../../shared-tools/endpoints-interfaces/user";
 import { removeBlockToTagsPost, removeSubscriptionToTagsPost } from "../tags/models";
 import { createGenders, retrieveUser, userGet, userPost } from "../user/models";
 import { queryToGetAllUsers } from "../user/queries";
@@ -38,12 +44,14 @@ export function testingRoutes(r: Router): void {
       for (const token of allTokens) {
          const user = await retrieveUser(token, true, ctx);
 
-         const genderTagsSubscribed = user.tagsSubscribed
-            .filter(tag => ALL_GENDERS.includes(tag.tagId as Gender))
-            .map(tag => tag.tagId) as Gender[];
-         const genderTagsBlocked = user.tagsBlocked
-            .filter(tag => ALL_GENDERS.includes(tag.tagId as Gender))
-            .map(tag => tag.tagId) as Gender[];
+         const genderTagsSubscribed =
+            (user.tagsSubscribed
+               ?.filter(tag => ALL_GENDERS.includes(tag.tagId as Gender))
+               ?.map(tag => tag.tagId) as Gender[]) ?? [];
+         const genderTagsBlocked =
+            (user.tagsBlocked
+               ?.filter(tag => ALL_GENDERS.includes(tag.tagId as Gender))
+               ?.map(tag => tag.tagId) as Gender[]) ?? [];
 
          if (genderTagsSubscribed.length > 0) {
             await userPost(
@@ -52,6 +60,49 @@ export function testingRoutes(r: Router): void {
                   props: {
                      genders: genderTagsSubscribed,
                      likesGenders: ALL_GENDERS.filter(gender => !genderTagsBlocked.includes(gender)),
+                  },
+                  updateProfileCompletedProp: true,
+               },
+               ctx,
+            );
+         } else if (user["gender"] != null) {
+            let genderFromProps: Gender[] = [];
+            const likesGendersFromProps: Gender[] = [];
+
+            if (user["likesWomanTrans"] === true) {
+               likesGendersFromProps.push(Gender.TransgenderWoman);
+            }
+            if (user["likesManTrans"] === true) {
+               likesGendersFromProps.push(Gender.TransgenderMan);
+            }
+            if (user["likesWoman"] === true) {
+               likesGendersFromProps.push(Gender.Woman);
+            }
+            if (user["likesMan"] === true) {
+               likesGendersFromProps.push(Gender.Man);
+            }
+            if (user["likesOtherGenders"] === true) {
+               likesGendersFromProps.push(...NON_CIS_GENDERS.filter(gender => !TRANS_GENDERS.includes(gender)));
+            }
+
+            if (CIS_GENDERS.includes(user["gender"])) {
+               genderFromProps = [user["gender"]];
+            } else {
+               genderFromProps = [Gender.Woman, Gender.Man];
+               if (user["gender"] === Gender.TransgenderMan) {
+                  genderFromProps.push(Gender.TransgenderMan);
+               }
+               if (user["gender"] === Gender.TransgenderWoman) {
+                  genderFromProps.push(Gender.TransgenderWoman);
+               }
+            }
+
+            await userPost(
+               {
+                  token: user.token,
+                  props: {
+                     genders: genderFromProps,
+                     likesGenders: likesGendersFromProps,
                   },
                   updateProfileCompletedProp: true,
                },
