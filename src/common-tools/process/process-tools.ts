@@ -22,3 +22,15 @@ export function executeFunctionBeforeExiting(fn: () => Promise<void> | void) {
 
    initialized = true;
 }
+
+export function isProductionMode() {
+   return process?.env?.NODE_ENV?.toLowerCase() === "production";
+}
+
+export function logEnvironmentMode() {
+   if (isProductionMode()) {
+      console.log("Running server in production mode.");
+   } else {
+      console.log("Running server in development mode.");
+   }
+}

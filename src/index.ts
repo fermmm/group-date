@@ -29,6 +29,7 @@ import { initializeUsers } from "./components/user/models";
 import { userRoutes } from "./components/user/routes";
 import { initializeDatabaseBackups } from "./common-tools/database-tools/backups";
 import { strToBool } from "./common-tools/string-tools/string-tools";
+import { logEnvironmentMode } from "./common-tools/process/process-tools";
 
 (async () => {
    // Koa initialization:
@@ -65,6 +66,9 @@ import { strToBool } from "./common-tools/string-tools/string-tools";
          )
          .listen(443);
    }
+
+   console.log("");
+   logEnvironmentMode();
 
    // Database initialization:
    await waitForDatabase();

@@ -2,12 +2,15 @@ import * as gremlin from "gremlin";
 import { Traversal } from "./gremlin-typing-tools";
 import { retryPromise } from "../js-tools/js-tools";
 import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from "../../configurations";
+import { isProductionMode } from "../process/process-tools";
+
+const databaseUrl = isProductionMode() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
 export const g = (traversal().withRemote(
-   new DriverRemoteConnection(process.env.DATABASE_URL, {}),
+   new DriverRemoteConnection(databaseUrl, {}),
 ) as unknown) as gremlin.process.GraphTraversalSource;
 export const __ = (gremlin.process.statics as unknown) as Traversal;
 export const withOptions = gremlin.process.withOptions;
@@ -29,8 +32,7 @@ export async function waitForDatabase(): Promise<void> {
    const result = new Promise<void>(r => (resolvePromise = r));
    let promiseSolved = false;
 
-   console.log("");
-   console.log(`Database URL is: ${process.env.DATABASE_URL}`);
+   console.log(`Database URL is: ${databaseUrl}`);
    console.log("Waiting for database...");
 
    const interval = setInterval(() => {
