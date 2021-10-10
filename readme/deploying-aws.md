@@ -47,6 +47,10 @@ To check if the database connection is working between EC2 (Beanstalk) and Neptu
 
 ## Migrating database content from Gremlin Server to AWS Neptune
 
-If you have database content in GraphML (xml) in the database-backups folder and you want to migrate that into Neptune follow these steps:
+When using gremlin server the database content is saved as GraphML (xml) in the database-backups folder. If you want to migrate that into Neptune follow these steps:
 
-1. This repo includes a converter from GraphML to CSV (The format Neptune can import), is [this script they did](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) with an issue fixed. To generate a CSV from **database-backups/current.xml** run this command: `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`. This will generate 2 CSV files in the same folder, one containing the vertices and one containing the edges. Maybe you need to give execution permissions to the file **graphml2csv.py**
+1. This repo includes a converter from GraphML to CSV (The format Neptune can import), is [this script they did](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) with an issue fixed. To generate a CSV from **database-backups/current.xml** run this command:
+
+   `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
+
+   This will generate 2 CSV files in the same folder where the xml is located, one containing the vertices and one containing the edges. Maybe you need to give execution permissions to the file **graphml2csv.py** and have python installed in your system.
