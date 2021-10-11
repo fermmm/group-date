@@ -14,7 +14,6 @@ package-lock.json
 .env
 
 # Vendor
-vendor
 vendor/gremlin-local-server/run
 
 # Elastic Beanstalk Files
