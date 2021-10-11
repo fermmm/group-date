@@ -47,8 +47,9 @@ To check if the database connection is working between EC2 (Beanstalk) and Neptu
 
 ## Migrating database content from Gremlin Server to AWS Neptune
 
-When using gremlin server the database content is saved as GraphML (xml) in the database-backups folder. If you want to migrate that into Neptune this repo includes a converter from GraphML to CSV (The format Neptune can import), is [this python script they did](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) with an issue fixed.
-With these steps you will convert a GraphML file and upload it to Neptune:
+When using gremlin server the database content is saved as GraphML (XML) in the database-backups folder. If you want to migrate that into Neptune this repo includes a converter from GraphML to CSV (The format Neptune can import), is [this](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) python script they did with an issue fixed and also this readme section includes the instructions to load that CSV into Neptune.
+
+### You need to follow these steps once to get everything ready for the migration:
 
 1. You need Python 2 or Python 3 installed in your system, to check if it's installed run the command:
 
@@ -58,7 +59,12 @@ With these steps you will convert a GraphML file and upload it to Neptune:
 
    `chmod +x vendor/graphml2csv/graphml2csv.py`
 
-3. To generate a CSV from **database-backups/current.xml** run this command:
+3. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later.
+   There is a missing detail in these steps: Under the title "Creating the Amazon S3 VPC Endpoint" there is a step that says: "Choose the Service Name com.amazonaws.region.s3", when you search for that you may find 2 services with that name, select the one of type "Gateway".
+
+### Once you have the setup done follow these steps to make a migration:
+
+1. To generate a CSV from **database-backups/latest.xml** run this command:
 
    `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
 
