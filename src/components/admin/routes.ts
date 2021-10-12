@@ -6,6 +6,7 @@ import {
    adminNotificationPost,
    allChatsWithAdminsGet,
    convertToAdminPost,
+   loadCsvPost,
    logFileListGet,
    logGet,
 } from "./models";
@@ -18,4 +19,5 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/log", "GET", logGet);
    createRoute(r, "/admin/convert", "POST", convertToAdminPost);
    createRoute(r, "/admin/notification", "POST", adminNotificationPost);
+   createRoute(r, "/admin/db/loadcsv", "POST", loadCsvPost);
 }

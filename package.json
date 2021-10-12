@@ -31,7 +31,6 @@
       "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm start",
       "rimraf": "./node_modules/rimraf/bin.js"
    },
-   "devDependencies": {},
    "dependencies": {
       "@koa/cors": "^3.1.0",
       "@koa/router": "^8.0.8",
@@ -76,6 +75,7 @@
       "node-schedule": "^2.0.0",
       "nodemon": "^2.0.2",
       "prettier": "^2.1.1",
+      "query-string": "^7.0.1",
       "rimraf": "^2.6.2",
       "semver": "^5.7.1",
       "set-interval-async": "1.0.32",

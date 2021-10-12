@@ -62,6 +62,16 @@ When using gremlin server the database content is saved as GraphML (XML) in the 
 3. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later.
    There is a missing detail in these steps: Under the title "Creating the Amazon S3 VPC Endpoint" there is a step that says: "Choose the Service Name com.amazonaws.region.s3", when you search for that you may find 2 services with that name, select the one of type "Gateway".
 
+4. Open the [IAM Roles list](https://console.aws.amazon.com/iamv2/home#/roles) and click the IAM role you created in the previous step, then copy the role ARN, looks like this: "arn:aws:iam::123456789012:role/NeptuneLoadFromS3", open the .env file and paste as the value of AWS_CSV_IAM_ROLE_ARN.
+
+5. Open the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home) and copy the name of the bucket, something that looks like: elasticbeanstalk-us-east-1-123456789, then paste it as the value of AWS_BUCKET_NAME in the .env file.
+
+6. In the .env file there are two more values to ser set:
+   AWS_REGION: You must complete that value with the region you are using, something that looks like: us-east-1
+   ADMIN_PASSWORD: Here you have to create a password, with a minimum of 6 characters. If you already have this value set there is no need to change it.
+
+7. Save the .env file and run ´eb deploy´ to send the .env changes to the server.
+
 ### Once you have the setup done follow these steps to make a migration:
 
 1. To generate a CSV from **database-backups/latest.xml** run this command:
@@ -69,3 +79,5 @@ When using gremlin server the database content is saved as GraphML (XML) in the 
    `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
 
    This will generate 2 CSV files in the database-backups folder, one containing the vertices and one containing the edges.
+
+2. Go to the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home), enter in your bucket and click Upload. Then upload both CSV files you created in the previous step.

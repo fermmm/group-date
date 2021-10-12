@@ -29,6 +29,8 @@ import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
 import { GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
+import { validateAdminPassword } from "./tools/admin-password";
+import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -201,4 +203,43 @@ export async function adminNotificationPost(
       translateNotification: false,
       channelId: params.channelId,
    });
+}
+
+export async function loadCsvPost(
+   params: { adminPassword: string; folder?: string; fileId?: string },
+   ctx: BaseContext,
+): Promise<any> {
+   const { adminPassword, folder, fileId = "latest" } = params;
+
+   const passwordValidation = validateAdminPassword(adminPassword);
+
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
+      return "AWS_BUCKET_NAME is not set in the .env file";
+   }
+
+   if ((process.env.AWS_CSV_IAM_ROLE_ARN ?? "").length < 2) {
+      return "AWS_CSV_IAM_ROLE_ARN is not set in the .env file";
+   }
+
+   if ((process.env.AWS_REGION ?? "").length < 2) {
+      return "AWS_REGION is not set in the .env file";
+   }
+
+   const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader");
+
+   const requestParams = {
+      source: `s3://${process.env.AWS_BUCKET_NAME}/${folder ? folder + "/" : ""}${fileId}-nodes.csv`,
+      format: "csv",
+      iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
+      region: process.env.AWS_REGION,
+   };
+
+   // TODO: Descomentar esto y probar, despues se puede hacer la subida automatica y automatizar mas
+   // return await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
+
+   return { url: loaderEndpoint, ...requestParams };
 }
