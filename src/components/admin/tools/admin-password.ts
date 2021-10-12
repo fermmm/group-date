@@ -1,4 +1,13 @@
-export function validateAdminPassword(password: string): { isValid: boolean; error?: string } {
+import { isProductionMode } from "../../../common-tools/process/process-tools";
+
+export function validateAdminPassword(
+   password: string,
+   options?: { onlyInProduction?: boolean },
+): { isValid: boolean; error?: string } {
+   if (options?.onlyInProduction === true && !isProductionMode()) {
+      return { isValid: true };
+   }
+
    if ((process.env.ADMIN_PASSWORD ?? "") === "") {
       return {
          isValid: false,

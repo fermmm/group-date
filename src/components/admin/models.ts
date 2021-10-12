@@ -3,6 +3,7 @@ import * as moment from "moment";
 import * as fs from "fs";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import { performance } from "perf_hooks";
+import * as gremlin from "gremlin";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -24,13 +25,14 @@ import {
 } from "./queries";
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
-import { sendQuery } from "../../common-tools/database-tools/database-manager";
+import { databaseUrl, sendQuery } from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
 import { GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminPassword } from "./tools/admin-password";
 import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
+import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -242,4 +244,20 @@ export async function loadCsvPost(
    // return await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
 
    return { url: loaderEndpoint, ...requestParams };
+}
+
+// TODO: Esto tiene que recibir el password y el cliente react lo tiene que enviar
+export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
+   const { query, nodeLimit } = params;
+   const client = new gremlin.driver.Client(databaseUrl, {
+      traversalSource: "g",
+      mimeType: "application/json",
+   });
+   const result = await client.submit(makeQuery(query, nodeLimit), {});
+   return nodesToJson(result._items);
+}
+
+interface VisualizerQueryParams {
+   query: string;
+   nodeLimit: number;
 }
