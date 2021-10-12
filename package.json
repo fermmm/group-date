@@ -27,8 +27,8 @@
       "test:watch": "npm run database-restart; jest --watch --runInBand",
       "prettier": "prettier --write \"src/**/*.ts\"",
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
-      "install-visualizer": "git submodule init && git submodule update && cd gremlin-visualizer && npm install",
-      "visualizer": "cd gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm run client",
+      "install-visualizer": "cd websites/gremlin-visualizer && npm install",
+      "visualizer": "cd websites/gremlin-visualizer && SKIP_PREFLIGHT_CHECK=true npm run client",
       "rimraf": "./node_modules/rimraf/bin.js"
    },
    "dependencies": {
