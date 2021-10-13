@@ -7,6 +7,7 @@ export interface Theme {
 
 interface ThemeColors {
    background1: string;
+   background2: string;
    text1: string;
    scrollbar: string;
    scrollbarThumb: string;

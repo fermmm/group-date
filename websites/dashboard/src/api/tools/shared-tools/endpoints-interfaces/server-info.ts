@@ -2,11 +2,13 @@ import { Slot } from "./groups";
 import { NotificationChannelInfo } from "./user";
 
 export interface ServerInfoParams {
-   version: string;
+   buildVersion: string;
+   codeVersion: string;
 }
 
 export interface ServerInfoResponse {
-   versionIsCompatible: boolean;
+   buildVersionIsCompatible: boolean;
+   codeVersionIsCompatible: boolean;
    serverOperating: boolean;
    serverMessage?: string;
    locale: string;

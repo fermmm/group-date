@@ -40,18 +40,19 @@ export interface User {
    notificationsToken: string;
    tagsSubscribed?: TagBasicInfo[];
    tagsBlocked?: TagBasicInfo[];
+   genders: Gender[];
+   likesGenders: Gender[];
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
 
 /**
- * The order here in this enum determines the order the genders will appear everywhere
+ * The order here in this enum determines the order the genders will appear in some places
  */
 export enum Gender {
    Woman = "Woman",
    Man = "Man",
 
-   NonBinary = "Non binary",
    Agender = "Agender",
    Androgynous = "Androgynous",
    Bigender = "Bigender",
@@ -60,13 +61,20 @@ export enum Gender {
    GenderNonConforming = "Gender Nonconforming",
    Hijra = "Hijra",
    Intersex = "Intersex",
+   NonBinary = "Non binary",
    Other = "Other",
    Pangender = "Pangender",
    TransgenderWoman = "Transgender Woman",
-   TransgenderMan = "Transgender Man"
+   TransgenderMan = "Transgender Man",
 }
 
+export type CisGender = Gender.Woman | Gender.Man;
+export type NonCisGender = Exclude<Gender, CisGender>;
+
 export const ALL_GENDERS: readonly Gender[] = Object.values(Gender);
+export const CIS_GENDERS: readonly Gender[] = [Gender.Woman, Gender.Man];
+export const TRANS_GENDERS: readonly Gender[] = [Gender.TransgenderWoman, Gender.TransgenderMan];
+export const NON_CIS_GENDERS: readonly Gender[] = ALL_GENDERS.filter(gender => !CIS_GENDERS.includes(gender));
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
@@ -80,7 +88,7 @@ export interface UserGetParams extends TokenParameter {
 
 export interface UserPostParams {
    token: string;
-   props?: EditableUserProps;
+   props?: Partial<User>;
    updateProfileCompletedProp?: boolean;
 }
 
@@ -101,12 +109,12 @@ export interface Attraction {
 
 export enum AttractionType {
    Like = "Like",
-   Dislike = "Dislike"
+   Dislike = "Dislike",
 }
 
 export enum MatchType {
    Like = "Match",
-   Dislike = "SeenMatch"
+   Dislike = "SeenMatch",
 }
 
 export interface Notification {
@@ -128,7 +136,7 @@ export enum NotificationType {
    ContactChat,
    NearbyPartyOrEvent,
    CardsGame,
-   About
+   About,
 }
 
 export type UserPropsAsQuestionsTypes = boolean;
@@ -155,7 +163,7 @@ export enum NotificationChannelId {
    ChatMessages = "chat",
    Events = "events",
    NewUsers = "newUsers",
-   DateReminders = "dateReminders"
+   DateReminders = "dateReminders",
 }
 
 export interface NotificationChannelInfo {
@@ -177,5 +185,5 @@ export interface ReportUserPostParams extends TokenParameter {
 
 export enum ReportUserType {
    NonEthical = "non-ethical",
-   MissingPicture = "missing-picture"
+   MissingPicture = "missing-picture",
 }

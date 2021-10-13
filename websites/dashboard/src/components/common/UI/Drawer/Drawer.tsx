@@ -1,65 +1,61 @@
-import { FC, ReactElement } from "react";
-import React from "react";
-import clsx from "clsx";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
+import React, { FC, ReactNode, useState } from "react";
+import {
+   DrawerContainer,
+   ChildrenContainer,
+   LogoContainer,
+   ButtonsContainer,
+   PageContainer
+} from "./styles.Drawer";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import logo from "../../../../assets/logo.png";
-import { DrawerMui, useDrawerMuiStyles } from "./styles.Drawer";
 
 interface PropsDrawer {
-  buttons: Array<{
-    icon: () => ReactElement;
-    label: string;
-    onClick: () => void;
-  }>;
+   buttons: Array<{
+      icon: () => ReactNode;
+      label: string;
+      onClick: () => void;
+   }>;
 }
 
-const Drawer: FC<PropsDrawer> = ({ buttons, children }) => {
-  const classes = useDrawerMuiStyles();
-  const [expanded, setExpanded] = React.useState(false);
+const Drawer: FC<PropsDrawer> = ({ children, buttons }) => {
+   const [expanded, setExpanded] = useState(false);
 
-  const handleDrawerExpand = () => {
-    setExpanded(true);
-  };
+   const handleDrawerExpand = () => {
+      setExpanded(true);
+   };
 
-  const handleDrawerContract = () => {
-    setExpanded(false);
-  };
+   const handleDrawerContract = () => {
+      setExpanded(false);
+   };
 
-  return (
-    <div className={classes.root}>
-      <DrawerMui
-        variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: expanded,
-          [classes.drawerClose]: !expanded,
-        })}
-        classes={{
-          paper: clsx({
-            [classes.drawerOpen]: expanded,
-            [classes.drawerClose]: !expanded,
-          }),
-        }}
-        onMouseEnter={handleDrawerExpand}
-        onMouseLeave={handleDrawerContract}
-      >
-        <div className={classes.toolbar}>
-          <img src={logo} style={{ height: 40 }} alt={"logo"} />
-        </div>
-        <List>
-          {buttons.map((button) => (
-            <ListItem button key={button.label} onClick={button.onClick}>
-              <ListItemIcon>{button.icon()}</ListItemIcon>
-              <ListItemText primary={button.label} />
-            </ListItem>
-          ))}
-        </List>
-      </DrawerMui>
-      <main className={classes.content}>{children}</main>
-    </div>
-  );
+   return (
+      <DrawerContainer>
+         <ChildrenContainer
+            expanded={expanded}
+            onMouseEnter={handleDrawerExpand}
+            onMouseLeave={handleDrawerContract}
+         >
+            <LogoContainer expanded={expanded}>
+               <img
+                  src={logo}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  alt={"logo"}
+               />
+            </LogoContainer>
+            <ButtonsContainer expanded={expanded}>
+               {buttons.map(button => (
+                  <ListItem button key={button.label} onClick={button.onClick}>
+                     <ListItemIcon>{button.icon()}</ListItemIcon>
+                     <ListItemText primary={button.label} />
+                  </ListItem>
+               ))}
+            </ButtonsContainer>
+         </ChildrenContainer>
+         <PageContainer>{children}</PageContainer>
+      </DrawerContainer>
+   );
 };
 
 export default Drawer;

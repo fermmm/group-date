@@ -11,8 +11,12 @@ import {
    AdminConvertPostParams,
    AdminLogGetParams,
    AdminNotificationPostParams,
+   AdminProtectionParams,
    ChatWithAdmins,
+   CredentialsValidationResult,
+   LoadCsvPostParams,
    UsageReport,
+   VisualizerQueryParams,
 } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
@@ -30,7 +34,7 @@ import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
 import { GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
-import { validateAdminPassword } from "./tools/admin-password";
+import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
 import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
 
@@ -44,6 +48,13 @@ export async function initializeAdmin(): Promise<void> {
    setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
    // To create a report when server boots and preview database:
    logUsageReport();
+}
+
+export async function validateCredentialsGet(
+   params: AdminProtectionParams,
+   ctx: BaseContext,
+): Promise<CredentialsValidationResult> {
+   return validateAdminCredentials(params);
 }
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
@@ -148,10 +159,11 @@ export async function logUsageReport(): Promise<void> {
    logToFile(JSON.stringify(report), "usageReports");
 }
 
-export async function logFileListGet(params: TokenParameter, ctx: BaseContext): Promise<string[]> {
-   const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
+export async function logFileListGet(params: AdminProtectionParams, ctx: BaseContext): Promise<string[]> {
+   const { user, password } = params;
 
-   if (!callerUser.isAdmin) {
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
       return null;
    }
 
@@ -166,10 +178,10 @@ export async function logFileListGet(params: TokenParameter, ctx: BaseContext): 
 }
 
 export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promise<string> {
-   const { token, fileName } = params;
+   const { user, password, fileName } = params;
 
-   const callerUser: Partial<User> = await retrieveUser(token, false, ctx);
-   if (!callerUser.isAdmin) {
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
       return null;
    }
 
@@ -207,14 +219,10 @@ export async function adminNotificationPost(
    });
 }
 
-export async function loadCsvPost(
-   params: { adminPassword: string; folder?: string; fileId?: string },
-   ctx: BaseContext,
-): Promise<any> {
-   const { adminPassword, folder, fileId = "latest" } = params;
+export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): Promise<any> {
+   const { user, password, folder, fileId = "latest" } = params;
 
-   const passwordValidation = validateAdminPassword(adminPassword);
-
+   const passwordValidation = validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       return passwordValidation.error;
    }
@@ -246,18 +254,18 @@ export async function loadCsvPost(
    return { url: loaderEndpoint, ...requestParams };
 }
 
-// TODO: Esto tiene que recibir el password y el cliente react lo tiene que enviar
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
-   const { query, nodeLimit } = params;
+   const { user, password, query, nodeLimit } = params;
+
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
    const client = new gremlin.driver.Client(databaseUrl, {
       traversalSource: "g",
       mimeType: "application/json",
    });
    const result = await client.submit(makeQuery(query, nodeLimit), {});
    return nodesToJson(result._items);
-}
-
-interface VisualizerQueryParams {
-   query: string;
-   nodeLimit: number;
 }

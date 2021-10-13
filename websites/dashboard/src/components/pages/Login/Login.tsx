@@ -1,37 +1,53 @@
-import React, { FC } from "react";
-import FacebookLogin, { ReactFacebookLoginInfo } from "react-facebook-login";
-import { LoginContainer, Logo } from "./styles.Login";
+import React, { FC, useState } from "react";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { TextField } from "@mui/material";
+import { ErrorText, LoginContainer, LoginFormContainer, Logo } from "./styles.Login";
 import logo from "../../../assets/logo.png";
-import { saveToken } from "../../../api/tools/tokenStorage";
-import { getFacebookAppId } from "./tools/getFacebookAppId";
-import { createExtendedInfoToken } from "../../../api/tools/shared-tools/authentication/tokenStringTools";
-import { AuthenticationProvider } from "../../../api/tools/shared-tools/authentication/AuthenticationProvider";
+import { saveCredentialsInStorage } from "../../../common-tools/authentication/authentication";
+import { validateCredentialsGet } from "../../../api/server/login";
 
-interface PropsLogin {
-   onLoginSuccess: () => void;
-}
+export const Login: FC = () => {
+   const [user, setUser] = useState<string>();
+   const [password, setPassword] = useState<string>();
+   const [error, setError] = useState<string>();
+   const [loading, setLoading] = useState(false);
 
-export const Login: FC<PropsLogin> = ({ onLoginSuccess }) => {
-   const handleFacebookResponse = (userInfo: ReactFacebookLoginInfo) => {
-      if (userInfo?.accessToken != null) {
-         saveToken(
-            createExtendedInfoToken({
-               originalToken: userInfo.accessToken,
-               provider: AuthenticationProvider.Facebook
-            })
-         );
-         onLoginSuccess();
+   const handleLoginSend = async () => {
+      setLoading(true);
+      const validationResult = await validateCredentialsGet({ user, password });
+      setLoading(false);
+
+      if (validationResult.isValid) {
+         saveCredentialsInStorage({ user, password });
+      } else {
+         setError(validationResult.error);
       }
    };
 
    return (
       <LoginContainer>
          <Logo src={logo} alt={"logo"} />
-         <FacebookLogin
-            appId={getFacebookAppId()}
-            fields="name,email,picture"
-            callback={handleFacebookResponse}
-         />
+         <LoginFormContainer>
+            <TextField
+               id="outlined-basic"
+               label="USER"
+               variant="outlined"
+               value={user}
+               onChange={e => setUser(e.target.value)}
+            />
+            <TextField
+               id="outlined-basic"
+               label="PASSWORD"
+               variant="outlined"
+               type="password"
+               value={password}
+               onChange={e => setPassword(e.target.value)}
+            />
+            <LoadingButton loading={loading} variant="outlined" onClick={handleLoginSend}>
+               Login
+            </LoadingButton>
+            {error && <ErrorText>{error}</ErrorText>}
+         </LoginFormContainer>
       </LoginContainer>
    );
 };

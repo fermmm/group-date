@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useState } from "react";
-import MenuItem from "@material-ui/core/MenuItem";
-import Paper from "@material-ui/core/Paper";
-import MenuList from "@material-ui/core/MenuList";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import MenuList from "@mui/material/MenuList";
 import { MenuStyled, UnanchoredContainer } from "./styles.ContextMenu";
 
 export interface SimpleDialogProps {

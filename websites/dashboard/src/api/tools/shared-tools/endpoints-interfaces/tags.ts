@@ -1,6 +1,7 @@
 export interface TagBasicInfo {
    tagId: string;
    name: string;
+   visible?: boolean;
 }
 
 export interface Tag extends TagBasicInfo {
@@ -9,7 +10,6 @@ export interface Tag extends TagBasicInfo {
    creationDate: number;
    lastInteractionDate: number;
    global: boolean;
-   visible?: boolean;
    subscribersAmount: number;
    blockersAmount: number;
 }

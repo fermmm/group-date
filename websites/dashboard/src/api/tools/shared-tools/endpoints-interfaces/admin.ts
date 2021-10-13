@@ -1,6 +1,11 @@
 import { ChatMessage, TokenParameter } from "./common";
 import { NotificationChannelId, NotificationContent, User } from "./user";
 
+export interface AdminProtectionParams {
+   user: string;
+   password: string;
+}
+
 export interface AdminChatPostParams extends TokenParameter {
    messageText: string;
    targetUserId?: string;
@@ -42,4 +47,21 @@ export interface AdminNotificationPostParams extends TokenParameter {
    targetUserId: string;
    notification: NotificationContent;
    channelId: NotificationChannelId;
+}
+
+export interface VisualizerQueryParams extends AdminProtectionParams {
+   query: string;
+   nodeLimit: number;
+}
+
+export interface LoadCsvPostParams extends AdminProtectionParams {
+   user: string;
+   password: string;
+   folder?: string;
+   fileId?: string;
+}
+
+export interface CredentialsValidationResult {
+   isValid: boolean;
+   error?: string;
 }

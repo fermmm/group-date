@@ -1,5 +1,5 @@
-import Button from "@material-ui/core/Button";
 import React, { FC, useState } from "react";
+import Button from "@mui/material/Button";
 import { LazyLog } from "react-lazylog";
 import { useLog, useLogsFileList } from "../../../api/server/logs";
 import ContextMenu from "../../common/UI/ContextMenu/ContextMenu";

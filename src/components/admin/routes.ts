@@ -9,10 +9,12 @@ import {
    loadCsvPost,
    logFileListGet,
    logGet,
+   validateCredentialsGet,
    visualizerPost,
 } from "./models";
 
 export function adminRoutes(r: Router): void {
+   createRoute(r, "/admin/validate/credentials", "GET", validateCredentialsGet);
    createRoute(r, "/admin/chat", "GET", adminChatGet);
    createRoute(r, "/admin/chat", "POST", adminChatPost);
    createRoute(r, "/admin/chat/all", "GET", allChatsWithAdminsGet);

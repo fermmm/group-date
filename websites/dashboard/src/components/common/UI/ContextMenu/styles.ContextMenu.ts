@@ -1,8 +1,7 @@
-import Menu from "@material-ui/core/Menu";
+import Menu from "@mui/material/Menu";
 import styled from "styled-components";
 
 export const MenuStyled = styled(Menu)`
-   margin-top: 25px;
    ul {
       min-width: 150px;
    }

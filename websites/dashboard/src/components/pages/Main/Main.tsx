@@ -1,31 +1,19 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
-import { VscListSelection } from "react-icons/vsc";
+import { VscListSelection, VscClose } from "react-icons/vsc";
 import Drawer from "../../common/UI/Drawer/Drawer";
 import Logs from "../Logs/Logs";
-import { getToken } from "../../../api/tools/tokenStorage";
-import { useProfileStatus } from "../../../api/server/user";
+import RouteRequiresLogin from "../../common/RouteRequiresLogin/RouteRequiresLogin";
+import { logout } from "../../../common-tools/authentication/authentication";
+import { useLoginStatus } from "../../../common-tools/authentication/useLoginStatus";
 import { Login } from "../Login/Login";
-import { RequestsStatus } from "../../common/UI/RequestStatus/RequestStatus";
 
 const Main: FC = () => {
    const history = useHistory();
-   const [token, setToken] = useState(getToken());
-   const { isLoading, error } = useProfileStatus({
-      params: { token: token },
-      options: { enabled: token != null }
-   });
+   const isLogged = useLoginStatus();
 
-   const handleLoginSuccess = () => {
-      setToken(getToken());
-   };
-
-   if (isLoading) {
-      return <RequestsStatus loading={isLoading} />;
-   }
-
-   if (!token || error) {
-      return <Login onLoginSuccess={handleLoginSuccess} />;
+   if (!isLogged) {
+      return <Login />;
    }
 
    return (
@@ -35,16 +23,21 @@ const Main: FC = () => {
                label: "Logs",
                icon: () => <VscListSelection />,
                onClick: () => history.push("/logs")
+            },
+            {
+               label: "Logout",
+               icon: () => <VscClose />,
+               onClick: () => logout()
             }
          ]}
       >
          <Switch>
-            <Route exact path="/">
+            <RouteRequiresLogin exact path="/">
                <Logs />
-            </Route>
-            <Route path="/logs">
+            </RouteRequiresLogin>
+            <RouteRequiresLogin path="/logs">
                <Logs />
-            </Route>
+            </RouteRequiresLogin>
          </Switch>
       </Drawer>
    );

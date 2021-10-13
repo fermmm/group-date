@@ -1,21 +1,14 @@
-import {
-  createGlobalStyle,
-  DefaultTheme,
-  GlobalStyleComponent,
-} from "styled-components";
+import { createGlobalStyle, DefaultTheme, GlobalStyleComponent } from "styled-components";
 // @ts-ignore
 import "./fonts-loading.scss";
 
-export const GlobalStyles: GlobalStyleComponent<
-  {},
-  DefaultTheme
-> = createGlobalStyle`
+export const GlobalStyles: GlobalStyleComponent<{}, DefaultTheme> = createGlobalStyle`
    html, body {
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      background-color: ${(props) => props.theme.colors.background1};
-      font-family: ${(props) => props.theme.fonts.font1};
+      background: ${props => props.theme.colors.background1};
+      font-family: ${props => props.theme.fonts.font1};
       color: white;
    }
    
@@ -34,23 +27,31 @@ export const GlobalStyles: GlobalStyleComponent<
    }
 
    ::-webkit-scrollbar {
-      width: 9px;
-      height: 9px;
-      margin: 2px;
+      width: 18px;
+      height: 7px;
+      margin: 0px;
    }
 
    ::-webkit-scrollbar-track {
-      background: ${(props) => props.theme.colors.scrollbar};
-      border-radius: ${(props) => props.theme.borders.borderRadius1};
+      background-color: transparent;
+      border-radius: 5px;
    }
 
    ::-webkit-scrollbar-thumb {
-      background: ${(props) => props.theme.colors.scrollbarThumb};
-      border-radius: ${(props) => props.theme.borders.borderRadius1};
+      border: 5px solid transparent;
+      background-clip: content-box;
+      border-radius: 5px;
+      background-color: #565656;
+   }
+
+   ::-webkit-scrollbar-thumb:hover {
+      border: 5px solid transparent;
+      background-clip: content-box;
+      background-color: #565656;
    }
 
    ::-webkit-scrollbar-corner {
-      background: ${(props) => props.theme.colors.scrollbar};
-      border-radius: ${(props) => props.theme.borders.borderRadius1};
+      background-color: transparent;
+      border-radius: 5px;
    }
 `;

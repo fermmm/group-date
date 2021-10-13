@@ -1,6 +1,6 @@
 import * as Validator from "fastest-validator";
 import { ValidationRule } from "fastest-validator";
-import { UserPropsValueTypes, User } from "../endpoints-interfaces/user";
+import { UserPropsValueTypes, User, ALL_GENDERS } from "../endpoints-interfaces/user";
 
 // fastest-validator TS fix
 const v = new ((Validator as unknown) as typeof Validator.default)();
@@ -20,29 +20,30 @@ const REGISTRATION_USER_PROPS_SCHEMA = {
    targetAgeMin: { type: "number", min: 18, max: 200, optional: true } as V,
    targetAgeMax: { type: "number", min: 18, max: 200, optional: true } as V,
    targetDistance: { type: "number", min: 25, max: 1200, optional: true } as V,
-   images: {
-      type: "array",
-      items: { type: "string", min: 1, max: 300 },
-      min: 1,
-      max: 6,
-      optional: true
-   } as V,
+   images: { type: "array", items: { type: "string", min: 1, max: 300 }, min: 1, max: 6, optional: true } as V,
    dateIdea: { type: "string", min: 3, max: 300, optional: true } as V,
    profileDescription: { type: "string", max: 4000, optional: true } as V,
    locationLat: { type: "number", optional: true } as V,
    locationLon: { type: "number", optional: true } as V,
    height: { type: "number", min: 0, max: 300, optional: true } as V,
    sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true } as V,
-   questionsShowed: {
+   questionsShowed: { type: "array", items: { type: "string", min: 1, max: 20 }, max: 50, optional: true } as V,
+   genders: {
       type: "array",
-      items: { type: "string", min: 1, max: 20 },
-      max: 50,
-      optional: true
-   } as V
+      items: { type: "string", min: 1, max: 100 },
+      max: ALL_GENDERS.length,
+      optional: true,
+   } as V,
+   likesGenders: {
+      type: "array",
+      items: { type: "string", min: 1, max: 100 },
+      max: ALL_GENDERS.length,
+      optional: true,
+   } as V,
 };
 
 const OTHER_USER_PROPS_SCHEMA = {
-   notificationsToken: { type: "string", min: 0, max: 2000, optional: true } as V
+   notificationsToken: { type: "string", min: 0, max: 2000, optional: true } as V,
 };
 
 /**
@@ -63,16 +64,16 @@ export type EditableUserProps = Partial<Record<EditableUserPropKey, UserPropsVal
 
 // The editable props as string list
 export const requiredUserPropsList: RequiredUserPropKey[] = Object.keys(
-   REGISTRATION_USER_PROPS_SCHEMA
+   REGISTRATION_USER_PROPS_SCHEMA,
 ) as RequiredUserPropKey[];
 
 export const editableUserPropsList: RequiredUserPropKey[] = Object.keys({
    ...REGISTRATION_USER_PROPS_SCHEMA,
-   ...OTHER_USER_PROPS_SCHEMA
+   ...OTHER_USER_PROPS_SCHEMA,
 }) as RequiredUserPropKey[];
 
 // Function to validate user props
 export const validateUserProps = v.compile({
    ...REGISTRATION_USER_PROPS_SCHEMA,
-   ...OTHER_USER_PROPS_SCHEMA
+   ...OTHER_USER_PROPS_SCHEMA,
 });
