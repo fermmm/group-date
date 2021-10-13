@@ -30,7 +30,7 @@ export interface AdminConvertPostParams extends TokenParameter {
    targetUserToken?: string;
 }
 
-export interface AdminLogGetParams extends TokenParameter {
+export interface AdminLogGetParams extends AdminProtectionParams {
    fileName: string;
 }
 

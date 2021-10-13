@@ -29,14 +29,12 @@ export const Login: FC = () => {
          <Logo src={logo} alt={"logo"} />
          <LoginFormContainer>
             <TextField
-               id="outlined-basic"
                label="USER"
                variant="outlined"
                value={user}
                onChange={e => setUser(e.target.value)}
             />
             <TextField
-               id="outlined-basic"
                label="PASSWORD"
                variant="outlined"
                type="password"

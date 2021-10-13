@@ -7,8 +7,6 @@
   "dependencies": {
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
-    "@material-ui/core": "^4.11.3",
-    "@material-ui/icons": "^4.11.2",
     "@mui/lab": "^5.0.0-alpha.50",
     "@mui/material": "^5.0.3",
     "@mui/styled-engine-sc": "^5.0.3",
@@ -20,11 +18,12 @@
     "clsx": "^1.1.1",
     "dotenv": "^8.2.0",
     "fastest-validator": "^1.10.1",
+    "lodash": "^4.17.21",
     "query-string": "^7.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-facebook-login": "^4.1.1",
-    "react-icons": "^4.2.0",
+    "react-icons": "^4.3.1",
     "react-lazylog": "^4.5.3",
     "react-query": "^3.13.5",
     "react-router-dom": "^5.2.0",
@@ -32,6 +31,7 @@
     "sass": "^1.32.11",
     "styled-components": "^5.3.1",
     "typescript": "^4.1.2",
+    "vis-network": "^9.1.0",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.175",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",

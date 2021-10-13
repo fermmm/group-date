@@ -26,6 +26,12 @@ export const GlobalStyles: GlobalStyleComponent<{}, DefaultTheme> = createGlobal
       box-sizing: border-box;  /* Do not include border and margin in the sizes numbers */
    }
 
+   input[type=number]::-webkit-inner-spin-button, 
+   input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+   }
+
    ::-webkit-scrollbar {
       width: 18px;
       height: 7px;
@@ -34,13 +40,13 @@ export const GlobalStyles: GlobalStyleComponent<{}, DefaultTheme> = createGlobal
 
    ::-webkit-scrollbar-track {
       background-color: transparent;
-      border-radius: 5px;
+      border-radius: 20px;
    }
 
    ::-webkit-scrollbar-thumb {
       border: 5px solid transparent;
       background-clip: content-box;
-      border-radius: 5px;
+      border-radius: 20px;
       background-color: #565656;
    }
 
@@ -52,6 +58,6 @@ export const GlobalStyles: GlobalStyleComponent<{}, DefaultTheme> = createGlobal
 
    ::-webkit-scrollbar-corner {
       background-color: transparent;
-      border-radius: 5px;
+      border-radius: 20px;
    }
 `;

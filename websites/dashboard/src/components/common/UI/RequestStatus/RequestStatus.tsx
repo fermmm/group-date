@@ -1,4 +1,4 @@
-import CircularProgress from "@material-ui/core/CircularProgress";
+import CircularProgress from "@mui/material/CircularProgress";
 import React, { FC } from "react";
 import { tryToGetErrorMessage } from "../../../../api/tools/tryToGetErrorMessage";
 import { RequestStatusContainer } from "./styles.RequestStatus";
@@ -29,7 +29,7 @@ export const RequestsStatus: FC<PropsRequestsStatus> = props => {
                   height: loadingScaleMode === LoadingScaleMode.FillViewport ? "100vh" : "100%"
                }}
             >
-               {isLoading && !isError && <CircularProgress color="inherit" />}
+               {isLoading && !isError && <CircularProgress color="secondary" />}
                {isError && "Error: " + tryToGetErrorMessage(isError)}
             </RequestStatusContainer>
          )}

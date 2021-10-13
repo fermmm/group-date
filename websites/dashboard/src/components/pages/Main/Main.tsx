@@ -1,12 +1,13 @@
 import React, { FC } from "react";
 import { Switch, Route, useHistory } from "react-router-dom";
-import { VscListSelection, VscClose } from "react-icons/vsc";
+import { VscListSelection, VscClose, VscTypeHierarchySuper } from "react-icons/vsc";
 import Drawer from "../../common/UI/Drawer/Drawer";
 import Logs from "../Logs/Logs";
 import RouteRequiresLogin from "../../common/RouteRequiresLogin/RouteRequiresLogin";
 import { logout } from "../../../common-tools/authentication/authentication";
 import { useLoginStatus } from "../../../common-tools/authentication/useLoginStatus";
 import { Login } from "../Login/Login";
+import Visualizer from "../Visualizer/Visualizer";
 
 const Main: FC = () => {
    const history = useHistory();
@@ -19,6 +20,11 @@ const Main: FC = () => {
    return (
       <Drawer
          buttons={[
+            {
+               label: "Visualizer",
+               icon: () => <VscTypeHierarchySuper />,
+               onClick: () => history.push("/visualizer")
+            },
             {
                label: "Logs",
                icon: () => <VscListSelection />,
@@ -37,6 +43,9 @@ const Main: FC = () => {
             </RouteRequiresLogin>
             <RouteRequiresLogin path="/logs">
                <Logs />
+            </RouteRequiresLogin>
+            <RouteRequiresLogin path="/visualizer">
+               <Visualizer />
             </RouteRequiresLogin>
          </Switch>
       </Drawer>
