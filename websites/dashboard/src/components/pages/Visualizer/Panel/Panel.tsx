@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { GremlinElement } from "../tools/visualizerUtils";
+import { OnSearchFunc } from "../Visualizer";
 import GenericPropertiesTable, {
    PropsGenericPropertiesTable
 } from "./DataSpecificPanels/GenericPropertiesTable/GenericPropertiesTable";
@@ -13,7 +14,7 @@ interface PropsPanel {
    allEdges: GremlinElement[];
    nodeIdSelected: string | number;
    edgeIdSelected: string | number;
-   onSearch: (query: string, nodeLimit?: number, reset?: boolean) => void;
+   onSearch: OnSearchFunc;
 }
 
 const Panel: FC<PropsPanel> = props => {

@@ -48,11 +48,12 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          <ValueLabel>{user.country}</ValueLabel>
          <ValueLabel>{user.profileDescription}</ValueLabel>
          <ValueLabel>{user.dateIdea}</ValueLabel>
-         {queryButtons.map(buttonData => (
+         {queryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"
                color="secondary"
-               onClick={() => props.onSearch(buttonData.query)}
+               onClick={() => props.onSearch({ query: buttonData.query })}
+               key={i}
             >
                {buttonData.name}
             </Button>
@@ -68,11 +69,12 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
             onSearch={props.onSearch}
             hideProps={["images"]}
          />
-         {dangerousQueryButtons.map(buttonData => (
+         {dangerousQueryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"
                color="error"
-               onClick={() => props.onSearch(buttonData.query)}
+               onClick={() => props.onSearch({ query: buttonData.query })}
+               key={i}
             >
                {buttonData.name}
             </Button>

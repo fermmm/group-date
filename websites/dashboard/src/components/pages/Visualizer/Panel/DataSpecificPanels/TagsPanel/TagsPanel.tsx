@@ -35,7 +35,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
             <Button
                variant="outlined"
                color="secondary"
-               onClick={() => props.onSearch(buttonData.query)}
+               onClick={() => props.onSearch({ query: buttonData.query })}
             >
                {buttonData.name}
             </Button>
@@ -49,7 +49,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
             <Button
                variant="outlined"
                color="error"
-               onClick={() => props.onSearch(buttonData.query)}
+               onClick={() => props.onSearch({ query: buttonData.query })}
             >
                {buttonData.name}
             </Button>

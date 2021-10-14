@@ -6,10 +6,11 @@ import {
    NodeLimitTextField,
    QueryTextField
 } from "./styles.Header";
+import { OnSearchFunc } from "../Visualizer";
 
 interface PropsHeader {
    loading: boolean;
-   onSearch: (query: string, nodeLimit?: number, reset?: boolean) => void;
+   onSearch: OnSearchFunc;
 }
 
 const Header: FC<PropsHeader> = props => {
@@ -32,7 +33,7 @@ const Header: FC<PropsHeader> = props => {
                loading={loading}
                variant="contained"
                color="secondary"
-               onClick={() => onSearch(query, nodeLimit)}
+               onClick={() => onSearch({ query, nodeLimit })}
             >
                Send
             </LoadingButton>

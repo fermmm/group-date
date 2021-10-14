@@ -3,12 +3,13 @@ import {
    humanizeSecondsAmount,
    humanizeUnixTimeStamp
 } from "../../../../../../common-tools/strings/humanizeUnixTime";
+import { OnSearchFunc } from "../../../Visualizer";
 import { KeyLabel, PropertiesContainer, ValueLabel } from "./styles.GenericPropertiesTable";
 
 export interface PropsGenericPropertiesTable {
    properties: Record<string, string | number>;
    hideProps?: string[];
-   onSearch: (query: string, nodeLimit?: number, reset?: boolean) => void;
+   onSearch: OnSearchFunc;
 }
 
 const GenericPropertiesTable: FC<PropsGenericPropertiesTable> = props => {
