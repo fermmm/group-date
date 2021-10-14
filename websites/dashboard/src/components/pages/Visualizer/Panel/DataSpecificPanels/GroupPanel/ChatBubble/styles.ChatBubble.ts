@@ -6,6 +6,7 @@ export const ChatBubbleContainer = styled("div").withConfig({
    padding: 10px 20px;
    border-radius: 20px;
    background: ${({ color }) => color};
+   width: fit-content;
 `;
 
 export const NameLabel = styled("div")`

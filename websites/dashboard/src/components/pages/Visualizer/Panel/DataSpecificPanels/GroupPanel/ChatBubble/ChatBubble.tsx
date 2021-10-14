@@ -12,7 +12,7 @@ const ChatBubble: FC<PropsChatBubble> = props => {
 
    return (
       <ChatBubbleContainer color={color}>
-         <NameLabel>{name} says:</NameLabel>
+         <NameLabel>{name}</NameLabel>
          <TextLabel>{text}</TextLabel>
       </ChatBubbleContainer>
    );

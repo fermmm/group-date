@@ -4,7 +4,8 @@ import {
    ChildrenContainer,
    LogoContainer,
    ButtonsContainer,
-   PageContainer
+   PageContainer,
+   ListItemStyled
 } from "./styles.Drawer";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -15,11 +16,13 @@ interface PropsDrawer {
    buttons: Array<{
       icon: () => ReactNode;
       label: string;
+      marginBottom?: number;
       onClick: () => void;
    }>;
 }
 
-const Drawer: FC<PropsDrawer> = ({ children, buttons }) => {
+const Drawer: FC<PropsDrawer> = props => {
+   const { children, buttons } = props;
    const [expanded, setExpanded] = useState(false);
 
    const handleDrawerExpand = () => {
@@ -46,10 +49,17 @@ const Drawer: FC<PropsDrawer> = ({ children, buttons }) => {
             </LogoContainer>
             <ButtonsContainer expanded={expanded}>
                {buttons.map(button => (
-                  <ListItem button key={button.label} onClick={button.onClick}>
+                  <ListItemStyled
+                     //@ts-ignore
+                     button={true}
+                     key={button.label}
+                     onClick={button.onClick}
+                     style={{ marginBottom: button.marginBottom ?? 0 }}
+                     sx={{ borderRadius: 2.2 }}
+                  >
                      <ListItemIcon>{button.icon()}</ListItemIcon>
                      <ListItemText primary={button.label} />
-                  </ListItem>
+                  </ListItemStyled>
                ))}
             </ButtonsContainer>
          </ChildrenContainer>

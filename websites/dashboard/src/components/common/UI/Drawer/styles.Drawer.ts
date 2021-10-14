@@ -1,4 +1,9 @@
+import ListItem, { ListItemProps } from "@mui/material/ListItem";
 import styled from "styled-components";
+import { styled as styledMui } from "@mui/material/styles";
+
+const drawerWidthExpanded = 320;
+const drawerWidthCollapsed = 80;
 
 export const DrawerContainer = styled("div")`
    display: flex;
@@ -12,7 +17,8 @@ export const ChildrenContainer = styled("div").withConfig({
 })<{ expanded?: boolean }>`
    padding-right: 5px;
    padding-left: 5px;
-   ${({ expanded }) => (expanded ? "width: 210px;" : "width: 80px;")}
+   ${({ expanded }) =>
+      expanded ? `width: ${drawerWidthExpanded}px;` : `width: ${drawerWidthCollapsed}px;`}
    ${({ expanded }) => (!expanded ? "padding: 0 15px;" : "")}
    overflow-x: hidden;
    height: 100%;
@@ -34,6 +40,7 @@ export const ButtonsContainer = styled("div").withConfig({
 })<{ expanded?: boolean }>`
    display: flex;
    flex-direction: column;
+   overflow-x: hidden;
    row-gap: 0px;
    ${({ expanded }) => (!expanded ? "transform: scale(1.2);" : "")}
    transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -48,3 +55,7 @@ export const LogoContainer = styled("div").withConfig({
    ${({ expanded }) => (expanded ? "transform: scale(1.3);" : "")}
    transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
+
+export const ListItemStyled = styledMui(ListItem)<ListItemProps>(({ theme }) => ({
+   width: drawerWidthExpanded
+}));
