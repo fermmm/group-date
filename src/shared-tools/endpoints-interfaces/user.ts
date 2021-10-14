@@ -24,6 +24,7 @@ export interface User {
    language: string;
    name: string;
    birthDate: number;
+   registrationDate?: number;
    targetAgeMin: number;
    targetAgeMax: number;
    targetDistance: number;

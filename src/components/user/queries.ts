@@ -39,6 +39,7 @@ export function queryToCreateUser(
             .property("isAdmin", isAdmin === true ? true : false)
             .property("sendNewUsersNotification", -1)
             .property("lastGroupJoinedDate", moment().unix())
+            .property("registrationDate", moment().unix())
             .property("notifications", `[]`),
       )
       .unfold();
