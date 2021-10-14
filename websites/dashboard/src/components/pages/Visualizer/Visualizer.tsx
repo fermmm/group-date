@@ -23,7 +23,11 @@ const Visualizer: FC = () => {
    const [nodeIdSelected, setNodeIdSelected] = useState<string | number>();
    const [edgeIdSelected, setEdgeIdSelected] = useState<string | number>();
 
-   const handleSendQuery = async (query: string, nodeLimit: number, reset: boolean = true) => {
+   const handleSendQuery = async (
+      query: string,
+      nodeLimit: number = 150,
+      reset: boolean = true
+   ) => {
       setLoading(true);
       const result = await visualizerGet({ query, nodeLimit });
       const { nodes, edges, nodeLabels = [] } = extractEdgesAndNodes(result, nodeLabelsToShow);
@@ -72,6 +76,7 @@ const Visualizer: FC = () => {
             allNodes={allNodes}
             nodeIdSelected={nodeIdSelected}
             edgeIdSelected={edgeIdSelected}
+            onSearch={handleSendQuery}
          />
       </VisualizerContainer>
    );

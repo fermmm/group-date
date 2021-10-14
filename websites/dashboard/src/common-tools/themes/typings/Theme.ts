@@ -11,6 +11,7 @@ interface ThemeColors {
    text1: string;
    scrollbar: string;
    scrollbarThumb: string;
+   chatNamesColors: string[];
 }
 
 interface ThemeShadows {

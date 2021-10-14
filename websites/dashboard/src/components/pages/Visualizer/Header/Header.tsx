@@ -9,12 +9,12 @@ import {
 
 interface PropsHeader {
    loading: boolean;
-   onSearch: (query: string, nodeLimit: number, reset?: boolean) => void;
+   onSearch: (query: string, nodeLimit?: number, reset?: boolean) => void;
 }
 
 const Header: FC<PropsHeader> = props => {
    const { loading, onSearch } = props;
-   const [query, setQuery] = useState<string>("g.V()");
+   const [query, setQuery] = useState<string>('g.V().has("name", "")');
    const [nodeLimit, setNodeLimit] = useState<number>(150);
 
    return (

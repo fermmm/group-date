@@ -20,11 +20,13 @@ export const PanelCard = styled("div")`
    background-color: ${({ theme }) => theme.colors.background2};
    border-radius: 10px;
    padding: 5px 28px;
+   row-gap: 20px;
+   overflow-wrap: break-word;
 `;
 
 export const NodeElementTitle = styled("div")`
    font-size: 35px;
    font-weight: 200;
    margin-top: 20px;
-   margin-bottom: 30px;
+   margin-bottom: 10px;
 `;

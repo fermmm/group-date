@@ -3,6 +3,8 @@ import { GremlinElement } from "../tools/visualizerUtils";
 import GenericPropertiesTable, {
    PropsGenericPropertiesTable
 } from "./DataSpecificPanels/GenericPropertiesTable/GenericPropertiesTable";
+import GroupPanel from "./DataSpecificPanels/GroupPanel/GroupPanel";
+import TagsPanel from "./DataSpecificPanels/TagsPanel/TagsPanel";
 import UserPanel from "./DataSpecificPanels/UserPanel/UserPanel";
 import { NodeElementTitle, PanelCard, PanelContainer } from "./styles.Panel";
 
@@ -11,10 +13,11 @@ interface PropsPanel {
    allEdges: GremlinElement[];
    nodeIdSelected: string | number;
    edgeIdSelected: string | number;
+   onSearch: (query: string, nodeLimit?: number, reset?: boolean) => void;
 }
 
 const Panel: FC<PropsPanel> = props => {
-   const { allNodes, allEdges, nodeIdSelected, edgeIdSelected } = props;
+   const { allNodes, allEdges, nodeIdSelected, edgeIdSelected, onSearch } = props;
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
 
    useEffect(() => {
@@ -31,6 +34,14 @@ const Panel: FC<PropsPanel> = props => {
          Panel = UserPanel;
          break;
 
+      case "group":
+         Panel = GroupPanel;
+         break;
+
+      case "tag":
+         Panel = TagsPanel;
+         break;
+
       default:
          Panel = GenericPropertiesTable;
          break;
@@ -42,7 +53,7 @@ const Panel: FC<PropsPanel> = props => {
             {elementToShow != null && (
                <>
                   <NodeElementTitle>{elementToShow.type}</NodeElementTitle>
-                  <Panel properties={elementToShow.properties} />
+                  <Panel properties={elementToShow.properties} onSearch={onSearch} />
                </>
             )}
          </PanelCard>

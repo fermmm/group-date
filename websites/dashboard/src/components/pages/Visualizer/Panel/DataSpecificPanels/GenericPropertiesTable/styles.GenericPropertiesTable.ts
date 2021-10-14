@@ -13,7 +13,5 @@ export const KeyLabel = styled("div")`
 export const ValueLabel = styled("div")`
    font-size: 19px;
    font-weight: 200;
-   margin-bottom: 20px;
    padding-left: 25px;
-   overflow-wrap: break-word;
 `;
