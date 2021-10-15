@@ -1,17 +1,28 @@
-import React, { FC, useEffect, useRef } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { DataSet, Network } from "vis-network/standalone";
 import { GraphContainer } from "./styles.Graph";
 
 interface PropsGraph {
    nodesHolder: DataSet<any, "id">;
    edgesHolder: DataSet<any, "id">;
+   nodeIdSelected: string | number | undefined;
+   edgeIdSelected: string | number | undefined;
    onNodeSelect: (nodeId: string | number | null) => void;
    onEdgeSelect: (edgeId: string | number | null) => void;
 }
 
 const Graph: FC<PropsGraph> = props => {
-   const { nodesHolder, edgesHolder, onNodeSelect, onEdgeSelect } = props;
+   const {
+      nodesHolder,
+      edgesHolder,
+      nodeIdSelected,
+      edgeIdSelected,
+      onNodeSelect,
+      onEdgeSelect
+   } = props;
    const graphContainerRef = useRef<HTMLDivElement>(null);
+   const [network, setNetwork] = useState<Network>();
+
    const graphOptions = {
       interaction: {
          selectConnectedEdges: false
@@ -65,6 +76,7 @@ const Graph: FC<PropsGraph> = props => {
          { nodes: nodesHolder, edges: edgesHolder },
          graphOptions
       );
+      setNetwork(network);
 
       network.on("selectNode", params => {
          const nodeId: string | number =
@@ -88,6 +100,21 @@ const Graph: FC<PropsGraph> = props => {
          onEdgeSelect(null);
       });
    }, [graphContainerRef]);
+
+   useEffect(() => {
+      if (nodeIdSelected == null || network == null) {
+         return;
+      }
+      network.selectNodes([nodeIdSelected]);
+   }, [nodeIdSelected]);
+
+   useEffect(() => {
+      if (edgeIdSelected == null || network == null) {
+         return;
+      }
+      // There is a bug with this line, seems to be something internal of vis-network
+      // network.selectEdges([edgeIdSelected]);
+   }, [edgeIdSelected]);
 
    return <GraphContainer ref={graphContainerRef}>Graph</GraphContainer>;
 };

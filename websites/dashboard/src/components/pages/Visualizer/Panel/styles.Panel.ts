@@ -12,6 +12,7 @@ export const PanelContainer = styled("div")`
 `;
 
 export const PanelCard = styled("div")`
+   position: relative;
    display: flex;
    flex-direction: column;
    overflow-y: auto;
@@ -29,4 +30,13 @@ export const NodeElementTitle = styled("div")`
    font-weight: 200;
    margin-top: 20px;
    margin-bottom: 10px;
+`;
+
+export const NavigationButtonsContainer = styled("div")`
+   display: flex;
+   flex-direction: row;
+   position: absolute;
+   top: 20px;
+   right: 25px;
+   column-gap: 5px;
 `;

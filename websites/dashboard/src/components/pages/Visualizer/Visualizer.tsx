@@ -33,6 +33,7 @@ const Visualizer: FC = () => {
    const [edgeHolder] = useState(new DataSet([]));
    const [nodeIdSelected, setNodeIdSelected] = useState<string | number>();
    const [edgeIdSelected, setEdgeIdSelected] = useState<string | number>();
+   const [selectedElementType, setSelectedElementType] = useState<"edge" | "node">();
 
    const sendQueryFromUrlParams = () => {
       const queryFromUrlParams = getUrlParameter("visualizer-search");
@@ -84,6 +85,43 @@ const Visualizer: FC = () => {
       setLoading(false);
    };
 
+   const handleSelectNode = (nodeId: string | number | undefined) => {
+      setNodeIdSelected(nodeId);
+      setSelectedElementType("node");
+   };
+   const handleSelectEdge = (edgeId: string | number | undefined) => {
+      setEdgeIdSelected(edgeId);
+      setSelectedElementType("edge");
+   };
+
+   const handleNextClick = () => {
+      if (selectedElementType === "node") {
+         const index = allNodes.findIndex(node => node.id === nodeIdSelected);
+         const nextIndex = index === allNodes.length - 1 ? 0 : index + 1;
+         const nextElementId = allNodes[nextIndex].id;
+         handleSelectNode(nextElementId);
+      } else {
+         const index = allEdges.findIndex(edge => edge.id === edgeIdSelected);
+         const nextIndex = index === allEdges.length - 1 ? 0 : index + 1;
+         const nextElementId = allEdges[nextIndex].id;
+         handleSelectEdge(nextElementId);
+      }
+   };
+
+   const handlePrevClick = () => {
+      if (selectedElementType === "node") {
+         const index = allNodes.findIndex(node => node.id === nodeIdSelected);
+         const prevIndex = index === 0 ? allNodes.length - 1 : index - 1;
+         const prevElementId = allNodes[prevIndex].id;
+         handleSelectNode(prevElementId);
+      } else {
+         const index = allEdges.findIndex(edge => edge.id === edgeIdSelected);
+         const prevIndex = index === 0 ? allEdges.length - 1 : index - 1;
+         const prevElementId = allEdges[prevIndex].id;
+         handleSelectEdge(prevElementId);
+      }
+   };
+
    return (
       <VisualizerContainer>
          <SearchPartContainer>
@@ -91,8 +129,10 @@ const Visualizer: FC = () => {
             <Graph
                nodesHolder={nodeHolder}
                edgesHolder={edgeHolder}
-               onNodeSelect={setNodeIdSelected}
-               onEdgeSelect={setEdgeIdSelected}
+               nodeIdSelected={nodeIdSelected}
+               edgeIdSelected={edgeIdSelected}
+               onNodeSelect={handleSelectNode}
+               onEdgeSelect={handleSelectEdge}
             />
          </SearchPartContainer>
          <Panel
@@ -101,6 +141,8 @@ const Visualizer: FC = () => {
             nodeIdSelected={nodeIdSelected}
             edgeIdSelected={edgeIdSelected}
             onSearch={handleSendQuery}
+            onNextClick={handleNextClick}
+            onPrevClick={handlePrevClick}
          />
       </VisualizerContainer>
    );
