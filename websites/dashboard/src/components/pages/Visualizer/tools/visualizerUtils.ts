@@ -55,12 +55,12 @@ export const extractEdgesAndNodes = (
 
    _.forEach(nodeList, node => {
       const type = node.label;
-      if (!nodeLabelMap[type]) {
-         const field = selectRandomField(node.properties);
-         const nodeLabel = { type, field };
-         nodeLabels.push(nodeLabel);
-         nodeLabelMap[type] = field;
-      }
+      // if (!nodeLabelMap[type]) {
+      const field = selectRandomField(node.properties);
+      const nodeLabel = { type, field };
+      nodeLabels.push(nodeLabel);
+      nodeLabelMap[type] = field;
+      // }
       const labelField = nodeLabelMap[type];
       const label = labelField in node.properties ? node.properties[labelField] : type;
       nodes.push({

@@ -42,8 +42,18 @@ const Visualizer: FC = () => {
       }
    };
 
-   useUserChangesUrlWatcher(sendQueryFromUrlParams);
+   // Effect to send the query at the url params at mount
    useEffect(sendQueryFromUrlParams, []);
+
+   // This sends the query from the url params when the user presses back button on the browser
+   useUserChangesUrlWatcher(sendQueryFromUrlParams);
+
+   // Effect to select the first node if nothing is selected after search results arrive
+   useEffect(() => {
+      if (nodeIdSelected == null && edgeIdSelected == null && allNodes?.length > 0) {
+         handleSelectNode(allNodes[0].id);
+      }
+   }, [allNodes]);
 
    const handleSendQuery: OnSearchFunc = async props => {
       const { query, nodeLimit = 150, reset = true, saveOnUrl = true } = props;

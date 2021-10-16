@@ -61,7 +61,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          {user.images &&
             serverInfo?.data?.imagesHost &&
             (JSON.parse((user.images as unknown) as string) as string[]).map(image => (
-               <img src={serverInfo?.data?.imagesHost + image} />
+               <img src={serverInfo?.data?.imagesHost + image} key={image} />
             ))}
 
          <GenericPropertiesTable

@@ -23,7 +23,8 @@ const GenericPropertiesTable: FC<PropsGenericPropertiesTable> = props => {
       "lastLoginDate",
       "creationDate",
       "mostVotedDate",
-      "lastInteractionDate"
+      "lastInteractionDate",
+      "timestamp"
    ];
 
    const setupValueText = (key: string, value: string | number) => {

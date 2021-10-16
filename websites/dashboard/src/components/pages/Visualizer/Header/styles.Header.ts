@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { TextField } from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 
 export const HeaderContainer = styled("div")`
    display: flex;
@@ -19,12 +19,6 @@ export const FormContainer = styled("div")`
    width: 60%;
    min-width: 200px;
    height: 100%;
-`;
-
-export const QueryTextField = styled(TextField)`
-   & .MuiInputBase-input {
-      background-color: ${({ theme }) => theme.colors.background2};
-   }
 `;
 
 export const NodeLimitTextField = styled(TextField)`
