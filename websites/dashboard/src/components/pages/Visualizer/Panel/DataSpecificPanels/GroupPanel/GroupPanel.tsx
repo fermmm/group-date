@@ -11,6 +11,8 @@ import {
 import { useTheme } from "styled-components";
 import ChatBubble from "./ChatBubble/ChatBubble";
 import { visualizerGet } from "../../../../../../api/server/visualizer";
+import { GremlinElement } from "../../../tools/visualizerUtils";
+import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
 
 const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    const group = (props.properties as unknown) as Partial<Group>;
@@ -23,7 +25,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
     */
    useEffect(() => {
       (async () => {
-         const result = await visualizerGet({
+         const result: Array<GremlinElement<Partial<User>>> = await visualizerGet({
             query: `g.V().has("group", "groupId", "${group.groupId}").both("member")`
          });
 
@@ -78,6 +80,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
             />
          ))}
          <GenericPropertiesTable
+            id={props.id}
             properties={group as Record<string, string | number>}
             onSearch={props.onSearch}
             hideProps={["chat"]}

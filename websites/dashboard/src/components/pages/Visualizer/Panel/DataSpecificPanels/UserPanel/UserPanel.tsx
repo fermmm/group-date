@@ -65,6 +65,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
             ))}
 
          <GenericPropertiesTable
+            id={props.id}
             properties={user as Record<string, string | number>}
             onSearch={props.onSearch}
             hideProps={["images"]}

@@ -21,7 +21,7 @@ export function testingRoutes(r: Router): void {
 
    createRoute(r, "/testing/temp", "GET", async (params: any, ctx: BaseContext) => {
       console.time("notify");
-      await notifyAllUsersAboutNewCards();
+      // await notifyAllUsersAboutNewCards();
       console.timeEnd("notify");
       return "done";
    });

@@ -7,7 +7,8 @@ import { OnSearchFunc } from "../../../Visualizer";
 import { KeyLabel, PropertiesContainer, ValueLabel } from "./styles.GenericPropertiesTable";
 
 export interface PropsGenericPropertiesTable {
-   properties: Record<string, string | number>;
+   id: string | number;
+   properties: Record<string, string | number | boolean>;
    hideProps?: string[];
    onSearch: OnSearchFunc;
 }
@@ -27,7 +28,7 @@ const GenericPropertiesTable: FC<PropsGenericPropertiesTable> = props => {
       "timestamp"
    ];
 
-   const setupValueText = (key: string, value: string | number) => {
+   const setupValueText = (key: string, value: string | number | boolean) => {
       if (unixTimeProps.includes(key)) {
          return humanizeUnixTimeStamp(Number(value));
       }

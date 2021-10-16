@@ -4,33 +4,23 @@ import GenericPropertiesTable, {
    PropsGenericPropertiesTable
 } from "../GenericPropertiesTable/GenericPropertiesTable";
 import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
-import { Tag } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/tags";
 
-const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
-   const tag = (props.properties as unknown) as Partial<Tag>;
+const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
+   const { properties, id } = props;
 
-   const tagQuery = `has("tagId", "${tag.tagId}")`;
-   const queryButtons = [
-      {
-         name: "Subscribers",
-         query: `g.V().union(${tagQuery}, ${tagQuery}.both("subscribed").hasLabel("user"))`
-      },
-      {
-         name: "Blockers",
-         query: `g.V().union(${tagQuery}, ${tagQuery}.both("blocked").hasLabel("user"))`
-      }
-   ];
+   const edgeQuery = `g.E("${id}")`;
+   const queryButtons: Array<{ name: string; query: string }> = [];
 
    const dangerousQueryButtons = [
       {
-         name: "Delete tag",
-         query: `g.V().${tagQuery}.drop()`
+         name: "Delete",
+         query: `${edgeQuery}.drop()`
       }
    ];
 
    return (
       <>
-         <ValueLabel>{tag.name}</ValueLabel>
+         <ValueLabel>{properties.name}</ValueLabel>
          {queryButtons.map(buttonData => (
             <Button
                variant="outlined"
@@ -41,8 +31,8 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
             </Button>
          ))}
          <GenericPropertiesTable
-            id={props.id}
-            properties={tag as Record<string, string | number>}
+            id={id}
+            properties={properties as Record<string, string | number>}
             onSearch={props.onSearch}
             hideProps={["images"]}
          />
@@ -59,4 +49,4 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
    );
 };
 
-export default TagsPanel;
+export default EdgePanel;

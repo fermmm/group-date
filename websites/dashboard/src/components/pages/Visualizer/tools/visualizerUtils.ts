@@ -1,8 +1,11 @@
 import _ from "lodash";
 
-export interface GremlinElement {
+export interface GremlinElement<T = Record<string, number | string | boolean>> {
    label: string;
    id: string | number;
+   from?: string;
+   to?: string;
+   properties: T;
    [k: string]: any;
 }
 
@@ -11,7 +14,7 @@ export interface NodeLabelInfo {
    field: string;
 }
 
-const selectRandomField = (obj: GremlinElement) => {
+const selectRandomField = (obj: Record<string, number | string | boolean>) => {
    let result;
    // Set the first key as the result just in case
    for (result in obj) break;

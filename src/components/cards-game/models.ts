@@ -56,6 +56,11 @@ export async function recommendationsFromTagGet(
 }
 
 /**
+ * TODO: This is too expensive, optimization: There is no point on notifying of new users that disliked you or
+ * new users that did't see you yet. So the only remaining case where it's useful to notify is when you get a
+ * like, so you can see the user and like it back, that's a lot less users to navigate and it's based on an
+ * event instead of a repeating whole database search.
+ *
  * This is the workflow:
  *    When there are no more cards on the cards game the client sets sendNewUsersNotification to a number.
  *    This number is the amount of new users that needs to appear on the application to notify the user.

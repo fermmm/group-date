@@ -4,6 +4,7 @@ import { VscChevronLeft, VscChevronRight } from "react-icons/vsc";
 import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
 import { GremlinElement } from "../tools/visualizerUtils";
 import { OnSearchFunc } from "../Visualizer";
+import EdgePanel from "./DataSpecificPanels/EdgePanel/EdgePanel";
 import GenericPropertiesTable, {
    PropsGenericPropertiesTable
 } from "./DataSpecificPanels/GenericPropertiesTable/GenericPropertiesTable";
@@ -80,6 +81,10 @@ const Panel: FC<PropsPanel> = props => {
          break;
    }
 
+   if (elementToShow?.from != null) {
+      Panel = EdgePanel;
+   }
+
    return (
       <PanelContainer>
          <PanelCard>
@@ -94,7 +99,11 @@ const Panel: FC<PropsPanel> = props => {
                      </IconButton>
                   </NavigationButtonsContainer>
                   <NodeElementTitle>{elementToShow.type}</NodeElementTitle>
-                  <Panel properties={elementToShow.properties} onSearch={onSearch} />
+                  <Panel
+                     properties={elementToShow.properties}
+                     id={elementToShow.id}
+                     onSearch={onSearch}
+                  />
                </>
             )}
          </PanelCard>

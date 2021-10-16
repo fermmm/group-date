@@ -14,22 +14,22 @@ const queryPresetsByCategory: Array<{ categoryName: string; presets: PresetQuery
          {
             name: "Newest users",
             query:
-               'g.V().hasLabel("user").order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc)'
+               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc)'
          },
          {
             name: "Newest woman",
             query:
-               'g.V().hasLabel("user").order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Woman")).has("isCoupleProfile", false)'
+               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Woman")).has("isCoupleProfile", false)'
          },
          {
             name: "Newest man",
             query:
-               'g.V().hasLabel("user").order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Man")).has("isCoupleProfile", false)'
+               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Man")).has("isCoupleProfile", false)'
          },
          {
             name: "Newest couples",
             query:
-               'g.V().hasLabel("user").order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).has("isCoupleProfile", true)'
+               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).has("isCoupleProfile", true)'
          },
          {
             name: "Newest tags",
