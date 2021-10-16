@@ -1,7 +1,9 @@
 import * as Router from "@koa/router";
 import { BaseContext } from "koa";
+import { Console } from "winston/lib/winston/transports";
 import { g, sendQuery, __ } from "../../common-tools/database-tools/database-manager";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
+import { notifyAllUsersAboutNewCards } from "../cards-game/models";
 import { queryToGetAllUsers } from "../user/queries";
 import { fromQueryToUserList } from "../user/tools/data-conversion";
 import {
@@ -18,6 +20,9 @@ export function testingRoutes(r: Router): void {
    createRoute(r, "/testing/create-fake-chat", "GET", createFakeChatConversation);
 
    createRoute(r, "/testing/temp", "GET", async (params: any, ctx: BaseContext) => {
-      return await fromQueryToUserList(queryToGetAllUsers().limit(10));
+      console.time("notify");
+      await notifyAllUsersAboutNewCards();
+      console.timeEnd("notify");
+      return "done";
    });
 }
