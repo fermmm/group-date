@@ -183,20 +183,6 @@ export async function creteAppAuthoredTags() {
       visible: true,
    }));
 
-   // Create gender selection tags (these are invisible)
-   tagsToCreate.push(
-      ...Object.values(Gender).map(genderName => ({
-         tagId: genderName,
-         category: "gender",
-         name: genderName,
-         country: "all",
-         creationDate: moment().unix(),
-         lastInteractionDate: moment().unix(),
-         global: true,
-         visible: false,
-      })),
-   );
-
    // Crete app authored tags that are saved as questions
    tagsToCreate.push(
       ...APP_AUTHORED_TAGS_AS_QUESTIONS.map(question =>

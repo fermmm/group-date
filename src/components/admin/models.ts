@@ -249,9 +249,9 @@ export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): 
    };
 
    // TODO: Descomentar esto y probar, despues se puede hacer la subida automatica y automatizar mas
-   // return await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
+   return await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
 
-   return { url: loaderEndpoint, ...requestParams };
+   // return { url: loaderEndpoint, ...requestParams };
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {

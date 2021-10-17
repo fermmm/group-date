@@ -24,7 +24,12 @@ export function executeFunctionBeforeExiting(fn: () => Promise<void> | void) {
 }
 
 export function isProductionMode() {
-   return process?.env?.NODE_ENV?.toLowerCase() === "production";
+   // The .? it seems to not work with unknown types
+   if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV.toLowerCase() === "production") {
+      return true;
+   }
+
+   return false;
 }
 
 export function logEnvironmentMode() {
