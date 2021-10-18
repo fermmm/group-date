@@ -12,12 +12,12 @@ module.exports = {
    testPathForConsistencyCheck: "build/tests/example.test.js",
 
    /** resolves from test to snapshot path */
-   resolveSnapshotPath: (testPath, snapshotExtension) => {
+   resolveSnapshotPath: (testPath: string, snapshotExtension: string) => {
       return testPath.replace("build/tests/", "src/tests/__snapshots__/") + snapshotExtension;
    },
 
    /** resolves from snapshot to test path */
-   resolveTestPath: (snapshotFilePath, snapshotExtension) => {
+   resolveTestPath: (snapshotFilePath: string, snapshotExtension: string) => {
       return snapshotFilePath
          .replace("src/tests/__snapshots__/", "build/tests/")
          .slice(0, -snapshotExtension.length);
