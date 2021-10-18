@@ -11,4 +11,7 @@ export const ButtonsContainer = styled("div")`
    flex-direction: column;
    max-width: 300px;
    margin-top: 60px;
+   row-gap: 20px;
 `;
+
+export const ResponseTextContainer = styled("div")``;

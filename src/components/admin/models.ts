@@ -239,19 +239,25 @@ export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): 
       return "AWS_REGION is not set in the .env file";
    }
 
-   const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader");
-
+   const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader").replace("wss:", "https:");
    const requestParams = {
-      source: `s3://${process.env.AWS_BUCKET_NAME}/${folder ? folder + "/" : ""}${fileId}-nodes.csv`,
+      source: `s3://${process.env.AWS_BUCKET_NAME}/${folder ? folder + "/" : ""}${fileId}`,
       format: "csv",
       iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
       region: process.env.AWS_REGION,
    };
+   const nodesParams = { ...requestParams, source: requestParams.source + "-nodes.csv" };
+   const edgesParams = { ...requestParams, source: requestParams.source + "-edges.csv" };
 
-   // TODO: Descomentar esto y probar, despues se puede hacer la subida automatica y automatizar mas
-   return await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
+   const nodesResponse = await httpRequest({ url: loaderEndpoint, method: "POST", params: nodesParams });
+   const edgesResponse = await httpRequest({ url: loaderEndpoint, method: "POST", params: edgesParams });
 
-   // return { url: loaderEndpoint, ...requestParams };
+   return {
+      loaderEndpoint,
+      requestParams,
+      nodesResponse,
+      edgesResponse,
+   };
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
