@@ -245,6 +245,7 @@ export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): 
       format: "csv",
       iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
       region: process.env.AWS_REGION,
+      queueRequest: "TRUE",
    };
    const nodesParams = { ...requestParams, source: requestParams.source + "-nodes.csv" };
    const edgesParams = { ...requestParams, source: requestParams.source + "-edges.csv" };
