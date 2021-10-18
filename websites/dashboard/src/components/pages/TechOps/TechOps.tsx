@@ -1,14 +1,21 @@
 import LoadingButton from "@mui/lab/LoadingButton";
 import React, { FC, useState } from "react";
 import { loadCSVRequest } from "../../../api/server/techOps";
-import { ButtonsContainer, ResponseTextContainer, TechOpsContainer } from "./styles.TechOps";
+import {
+   ButtonsContainer,
+   JsonTextContainer,
+   ResponseTextContainer,
+   TechOpsContainer
+} from "./styles.TechOps";
 
 const TechOps: FC = () => {
-   const [loading, setLoading] = useState();
+   const [loading, setLoading] = useState<boolean>(false);
    const [response, setResponse] = useState<string>();
 
    const handleLoadCsv = async () => {
-      setResponse(JSON.stringify(await loadCSVRequest({ fileId: "latest" })));
+      setLoading(true);
+      setResponse(JSON.stringify(await loadCSVRequest({ fileId: "latest" }), null, 2));
+      setLoading(false);
    };
 
    return (
@@ -18,7 +25,7 @@ const TechOps: FC = () => {
             {response && (
                <ResponseTextContainer>
                   <h3>Response received</h3>
-                  {response}
+                  <JsonTextContainer dangerouslySetInnerHTML={{ __html: response }} />
                </ResponseTextContainer>
             )}
             <LoadingButton loading={loading} variant="outlined" onClick={handleLoadCsv}>
