@@ -6,14 +6,17 @@ import { getStartingPreset, PresetQueryItem } from "./QueryInput/tools/presets";
 import QueryInput from "./QueryInput/QueryInput";
 
 interface PropsHeader {
+   defaultSearchInputValue: string | undefined;
    loading: boolean;
    onSearch: OnSearchFunc;
 }
 
 const Header: FC<PropsHeader> = props => {
-   const { loading, onSearch } = props;
+   const { loading, defaultSearchInputValue, onSearch } = props;
    const [nodeLimit, setNodeLimit] = useState<number>(150);
-   const [query, setQuery] = useState<PresetQueryItem>(getStartingPreset());
+   const [query, setQuery] = useState<PresetQueryItem>(
+      defaultSearchInputValue ? { query: defaultSearchInputValue } : getStartingPreset()
+   );
 
    const handleSearch = () => {
       onSearch({ query: query.query, nodeLimit });

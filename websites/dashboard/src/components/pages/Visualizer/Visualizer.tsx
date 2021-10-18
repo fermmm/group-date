@@ -34,9 +34,9 @@ const Visualizer: FC = () => {
    const [nodeIdSelected, setNodeIdSelected] = useState<string | number>();
    const [edgeIdSelected, setEdgeIdSelected] = useState<string | number>();
    const [selectedElementType, setSelectedElementType] = useState<"edge" | "node">();
+   const queryFromUrlParams = getUrlParameter("visualizer-search");
 
    const sendQueryFromUrlParams = () => {
-      const queryFromUrlParams = getUrlParameter("visualizer-search");
       if (queryFromUrlParams != null) {
          handleSendQuery({ query: queryFromUrlParams, saveOnUrl: false });
       }
@@ -135,7 +135,11 @@ const Visualizer: FC = () => {
    return (
       <VisualizerContainer>
          <SearchPartContainer>
-            <Header loading={loading} onSearch={handleSendQuery} />
+            <Header
+               defaultSearchInputValue={queryFromUrlParams}
+               loading={loading}
+               onSearch={handleSendQuery}
+            />
             <Graph
                nodesHolder={nodeHolder}
                edgesHolder={edgeHolder}

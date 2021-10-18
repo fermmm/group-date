@@ -7,6 +7,7 @@ export function createRoute<Params, Response>(
    method: Method,
    fn: EndpointFunction<Params, Response>,
 ) {
+   path = "/api" + path;
    if (method === "GET") {
       router.get(path, async ctx => (ctx.body = await fn((ctx.request.query as unknown) as Params, ctx)));
    }

@@ -30,16 +30,18 @@ import { userRoutes } from "./components/user/routes";
 import { initializeDatabaseBackups } from "./common-tools/database-tools/backups";
 import { strToBool } from "./common-tools/string-tools/string-tools";
 import { logEnvironmentMode } from "./common-tools/process/process-tools";
+import { serveWebsite } from "./common-tools/koa-tools/koa-tools";
 
 (async () => {
    // Koa initialization:
    const app: Koa = new Koa();
-   const router = new Router({ prefix: "/api" });
+   const router = new Router();
 
    // Koa middlewares:
    const a = app
       .use(cors({ origin: "*" }))
-      .use(ratelimit(rateLimiterConfig))
+      // This may not work with AWS because all the requests comes from the load balancer
+      // .use(ratelimit(rateLimiterConfig))
       .use(koaBody({ parsedMethods: ["GET", "POST"] }))
       .use(router.routes())
       .use(router.allowedMethods())
@@ -48,9 +50,11 @@ import { logEnvironmentMode } from "./common-tools/process/process-tools";
             imagesLogger(context);
             return serve("./uploads/")(context, next);
          }),
-      )
-      .use(mount("/dashboard", (context, next) => serve("./websites/dashboard/build/")(context, next)))
-      .use(mount("/", (context, next) => serve("./websites/promo/")(context, next)));
+      );
+
+   serveWebsite("/", "./websites/promo", a, router);
+   serveWebsite("/dashboard", "./websites/dashboard/build", a, router);
+
    const appCallback = app.callback();
 
    http.createServer(appCallback).listen(process.env.PORT);
