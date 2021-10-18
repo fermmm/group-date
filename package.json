@@ -22,9 +22,8 @@
       "no-database-no-pm2-prod": "npm run build && NODE_ENV=production NO_DATABASE=true node build/index.js",
       "backup": "node build/force-backup.js",
       "stop": "npm run backup && pm2 stop poly",
-      "test": "npm run database-restart; jest --verbose --runInBand --forceExit",
-      "test:coverage": "npm run database-restart; jest --coverage",
-      "test:watch": "npm run database-restart; jest --watch --runInBand",
+      "test:run-jest": "npm run build && jest --verbose --runInBand --forceExit",
+      "test": "npm run database-restart; npm run test:run-jest",
       "prettier": "prettier --write \"src/**/*.ts\"",
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
       "rimraf": "./node_modules/rimraf/bin.js"
@@ -93,7 +92,7 @@
       "preset": "ts-jest",
       "testEnvironment": "node",
       "testMatch": [
-         "**/tests/**/*.test.ts"
+         "**/tests/**/*.test.js"
       ],
       "testTimeout": 60000,
       "globalSetup": "./src/tests/tools/beforeAllTests.ts",
@@ -103,7 +102,8 @@
       ],
       "setupFilesAfterEnv": [
          "jest-extended"
-      ]
+      ],
+      "snapshotResolver": "./src/tests/tools/snapshotsResolver.js"
    },
    "husky": {
       "hooks": {
