@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
-import { __, column, g } from "../../common-tools/database-tools/database-manager";
+import { __, column, g, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { ChatMessage } from "../../shared-tools/endpoints-interfaces/common";
 import { queryToGetUserById } from "../user/queries";
@@ -34,9 +34,9 @@ export function queryToSaveAdminChatMessage(
          __.out("chatWithAdmins"),
          __.addV("chatWithAdmins").as("x").addE("chatWithAdmins").from_("user").select("x"),
       )
-      .property("messages", serializeIfNeeded(updatedMessagesList))
-      .property("adminHasResponded", lastMessageIsFromAdmin)
-      .property("lastMessageDate", moment().unix());
+      .property(cardinality.single, "messages", serializeIfNeeded(updatedMessagesList))
+      .property(cardinality.single, "adminHasResponded", lastMessageIsFromAdmin)
+      .property(cardinality.single, "lastMessageDate", moment().unix());
 }
 
 export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): Traversal {

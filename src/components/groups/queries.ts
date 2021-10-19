@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import { MarkRequired } from "ts-essentials";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
-import { __, column, g, P, sendQuery } from "../../common-tools/database-tools/database-manager";
+import { __, column, g, P, sendQuery, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { GROUP_SLOTS_CONFIGS } from "../../configurations";
 import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
@@ -16,22 +16,23 @@ import { generateId } from "../../common-tools/string-tools/string-tools";
 export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal {
    let traversal: Traversal = g
       .addV("group")
-      .property("groupId", generateId())
+      .property(cardinality.single, "groupId", generateId())
       .property(
+         cardinality.single,
          "chat",
          serializeIfNeeded<GroupChat>({
             messages: [],
          }),
       )
-      .property("chatMessagesAmount", 0)
-      .property("creationDate", moment().unix())
-      .property("membersAmount", params.initialUsers?.usersIds.length ?? 0)
-      .property("dayOptions", serializeIfNeeded(params.dayOptions))
-      .property("initialQuality", params.initialQuality ?? GroupQuality.Good)
-      .property("reminder1NotificationSent", false)
-      .property("reminder2NotificationSent", false)
-      .property("seenBy", serializeIfNeeded([]))
-      .property("feedback", serializeIfNeeded([]));
+      .property(cardinality.single, "chatMessagesAmount", 0)
+      .property(cardinality.single, "creationDate", moment().unix())
+      .property(cardinality.single, "membersAmount", params.initialUsers?.usersIds.length ?? 0)
+      .property(cardinality.single, "dayOptions", serializeIfNeeded(params.dayOptions))
+      .property(cardinality.single, "initialQuality", params.initialQuality ?? GroupQuality.Good)
+      .property(cardinality.single, "reminder1NotificationSent", false)
+      .property(cardinality.single, "reminder2NotificationSent", false)
+      .property(cardinality.single, "seenBy", serializeIfNeeded([]))
+      .property(cardinality.single, "feedback", serializeIfNeeded([]));
 
    if (params.initialUsers != null) {
       traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
@@ -65,9 +66,9 @@ export function queryToAddUsersToGroup(group: Traversal, settings: AddUsersToGro
                )
                // Add the corresponding slot edge, slots avoids adding the users in too many groups
                .sideEffect(__.addE("slot" + settings.slotToUse).to("group"))
-               .sideEffect(__.property("lastGroupJoinedDate", moment().unix())),
+               .sideEffect(__.property(cardinality.single, "lastGroupJoinedDate", moment().unix())),
          )
-         .property("membersAmount", __.inE("member").count())
+         .property(cardinality.single, "membersAmount", __.inE("member").count())
 
          // Replace the "Match" edges between the members of the group by a "SeenMatch" edge in order to be ignored
          // by the group finding algorithms. This avoids repeated groups or groups with repeated matches.
@@ -154,7 +155,7 @@ export function queryToUpdateGroupProperty(
    let traversal = queryToGetGroupById(group.groupId, filters);
 
    for (const key of Object.keys(group)) {
-      traversal = traversal.property(key, serializeIfNeeded(group[key]));
+      traversal = traversal.property(cardinality.single, key, serializeIfNeeded(group[key]));
    }
 
    return sendQuery(() => traversal.iterate());
@@ -235,7 +236,7 @@ export function queryToGetGroupsToSendReminder(
       .hasLabel("group")
       .has("mostVotedDate", P.inside(moment().unix(), moment().unix() + timeRemaining))
       .has(reminderProp, false)
-      .property(reminderProp, true);
+      .property(cardinality.single, reminderProp, true);
 }
 
 /**

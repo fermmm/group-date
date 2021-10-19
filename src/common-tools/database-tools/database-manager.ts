@@ -21,6 +21,7 @@ export const column = gremlin.process.column;
 export const id = gremlin.process.t.id;
 export const scope = gremlin.process.scope;
 export const t = gremlin.process.t;
+export const cardinality = gremlin.process.cardinality;
 
 /**
  * The promise of this function resolves only when database responds to a simple query

@@ -1,5 +1,5 @@
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
-import { __, P, sendQuery, g, column } from "../../common-tools/database-tools/database-manager";
+import { __, P, sendQuery, g, column, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
    allAttractionTypes,
@@ -31,16 +31,16 @@ export function queryToCreateUser(
       .coalesce(
          __.unfold(),
          __.addV("user")
-            .property("token", token)
-            .property("userId", customUserIdForTesting ?? generateId())
-            .property("email", email)
-            .property("language", DEFAULT_LANGUAGE)
-            .property("profileCompleted", setProfileCompletedForTesting ?? false)
-            .property("isAdmin", isAdmin === true ? true : false)
-            .property("sendNewUsersNotification", -1)
-            .property("lastGroupJoinedDate", moment().unix())
-            .property("registrationDate", moment().unix())
-            .property("notifications", `[]`),
+            .property(cardinality.single, "token", token)
+            .property(cardinality.single, "userId", customUserIdForTesting ?? generateId())
+            .property(cardinality.single, "email", email)
+            .property(cardinality.single, "language", DEFAULT_LANGUAGE)
+            .property(cardinality.single, "profileCompleted", setProfileCompletedForTesting ?? false)
+            .property(cardinality.single, "isAdmin", isAdmin === true ? true : false)
+            .property(cardinality.single, "sendNewUsersNotification", -1)
+            .property(cardinality.single, "lastGroupJoinedDate", moment().unix())
+            .property(cardinality.single, "registrationDate", moment().unix())
+            .property(cardinality.single, "notifications", `[]`),
       )
       .unfold();
 }
@@ -116,7 +116,9 @@ export function hasProfileCompleted(currentTraversal?: Traversal): Traversal {
 }
 
 export async function queryToUpdateUserToken(userEmail: string, newToken: string): Promise<void> {
-   await sendQuery(() => g.V().has("user", "email", userEmail).property("token", newToken).next());
+   await sendQuery(() =>
+      g.V().has("user", "email", userEmail).property(cardinality.single, "token", newToken).next(),
+   );
 }
 
 export async function queryToUpdateUserProps(
@@ -128,7 +130,7 @@ export async function queryToUpdateUserProps(
          typeof tokenOrTraversal === "string" ? queryToGetUserByToken(tokenOrTraversal) : tokenOrTraversal;
 
       for (const prop of props) {
-         query = query.property(prop.key, serializeIfNeeded(prop.value));
+         query = query.property(cardinality.single, prop.key, serializeIfNeeded(prop.value));
       }
 
       return query.next();
@@ -181,7 +183,11 @@ export function queryToSetUserProps(traversal: Traversal, userProps: Partial<Use
          return;
       }
 
-      traversal = traversal.property(editableUserProp, serializeIfNeeded(userProps[editableUserProp]));
+      traversal = traversal.property(
+         cardinality.single,
+         editableUserProp,
+         serializeIfNeeded(userProps[editableUserProp]),
+      );
    });
 
    if (userProps.genders?.length > 0) {

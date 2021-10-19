@@ -1,5 +1,5 @@
 import { serializeAllValuesIfNeeded } from "./data-conversion-tools";
-import { __, g, P } from "./database-manager";
+import { __, g, P, cardinality } from "./database-manager";
 import { GremlinValueType, Traversal } from "./gremlin-typing-tools";
 
 export function valueMap(traversal: Traversal): Traversal {
@@ -37,7 +37,8 @@ export function queryToCreateVerticesFromObjects<T>(props: {
 
    let creationTraversal: Traversal = __.addV(label);
    Object.keys(objectsReadyForDB[0]).forEach(
-      key => (creationTraversal = creationTraversal.property(key, __.select(key))),
+      // For some reason the cardinality doesn't work here but it does not matter because its a new vertex
+      key => (creationTraversal = creationTraversal.property(/*cardinality.single,*/ key, __.select(key))),
    );
 
    if (duplicationAvoidanceProperty == null) {

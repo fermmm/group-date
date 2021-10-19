@@ -52,7 +52,7 @@ import {
 import { fromQueryToUser, fromQueryToUserList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { sendQuery } from "../../common-tools/database-tools/database-manager";
+import { cardinality, sendQuery } from "../../common-tools/database-tools/database-manager";
 import { divideArrayCallback } from "../../common-tools/js-tools/js-tools";
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
 import { queryToGetUserByTokenOrId } from "./queries";
@@ -262,7 +262,9 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       const user = await retrieveUser(params.token, false, ctx);
       const profileCompleted = profileStatusIsCompleted(user);
       await sendQuery(() =>
-         queryToGetUserByToken(params.token).property("profileCompleted", profileCompleted).iterate(),
+         queryToGetUserByToken(params.token)
+            .property(cardinality.single, "profileCompleted", profileCompleted)
+            .iterate(),
       );
 
       /**

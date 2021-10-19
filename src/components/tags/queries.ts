@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
-import { g, P, __ } from "../../common-tools/database-tools/database-manager";
+import { cardinality, g, P, __ } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { MAX_TAG_SUBSCRIPTIONS_ALLOWED } from "../../configurations";
 import { Tag, TagRelationShip } from "../../shared-tools/endpoints-interfaces/tags";
@@ -115,9 +115,9 @@ export function queryToRelateUserWithTag(
             .has("tagId", __.where(P.eq("tagId")))
             .as("tag")
             .sideEffect(relationTraversal)
-            .property("lastInteractionDate", moment().unix())
-            .property("subscribersAmount", __.inE("subscribed").count())
-            .property("blockersAmount", __.inE("blocked").count()),
+            .property(cardinality.single, "lastInteractionDate", moment().unix())
+            .property(cardinality.single, "subscribersAmount", __.inE("subscribed").count())
+            .property(cardinality.single, "blockersAmount", __.inE("blocked").count()),
       );
 }
 
