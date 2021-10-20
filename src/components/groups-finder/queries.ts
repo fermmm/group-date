@@ -323,7 +323,7 @@ export function queryToGetUsersToAddInRecentGroups(
                // Find the matches that the user has inside the group
                .group()
                .by(__.values("userId"))
-               .by(__.both("Match").where(__.out("member").as("group")).dedup().values("userId").fold())
+               .by(__.both("Match").where(__.out("member").as("group")).values("userId").dedup().fold())
                .unfold()
                .project("userId", "matches")
                .by(column.keys)

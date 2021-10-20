@@ -37,7 +37,7 @@ export function queryToCreateVerticesFromObjects<T>(props: {
 
    let creationTraversal: Traversal = __.addV(label);
    Object.keys(objectsReadyForDB[0]).forEach(
-      // For some reason the cardinality doesn't work here but it does not matter because its a new vertex
+      // For some reason the cardinality doesn't work here (probably a gremlin bug) but it does not matter because its a new vertex
       key => (creationTraversal = creationTraversal.property(/*cardinality.single,*/ key, __.select(key))),
    );
 
