@@ -1,5 +1,6 @@
 import * as Router from "@koa/router";
 import { BaseContext } from "koa";
+import { USERS_API_PATH } from "../../configurations";
 
 export function createRoute<Params, Response>(
    router: Router,
@@ -7,7 +8,8 @@ export function createRoute<Params, Response>(
    method: Method,
    fn: EndpointFunction<Params, Response>,
 ) {
-   path = "/api" + path;
+   path = USERS_API_PATH + path;
+
    if (method === "GET") {
       router.get(path, async ctx => (ctx.body = await fn((ctx.request.query as unknown) as Params, ctx)));
    }

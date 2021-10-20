@@ -1,6 +1,7 @@
 import * as Router from "@koa/router";
 import { File } from "formidable";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
+import { USERS_API_PATH } from "../../configurations";
 import {
    onFileReceived,
    onFileSaved,
@@ -25,7 +26,7 @@ export function userRoutes(r: Router): void {
    createRoute(r, "/user/report", "POST", reportUserPost);
 
    r.post(
-      "/user/upload-image",
+      `${USERS_API_PATH}/user/upload-image`,
       onFileReceived,
       async ctx => (ctx.body = await onFileSaved(ctx.request.files.image as File, ctx)),
    );

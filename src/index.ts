@@ -31,6 +31,7 @@ import { initializeDatabaseBackups } from "./common-tools/database-tools/backups
 import { strToBool } from "./common-tools/string-tools/string-tools";
 import { logEnvironmentMode } from "./common-tools/process/process-tools";
 import { serveWebsite } from "./common-tools/koa-tools/koa-tools";
+import { USERS_API_PATH } from "./configurations";
 
 (async () => {
    // Koa initialization:
@@ -106,7 +107,7 @@ import { serveWebsite } from "./common-tools/koa-tools/koa-tools";
    // Final console messages
    console.log("✓ Server initialized!");
    console.log(`✓ Promo website available in http://localhost:${process.env.PORT}/`);
-   console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}/api`);
+   console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}${USERS_API_PATH}`);
    console.log(`✓ Admin dashboard available in http://localhost:${process.env.PORT}/dashboard`);
    if (httpsPortEnabled) {
       console.log(`✓ Also https port enabled`);
