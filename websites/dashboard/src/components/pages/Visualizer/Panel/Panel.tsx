@@ -1,5 +1,5 @@
 import { IconButton } from "@mui/material";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { VscChevronLeft, VscChevronRight } from "react-icons/vsc";
 import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
 import { GremlinElement } from "../tools/visualizerUtils";
@@ -41,6 +41,7 @@ const Panel: FC<PropsPanel> = props => {
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
    const leftKeyPressed = useKeyPress("ArrowLeft");
    const rightKeyPressed = useKeyPress("ArrowRight");
+   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
       setElementToShow(allNodes.find(node => node.id === nodeIdSelected));
@@ -61,6 +62,10 @@ const Panel: FC<PropsPanel> = props => {
          onNextClick();
       }
    }, [rightKeyPressed]);
+
+   useEffect(() => {
+      scrollContainerRef.current.scrollTo({ top: 0 });
+   }, [elementToShow]);
 
    let Panel: React.FC<PropsGenericPropertiesTable>;
    switch (elementToShow?.type ?? "") {
@@ -87,7 +92,7 @@ const Panel: FC<PropsPanel> = props => {
 
    return (
       <PanelContainer>
-         <PanelCard>
+         <PanelCard ref={scrollContainerRef}>
             {elementToShow != null && (
                <>
                   <NavigationButtonsContainer>
