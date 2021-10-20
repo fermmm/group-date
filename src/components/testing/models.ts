@@ -8,7 +8,7 @@ import { chance } from "../../tests/tools/generalTools";
 import { createFakeCompatibleUsers } from "../../tests/tools/users";
 import { searchAndCreateNewGroups } from "../groups-finder/models";
 import { createTagPost, subscribeToTagsPost } from "../tags/models";
-import { onFileReceived, retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
+import { retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
 import { APP_AUTHORED_TAGS } from "../../configurations";
 import { chatPost, userGroupsGet } from "../groups/models";
 import { fromQueryToUser } from "../user/tools/data-conversion";

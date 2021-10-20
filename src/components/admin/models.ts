@@ -1,9 +1,10 @@
-import { BaseContext } from "koa";
+import { BaseContext, ParameterizedContext, Next } from "koa";
 import * as moment from "moment";
 import * as fs from "fs";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import { performance } from "perf_hooks";
 import * as gremlin from "gremlin";
+import { File } from "formidable";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -37,6 +38,7 @@ import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
 import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
+import { fileSaver } from "../../common-tools/koa-tools/koa-tools";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -275,4 +277,37 @@ export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseCon
    });
    const result = await client.submit(makeQuery(query, nodeLimit), {});
    return nodesToJson(result._items);
+}
+
+export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, next: Next): Promise<any> {
+   const { user, password } = ctx.request.query;
+
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   return fileSaver(ctx, next);
+}
+
+export async function onAdminFileSaved(
+   file: File | undefined,
+   ctx: BaseContext,
+): Promise<{ fileName: string }> {
+   if (file == null || file.size === 0) {
+      if (file) {
+         fs.unlinkSync(file.path);
+      }
+      ctx.throw(400, "Invalid file provided", { ctx });
+      return;
+   }
+
+   // const fileExtension: string = path.extname(file.name).toLowerCase();
+   const folderPath: string = path.dirname(file.path);
+   const fileName: string = path.basename(file.path);
+
+   // Remove the original image file to save disk space:
+   // fs.unlinkSync(file.path);
+
+   return { fileName: `${folderPath}${fileName}` };
 }

@@ -6,13 +6,11 @@ import {
 } from "./../../shared-tools/endpoints-interfaces/user";
 import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
-import * as appRoot from "app-root-path";
 import { ValidationError } from "fastest-validator";
 import { File } from "formidable";
 import * as fs from "fs";
 import * as Koa from "koa";
 import { BaseContext, ParameterizedContext } from "koa";
-import * as koaBody from "koa-body";
 import * as moment from "moment";
 import * as path from "path";
 import * as sharp from "sharp";
@@ -69,6 +67,7 @@ import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
+import { fileSaver } from "../../common-tools/koa-tools/koa-tools";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -453,29 +452,17 @@ export async function sendWelcomeNotification(user: Partial<User>, ctx: BaseCont
    });
 }
 
-const imageSaver = koaBody({
-   multipart: true,
-   formidable: {
-      uploadDir: path.join(appRoot.path, "/uploads/"),
-      keepExtensions: true,
-      maxFileSize: MAX_FILE_SIZE_UPLOAD_ALLOWED,
-   },
-   onError: (error, ctx) => {
-      ctx.throw(400, error);
-   },
-});
-
-export async function onFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
+export async function onImageFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
    // Only valid users can upload images
    const user: Partial<User> = await retrieveUser(ctx.request.query.token as string, false, ctx);
    if (user == null) {
       return;
    }
 
-   return imageSaver(ctx, next);
+   return fileSaver(ctx, next);
 }
 
-export async function onFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {
+export async function onImageFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {
    if (file == null || file.size === 0) {
       if (file) {
          fs.unlinkSync(file.path);

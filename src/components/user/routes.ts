@@ -3,8 +3,8 @@ import { File } from "formidable";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { USERS_API_PATH } from "../../configurations";
 import {
-   onFileReceived,
-   onFileSaved,
+   onImageFileReceived,
+   onImageFileSaved,
    profileStatusGet,
    setAttractionPost,
    userGet,
@@ -27,7 +27,7 @@ export function userRoutes(r: Router): void {
 
    r.post(
       `${USERS_API_PATH}/user/upload-image`,
-      onFileReceived,
-      async ctx => (ctx.body = await onFileSaved(ctx.request.files.image as File, ctx)),
+      onImageFileReceived,
+      async ctx => (ctx.body = await onImageFileSaved(ctx.request.files.image as File, ctx)),
    );
 }

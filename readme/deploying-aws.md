@@ -6,30 +6,40 @@
 
 2. Install `eb` (Elastic Beanstalk client), you can use the [official instructions](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html). After finishing you should have the `eb` command in your console.
 
-3. Get the access keys required to make automatic changes. To do that follow [this guide](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys)
+3. Get the access keys required to make automatic changes. To do that follow [this guide](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys). Add the keys in the .env file in the corresponding variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_KEY`.
 
-4. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work).
+4. Open the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home) and copy the name of the bucket, something that looks like: **elasticbeanstalk-us-east-1-123456789**, then paste it as the value of **AWS_BUCKET_NAME** in the .env file.
 
-5. Execute this command: `eb codesource local`
+5. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work).
 
-6. From this step we will enable the connection between Beanstalk and Neptune, looks like it should be enabled by default but it's not. Open the "VPC Management Console", you can use [this link](https://console.aws.amazon.com/vpc/).
+6. Execute this command: `eb codesource local`
 
-7. On the left navigation panel go to Security Groups then click "Create Security Group", in the name field enter "All open" or whatever you want. In the "Inbound rules" panel click "Add rule", for the type set "All TCP" on the Source field set "Anywhere-IPv4" then click "Create security group" on the bottom
+7. From this step we will enable the connection between Beanstalk and Neptune, looks like it should be enabled by default but it's not. Open the "VPC Management Console", you can use [this link](https://console.aws.amazon.com/vpc/).
 
-8. Go to the "Neptune Console" [you can use this link](https://console.aws.amazon.com/neptune/home), select your database cluster and click "Modify"
+8. On the left navigation panel go to Security Groups then click "Create Security Group", in the name field enter "All open" or whatever you want. In the "Inbound rules" panel click "Add rule", for the type set "All TCP" on the Source field set "Anywhere-IPv4" then click "Create security group" on the bottom
 
-9. Under "VPC security group" add the security group you just created (in step 7)
+9. Go to the "Neptune Console" [you can use this link](https://console.aws.amazon.com/neptune/home), select your database cluster and click "Modify"
 
-10.   Click "Continue" on the bottom > select "Immediately" > click "Modify"
+10.   Under "VPC security group" add the security group you just created (in step 7)
 
-11.   In the Neptune dashboard click on the database name, you should see 2 endpoints one of type "Writer" and one of type "Reader", copy the endpoint name of the writer, something that should look like: `database-1.cluster-abc123.us-east-1.neptune.amazonaws.com`. Paste the address on the .env file on the `DATABASE_URL` variable, add `wss://` at the beginning and `:8080/gremlin` at the end, like in the comment of that variable.
+11.   Click "Continue" on the bottom > select "Immediately" > click "Modify"
+
+12.   In the Neptune dashboard click on the database name, you should see 2 endpoints one of type "Writer" and one of type "Reader", copy the endpoint name of the writer, something that should look like: `database-1.cluster-abc123.us-east-1.neptune.amazonaws.com`. Paste the address on the .env file on the `DATABASE_URL` variable, add `wss://` at the beginning and `:8080/gremlin` at the end, like in the comment of that variable.
       It should look like this: `DATABASE_URL = wss://database-1.cluster-abc123.us-east-1.neptune.amazonaws.com:8182/gremlin`. Save the file.
 
-Now you are ready to upload the application to the server just run: `eb deploy`.
+Now you are ready to upload the application to the server just run:
+
+`eb deploy`
+
+Use that command also to upload new versions.
+What that command do: Uploads the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the install command you can edit the `Procfile` file.
 
 ## Setup a new computer to upload changes to AWS
 
-1. Follow steps 2 and 4 of the previous guide. That is all. If you already did it in your computer there is nothing to do.
+Following the previous steps also configures the computer to upload the changes, these steps are required to configure a second computer.
+
+1. Follow steps 2 and 5 of the previous guide.
+2. Copy the .env file from the computer you already configured into the new one.
 
 ## Upload changes to AWS
 
@@ -64,15 +74,13 @@ Below are the instructions to perform the migration.
 
 2. Open the [IAM Roles list](https://console.aws.amazon.com/iamv2/home#/roles) and click the IAM role you created in the previous step, then copy the role ARN, looks like this: **"arn:aws:iam::123456789012:role/NeptuneLoadFromS3"**, open the .env file and paste as the value of **AWS_CSV_IAM_ROLE_ARN**.
 
-3. Open the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home) and copy the name of the bucket, something that looks like: **elasticbeanstalk-us-east-1-123456789**, then paste it as the value of **AWS_BUCKET_NAME** in the .env file.
-
-4. In the .env file there are two more values to set:
+3. In the .env file there are two more values to set:
 
    **AWS_REGION**: You must complete that value with the region you are using, something that looks like: us-east-1
 
    **ADMIN_PASSWORD**: Here you have to create a password, with a minimum of 6 characters. If you already have this value set there is no need to change it.
 
-5. Save the .env file and run `eb deploy` to send the .env changes to the server.
+4. Save the .env file and run `eb deploy` to send the .env changes to the server.
 
 Now follow the next section to enable your computer to make the migration.
 
