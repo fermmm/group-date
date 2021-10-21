@@ -10,38 +10,32 @@ const s3 = new AWS.S3({
  * @param fileName File name in the uploads folder
  * @param targetPath Full path of the destination file, including folders and file name. Example 1: "myFile.png" Example 2: "my-sub-folder/my-file.png"
  */
-export async function uploadFileToS3(params: { fileName: string; targetPath: string }) {
-   const { fileName, targetPath } = params;
+export async function uploadFileToS3(params: {
+   fileName: string;
+   targetPath: string;
+   contentType?: S3ContentType;
+   allowPublicRead?: boolean;
+}) {
+   const { fileName, targetPath, contentType, allowPublicRead } = params;
 
-   let resolve: (value: UploadToS3Response) => void;
-   const resultPromise = new Promise<UploadToS3Response>((res, rej) => {
-      resolve = res;
-   });
+   const file = await fs.promises.readFile(fileName);
 
-   fs.readFile(fileName, (err, data) => {
-      if (err) {
-         resolve({ success: false, error: err });
-         return;
-      }
+   const s3params: AWS.S3.PutObjectRequest = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: targetPath,
+      Body: file,
+   };
+   if (allowPublicRead) {
+      s3params.ACL = "public-read";
+   }
+   if (contentType) {
+      s3params.ContentType = contentType;
+   }
 
-      const params = {
-         Bucket: process.env.AWS_BUCKET_NAME,
-         Key: targetPath,
-         Body: JSON.stringify(data, null, 2),
-      };
+   const s3Response = await s3.upload(s3params).promise();
 
-      s3.upload(params, (s3Err: Error, data: AWS.S3.ManagedUpload.SendData) => {
-         if (s3Err) {
-            resolve({ success: false, error: s3Err });
-            return;
-         }
-
-         // To get the full path that includes the bucket address use data.Location
-         resolve({ success: true, path: data.Key });
-      });
-   });
-
-   return resultPromise;
+   // To get the full path that includes the bucket address use data.Location
+   return s3Response.Key;
 }
 
 export interface UploadToS3Response {
@@ -49,3 +43,5 @@ export interface UploadToS3Response {
    path?: string;
    error?: NodeJS.ErrnoException;
 }
+
+export type S3ContentType = "text/csv" | "image/jpeg" | "application/octet-stream";

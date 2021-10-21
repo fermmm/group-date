@@ -15,12 +15,14 @@
    4. Install latest Node.js version: `nvm install lts/*`
    5. Set the Node.js version just installed as the permanent to use: `nvm alias default node`
 
-4. Duplicate the file `.env.example` and rename it: `.env`. In Unix you can use this command: `cp .env.example .env`. If you are in a server you may need to change the IMAGES_HOST variable in the .env file replacing localhost with the server public address.
+4. Duplicate the file `.env.example` and rename it: `.env`. In Unix you can use this command: `cp .env.example .env`. Also do it on the **/websites/dashboard** folder.
 
-5. Repeat the previous step in the dashboard subfolder
+5. **Optional**: To enable the dashboard (an admin page of the server) open the .env file and complete the following variables:
 
-6. **Optional**: To enable the dashboard (an admin page of the server) open the /websites/dashboard/.env file you created in the previous step and complete the missing variable `REACT_APP_FACEBOOK_APP_ID` with the App ID of your Facebook app, this is required because the login in the dashboard and in the mobile app works with Facebook, for both you need to create one Facebook app in the Facebook developer panel ([more info here](https://developers.facebook.com/docs/development/)). If you are installing on a production server you'll also need a domain configured to serve the dashboard in https, otherwise the login in the dashboard will throw a security error, this is a Facebook requirement.
+   **ADMIN_USER**: Here you have to create a user name that will be used to login in the dashboard, can be anything.
 
-7. Run: `npm install` and `npm install pm2@latest -g`
+   **ADMIN_PASSWORD**: Here you have to create a password that will be used to login in the dashboard, with a minimum of 6 characters.
 
-That's all.
+6. Run: `npm install` and `npm install pm2@latest -g`
+
+That's all for installing.

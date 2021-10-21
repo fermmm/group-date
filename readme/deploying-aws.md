@@ -29,12 +29,13 @@
 13.   In the Neptune dashboard click on the database name, you should see 2 endpoints one of type "Writer" and one of type "Reader", copy the endpoint name of the writer, something that should look like: `database-1.cluster-abc123.us-east-1.neptune.amazonaws.com`. Paste the address on the .env file on the `DATABASE_URL` variable, add `wss://` at the beginning and `:8080/gremlin` at the end, like in the comment of that variable.
       It should look like this: `DATABASE_URL = wss://database-1.cluster-abc123.us-east-1.neptune.amazonaws.com:8182/gremlin`. Save the file.
 
-Now you are ready to upload the application to the server just run:
+14.   Now you are ready to upload the application to the server just run:
+      `npm run deploy`
 
-`npm run deploy`
+      Use that command also to upload new versions.
+      What that command do: Builds the js files and uploads all the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the run command you can edit the `Procfile` file.
 
-Use that command also to upload new versions.
-What that command do: Builds the js files and uploads all the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the run command you can edit the `Procfile` file.
+15.   After the upload finishes you should have something on the public url. To get the public url go to the [Elastic Beanstalk Dashboard](https://console.aws.amazon.com/elasticbeanstalk/home), you may need to select your environment and then on top you should see the url, something like this: **abcd1234.us-east-1.elasticbeanstalk.com**
 
 ## Setup a new computer to upload changes to AWS
 
@@ -80,6 +81,8 @@ Below are the instructions to perform the migration.
 
    **AWS_REGION**: You must complete that value with the region you are using, something that looks like: us-east-1
 
+   **ADMIN_USER**: Here you have to create a user name that will be used later, can be anything. If you already have this value set there is no need to change it.
+
    **ADMIN_PASSWORD**: Here you have to create a password, with a minimum of 6 characters. If you already have this value set there is no need to change it.
 
 4. Save the .env file and run `npm run deploy` to send the .env changes to the server.
@@ -98,10 +101,14 @@ Now follow the next section to enable your computer to make the migration.
 
 ### Make a migration:
 
-1. To generate a CSV from **database-backups/latest.xml** run this command:
+1. To generate CSV from a database backup in XML format for example located at **database-backups/latest.xml** run this command:
 
    `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
 
-   This will generate 2 CSV files in the database-backups folder, one containing the vertices and one containing the edges.
+   This will generate 2 CSV files in the same folder, one containing the vertices and one containing the edges.
 
-2. Go to the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home), enter in your bucket and click Upload. Then upload both CSV files you created in the previous step.
+2. Open the Dashboard of the server **public_url/dashboard** for the public url see the last step of the [Setup AWS](#setup-aws) in this same readme file. Login with whatever you wrote on the **ADMIN_USER** and **ADMIN_PASSWORD** in the .env file.
+
+3. Go to the Tech Operations sections and click on the `Load Database Backup` button, then select both CSV files holding shift.
+
+   That is all, the backup should be loaded into the database. It's important to know that it will not replace any existing information.

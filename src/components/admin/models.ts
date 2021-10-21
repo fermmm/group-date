@@ -306,16 +306,15 @@ export async function onAdminFileSaved(
       const fileName: string = path.basename(file.path);
 
       if (process.env.USING_AWS === "true") {
-         const uploadResult = await uploadFileToS3({ fileName: folderPath + fileName, targetPath: fileName });
+         const fileNameInS3 = await uploadFileToS3({
+            fileName: folderPath + fileName,
+            targetPath: fileName,
+         });
 
          // Remove the file from the server because it's already on the S3
-         fs.unlinkSync(folderPath + fileName);
+         await fs.promises.unlink(folderPath + fileName);
 
-         if (uploadResult.success) {
-            fileNames.push(uploadResult.path);
-         } else {
-            ctx.throw(400, uploadResult.error, { ctx });
-         }
+         fileNames.push(fileNameInS3);
       } else {
          fileNames.push(fileName);
       }
