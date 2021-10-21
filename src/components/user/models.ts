@@ -246,7 +246,9 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
    let query: Traversal = queryToGetUserByToken(params.token);
 
    if (params.props != null) {
-      const validationResult: true | ValidationError[] = validateUserProps(params.props);
+      const validationResult: true | ValidationError[] | Promise<true | ValidationError[]> = validateUserProps(
+         params.props,
+      );
       if (validationResult !== true) {
          ctx.throw(400, JSON.stringify(validationResult));
          return;

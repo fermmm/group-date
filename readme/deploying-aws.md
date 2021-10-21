@@ -31,10 +31,10 @@
 
 Now you are ready to upload the application to the server just run:
 
-`eb deploy`
+`npm run deploy`
 
 Use that command also to upload new versions.
-What that command do: Uploads the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the install command you can edit the `Procfile` file.
+What that command do: Builds the js files and uploads all the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the run command you can edit the `Procfile` file.
 
 ## Setup a new computer to upload changes to AWS
 
@@ -45,7 +45,7 @@ Following the previous steps also configures the computer to upload the changes,
 
 ## Upload changes to AWS
 
-To upload a new version run: `eb deploy`.
+To upload a new version run: `npm run deploy`.
 
 ## Connecting using SSH
 
@@ -82,7 +82,7 @@ Below are the instructions to perform the migration.
 
    **ADMIN_PASSWORD**: Here you have to create a password, with a minimum of 6 characters. If you already have this value set there is no need to change it.
 
-4. Save the .env file and run `eb deploy` to send the .env changes to the server.
+4. Save the .env file and run `npm run deploy` to send the .env changes to the server.
 
 Now follow the next section to enable your computer to make the migration.
 

@@ -5,7 +5,7 @@ import { setIntervalAsync } from "set-interval-async/dynamic";
 import { performance } from "perf_hooks";
 import * as path from "path";
 import * as gremlin from "gremlin";
-import { Files } from "formidable";
+import { Files, File } from "formidable";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -256,7 +256,7 @@ export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): 
 
    const response = await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
 
-   return response;
+   return { request: { url: loaderEndpoint, ...requestParams }, response };
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
@@ -276,7 +276,7 @@ export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseCon
 }
 
 export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, next: Next): Promise<any> {
-   const { user, password } = ctx.request.query;
+   const { user, password } = ctx.request.query as NodeJS.Dict<string>;
 
    const passwordValidation = validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
@@ -292,7 +292,7 @@ export async function onAdminFileSaved(
 ): Promise<{ fileNames: string[] }> {
    const fileNames: string[] = [];
    for (const fileKeyName of Object.keys(files)) {
-      const file = files[fileKeyName];
+      const file: File = files[fileKeyName] as File;
 
       if (file == null || file.size === 0) {
          if (file) {

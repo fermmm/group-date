@@ -1,1 +1,1 @@
-web: npm run no-database-no-pm2-prod
+web: npm run aws-start
