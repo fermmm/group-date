@@ -28,7 +28,7 @@ export function queryToCreateVerticesFromObjects<T>(props: {
    let { objects, label, duplicationAvoidanceProperty, serializeProperties = true, currentTraversal } = props;
 
    if (currentTraversal == null) {
-      currentTraversal = (g as unknown) as Traversal;
+      currentTraversal = g as unknown as Traversal;
    }
 
    let objectsReadyForDB: Array<Record<keyof T, GremlinValueType>> | T[];
