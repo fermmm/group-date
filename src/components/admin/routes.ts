@@ -31,6 +31,6 @@ export function adminRoutes(r: Router): void {
    r.post(
       `${USERS_API_PATH}/admin/upload-file`,
       onAdminFileReceived,
-      async ctx => (ctx.body = await onAdminFileSaved(ctx.request.files.image as File, ctx)),
+      async ctx => (ctx.body = await onAdminFileSaved(ctx.request.files, ctx)),
    );
 }

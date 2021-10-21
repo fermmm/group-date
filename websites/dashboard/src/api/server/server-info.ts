@@ -15,7 +15,7 @@ export function useServerInfo<T extends ServerInfoResponse>(props?: {
    return useQuery<T>(
       "server-info",
       () =>
-         httpRequest<ServerInfoParams, T>({
+         httpRequest<T>({
             url: "server-info",
             params: {
                buildVersion: "0.0.0",

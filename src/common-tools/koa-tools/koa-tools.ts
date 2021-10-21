@@ -5,6 +5,7 @@ import * as serve from "koa-static";
 import * as send from "koa-send";
 import * as koaBody from "koa-body";
 import * as appRoot from "app-root-path";
+import * as path from "path";
 import { MAX_FILE_SIZE_UPLOAD_ALLOWED } from "../../configurations";
 
 export function serveWebsite(route: string, websiteFilesPath: string, app: Koa, router: Router) {
@@ -24,12 +25,27 @@ export function serveWebsite(route: string, websiteFilesPath: string, app: Koa, 
    });
 }
 
-export const fileSaver = koaBody({
+export const fileSaverForImages = koaBody({
    multipart: true,
    formidable: {
       uploadDir: path.join(appRoot.path, "/uploads/"),
       keepExtensions: true,
       maxFileSize: MAX_FILE_SIZE_UPLOAD_ALLOWED,
+   },
+   onError: (error, ctx) => {
+      ctx.throw(400, error);
+   },
+});
+
+export const fileSaverForAdminFiles = koaBody({
+   multipart: true,
+   formidable: {
+      uploadDir: path.join(appRoot.path, "/admin-uploads/"),
+      onFileBegin: (name, file) => {
+         const dir = path.join(appRoot.path, `/admin-uploads/`);
+         file.path = `${dir}/${file.name}`;
+      },
+      keepExtensions: true,
    },
    onError: (error, ctx) => {
       ctx.throw(400, error);

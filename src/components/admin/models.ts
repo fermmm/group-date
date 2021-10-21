@@ -3,8 +3,9 @@ import * as moment from "moment";
 import * as fs from "fs";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import { performance } from "perf_hooks";
+import * as path from "path";
 import * as gremlin from "gremlin";
-import { File } from "formidable";
+import { Files } from "formidable";
 import {
    AdminChatGetAllParams,
    AdminChatGetParams,
@@ -38,7 +39,9 @@ import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { httpRequest } from "../../common-tools/httpRequest/httpRequest";
 import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
-import { fileSaver } from "../../common-tools/koa-tools/koa-tools";
+import { fileSaverForAdminFiles } from "../../common-tools/koa-tools/koa-tools";
+import { createFolder } from "../../common-tools/files-tools/files-tools";
+import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -46,6 +49,7 @@ import { fileSaver } from "../../common-tools/koa-tools/koa-tools";
  * should be empty, other initializers create content in the database that prevents this to be executed.
  */
 export async function initializeAdmin(): Promise<void> {
+   createFolder("admin-uploads");
    await updateAmountOfUsersCount();
    setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
    // To create a report when server boots and preview database:
@@ -222,7 +226,7 @@ export async function adminNotificationPost(
 }
 
 export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): Promise<any> {
-   const { user, password, folder, fileId = "latest" } = params;
+   const { user, password, fileName } = params;
 
    const passwordValidation = validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
@@ -243,24 +247,16 @@ export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): 
 
    const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader").replace("wss:", "https:");
    const requestParams = {
-      source: `s3://${process.env.AWS_BUCKET_NAME}/${folder ? folder + "/" : ""}${fileId}`,
+      source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
       format: "csv",
       iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
       region: process.env.AWS_REGION,
       queueRequest: "TRUE",
    };
-   const nodesParams = { ...requestParams, source: requestParams.source + "-nodes.csv" };
-   const edgesParams = { ...requestParams, source: requestParams.source + "-edges.csv" };
 
-   const nodesResponse = await httpRequest({ url: loaderEndpoint, method: "POST", params: nodesParams });
-   const edgesResponse = await httpRequest({ url: loaderEndpoint, method: "POST", params: edgesParams });
+   const response = await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
 
-   return {
-      loaderEndpoint,
-      requestParams,
-      nodesResponse,
-      edgesResponse,
-   };
+   return response;
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
@@ -284,30 +280,46 @@ export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, nex
 
    const passwordValidation = validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
-      return passwordValidation.error;
+      ctx.throw(passwordValidation.error);
    }
 
-   return fileSaver(ctx, next);
+   return fileSaverForAdminFiles(ctx, next);
 }
 
 export async function onAdminFileSaved(
-   file: File | undefined,
+   files: Files | undefined,
    ctx: BaseContext,
-): Promise<{ fileName: string }> {
-   if (file == null || file.size === 0) {
-      if (file) {
-         fs.unlinkSync(file.path);
+): Promise<{ fileNames: string[] }> {
+   const fileNames: string[] = [];
+   for (const fileKeyName of Object.keys(files)) {
+      const file = files[fileKeyName];
+
+      if (file == null || file.size === 0) {
+         if (file) {
+            fs.unlinkSync(file.path);
+         }
+         ctx.throw(400, "Invalid file provided", { ctx });
+         return;
       }
-      ctx.throw(400, "Invalid file provided", { ctx });
-      return;
+
+      const folderPath: string = path.dirname(file.path);
+      const fileName: string = path.basename(file.path);
+
+      if (process.env.USING_AWS === "true") {
+         const uploadResult = await uploadFileToS3({ fileName: folderPath + fileName, targetPath: fileName });
+
+         // Remove the file from the server because it's already on the S3
+         fs.unlinkSync(folderPath + fileName);
+
+         if (uploadResult.success) {
+            fileNames.push(uploadResult.path);
+         } else {
+            ctx.throw(400, uploadResult.error, { ctx });
+         }
+      } else {
+         fileNames.push(fileName);
+      }
    }
 
-   // const fileExtension: string = path.extname(file.name).toLowerCase();
-   const folderPath: string = path.dirname(file.path);
-   const fileName: string = path.basename(file.path);
-
-   // Remove the original image file to save disk space:
-   // fs.unlinkSync(file.path);
-
-   return { fileName: `${folderPath}${fileName}` };
+   return { fileNames: fileNames };
 }

@@ -5,15 +5,20 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 /**
  * Wrapper for fetch for more simplification and issues solved.
  */
-export async function httpRequest<Params = null, Response = null>(
-   props: HttpRequestParams<Params>
+export async function httpRequest<Response = null, Params = any, UrlParams = any>(
+   props: HttpRequestParams<Params, UrlParams>
 ): Promise<Response> {
-   let { url, method = "GET", params } = props;
+   let { url, method = "GET", params, urlParams } = props;
    url = serverUrlComposer(url);
    const settings: AxiosRequestConfig = { url, method };
 
-   if (method === "GET" && params != null) {
-      settings.url += "?" + stringify(params);
+   if (method === "GET" && (params != null || urlParams != null)) {
+      settings.url += "?" + stringify(params ?? urlParams);
+   }
+
+   // GET already has url params up there, but other methods can also have url params
+   if (method !== "GET" && urlParams != null) {
+      settings.url += "?" + stringify(urlParams);
    }
 
    if (method === "POST" && params != null) {
@@ -25,8 +30,9 @@ export async function httpRequest<Params = null, Response = null>(
    return result.data as Response;
 }
 
-export interface HttpRequestParams<T> {
+export interface HttpRequestParams<Params = null, UrlParams = null> {
    url: string;
    method?: "POST" | "GET" | "PUT" | "DELETE";
-   params?: T;
+   params?: Params;
+   urlParams?: UrlParams;
 }

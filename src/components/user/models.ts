@@ -67,7 +67,7 @@ import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
-import { fileSaver } from "../../common-tools/koa-tools/koa-tools";
+import { fileSaverForImages } from "../../common-tools/koa-tools/koa-tools";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -459,7 +459,7 @@ export async function onImageFileReceived(ctx: ParameterizedContext<{}, {}>, nex
       return;
    }
 
-   return fileSaver(ctx, next);
+   return fileSaverForImages(ctx, next);
 }
 
 export async function onImageFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {

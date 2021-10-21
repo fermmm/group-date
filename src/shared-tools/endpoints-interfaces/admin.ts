@@ -57,8 +57,7 @@ export interface VisualizerQueryParams extends AdminProtectionParams {
 export interface LoadCsvPostParams extends AdminProtectionParams {
    user: string;
    password: string;
-   folder?: string;
-   fileId?: string;
+   fileName: string;
 }
 
 export interface CredentialsValidationResult {
