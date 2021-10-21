@@ -35,7 +35,7 @@
       Use that command also to upload new versions.
       What that command do: Builds the js files and uploads all the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the run command you can edit the `Procfile` file.
 
-15.   After the upload finishes you should have something on the public url. To get the public url go to the [Elastic Beanstalk Dashboard](https://console.aws.amazon.com/elasticbeanstalk/home), you may need to select your environment and then on top you should see the url, something like this: **abcd1234.us-east-1.elasticbeanstalk.com**
+15.   After the upload finishes you should have something on the public url. To get the public url go to the [Elastic Beanstalk Dashboard](https://console.aws.amazon.com/elasticbeanstalk/home), you may need to click on your environment name and then on top you should see the url, something like this: **abcd1234.us-east-1.elasticbeanstalk.com**
 
 ## Setup a new computer to upload changes to AWS
 
@@ -64,20 +64,18 @@ If connection to the database cannot be established there could be a problem rel
 
 To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something.
 
-## Migrating database content from Gremlin Server to AWS Neptune
+## Loading a database backup
 
-When using gremlin server the database content is saved as GraphML (XML) in the database-backups folder. If you want to migrate that into Neptune this repo includes a converter from GraphML to CSV (The format Neptune can import), is [this](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) python script they did with an issue fixed.
+Neptune already has a backup system but it's limited if you don't pay. So there is another alternative backup loading and saving system I did. Using that you can load a database content file in 2 supported formats XML (GraphML) or the official CSV. If you want to load a backup saved in XML format you will need an extra step for converting that into CSV, this project includes [this](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) python script to do that conversion, the version in this repo it's a little improved.
 
-Below are the instructions to perform the migration.
+### Setup AWS to enable database backup loading:
 
-### Setup AWS to make the migration:
-
-1. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later.
+1. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later (it's required by AWS to store the files there before loading them).
    There is a missing detail in these steps: Under the title **"Creating the Amazon S3 VPC Endpoint"** there is a step that says: **"Choose the Service Name com.amazonaws.region.s3"**, when you search for that you may find 2 services with that name, select the one of type **"Gateway"**.
 
 2. Open the [IAM Roles list](https://console.aws.amazon.com/iamv2/home#/roles) and click the IAM role you created in the previous step, then copy the role ARN, looks like this: **"arn:aws:iam::123456789012:role/NeptuneLoadFromS3"**, open the .env file and paste as the value of **AWS_CSV_IAM_ROLE_ARN**.
 
-3. In the .env file there are two more values to set:
+3. In the .env file there are some values to set:
 
    **AWS_REGION**: You must complete that value with the region you are using, something that looks like: us-east-1
 
@@ -91,6 +89,8 @@ Now follow the next section to enable your computer to make the migration.
 
 ### Setup your PC to make a migration:
 
+You can skip these steps if you will never load a backup in XML format.
+
 1. You need Python 2 or Python 3 installed in your system, to check if it's installed run the command:
 
    `python --version`
@@ -101,14 +101,14 @@ Now follow the next section to enable your computer to make the migration.
 
 ### Make a migration:
 
-1. To generate CSV from a database backup in XML format for example located at **database-backups/latest.xml** run this command:
+1. You can skip this step if your backup file is in CSV format. To convert to CSV a XML file located for example at **database-backups/latest.xml** run this command:
 
    `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
 
-   This will generate 2 CSV files in the same folder, one containing the vertices and one containing the edges.
+   This will generate 2 CSV files in the same folder, one containing the vertices and one containing the edges (this is how CSV backup works, with 2 files).
 
-2. Open the Dashboard of the server **public_url/dashboard** for the public url see the last step of the [Setup AWS](#setup-aws) in this same readme file. Login with whatever you wrote on the **ADMIN_USER** and **ADMIN_PASSWORD** in the .env file.
+2. Open the Dashboard of the server **[public_url]/dashboard** for the public url see the last step of the [Setup AWS](#setup-aws) in this same readme file. Login with whatever you wrote on the **ADMIN_USER** and **ADMIN_PASSWORD** in the .env file.
 
 3. Go to the Tech Operations sections and click on the `Load Database Backup` button, then select both CSV files holding shift.
 
-   That is all, the backup should be loaded into the database. It's important to know that it will not replace any existing information.
+   That is all, the backup should be loaded into the database. It's important to know that it will not replace or delete any existing information in the database.
