@@ -4,7 +4,10 @@ import {
    ReportUserPostParams,
    ALL_GENDERS,
 } from "./../../shared-tools/endpoints-interfaces/user";
-import { isValidNotificationsToken } from "./../../common-tools/push-notifications/push-notifications";
+import {
+   isValidNotificationsToken,
+   getNotificationsDeliveryErrors,
+} from "./../../common-tools/push-notifications/push-notifications";
 import { removePrivacySensitiveUserProps } from "./../../common-tools/security-tools/security-tools";
 import { ValidationError } from "fastest-validator";
 import { File } from "formidable";
@@ -58,6 +61,7 @@ import { TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../tags/models";
 import {
    BIG_IMAGE_SIZE,
+   LOG_PUSH_NOTIFICATION_DELIVERING_RESULT,
    MAX_FILE_SIZE_UPLOAD_ALLOWED,
    SMALL_IMAGE_SIZE,
    USER_PROPS_AS_QUESTIONS,
@@ -68,6 +72,7 @@ import { sendPushNotifications } from "../../common-tools/push-notifications/pus
 import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 import { fileSaverForImages } from "../../common-tools/koa-tools/koa-tools";
+import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -358,7 +363,17 @@ export async function addNotificationToUser(
             } as NotificationData,
             channelId: settings.channelId ? settings.channelId : NotificationChannelId.Default,
          },
-      ]);
+      ]).then(expoPushTickets => {
+         if (LOG_PUSH_NOTIFICATION_DELIVERING_RESULT) {
+            // After an hour we log if the notifications were delivered without any error:
+            setTimeout(async () => {
+               const errors = await getNotificationsDeliveryErrors(expoPushTickets);
+               if (errors.length > 0) {
+                  errors.forEach(error => console.log(error));
+               }
+            }, hoursToMilliseconds(1));
+         }
+      });
    }
 }
 

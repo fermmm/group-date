@@ -21,13 +21,19 @@ import {
    VisualizerQueryParams,
 } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
-import { NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
+import {
+   NotificationChannelId,
+   NotificationData,
+   NotificationType,
+   User,
+} from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveUser } from "../user/models";
 import { queryToGetAllCompleteUsers, queryToGetAllUsers, queryToUpdateUserProps } from "../user/queries";
 import {
    queryToGetAdminChatMessages,
    queryToGetAllChatsWithAdmins,
    queryToSaveAdminChatMessage,
+   queryToSelectUsersForNotification,
 } from "./queries";
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
@@ -42,6 +48,12 @@ import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visual
 import { fileSaverForAdminFiles } from "../../common-tools/koa-tools/koa-tools";
 import { createFolder } from "../../common-tools/files-tools/files-tools";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
+import { fromQueryToUserList } from "../user/tools/data-conversion";
+import {
+   getNotificationsDeliveryErrors,
+   sendPushNotifications,
+} from "../../common-tools/push-notifications/push-notifications";
+import { time } from "../../common-tools/js-tools/js-tools";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -205,26 +217,6 @@ export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promi
    return promise;
 }
 
-/**
- * This endpoint can be extended to search users by user props and other options so many users can be reached.
- * To implement events notifications this endpoint must be extended.
- */
-export async function adminNotificationPost(
-   params: AdminNotificationPostParams,
-   ctx: BaseContext,
-): Promise<ChatWithAdmins[]> {
-   const callerUser: Partial<User> = await retrieveUser(params.token, false, ctx);
-   if (!callerUser.isAdmin) {
-      return null;
-   }
-
-   await addNotificationToUser({ userId: params.targetUserId }, params.notification, {
-      sendPushNotification: true,
-      translateNotification: false,
-      channelId: params.channelId,
-   });
-}
-
 export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): Promise<any> {
    const { user, password, fileName } = params;
 
@@ -321,4 +313,54 @@ export async function onAdminFileSaved(
    }
 
    return { fileNames: fileNames };
+}
+
+export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {
+   const { user, password, channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
+
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   const users = await fromQueryToUserList(queryToSelectUsersForNotification(filters), false, false);
+
+   if (onlyReturnUsersAmount) {
+      return `If you send the notification ${users.length} user(s) will receive it.`;
+   }
+
+   for (const user of users) {
+      await addNotificationToUser({ token: user.token }, notificationContent, {
+         translateNotification: false,
+         sendPushNotification: false,
+         channelId,
+      });
+   }
+
+   const expoPushTickets = await sendPushNotifications(
+      users.map(user => ({
+         to: user.notificationsToken,
+         title: notificationContent.title,
+         body: notificationContent.text,
+         data: {
+            type: notificationContent.type,
+            targetId: notificationContent.targetId,
+            notificationId: generateId(),
+         } as NotificationData,
+         channelId: channelId ? channelId : NotificationChannelId.Default,
+      })),
+   );
+
+   // Some time to wait in order for expo to process the notification before the delivery status can be checked
+   await time(10000);
+
+   const errors = await getNotificationsDeliveryErrors(expoPushTickets);
+
+   let returnMessage = `Notification sent to ${users.length - errors.length} users.`;
+   if (errors.length > 0) {
+      returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
+      errors.forEach(error => (returnMessage += `\n${error}`));
+   }
+
+   return returnMessage;
 }

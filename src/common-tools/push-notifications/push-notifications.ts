@@ -1,5 +1,4 @@
 import { Expo, ExpoPushErrorReceipt, ExpoPushMessage, ExpoPushSuccessTicket } from "expo-server-sdk";
-import { hoursToMilliseconds } from "./../math-tools/general";
 
 export const expo = new Expo();
 
@@ -26,8 +25,7 @@ export async function sendPushNotifications(messages: ExpoPushMessage[]) {
       }
    }
 
-   // After an hour we check if the notifications were delivered without any error:
-   setTimeout(() => logNotificationsDeliveringErrors(tickets), hoursToMilliseconds(1));
+   return tickets;
 }
 
 /**
@@ -46,9 +44,14 @@ export async function sendPushNotifications(messages: ExpoPushMessage[]) {
  * notifications to devices that have blocked notifications or have uninstalled
  * your app. Expo does not control this policy and sends back the feedback from
  * Apple and Google so you can handle it appropriately.
+ *
+ * What this function do is given a list of tickets checks in the expo server for
+ * a delivery status and returns the error messages of the ones that were not delivered
  * */
-async function logNotificationsDeliveringErrors(tickets: ExpoPushSuccessTicket[]) {
+export async function getNotificationsDeliveryErrors(tickets: ExpoPushSuccessTicket[]) {
    let receiptIds = [];
+   let errorMessages = [];
+
    for (let ticket of tickets) {
       // NOTE: Not all tickets have IDs; for example, tickets for notifications
       // that could not be enqueued will have error information and no receipt ID.
@@ -69,19 +72,22 @@ async function logNotificationsDeliveringErrors(tickets: ExpoPushSuccessTicket[]
             if ((status as string) === "ok") {
                continue;
             } else if (status === "error") {
-               console.warn(`There was an error sending a notification: ${message}`);
+               let errorMsg = `There was an error sending a notification: ${message}`;
                if (details && details.error) {
                   // The error codes are listed in the Expo documentation:
                   // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
                   // You must handle the errors appropriately.
-                  console.warn(`The error code is ${details.error}`);
+                  errorMsg += `. The error code is ${details.error}`;
                }
+               errorMessages.push(errorMsg);
             }
          }
       } catch (error) {
-         console.warn(error);
+         console.warn(`Error when trying to get notification delivery status from Expo: ${error}`);
       }
    }
+
+   return errorMessages;
 }
 
 export function isValidNotificationsToken(token: string): boolean {

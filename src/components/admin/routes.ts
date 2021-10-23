@@ -5,7 +5,7 @@ import { USERS_API_PATH } from "../../configurations";
 import {
    adminChatGet,
    adminChatPost,
-   adminNotificationPost,
+   adminNotificationSendPost,
    allChatsWithAdminsGet,
    convertToAdminPost,
    loadCsvPost,
@@ -25,9 +25,9 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/logs/files", "GET", logFileListGet);
    createRoute(r, "/admin/log", "GET", logGet);
    createRoute(r, "/admin/convert", "POST", convertToAdminPost);
-   createRoute(r, "/admin/notification", "POST", adminNotificationPost);
    createRoute(r, "/admin/db/loadcsv", "POST", loadCsvPost);
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
+   createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
    r.post(
       `${USERS_API_PATH}/admin/upload-file`,
       onAdminFileReceived,

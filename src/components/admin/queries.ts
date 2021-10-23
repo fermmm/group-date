@@ -2,8 +2,9 @@ import * as moment from "moment";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, column, g, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
+import { AdminNotificationFilter } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage } from "../../shared-tools/endpoints-interfaces/common";
-import { queryToGetUserById } from "../user/queries";
+import { queryToGetAllCompleteUsers, queryToGetUserById } from "../user/queries";
 
 export function queryToGetAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
    const projectWithoutUserData: Traversal = __.valueMap().by(__.unfold());
@@ -58,4 +59,14 @@ export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): 
    return traversal.map(
       __.as("chat").in_("chatWithAdmins").as("user").select("chat").choose(__.identity(), projectWithUserData),
    );
+}
+
+export function queryToSelectUsersForNotification(filters: AdminNotificationFilter): Traversal {
+   const traversal = queryToGetAllCompleteUsers();
+
+   if (filters.usersEmail) {
+      traversal.union(...filters.usersEmail.map(email => __.has("email", email)));
+   }
+
+   return traversal;
 }

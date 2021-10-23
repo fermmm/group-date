@@ -515,3 +515,5 @@ export const REPORT_DATABASE_RETRYING: boolean = true;
  */
 export const LOG_ROUTE_ACCESS: boolean = true;
 export const LOG_IMAGE_ACCESS: boolean = true;
+
+export const LOG_PUSH_NOTIFICATION_DELIVERING_RESULT: boolean = false;
