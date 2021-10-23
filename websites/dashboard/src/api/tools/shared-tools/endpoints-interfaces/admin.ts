@@ -43,12 +43,6 @@ export interface UsageReport {
    timeSpentOnReportMs: number;
 }
 
-export interface AdminNotificationPostParams extends TokenParameter {
-   targetUserId: string;
-   notification: NotificationContent;
-   channelId: NotificationChannelId;
-}
-
 export interface VisualizerQueryParams extends AdminProtectionParams {
    query: string;
    nodeLimit: number;
@@ -63,4 +57,15 @@ export interface LoadCsvPostParams extends AdminProtectionParams {
 export interface CredentialsValidationResult {
    isValid: boolean;
    error?: string;
+}
+
+export interface AdminNotificationPostParams extends AdminProtectionParams {
+   onlyReturnUsersAmount?: boolean;
+   notificationContent?: NotificationContent;
+   channelId?: NotificationChannelId;
+   filters: AdminNotificationFilter;
+}
+
+export interface AdminNotificationFilter {
+   usersEmail?: string[];
 }

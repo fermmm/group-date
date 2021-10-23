@@ -4,7 +4,8 @@ import {
    VscListSelection,
    VscClose,
    VscTypeHierarchySuper,
-   VscSymbolProperty
+   VscSymbolProperty,
+   VscMegaphone
 } from "react-icons/vsc";
 import Drawer from "../../common/UI/Drawer/Drawer";
 import Logs from "../Logs/Logs";
@@ -14,6 +15,7 @@ import { useLoginStatus } from "../../../common-tools/authentication/useLoginSta
 import { Login } from "../Login/Login";
 import Visualizer from "../Visualizer/Visualizer";
 import TechOps from "../TechOps/TechOps";
+import Notifications from "../Notifications/Notifications";
 
 const Main: FC = () => {
    const history = useHistory();
@@ -34,7 +36,12 @@ const Main: FC = () => {
             {
                label: "Logs",
                icon: () => <VscListSelection />,
-               onClick: () => history.push("/logs"),
+               onClick: () => history.push("/logs")
+            },
+            {
+               label: "Send Notifications",
+               icon: () => <VscMegaphone />,
+               onClick: () => history.push("/notifications"),
                marginBottom: 40
             },
             {
@@ -53,11 +60,14 @@ const Main: FC = () => {
             <RouteRequiresLogin exact path="/">
                <Logs />
             </RouteRequiresLogin>
+            <RouteRequiresLogin path="/visualizer">
+               <Visualizer />
+            </RouteRequiresLogin>
             <RouteRequiresLogin path="/logs">
                <Logs />
             </RouteRequiresLogin>
-            <RouteRequiresLogin path="/visualizer">
-               <Visualizer />
+            <RouteRequiresLogin path="/notifications">
+               <Notifications />
             </RouteRequiresLogin>
             <RouteRequiresLogin path="/tech-ops">
                <TechOps />

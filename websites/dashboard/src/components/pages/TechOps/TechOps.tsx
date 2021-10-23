@@ -1,19 +1,13 @@
 import React, { FC, useState } from "react";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { useFilePicker } from "use-file-picker";
-import {
-   ButtonsContainer,
-   JsonTextContainer,
-   ResponseTextContainer,
-   TechOpsContainer
-} from "./styles.TechOps";
+import { ButtonsContainer, JsonTextContainer, ResponseTextContainer } from "./styles.TechOps";
 import ButtonLoadDatabaseBackup from "./ButtonLoadDatabaseBackup/ButtonLoadDatabaseBackup";
+import DashboardPageContainer from "../../common/DashboardPageContainer/DashboardPageContainer";
 
 const TechOps: FC = () => {
    const [response, setResponse] = useState<string>();
 
    return (
-      <TechOpsContainer>
+      <DashboardPageContainer>
          <h1>Tech operations</h1>
          <ButtonsContainer>
             {response && (
@@ -24,7 +18,7 @@ const TechOps: FC = () => {
             )}
             <ButtonLoadDatabaseBackup onResponse={setResponse} />
          </ButtonsContainer>
-      </TechOpsContainer>
+      </DashboardPageContainer>
    );
 };
 
