@@ -27,6 +27,8 @@ const getUserEmailFromAuthProvider_1 = require("./tools/authentication/getUserEm
 const common_queries_1 = require("../../common-tools/database-tools/common-queries");
 const koa_tools_1 = require("../../common-tools/koa-tools/koa-tools");
 const general_1 = require("../../common-tools/math-tools/general");
+const s3_tools_1 = require("../../common-tools/aws/s3-tools");
+const process_tools_1 = require("../../common-tools/process/process-tools");
 async function initializeUsers() {
     (0, files_tools_1.createFolder)("uploads");
     createGenders();
@@ -356,7 +358,7 @@ exports.onImageFileReceived = onImageFileReceived;
 async function onImageFileSaved(file, ctx) {
     if (file == null || file.size === 0) {
         if (file) {
-            fs.unlinkSync(file.path);
+            fs.promises.unlink(file.path);
         }
         ctx.throw(400, (0, i18n_tools_1.t)("Invalid file provided", { ctx }));
         return;
@@ -366,18 +368,20 @@ async function onImageFileSaved(file, ctx) {
     const fileName = path.basename(file.path).replace(originalFileExtension, "");
     const fileNameSmall = `${fileName}_small.jpg`;
     const fileNameBig = `${fileName}_big.jpg`;
+    const fullPathBig = `${folderPath}/${fileNameBig}`;
+    const fullPathSmall = `${folderPath}/${fileNameSmall}`;
     /**
      * Throw error and remove files with invalid extension or format
      */
     if (file.type !== "image/jpeg" && file.type !== "image/png") {
-        fs.unlinkSync(file.path);
+        fs.promises.unlink(file.path);
         ctx.throw(400, (0, i18n_tools_1.t)("File format not supported", { ctx }));
         return;
     }
     if (originalFileExtension !== ".jpg" &&
         originalFileExtension !== ".jpeg" &&
         originalFileExtension !== ".png") {
-        fs.unlinkSync(file.path);
+        fs.promises.unlink(file.path);
         ctx.throw(400, (0, i18n_tools_1.t)("Attempted to upload a file with wrong extension", { ctx }));
         return;
     }
@@ -389,7 +393,7 @@ async function onImageFileSaved(file, ctx) {
     await sharp(file.path)
         .resize(configurations_1.BIG_IMAGE_SIZE, configurations_1.BIG_IMAGE_SIZE, { fit: sharp.fit.outside })
         .jpeg()
-        .toFile(`${folderPath}/${fileNameBig}`);
+        .toFile(fullPathBig);
     /**
      * Resize a copy of the image to create a small version to use as profile picture
      * "sharp.fit.outside" setting resizes the image preserving aspect ratio until width or height
@@ -398,9 +402,26 @@ async function onImageFileSaved(file, ctx) {
     await sharp(file.path)
         .resize(configurations_1.SMALL_IMAGE_SIZE, configurations_1.SMALL_IMAGE_SIZE, { fit: sharp.fit.outside })
         .jpeg()
-        .toFile(`${folderPath}/${fileNameSmall}`);
+        .toFile(fullPathSmall);
     // Remove the original image file to save disk space:
-    fs.unlinkSync(file.path);
+    fs.promises.unlink(file.path);
+    // If using AWS upload to S3
+    if ((0, process_tools_1.isProductionMode)() && process.env.USING_AWS === "true") {
+        const fileNameBigInS3 = await (0, s3_tools_1.uploadFileToS3)({
+            fileName: fullPathBig,
+            targetPath: `images/${fileNameBig}`,
+            allowPublicRead: true,
+            contentType: "image/jpeg",
+        });
+        const fileNameSmallInS3 = await (0, s3_tools_1.uploadFileToS3)({
+            fileName: fullPathSmall,
+            targetPath: `images/${fileNameSmall}`,
+            allowPublicRead: true,
+            contentType: "image/jpeg",
+        });
+        fs.promises.unlink(fullPathSmall);
+        fs.promises.unlink(fullPathBig);
+    }
     return { fileNameSmall, fileNameBig };
 }
 exports.onImageFileSaved = onImageFileSaved;

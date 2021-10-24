@@ -73,6 +73,8 @@ import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmai
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 import { fileSaverForImages } from "../../common-tools/koa-tools/koa-tools";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
+import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
+import { isProductionMode } from "../../common-tools/process/process-tools";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -482,7 +484,7 @@ export async function onImageFileReceived(ctx: ParameterizedContext<{}, {}>, nex
 export async function onImageFileSaved(file: File | undefined, ctx: BaseContext): Promise<FileUploadResponse> {
    if (file == null || file.size === 0) {
       if (file) {
-         fs.unlinkSync(file.path);
+         fs.promises.unlink(file.path);
       }
       ctx.throw(400, t("Invalid file provided", { ctx }));
       return;
@@ -493,12 +495,14 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
    const fileName: string = path.basename(file.path).replace(originalFileExtension, "");
    const fileNameSmall: string = `${fileName}_small.jpg`;
    const fileNameBig: string = `${fileName}_big.jpg`;
+   const fullPathBig: string = `${folderPath}/${fileNameBig}`;
+   const fullPathSmall: string = `${folderPath}/${fileNameSmall}`;
 
    /**
     * Throw error and remove files with invalid extension or format
     */
    if (file.type !== "image/jpeg" && file.type !== "image/png") {
-      fs.unlinkSync(file.path);
+      fs.promises.unlink(file.path);
       ctx.throw(400, t("File format not supported", { ctx }));
       return;
    }
@@ -508,7 +512,7 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
       originalFileExtension !== ".jpeg" &&
       originalFileExtension !== ".png"
    ) {
-      fs.unlinkSync(file.path);
+      fs.promises.unlink(file.path);
       ctx.throw(400, t("Attempted to upload a file with wrong extension", { ctx }));
       return;
    }
@@ -521,7 +525,7 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
    await sharp(file.path)
       .resize(BIG_IMAGE_SIZE, BIG_IMAGE_SIZE, { fit: sharp.fit.outside })
       .jpeg()
-      .toFile(`${folderPath}/${fileNameBig}`);
+      .toFile(fullPathBig);
 
    /**
     * Resize a copy of the image to create a small version to use as profile picture
@@ -531,10 +535,29 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
    await sharp(file.path)
       .resize(SMALL_IMAGE_SIZE, SMALL_IMAGE_SIZE, { fit: sharp.fit.outside })
       .jpeg()
-      .toFile(`${folderPath}/${fileNameSmall}`);
+      .toFile(fullPathSmall);
 
    // Remove the original image file to save disk space:
-   fs.unlinkSync(file.path);
+   fs.promises.unlink(file.path);
+
+   // If using AWS upload to S3
+   if (isProductionMode() && process.env.USING_AWS === "true") {
+      const fileNameBigInS3 = await uploadFileToS3({
+         fileName: fullPathBig,
+         targetPath: `images/${fileNameBig}`,
+         allowPublicRead: true,
+         contentType: "image/jpeg",
+      });
+      const fileNameSmallInS3 = await uploadFileToS3({
+         fileName: fullPathSmall,
+         targetPath: `images/${fileNameSmall}`,
+         allowPublicRead: true,
+         contentType: "image/jpeg",
+      });
+
+      fs.promises.unlink(fullPathSmall);
+      fs.promises.unlink(fullPathBig);
+   }
 
    return { fileNameSmall, fileNameBig };
 }
