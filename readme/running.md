@@ -23,17 +23,6 @@ npm run dev-persistent
 npm run test
 ```
 
-### Database visualizer application
-
-In case you want to visualize the information in the database this application can be used.
-It needs to be installed first, see installation step 8 if it's not installed.
-
-```
-npm run visualizer
-```
-
-Then run a query like `g.V()`
-
 ### Formatting the code with Prettier
 
 There is a configuration that prevents committing to git if the code is not formatted with prettier.
