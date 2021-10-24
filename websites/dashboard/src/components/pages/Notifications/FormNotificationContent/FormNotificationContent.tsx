@@ -41,15 +41,6 @@ const FormNotificationContent: FC<PropsNotificationContent> = props => {
             value={text}
             onChange={e => setText(e.target.value)}
          />
-         If the notification should open a webpage when clicked paste the link here. This only works
-         for NearbyPartyOrEvent notification type
-         <TextField
-            label="Link"
-            variant="outlined"
-            fullWidth
-            value={targetId}
-            onChange={e => setTargetId(e.target.value)}
-         />
          The notification type affects the icon and what happens when clicked
          <Autocomplete
             options={notificationTypesAllowed}
@@ -63,6 +54,15 @@ const FormNotificationContent: FC<PropsNotificationContent> = props => {
             renderInput={params => (
                <TextField {...params} label="Notification type" variant="outlined" />
             )}
+         />
+         If the notification should open a webpage when clicked paste the link here. This only works
+         for NearbyPartyOrEvent notification type
+         <TextField
+            label="Link"
+            variant="outlined"
+            fullWidth
+            value={targetId}
+            onChange={e => setTargetId(e.target.value)}
          />
       </FormContainer>
    );

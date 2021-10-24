@@ -16,8 +16,9 @@ const FormEmailSelector: FC<PropsEmailSelector> = props => {
 
    return (
       <FormContainer>
-         To send the notification to specific users complete this with comma separated emails. The
-         emails are used to locate the accounts for the notification (not to send an email).
+         If you want to send the notification to specific users and you have their email, then
+         complete this with comma separated emails. The emails are used to locate the accounts for
+         the notification (not to send an email).
          <TextField
             label="To specific users"
             variant="outlined"

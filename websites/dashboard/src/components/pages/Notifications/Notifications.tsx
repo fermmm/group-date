@@ -11,21 +11,26 @@ import {
    NotificationContent,
    NotificationType
 } from "../../../api/tools/shared-tools/endpoints-interfaces/user";
+import { tryToGetErrorMessage } from "../../../api/tools/tryToGetErrorMessage";
 import DashboardPageContainer from "../../common/DashboardPageContainer/DashboardPageContainer";
+import ConfirmationDialog from "../../common/UI/ConfirmationDialog/ConfirmationDialog";
 import FormEmailSelector from "./FormEmailSelector/FormEmailSelector";
 import FormNotificationContent from "./FormNotificationContent/FormNotificationContent";
-import { CardContentStyled } from "./styles.Notifications";
+import { CardContentStyled, ContinueButtonContainer } from "./styles.Notifications";
 
-// TODO: Validar que ponga text, title y notificationType
-// TODO: Cuando envia la primera vez tiene que aparecer un popup y despues el envio real
 const Notifications: FC = () => {
    const [notificationContent, setNotificationContent] = useState<NotificationContent>();
    const [emailFilter, setEmailFilter] = useState<string[]>();
    const [loading, setLoading] = useState<boolean>(false);
    const [response, setResponse] = useState<string>();
+   const [error, setError] = useState<string>();
    const [confirmResponse, setConfirmResponse] = useState<string>();
+   const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
 
    const handleSend = async (onlyReturnUsersAmount: boolean) => {
+      setError(null);
+      setResponse(null);
+
       const filters: AdminNotificationFilter = {};
       if (emailFilter != null && emailFilter.length > 0) {
          filters.usersEmail = emailFilter;
@@ -41,16 +46,35 @@ const Notifications: FC = () => {
                : NotificationChannelId.Default
       };
 
-      setLoading(true);
-
-      const response = await sendNotificationsPost(requestParams);
-
-      if (onlyReturnUsersAmount) {
-         setConfirmResponse(response);
-      } else {
-         setResponse(response);
+      if (
+         requestParams?.notificationContent?.text == null ||
+         requestParams?.notificationContent?.text.length < 2
+      ) {
+         setError("You need to set the notification text");
+         return;
       }
 
+      if (
+         requestParams?.notificationContent?.title == null ||
+         requestParams?.notificationContent?.title.length < 2
+      ) {
+         setError("You need to set the notification title");
+         return;
+      }
+
+      setLoading(true);
+      try {
+         const response = await sendNotificationsPost(requestParams);
+
+         if (onlyReturnUsersAmount) {
+            setConfirmResponse(response);
+            setConfirmDialogOpen(true);
+         } else {
+            setResponse(response);
+         }
+      } catch (error) {
+         setResponse(tryToGetErrorMessage(response));
+      }
       setLoading(false);
    };
 
@@ -63,15 +87,37 @@ const Notifications: FC = () => {
                <FormNotificationContent onChange={setNotificationContent} />
                <h3>Select target users</h3>
                <FormEmailSelector onChange={setEmailFilter} />
-               <LoadingButton
-                  loading={loading}
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => handleSend(true)}
-               >
-                  Continue
-               </LoadingButton>
+               {error && (
+                  <div>
+                     <h3>Error</h3>
+                     <div>{error}</div>
+                  </div>
+               )}
+               {response && (
+                  <div>
+                     <h3>Response received</h3>
+                     <div dangerouslySetInnerHTML={{ __html: response }} />
+                  </div>
+               )}
+               <ContinueButtonContainer>
+                  <LoadingButton
+                     loading={loading}
+                     variant="outlined"
+                     color="secondary"
+                     onClick={() => handleSend(true)}
+                  >
+                     Continue
+                  </LoadingButton>
+               </ContinueButtonContainer>
             </CardContentStyled>
+            <ConfirmationDialog
+               open={confirmDialogOpen}
+               text={confirmResponse}
+               onContinueClick={() => handleSend(false)}
+               onClose={() => setConfirmDialogOpen(false)}
+               continueButtonText={"Send notification!"}
+               cancelButtonText={"Cancel"}
+            />
          </Card>
       </DashboardPageContainer>
    );
