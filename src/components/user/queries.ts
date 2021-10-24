@@ -61,7 +61,7 @@ export function queryToGetUserByToken(
    onlyCompleteUsers?: boolean,
 ): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g as unknown as Traversal;
+      currentTraversal = (g as unknown) as Traversal;
    }
    currentTraversal = currentTraversal.V().has("user", "token", String(token));
 
@@ -74,7 +74,7 @@ export function queryToGetUserByToken(
 
 export function queryToGetUserByEmail(email: string, currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g as unknown as Traversal;
+      currentTraversal = (g as unknown) as Traversal;
    }
 
    return currentTraversal.V().has("user", "email", String(email));
@@ -86,7 +86,7 @@ export function queryToGetUserById(
    onlyCompleteUsers?: boolean,
 ): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g as unknown as Traversal;
+      currentTraversal = (g as unknown) as Traversal;
    }
 
    currentTraversal = currentTraversal.V().has("user", "userId", String(userId));
@@ -100,7 +100,7 @@ export function queryToGetUserById(
 
 export function queryToGetUsersListFromIds(usersIds: string[], currentTraversal?: Traversal): Traversal {
    if (currentTraversal == null) {
-      currentTraversal = g as unknown as Traversal;
+      currentTraversal = (g as unknown) as Traversal;
    }
    currentTraversal = currentTraversal.V().hasLabel("user");
 
@@ -203,7 +203,7 @@ export function queryToSetUserProps(traversal: Traversal, userProps: Partial<Use
 
 export function queryToSetAttraction(params: SetAttractionParams): Traversal {
    const traversalInit = g.withSideEffect("injectedData", params.attractions);
-   return hasProfileCompleted(queryToGetUserByToken(params.token, traversalInit as unknown as Traversal))
+   return hasProfileCompleted(queryToGetUserByToken(params.token, (traversalInit as unknown) as Traversal))
       .as("user")
       .select("injectedData")
       .unfold()

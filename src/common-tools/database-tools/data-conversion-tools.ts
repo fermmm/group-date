@@ -22,7 +22,7 @@ export function fromGremlinMapToObject<T>(
       }
    });
 
-   return result as unknown as T;
+   return (result as unknown) as T;
 }
 
 export function fromMapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): any {
@@ -49,7 +49,7 @@ export function serializeIfNeeded<T>(value: T): SupportedGremlinTypes {
       return JSON.stringify(value);
    }
 
-   return value as unknown as SupportedGremlinTypes;
+   return (value as unknown) as SupportedGremlinTypes;
 }
 
 export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, GremlinValueType> {

@@ -3,7 +3,7 @@ import { ValidationRule } from "fastest-validator";
 import { UserPropsValueTypes, User, ALL_GENDERS } from "../endpoints-interfaces/user";
 
 // fastest-validator TS fix
-const v = new (Validator as unknown as typeof Validator.default)();
+const v = new ((Validator as unknown) as typeof Validator.default)();
 type V = ValidationRule;
 
 /**

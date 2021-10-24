@@ -19,8 +19,12 @@ export function createdUsersMatchesFakeData(
       createdUsers = [...createdUsers];
       dataUsed = [...dataUsed];
       const cmp = new Intl.Collator().compare;
-      createdUsers.sort(firstBy<User>("userId", { cmp }));
-      dataUsed.sort(firstBy<User>("userId", { cmp }));
+      createdUsers.sort(
+         firstBy<User>("userId", { cmp }),
+      );
+      dataUsed.sort(
+         firstBy<User>("userId", { cmp }),
+      );
    }
 
    for (let i = 0; i < createdUsers.length; i++) {
