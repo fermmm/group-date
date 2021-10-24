@@ -7,7 +7,6 @@ database-backups
 # Dev. environment
 .vscode/
 node_modules/
-/build
 coverage/
 yarn.lock
 package-lock.json
