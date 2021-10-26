@@ -8,7 +8,7 @@
 
 3. Get the access keys required to make automatic changes. To do that follow [this guide](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys). Add the keys in the .env file in the corresponding variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_KEY`.
 
-4. Open the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home) and copy the name of the bucket, something that looks like: **elasticbeanstalk-us-east-1-123456789**, then go to the .env file and paste it as the value of **AWS_BUCKET_NAME** and also **IMAGES_HOST**, for **IMAGES_HOST** add **https://** at the beginning and **.s3.amazonaws.com/images** at the end, it should look like this: **https://elasticbeanstalk-us-east-1-123456789.s3.amazonaws.com/images**
+4. Open the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home) and copy the name of the bucket, something that looks like: **elasticbeanstalk-us-east-1-123456789**, then go to the .env file and paste it as the value of **AWS_BUCKET_NAME** and also **IMAGES_HOST**, for **IMAGES_HOST** add **https://** at the beginning and **.s3.amazonaws.com/images** at the end, it should look like this: **`https://elasticbeanstalk-us-east-1-123456789.s3.amazonaws.com/images`**
 
 5. In the .env file set **USING_AWS** to **true**
 
@@ -64,11 +64,11 @@ If connection to the database cannot be established there could be a problem rel
 
 To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something.
 
-## Loading a database backup
+## Importing a database backup
 
 Neptune already has a backup system but it's limited if you don't pay. So there is another alternative backup loading and saving system I did. Using that you can load a database content file in 2 supported formats XML (GraphML) or the official CSV. If you want to load a backup saved in XML format you will need an extra step for converting that into CSV, this project includes [this](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) python script to do that conversion, the version in this repo it's a little improved.
 
-### Setup AWS to enable database backup loading:
+### Setup AWS to enable database import:
 
 1. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later (it's required by AWS to store the files there before loading them).
    There is a missing detail in these steps: Under the title **"Creating the Amazon S3 VPC Endpoint"** there is a step that says: **"Choose the Service Name com.amazonaws.region.s3"**, when you search for that you may find 2 services with that name, select the one of type **"Gateway"**.
@@ -87,7 +87,7 @@ Neptune already has a backup system but it's limited if you don't pay. So there 
 
 Now follow the next section to enable your computer to make the migration.
 
-### Setup your PC to make a migration:
+### Setup your PC:
 
 You can skip these steps if you will never load a backup in XML format.
 
@@ -99,9 +99,9 @@ You can skip these steps if you will never load a backup in XML format.
 
    `chmod +x vendor/graphml2csv/graphml2csv.py`
 
-### Make a migration:
+### Make the import:
 
-1. You can skip this step if your backup file is in CSV format. To convert to CSV a XML file located for example at **database-backups/latest.xml** run this command:
+1. You can skip this step if your backup file is already CSV format. To convert XML to CSV located for example at **database-backups/latest.xml** run this command:
 
    `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
 
@@ -112,3 +112,19 @@ You can skip these steps if you will never load a backup in XML format.
 3. Go to the Tech Operations sections and click on the `Load Database Backup` button, then select both CSV files holding shift.
 
    That is all, the backup should be loaded into the database. It's important to know that it will not replace or delete any existing information in the database.
+
+## Exporting a database backup
+
+### Setup AWS to enable database export:
+
+1. Go to the [EC2 Mangement Console](https://console.aws.amazon.com/ec2/v2/home) in the left panel click on "Instances", you probably have only one instance, click on the instance name, there you will see the `Subnet ID` remember it or paste it somewhere, you will use it later.
+
+2. Open [these instructions](https://docs.aws.amazon.com/neptune/latest/userguide/machine-learning-data-export-service.html), follow the instructions but on step 3 fill the form with the following:
+   
+   **Subnet1 and Subnet2**: Use the Subnet ID you copied from the previous step. 
+   
+   **EnableIAM**: I recommend to set it to `false` for now since adds more tasks to do and it's not supported in this instructions. 
+   
+   After the steps with numbers you see a title **Enable access to Neptune from Neptune-Export** that is not required to follow, if you completed the steps with numbers that is all.
+
+In Stack failure options select Preserve successfully provisioned resources
