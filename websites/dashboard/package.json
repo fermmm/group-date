@@ -27,6 +27,7 @@
     "react-icons": "^4.3.1",
     "react-lazylog": "^4.5.3",
     "react-query": "^3.13.5",
+    "react-responsive-carousel": "^3.2.22",
     "react-router-dom": "^5.2.0",
     "rxjs": "^6.6.7",
     "sass": "^1.32.11",

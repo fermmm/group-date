@@ -5,18 +5,11 @@ import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
 import { GremlinElement } from "../tools/visualizerUtils";
 import { OnSearchFunc } from "../Visualizer";
 import EdgePanel from "./DataSpecificPanels/EdgePanel/EdgePanel";
-import GenericPropertiesTable, {
-   PropsGenericPropertiesTable
-} from "./DataSpecificPanels/GenericPropertiesTable/GenericPropertiesTable";
+import GenericPanel, { PropsGenericPropertiesTable } from "./DataSpecificPanels/GenericPanel/GenericPanel";
 import GroupPanel from "./DataSpecificPanels/GroupPanel/GroupPanel";
 import TagsPanel from "./DataSpecificPanels/TagsPanel/TagsPanel";
 import UserPanel from "./DataSpecificPanels/UserPanel/UserPanel";
-import {
-   NavigationButtonsContainer,
-   NodeElementTitle,
-   PanelCard,
-   PanelContainer
-} from "./styles.Panel";
+import { NavigationButtonsContainer, NodeElementTitle, PanelCard, PanelContainer } from "./styles.Panel";
 
 interface PropsPanel {
    allNodes: GremlinElement[];
@@ -29,15 +22,7 @@ interface PropsPanel {
 }
 
 const Panel: FC<PropsPanel> = props => {
-   const {
-      allNodes,
-      allEdges,
-      nodeIdSelected,
-      edgeIdSelected,
-      onSearch,
-      onNextClick,
-      onPrevClick
-   } = props;
+   const { allNodes, allEdges, nodeIdSelected, edgeIdSelected, onSearch, onNextClick, onPrevClick } = props;
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
    const [elementToShowIsNode, setElementToShowIsNode] = useState<boolean>();
    const leftKeyPressed = useKeyPress("ArrowLeft");
@@ -85,7 +70,7 @@ const Panel: FC<PropsPanel> = props => {
          break;
 
       default:
-         Panel = GenericPropertiesTable;
+         Panel = GenericPanel;
          break;
    }
 
@@ -110,6 +95,7 @@ const Panel: FC<PropsPanel> = props => {
                   <Panel
                      properties={elementToShow.properties}
                      id={elementToShow.id}
+                     label={elementToShow.label}
                      onSearch={onSearch}
                      isVertex={elementToShowIsNode}
                   />

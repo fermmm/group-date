@@ -1,13 +1,8 @@
 import React, { FC, useEffect, useState } from "react";
 import { Button } from "@mui/material";
-import GenericPropertiesTable, {
-   PropsGenericPropertiesTable
-} from "../GenericPropertiesTable/GenericPropertiesTable";
-import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
-import {
-   Group,
-   GroupChat
-} from "../../../../../../api/tools/shared-tools/endpoints-interfaces/groups";
+import GenericPanel, { PropsGenericPropertiesTable } from "../GenericPanel/GenericPanel";
+import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
+import { Group, GroupChat } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/groups";
 import { useTheme } from "styled-components";
 import ChatBubble from "./ChatBubble/ChatBubble";
 import { visualizerGet } from "../../../../../../api/server/visualizer";
@@ -26,14 +21,14 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    useEffect(() => {
       (async () => {
          const result: Array<GremlinElement<Partial<User>>> = await visualizerGet({
-            query: `g.V().has("group", "groupId", "${group.groupId}").both("member")`
+            query: `g.V().has("group", "groupId", "${group.groupId}").both("member")`,
          });
 
          setMembers(
             result?.map(memberVertex => ({
                userId: memberVertex?.properties?.userId,
-               name: memberVertex?.properties?.name
-            })) ?? undefined
+               name: memberVertex?.properties?.name,
+            })) ?? undefined,
          );
       })();
    }, []);
@@ -42,8 +37,8 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    const queryButtons = [
       {
          name: "Members",
-         query: `g.V().union(${groupQuery}, ${groupQuery}.both("member"))`
-      }
+         query: `g.V().union(${groupQuery}, ${groupQuery}.both("member"))`,
+      },
    ];
 
    const getColorForUser = (userId: string) => {
@@ -79,7 +74,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
                color={getColorForUser(message.authorUserId)}
             />
          ))}
-         <GenericPropertiesTable {...props} hideProps={["chat"]} />
+         <GenericPanel {...props} hideProps={["chat"]} />
       </>
    );
 };

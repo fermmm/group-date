@@ -4,12 +4,12 @@ import React, { FC, useState } from "react";
 import { sendNotificationsPost } from "../../../api/server/notifications-send";
 import {
    AdminNotificationFilter,
-   AdminNotificationPostParams
+   AdminNotificationPostParams,
 } from "../../../api/tools/shared-tools/endpoints-interfaces/admin";
 import {
    NotificationChannelId,
    NotificationContent,
-   NotificationType
+   NotificationType,
 } from "../../../api/tools/shared-tools/endpoints-interfaces/user";
 import { tryToGetErrorMessage } from "../../../api/tools/tryToGetErrorMessage";
 import DashboardPageContainer from "../../common/DashboardPageContainer/DashboardPageContainer";
@@ -43,7 +43,7 @@ const Notifications: FC = () => {
          channelId:
             notificationContent?.type === NotificationType.NearbyPartyOrEvent
                ? NotificationChannelId.Events
-               : NotificationChannelId.Default
+               : NotificationChannelId.Default,
       };
 
       if (

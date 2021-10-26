@@ -1,10 +1,7 @@
 import React, { FC } from "react";
 import { Button } from "@mui/material";
-import GenericPropertiesTable, {
-   PropsGenericPropertiesTable,
-   QueryButtonProps
-} from "../GenericPropertiesTable/GenericPropertiesTable";
-import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
+import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
+import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
 import { Tag } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/tags";
 
 const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
@@ -14,12 +11,12 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
    const queryButtons = [
       {
          name: "Subscribers",
-         query: `g.V().union(${tagQuery}, ${tagQuery}.both("subscribed").hasLabel("user"))`
+         query: `g.V().union(${tagQuery}, ${tagQuery}.both("subscribed").hasLabel("user"))`,
       },
       {
          name: "Blockers",
-         query: `g.V().union(${tagQuery}, ${tagQuery}.both("blocked").hasLabel("user"))`
-      }
+         query: `g.V().union(${tagQuery}, ${tagQuery}.both("blocked").hasLabel("user"))`,
+      },
    ];
 
    const dangerousQueryButtons: QueryButtonProps[] = [];
@@ -36,7 +33,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
-         <GenericPropertiesTable {...props} hideProps={["images"]} />
+         <GenericPanel {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map(buttonData => (
             <Button
                variant="outlined"

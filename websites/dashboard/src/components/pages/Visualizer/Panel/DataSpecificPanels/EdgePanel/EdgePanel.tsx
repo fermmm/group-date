@@ -1,15 +1,19 @@
 import React, { FC } from "react";
 import { Button } from "@mui/material";
-import GenericPropertiesTable, {
-   PropsGenericPropertiesTable,
-   QueryButtonProps
-} from "../GenericPropertiesTable/GenericPropertiesTable";
-import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
+import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
+import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
 
 const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
-   const { properties, id } = props;
+   const { properties, label } = props;
 
-   const queryButtons: QueryButtonProps[] = [];
+   const sameLabelEdges = `g.E().hasLabel("${label}")`;
+
+   const queryButtons: QueryButtonProps[] = [
+      {
+         name: "All edges like this",
+         query: `${sameLabelEdges}.bothV()`,
+      },
+   ];
    const dangerousQueryButtons: QueryButtonProps[] = [];
 
    return (
@@ -24,7 +28,7 @@ const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
-         <GenericPropertiesTable {...props} hideProps={["images"]} />
+         <GenericPanel {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map(buttonData => (
             <Button
                variant="outlined"

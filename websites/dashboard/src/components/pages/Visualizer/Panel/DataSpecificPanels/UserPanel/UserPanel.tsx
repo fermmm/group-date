@@ -2,11 +2,10 @@ import React, { FC } from "react";
 import { Button } from "@mui/material";
 import { useServerInfo } from "../../../../../../api/server/server-info";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
-import GenericPropertiesTable, {
-   PropsGenericPropertiesTable,
-   QueryButtonProps
-} from "../GenericPropertiesTable/GenericPropertiesTable";
-import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
+import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
+import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
+import { Row } from "../../../../../common/UI/Row/Row";
+import ImagesCarousel from "../../../../../common/UI/ImagesCarousel/ImagesCarousel";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const user = props.properties as unknown as Partial<User>;
@@ -16,34 +15,43 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const queryButtons = [
       {
          name: "Genders",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("isGender", "likesGender"))`
+         query: `g.V().union(${userQuery}, ${userQuery}.both("isGender", "likesGender"))`,
       },
       {
          name: "Matches",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("Match"))`
+         query: `g.V().union(${userQuery}, ${userQuery}.both("Match"))`,
       },
       {
          name: "Likes Dislikes",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("Like", "Dislike"))`
+         query: `g.V().union(${userQuery}, ${userQuery}.both("Like", "Dislike"))`,
       },
       {
          name: "Tags",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("subscribed", "blocked").hasLabel("tag"))`
+         query: `g.V().union(${userQuery}, ${userQuery}.both("subscribed", "blocked").hasLabel("tag"))`,
       },
       {
          name: "Groups",
-         query: `g.V().union(${userQuery}, ${userQuery}.both().hasLabel("group"))`
-      }
+         query: `g.V().union(${userQuery}, ${userQuery}.both().hasLabel("group"))`,
+      },
    ];
 
    const dangerousQueryButtons: QueryButtonProps[] = [];
 
    return (
       <>
-         <ValueLabel>{user.name}</ValueLabel>
-         <ValueLabel>{user.country}</ValueLabel>
-         <ValueLabel>{user.profileDescription}</ValueLabel>
+         <Row>
+            <ValueLabel>{user.name}</ValueLabel>
+            <ValueLabel>{user.country}</ValueLabel>
+         </Row>
+         {user.profileDescription && <ValueLabel>{user.profileDescription}</ValueLabel>}
          <ValueLabel>{user.dateIdea}</ValueLabel>
+         {user.images && serverInfo?.data?.imagesHost && (
+            <ImagesCarousel>
+               {(JSON.parse(user.images as unknown as string) as string[]).map(image => (
+                  <img src={serverInfo?.data?.imagesHost + image} key={image} />
+               ))}
+            </ImagesCarousel>
+         )}
          {queryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"
@@ -54,13 +62,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
-         {user.images &&
-            serverInfo?.data?.imagesHost &&
-            (JSON.parse(user.images as unknown as string) as string[]).map(image => (
-               <img src={serverInfo?.data?.imagesHost + image} key={image} />
-            ))}
-
-         <GenericPropertiesTable {...props} hideProps={["images"]} />
+         <GenericPanel {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"

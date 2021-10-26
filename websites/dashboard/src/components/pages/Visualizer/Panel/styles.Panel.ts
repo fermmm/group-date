@@ -21,7 +21,7 @@ export const PanelCard = styled("div")`
    background-color: ${({ theme }) => theme.colors.background2};
    border-radius: 10px;
    padding: 5px 28px;
-   row-gap: 20px;
+   row-gap: 13px;
    overflow-wrap: break-word;
 `;
 
