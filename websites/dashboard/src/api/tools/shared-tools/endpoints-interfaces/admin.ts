@@ -69,3 +69,7 @@ export interface AdminNotificationPostParams extends AdminProtectionParams {
 export interface AdminNotificationFilter {
    usersEmail?: string[];
 }
+
+export interface AdminCommandPostParams extends AdminProtectionParams {
+   command: string;
+}

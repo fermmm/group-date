@@ -3,16 +3,14 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { useFilePicker } from "use-file-picker";
 import { loadCSVRequest, uploadAdminFiles } from "../../../../api/server/techOps";
 import { tryToGetErrorMessage } from "../../../../api/tools/tryToGetErrorMessage";
+import ResponseText from "../ResponseText/ResponseText";
+import CardColumn from "../../../common/UI/CardColumn/CardColumn";
 
-interface PropsButtonLoadDatabaseBackup {
-   onResponse: (response: string) => void;
-}
-
-const ButtonLoadDatabaseBackup: FC<PropsButtonLoadDatabaseBackup> = props => {
-   const { onResponse } = props;
+const ButtonLoadDatabaseBackup: FC = props => {
    const [loading, setLoading] = useState<boolean>(false);
+   const [response, setResponse] = useState<string>();
    const [openFileSelector, { plainFiles, errors }] = useFilePicker({
-      accept: [".csv"]
+      accept: [".csv"],
    });
 
    // Effect that uploads the backup file and loads it into the database when the files are selected
@@ -30,8 +28,8 @@ const ButtonLoadDatabaseBackup: FC<PropsButtonLoadDatabaseBackup> = props => {
             plainFiles.find(file => file.name.toLowerCase().includes("nodes")) == null ||
             plainFiles.length !== 2
          ) {
-            onResponse(
-               "Error: You should upload 2 CSV files one containing the word 'nodes' in the name and one containing the word 'edges' in the name"
+            setResponse(
+               "Error: You should upload 2 CSV files one containing the word 'nodes' in the name and one containing the word 'edges' in the name",
             );
             setLoading(false);
             return;
@@ -40,17 +38,17 @@ const ButtonLoadDatabaseBackup: FC<PropsButtonLoadDatabaseBackup> = props => {
          try {
             const filesUploadResponse = await uploadAdminFiles({ files: plainFiles });
             const nodesFileName = filesUploadResponse.fileNames.find(name =>
-               name.toLowerCase().includes("nodes")
+               name.toLowerCase().includes("nodes"),
             );
             const edgesFileName = filesUploadResponse.fileNames.find(name =>
-               name.toLowerCase().includes("edges")
+               name.toLowerCase().includes("edges"),
             );
             let response = "";
             response += JSON.stringify(await loadCSVRequest({ fileName: nodesFileName }), null, 2);
             response += JSON.stringify(await loadCSVRequest({ fileName: edgesFileName }), null, 2);
-            onResponse(response);
+            setResponse(response);
          } catch (error) {
-            onResponse(tryToGetErrorMessage(error));
+            setResponse(tryToGetErrorMessage(error));
          }
 
          setLoading(false);
@@ -59,7 +57,7 @@ const ButtonLoadDatabaseBackup: FC<PropsButtonLoadDatabaseBackup> = props => {
 
    useEffect(() => {
       if (errors != null && errors.length > 0) {
-         onResponse(JSON.stringify(errors, null, 2));
+         setResponse(JSON.stringify(errors, null, 2));
       }
    }, [errors]);
 
@@ -68,9 +66,12 @@ const ButtonLoadDatabaseBackup: FC<PropsButtonLoadDatabaseBackup> = props => {
    };
 
    return (
-      <LoadingButton loading={loading} variant="outlined" onClick={handleButtonClick}>
-         Load database backup
-      </LoadingButton>
+      <CardColumn>
+         <ResponseText responseText={response} />
+         <LoadingButton loading={loading} variant="outlined" onClick={handleButtonClick}>
+            Load database backup
+         </LoadingButton>
+      </CardColumn>
    );
 };
 

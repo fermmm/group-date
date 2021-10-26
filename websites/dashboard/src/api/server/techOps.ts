@@ -1,9 +1,9 @@
 import { getCredentialsFromStorage } from "../../common-tools/authentication/authentication";
 import { httpRequest } from "../tools/httpRequest";
-import { LoadCsvPostParams } from "../tools/shared-tools/endpoints-interfaces/admin";
+import { AdminCommandPostParams, LoadCsvPostParams } from "../tools/shared-tools/endpoints-interfaces/admin";
 
 export async function loadCSVRequest<Params extends Partial<LoadCsvPostParams>>(
-   params: Params
+   params: Params,
 ): Promise<Response> {
    const url = "admin/db/loadcsv";
    const credentials = getCredentialsFromStorage();
@@ -11,7 +11,7 @@ export async function loadCSVRequest<Params extends Partial<LoadCsvPostParams>>(
 }
 
 export async function uploadAdminFiles<Params extends Partial<{ files: File[] }>>(
-   params: Params
+   params: Params,
 ): Promise<{ fileNames: string[] }> {
    const url = "admin/upload-file";
    const credentials = getCredentialsFromStorage();
@@ -26,4 +26,13 @@ export async function uploadAdminFiles<Params extends Partial<{ files: File[] }>
     * send other data is through the url params.
     */
    return httpRequest({ url, method: "POST", params: formPayLoad, urlParams: credentials });
+}
+
+export async function executeCommandRequest<
+   Params extends Partial<AdminCommandPostParams>,
+   Response extends string,
+>(params: Params): Promise<Response> {
+   const url = "admin/command";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest({ url, method: "POST", params: { ...credentials, ...params } });
 }

@@ -7,7 +7,3 @@ export const ButtonsContainer = styled("div")`
    margin-top: 60px;
    row-gap: 20px;
 `;
-
-export const ResponseTextContainer = styled("div")``;
-
-export const JsonTextContainer = styled("pre")``;

@@ -1,5 +1,4 @@
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Card } from "@mui/material";
 import React, { FC, useState } from "react";
 import { sendNotificationsPost } from "../../../api/server/notifications-send";
 import {
@@ -13,10 +12,11 @@ import {
 } from "../../../api/tools/shared-tools/endpoints-interfaces/user";
 import { tryToGetErrorMessage } from "../../../api/tools/tryToGetErrorMessage";
 import DashboardPageContainer from "../../common/DashboardPageContainer/DashboardPageContainer";
+import CardColumn from "../../common/UI/CardColumn/CardColumn";
 import ConfirmationDialog from "../../common/UI/ConfirmationDialog/ConfirmationDialog";
 import FormEmailSelector from "./FormEmailSelector/FormEmailSelector";
 import FormNotificationContent from "./FormNotificationContent/FormNotificationContent";
-import { CardContentStyled, ContinueButtonContainer } from "./styles.Notifications";
+import { ContinueButtonContainer } from "./styles.Notifications";
 
 const Notifications: FC = () => {
    const [notificationContent, setNotificationContent] = useState<NotificationContent>();
@@ -81,35 +81,33 @@ const Notifications: FC = () => {
    return (
       <DashboardPageContainer>
          <h1>Send Notification</h1>
-         <Card sx={{ minWidth: 275 }}>
-            <CardContentStyled>
-               <h3>Notification content</h3>
-               <FormNotificationContent onChange={setNotificationContent} />
-               <h3>Select target users</h3>
-               <FormEmailSelector onChange={setEmailFilter} />
-               {error && (
-                  <div>
-                     <h3>Error</h3>
-                     <div>{error}</div>
-                  </div>
-               )}
-               {response && (
-                  <div>
-                     <h3>Response received</h3>
-                     <div dangerouslySetInnerHTML={{ __html: response }} />
-                  </div>
-               )}
-               <ContinueButtonContainer>
-                  <LoadingButton
-                     loading={loading}
-                     variant="outlined"
-                     color="secondary"
-                     onClick={() => handleSend(true)}
-                  >
-                     Continue
-                  </LoadingButton>
-               </ContinueButtonContainer>
-            </CardContentStyled>
+         <CardColumn>
+            <h3>Notification content</h3>
+            <FormNotificationContent onChange={setNotificationContent} />
+            <h3>Select target users</h3>
+            <FormEmailSelector onChange={setEmailFilter} />
+            {error && (
+               <div>
+                  <h3>Error</h3>
+                  <div>{error}</div>
+               </div>
+            )}
+            {response && (
+               <div>
+                  <h3>Response received</h3>
+                  <div dangerouslySetInnerHTML={{ __html: response }} />
+               </div>
+            )}
+            <ContinueButtonContainer>
+               <LoadingButton
+                  loading={loading}
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleSend(true)}
+               >
+                  Continue
+               </LoadingButton>
+            </ContinueButtonContainer>
             <ConfirmationDialog
                open={confirmDialogOpen}
                text={confirmResponse}
@@ -118,7 +116,7 @@ const Notifications: FC = () => {
                continueButtonText={"Send notification!"}
                cancelButtonText={"Cancel"}
             />
-         </Card>
+         </CardColumn>
       </DashboardPageContainer>
    );
 };
