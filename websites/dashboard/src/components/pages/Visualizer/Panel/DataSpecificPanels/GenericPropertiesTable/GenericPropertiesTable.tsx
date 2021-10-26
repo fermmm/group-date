@@ -1,3 +1,4 @@
+import Button from "@mui/material/Button";
 import React, { FC } from "react";
 import {
    humanizeSecondsAmount,
@@ -9,12 +10,19 @@ import { KeyLabel, PropertiesContainer, ValueLabel } from "./styles.GenericPrope
 export interface PropsGenericPropertiesTable {
    id: string | number;
    properties: Record<string, string | number | boolean>;
+   isVertex: boolean | undefined;
    hideProps?: string[];
    onSearch: OnSearchFunc;
 }
 
+export interface QueryButtonProps {
+   name: string;
+   query: string;
+   visualize?: boolean;
+}
+
 const GenericPropertiesTable: FC<PropsGenericPropertiesTable> = props => {
-   const { properties, hideProps } = props;
+   const { properties, hideProps, id, isVertex } = props;
 
    const keys = Object.keys(properties ?? {}).sort();
 
@@ -36,6 +44,18 @@ const GenericPropertiesTable: FC<PropsGenericPropertiesTable> = props => {
       return String(value);
    };
 
+   const elementSelectionQuery = isVertex
+      ? `g.V(${typeof id === "string" ? `"${id}"` : id})`
+      : `g.E(${typeof id === "string" ? `"${id}"` : id})`;
+
+   const dangerousQueryButtons: QueryButtonProps[] = [
+      {
+         name: "Delete",
+         query: `${elementSelectionQuery}.drop()`,
+         visualize: false
+      }
+   ];
+
    return (
       <>
          {keys.map(
@@ -47,6 +67,18 @@ const GenericPropertiesTable: FC<PropsGenericPropertiesTable> = props => {
                   </div>
                )
          )}
+         {dangerousQueryButtons.map((buttonData, i) => (
+            <Button
+               variant="outlined"
+               color="error"
+               onClick={() =>
+                  props.onSearch({ query: buttonData.query, visualize: buttonData.visualize })
+               }
+               key={i}
+            >
+               {buttonData.name}
+            </Button>
+         ))}
       </>
    );
 };

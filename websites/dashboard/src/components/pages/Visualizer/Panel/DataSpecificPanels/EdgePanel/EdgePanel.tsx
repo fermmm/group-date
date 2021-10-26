@@ -1,22 +1,16 @@
 import React, { FC } from "react";
 import { Button } from "@mui/material";
 import GenericPropertiesTable, {
-   PropsGenericPropertiesTable
+   PropsGenericPropertiesTable,
+   QueryButtonProps
 } from "../GenericPropertiesTable/GenericPropertiesTable";
 import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
 
 const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
    const { properties, id } = props;
 
-   const edgeQuery = `g.E("${id}")`;
-   const queryButtons: Array<{ name: string; query: string }> = [];
-
-   const dangerousQueryButtons = [
-      {
-         name: "Delete",
-         query: `${edgeQuery}.drop()`
-      }
-   ];
+   const queryButtons: QueryButtonProps[] = [];
+   const dangerousQueryButtons: QueryButtonProps[] = [];
 
    return (
       <>
@@ -30,12 +24,7 @@ const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
-         <GenericPropertiesTable
-            id={id}
-            properties={properties as Record<string, string | number>}
-            onSearch={props.onSearch}
-            hideProps={["images"]}
-         />
+         <GenericPropertiesTable {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map(buttonData => (
             <Button
                variant="outlined"

@@ -39,16 +39,19 @@ const Panel: FC<PropsPanel> = props => {
       onPrevClick
    } = props;
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
+   const [elementToShowIsNode, setElementToShowIsNode] = useState<boolean>();
    const leftKeyPressed = useKeyPress("ArrowLeft");
    const rightKeyPressed = useKeyPress("ArrowRight");
    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
       setElementToShow(allNodes.find(node => node.id === nodeIdSelected));
+      setElementToShowIsNode(true);
    }, [nodeIdSelected]);
 
    useEffect(() => {
       setElementToShow(allEdges.find(edge => edge.id === edgeIdSelected));
+      setElementToShowIsNode(false);
    }, [edgeIdSelected]);
 
    useEffect(() => {
@@ -108,6 +111,7 @@ const Panel: FC<PropsPanel> = props => {
                      properties={elementToShow.properties}
                      id={elementToShow.id}
                      onSearch={onSearch}
+                     isVertex={elementToShowIsNode}
                   />
                </>
             )}

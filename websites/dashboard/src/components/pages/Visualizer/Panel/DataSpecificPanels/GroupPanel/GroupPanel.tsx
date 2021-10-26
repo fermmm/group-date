@@ -15,9 +15,9 @@ import { GremlinElement } from "../../../tools/visualizerUtils";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
 
 const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
-   const group = (props.properties as unknown) as Partial<Group>;
+   const group = props.properties as unknown as Partial<Group>;
    const theme = useTheme();
-   const chat: GroupChat = JSON.parse(((group.chat ?? "[]") as unknown) as string);
+   const chat: GroupChat = JSON.parse((group.chat ?? "[]") as unknown as string);
    const [members, setMembers] = useState<Array<{ userId: string; name: string }>>();
 
    /**
@@ -79,12 +79,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
                color={getColorForUser(message.authorUserId)}
             />
          ))}
-         <GenericPropertiesTable
-            id={props.id}
-            properties={group as Record<string, string | number>}
-            onSearch={props.onSearch}
-            hideProps={["chat"]}
-         />
+         <GenericPropertiesTable {...props} hideProps={["chat"]} />
       </>
    );
 };

@@ -22,6 +22,7 @@ export type OnSearchFunc = (props: {
    nodeLimit?: number;
    reset?: boolean;
    saveOnUrl?: boolean;
+   visualize?: boolean;
 }) => void;
 
 const Visualizer: FC = () => {
@@ -56,10 +57,17 @@ const Visualizer: FC = () => {
    }, [allNodes]);
 
    const handleSendQuery: OnSearchFunc = async props => {
-      const { query, nodeLimit = 150, reset = true, saveOnUrl = true } = props;
+      const { query, nodeLimit = 150, reset = true, saveOnUrl = true, visualize = true } = props;
 
       setLoading(true);
+
       const result = await visualizerGet({ query, nodeLimit });
+
+      if (!visualize) {
+         setLoading(false);
+         return;
+      }
+
       const { nodes, edges, nodeLabels = [] } = extractEdgesAndNodes(result, nodeLabelsToShow);
 
       // Saving the current query on the url makes possible to go back and open new window without losing state.

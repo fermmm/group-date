@@ -13,23 +13,19 @@ const queryPresetsByCategory: Array<{ categoryName: string; presets: PresetQuery
       presets: [
          {
             name: "Newest users",
-            query:
-               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc)'
          },
          {
             name: "Newest woman",
-            query:
-               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Woman")).has("isCoupleProfile", false)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Woman")).has("isCoupleProfile", false)'
          },
          {
             name: "Newest man",
-            query:
-               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Man")).has("isCoupleProfile", false)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Man")).has("isCoupleProfile", false)'
          },
          {
             name: "Newest couples",
-            query:
-               'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).has("isCoupleProfile", true)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).has("isCoupleProfile", true)'
          },
          {
             name: "Newest tags",
@@ -51,6 +47,17 @@ const queryPresetsByCategory: Array<{ categoryName: string; presets: PresetQuery
          {
             name: "All matches",
             query: 'g.E().hasLabel("Match").bothV()'
+         }
+      ]
+   },
+   {
+      categoryName: "User",
+      presets: [
+         {
+            name: "Get user by name",
+            query: 'g.V().hasLabel("user").has("name", "ENTER_NAME")',
+            carrotPosStart: 36,
+            carrotPosEnd: 46
          }
       ]
    }

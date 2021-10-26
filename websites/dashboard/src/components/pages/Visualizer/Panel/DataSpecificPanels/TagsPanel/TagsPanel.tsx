@@ -1,13 +1,14 @@
 import React, { FC } from "react";
 import { Button } from "@mui/material";
 import GenericPropertiesTable, {
-   PropsGenericPropertiesTable
+   PropsGenericPropertiesTable,
+   QueryButtonProps
 } from "../GenericPropertiesTable/GenericPropertiesTable";
 import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
 import { Tag } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/tags";
 
 const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
-   const tag = (props.properties as unknown) as Partial<Tag>;
+   const tag = props.properties as unknown as Partial<Tag>;
 
    const tagQuery = `has("tagId", "${tag.tagId}")`;
    const queryButtons = [
@@ -21,12 +22,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
       }
    ];
 
-   const dangerousQueryButtons = [
-      {
-         name: "Delete tag",
-         query: `g.V().${tagQuery}.drop()`
-      }
-   ];
+   const dangerousQueryButtons: QueryButtonProps[] = [];
 
    return (
       <>
@@ -40,12 +36,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
-         <GenericPropertiesTable
-            id={props.id}
-            properties={tag as Record<string, string | number>}
-            onSearch={props.onSearch}
-            hideProps={["images"]}
-         />
+         <GenericPropertiesTable {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map(buttonData => (
             <Button
                variant="outlined"

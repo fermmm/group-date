@@ -3,12 +3,13 @@ import { Button } from "@mui/material";
 import { useServerInfo } from "../../../../../../api/server/server-info";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
 import GenericPropertiesTable, {
-   PropsGenericPropertiesTable
+   PropsGenericPropertiesTable,
+   QueryButtonProps
 } from "../GenericPropertiesTable/GenericPropertiesTable";
 import { ValueLabel } from "../GenericPropertiesTable/styles.GenericPropertiesTable";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
-   const user = (props.properties as unknown) as Partial<User>;
+   const user = props.properties as unknown as Partial<User>;
    const serverInfo = useServerInfo();
 
    const userQuery = `has("userId", "${user.userId}")`;
@@ -35,12 +36,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
       }
    ];
 
-   const dangerousQueryButtons = [
-      {
-         name: "Delete user",
-         query: `g.V().${userQuery}.drop()`
-      }
-   ];
+   const dangerousQueryButtons: QueryButtonProps[] = [];
 
    return (
       <>
@@ -60,16 +56,11 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          ))}
          {user.images &&
             serverInfo?.data?.imagesHost &&
-            (JSON.parse((user.images as unknown) as string) as string[]).map(image => (
+            (JSON.parse(user.images as unknown as string) as string[]).map(image => (
                <img src={serverInfo?.data?.imagesHost + image} key={image} />
             ))}
 
-         <GenericPropertiesTable
-            id={props.id}
-            properties={user as Record<string, string | number>}
-            onSearch={props.onSearch}
-            hideProps={["images"]}
-         />
+         <GenericPropertiesTable {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"
