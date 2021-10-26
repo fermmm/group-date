@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.loadCsvPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.loadCsvPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -27,6 +27,7 @@ const s3_tools_1 = require("../../common-tools/aws/s3-tools");
 const data_conversion_2 = require("../user/tools/data-conversion");
 const push_notifications_1 = require("../../common-tools/push-notifications/push-notifications");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
+const process_tools_1 = require("../../common-tools/process/process-tools");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -280,4 +281,14 @@ async function adminNotificationSendPost(params, ctx) {
     return returnMessage;
 }
 exports.adminNotificationSendPost = adminNotificationSendPost;
+// Runs a system command and return output
+async function runCommandPost(params, ctx) {
+    const { user, password, command } = params;
+    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    if (!passwordValidation.isValid) {
+        return passwordValidation.error;
+    }
+    return await (0, process_tools_1.executeSystemCommand)(command);
+}
+exports.runCommandPost = runCommandPost;
 //# sourceMappingURL=models.js.map

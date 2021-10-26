@@ -1,3 +1,8 @@
+import { promisify } from "util";
+import * as child_process from "child_process";
+import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
+const exec = promisify(child_process.exec);
+
 type ExitSignal = NodeJS.Signals | "exit" | "uncaughtException" | any;
 const exitSignals: ExitSignal[] = [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`];
 let initialized: boolean = false;
@@ -38,4 +43,31 @@ export function logEnvironmentMode() {
    } else {
       console.log("Running server in development mode.");
    }
+}
+
+export async function executeSystemCommand(
+   command: string,
+   options: child_process.ExecOptions = {},
+): Promise<string> {
+   let response: string;
+
+   try {
+      const { stdout, stderr } = await exec(command, options);
+      response = stdout.length > 0 ? stdout : stderr;
+      response = response.trim();
+   } catch (error) {
+      if (error?.stderr?.length > 0) {
+         response = error.stderr.trim();
+         return;
+      }
+
+      if (error?.stdout?.length > 0) {
+         response = error.stdout.trim();
+         return;
+      }
+
+      response = tryToGetErrorMessage(error);
+   }
+
+   return response;
 }

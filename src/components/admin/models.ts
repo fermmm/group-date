@@ -10,6 +10,7 @@ import {
    AdminChatGetAllParams,
    AdminChatGetParams,
    AdminChatPostParams,
+   AdminCommandPostParams,
    AdminConvertPostParams,
    AdminLogGetParams,
    AdminNotificationPostParams,
@@ -54,6 +55,7 @@ import {
    sendPushNotifications,
 } from "../../common-tools/push-notifications/push-notifications";
 import { time } from "../../common-tools/js-tools/js-tools";
+import { executeSystemCommand } from "../../common-tools/process/process-tools";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -363,4 +365,16 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
    }
 
    return returnMessage;
+}
+
+// Runs a system command and return output
+export async function runCommandPost(params: AdminCommandPostParams, ctx: BaseContext): Promise<string> {
+   const { user, password, command } = params;
+
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   return await executeSystemCommand(command);
 }

@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logEnvironmentMode = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
+exports.executeSystemCommand = exports.logEnvironmentMode = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
+const util_1 = require("util");
+const child_process = require("child_process");
+const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
+const exec = (0, util_1.promisify)(child_process.exec);
 const exitSignals = [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`];
 let initialized = false;
 const functionsToExecute = [];
@@ -38,4 +42,26 @@ function logEnvironmentMode() {
     }
 }
 exports.logEnvironmentMode = logEnvironmentMode;
+async function executeSystemCommand(command, options = {}) {
+    var _a, _b;
+    let response;
+    try {
+        const { stdout, stderr } = await exec(command, options);
+        response = stdout.length > 0 ? stdout : stderr;
+        response = response.trim();
+    }
+    catch (error) {
+        if (((_a = error === null || error === void 0 ? void 0 : error.stderr) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+            response = error.stderr.trim();
+            return;
+        }
+        if (((_b = error === null || error === void 0 ? void 0 : error.stdout) === null || _b === void 0 ? void 0 : _b.length) > 0) {
+            response = error.stdout.trim();
+            return;
+        }
+        response = (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error);
+    }
+    return response;
+}
+exports.executeSystemCommand = executeSystemCommand;
 //# sourceMappingURL=process-tools.js.map

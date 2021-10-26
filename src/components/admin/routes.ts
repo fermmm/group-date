@@ -13,6 +13,7 @@ import {
    logGet,
    onAdminFileReceived,
    onAdminFileSaved,
+   runCommandPost,
    validateCredentialsGet,
    visualizerPost,
 } from "./models";
@@ -28,6 +29,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/db/loadcsv", "POST", loadCsvPost);
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
+   createRoute(r, "/admin/command", "POST", runCommandPost);
    r.post(
       `${USERS_API_PATH}/admin/upload-file`,
       onAdminFileReceived,
