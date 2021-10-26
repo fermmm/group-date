@@ -22,19 +22,21 @@ export async function createFullUsersFromGroupCandidate(
    useMultithreading: boolean = false,
 ): Promise<User[]> {
    const usersCreated: User[] = [];
-   const creationPromises = group.users.map(u => async () =>
-      usersCreated.push(await createFakeUser2({ userId: u.userId, token: u.userId }, useMultithreading)),
+   const creationPromises = group.users.map(
+      u => async () =>
+         usersCreated.push(await createFakeUser2({ userId: u.userId, token: u.userId }, useMultithreading)),
    );
 
    // Once all users are created we can connect the users
-   const attractionPromises = group.users.map(user => async () =>
-      await setAttractionPost(
-         {
-            token: user.userId,
-            attractions: user.matches.map(userId => ({ userId, attractionType: AttractionType.Like })),
-         },
-         fakeCtx,
-      ),
+   const attractionPromises = group.users.map(
+      user => async () =>
+         await setAttractionPost(
+            {
+               token: user.userId,
+               attractions: user.matches.map(userId => ({ userId, attractionType: AttractionType.Like })),
+            },
+            fakeCtx,
+         ),
    );
 
    await executePromises(creationPromises, useMultithreading);

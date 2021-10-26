@@ -11,7 +11,7 @@ export function createRoute<Params, Response>(
    path = USERS_API_PATH + path;
 
    if (method === "GET") {
-      router.get(path, async ctx => (ctx.body = await fn((ctx.request.query as unknown) as Params, ctx)));
+      router.get(path, async ctx => (ctx.body = await fn(ctx.request.query as unknown as Params, ctx)));
    }
 
    if (method === "POST") {
@@ -35,7 +35,7 @@ export function createRoute<Params, Response>(
          path,
          async ctx =>
             (ctx.body = await fn(
-               ((ctx.request.query as unknown) as Params) ?? (ctx.request.body as Params),
+               (ctx.request.query as unknown as Params) ?? (ctx.request.body as Params),
                ctx,
             )),
       );
