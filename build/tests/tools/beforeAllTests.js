@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
 process.env.PERFORM_DATABASE_BACKUPS = "false";
+process.env.RESTORE_DATABASE_ON_INIT = "false";
 process.env.GENERATE_LOGS = "false";
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const models_1 = require("../../components/tags/models");

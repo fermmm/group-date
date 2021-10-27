@@ -14,7 +14,7 @@
       "database-stop": "./vendor/gremlin-local-server/bin/gremlin-server.sh stop",
       "database-restart": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart",
       "dev-persistent": "npm run database-restart; nodemon --watch",
-      "dev": "npm run database-restart && RESTORE_DATABASE_ON_INIT=false nodemon --watch",
+      "dev": "npm run database-restart && RESTORE_DATABASE_ON_INIT=false PERFORM_DATABASE_BACKUPS=false nodemon --watch",
       "start": "NODE_ENV=production pm2 start build/index.js --name poly && npm run database-init",
       "database-only": "pm2 start build/database-only.js --name poly-database && npm run database-init",
       "no-database-prod": "NODE_ENV=production NO_DATABASE=true pm2 start build/index.js --name poly",

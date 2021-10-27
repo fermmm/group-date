@@ -36,6 +36,7 @@ export interface User {
    isAdmin?: boolean;
    sendNewUsersNotification: number;
    lastGroupJoinedDate: number;
+   imagesAmount?: number;
    notifications: Notification[];
    questionsShowed: string[];
    notificationsToken: string;

@@ -2,6 +2,7 @@
 require("dotenv").config();
 
 process.env.PERFORM_DATABASE_BACKUPS = "false";
+process.env.RESTORE_DATABASE_ON_INIT = "false";
 process.env.GENERATE_LOGS = "false";
 
 import { waitForDatabase } from "../../common-tools/database-tools/database-manager";

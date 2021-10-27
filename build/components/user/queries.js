@@ -23,6 +23,7 @@ function queryToCreateUser(token, email, setProfileCompletedForTesting, customUs
         .property(database_manager_1.cardinality.single, "sendNewUsersNotification", -1)
         .property(database_manager_1.cardinality.single, "lastGroupJoinedDate", moment().unix())
         .property(database_manager_1.cardinality.single, "registrationDate", moment().unix())
+        .property(database_manager_1.cardinality.single, "imagesAmount", 0)
         .property(database_manager_1.cardinality.single, "notifications", `[]`))
         .unfold();
 }
@@ -135,17 +136,20 @@ exports.queryToRemoveUsers = queryToRemoveUsers;
  * @param traversal A query with one user vertex
  */
 function queryToSetUserProps(traversal, userProps) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     user_2.editableUserPropsList.forEach(editableUserProp => {
         if (userProps[editableUserProp] == null) {
             return;
         }
         traversal = traversal.property(database_manager_1.cardinality.single, editableUserProp, (0, data_conversion_tools_1.serializeIfNeeded)(userProps[editableUserProp]));
     });
-    if (((_a = userProps.genders) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+    if (((_a = userProps.images) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+        traversal = traversal.property(database_manager_1.cardinality.single, "imagesAmount", (_b = userProps.images) === null || _b === void 0 ? void 0 : _b.length);
+    }
+    if (((_c = userProps.genders) === null || _c === void 0 ? void 0 : _c.length) > 0) {
         traversal = queryToSetUserGender(traversal, userProps.genders);
     }
-    if (((_b = userProps.likesGenders) === null || _b === void 0 ? void 0 : _b.length) > 0) {
+    if (((_d = userProps.likesGenders) === null || _d === void 0 ? void 0 : _d.length) > 0) {
         traversal = queryToSetLikingGender(traversal, userProps.likesGenders);
     }
     return traversal;

@@ -40,6 +40,7 @@ export function queryToCreateUser(
             .property(cardinality.single, "sendNewUsersNotification", -1)
             .property(cardinality.single, "lastGroupJoinedDate", moment().unix())
             .property(cardinality.single, "registrationDate", moment().unix())
+            .property(cardinality.single, "imagesAmount", 0)
             .property(cardinality.single, "notifications", `[]`),
       )
       .unfold();
@@ -189,6 +190,10 @@ export function queryToSetUserProps(traversal: Traversal, userProps: Partial<Use
          serializeIfNeeded(userProps[editableUserProp]),
       );
    });
+
+   if (userProps.images?.length > 0) {
+      traversal = traversal.property(cardinality.single, "imagesAmount", userProps.images?.length);
+   }
 
    if (userProps.genders?.length > 0) {
       traversal = queryToSetUserGender(traversal, userProps.genders);
