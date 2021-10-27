@@ -168,7 +168,7 @@ export async function logUsageReport(): Promise<void> {
    const timeSpentOnReportMs = Math.round(performance.now() - timeStart);
 
    const report: UsageReport = {
-      amountOfUsers,
+      amountOfUsers: amountOfFullyRegisteredUsers,
       incompleteUsers,
       amountOfGroups,
       totalOpenGroups,

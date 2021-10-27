@@ -119,7 +119,7 @@ async function logUsageReport() {
     }
     const timeSpentOnReportMs = Math.round(perf_hooks_1.performance.now() - timeStart);
     const report = {
-        amountOfUsers,
+        amountOfUsers: amountOfFullyRegisteredUsers,
         incompleteUsers,
         amountOfGroups,
         totalOpenGroups,

@@ -21,6 +21,8 @@ export function createLog(fileName: string) {
             dirname: "logs",
             filename: fileName,
             level: LogChannels.Info,
+            maxsize: 30000, // 30kb
+            maxFiles: 1,
          }),
       ],
    });

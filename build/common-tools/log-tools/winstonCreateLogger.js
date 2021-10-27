@@ -19,6 +19,8 @@ function createLog(fileName) {
                 dirname: "logs",
                 filename: fileName,
                 level: LogChannels.Info,
+                maxsize: 30000,
+                maxFiles: 1,
             }),
         ],
     });
