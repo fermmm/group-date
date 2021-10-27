@@ -1,4 +1,4 @@
-import React, { FC, ReactChild, ReactNode, useState } from "react";
+import React, { FC, ReactChild, ReactNode, useEffect, useState } from "react";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { CarouselStyled } from "./styles.ImagesCarousel";
 
@@ -9,9 +9,16 @@ interface PropsImagesCarousel {
 const ImagesCarousel: FC<PropsImagesCarousel> = ({ children }) => {
    const [selectedItem, setSelectedItem] = useState(0);
 
+   console.log("RENDER");
    const handleItemClick = (index: number) => {
       setSelectedItem(index + 1);
    };
+
+   useEffect(() => {
+      if (selectedItem !== 0) {
+         setSelectedItem(0);
+      }
+   }, [children]);
 
    return (
       <CarouselStyled

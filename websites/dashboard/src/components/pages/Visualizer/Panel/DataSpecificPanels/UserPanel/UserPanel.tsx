@@ -6,6 +6,7 @@ import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../
 import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
 import { Row } from "../../../../../common/UI/Row/Row";
 import ImagesCarousel from "../../../../../common/UI/ImagesCarousel/ImagesCarousel";
+import { getCountryName } from "../../../../../../common-tools/strings/humanizeCountryCode";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const user = props.properties as unknown as Partial<User>;
@@ -41,10 +42,18 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
       <>
          <Row>
             <ValueLabel>{user.name}</ValueLabel>
-            <ValueLabel>{user.country}</ValueLabel>
+            <ValueLabel>
+               {/*https://flagpedia.net/download/api*/}
+               <img
+                  src={`https://flagcdn.com/20x15/${user.country.toLocaleLowerCase()}.png`}
+                  width="20"
+                  height="15"
+               />{" "}
+               {getCountryName(user.country)}
+            </ValueLabel>
          </Row>
          {user.profileDescription && <ValueLabel>{user.profileDescription}</ValueLabel>}
-         <ValueLabel>{user.dateIdea}</ValueLabel>
+         <ValueLabel>Idea: {user.dateIdea}</ValueLabel>
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>
                {(JSON.parse(user.images as unknown as string) as string[]).map(image => (
