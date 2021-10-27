@@ -47,19 +47,18 @@ async function executeSystemCommand(command, options = {}) {
     let response;
     try {
         const { stdout, stderr } = await exec(command, options);
+        console.log("HOLA");
         response = stdout.length > 0 ? stdout : stderr;
         response = response.trim();
     }
     catch (error) {
         if (((_a = error === null || error === void 0 ? void 0 : error.stderr) === null || _a === void 0 ? void 0 : _a.length) > 0) {
-            response = error.stderr.trim();
-            return;
+            return error.stderr.trim();
         }
         if (((_b = error === null || error === void 0 ? void 0 : error.stdout) === null || _b === void 0 ? void 0 : _b.length) > 0) {
-            response = error.stdout.trim();
-            return;
+            return error.stdout.trim();
         }
-        response = (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error);
+        return (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error);
     }
     return response;
 }

@@ -53,20 +53,19 @@ export async function executeSystemCommand(
 
    try {
       const { stdout, stderr } = await exec(command, options);
+      console.log("HOLA");
       response = stdout.length > 0 ? stdout : stderr;
       response = response.trim();
    } catch (error) {
       if (error?.stderr?.length > 0) {
-         response = error.stderr.trim();
-         return;
+         return error.stderr.trim();
       }
 
       if (error?.stdout?.length > 0) {
-         response = error.stdout.trim();
-         return;
+         return error.stdout.trim();
       }
 
-      response = tryToGetErrorMessage(error);
+      return tryToGetErrorMessage(error);
    }
 
    return response;
