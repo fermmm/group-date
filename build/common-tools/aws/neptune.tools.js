@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exportNeptuneDatabase = exports.importNeptuneDatabase = void 0;
-const database_manager_1 = require("../database-tools/database-manager");
+const validateAdminCredentials_1 = require("../../components/admin/tools/validateAdminCredentials");
+const files_tools_1 = require("../files-tools/files-tools");
 const httpRequest_1 = require("../httpRequest/httpRequest");
 const process_tools_1 = require("../process/process-tools");
 async function importNeptuneDatabase(params, ctx) {
@@ -50,25 +51,18 @@ async function exportNeptuneDatabase(ctx) {
         ctx.throw(500, "Failed to download Neptune export jar file");
         return;
     }
-    const s3FolderName = "db-export";
-    const commandJson = {
-        params: {
-            endpoint: database_manager_1.databaseUrl,
-            /**
-             * If this is set to true, the database will be cloned for data consistency.
-             * It takes a long time to finish and the export button looks like it's stuck.
-             * Also the clone is supposed to be deleted after finish but if the process is
-             * interrupted or fails you have to delete it manually.
-             * For productivity when testing it's recommended to be set as false.
-             */
-            cloneCluster: false,
-            profile: "neptune_ml",
-        },
-        outputS3Path: `s3://${process.env.AWS_BUCKET_NAME}/${s3FolderName}`,
-    };
-    var commandStr = `SERVICE_REGION=${process.env.AWS_REGION} java -jar vendor/neptune-export/neptune-export.jar nesvc --root-path admin-uploads/${s3FolderName} --json '${JSON.stringify(commandJson)}'`;
+    const loaderEndpoint = process.env.DATABASE_URL.replace("wss://", "").replace(":8182/gremlin", "");
+    var commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d admin-uploads/db ${process.env.AWS_CLONE_CLUSTER_ON_BACKUP === "true" ? "--clone-cluster" : ""}`;
     commandResponse = await (0, process_tools_1.executeSystemCommand)(commandStr);
-    return { commandResponse, folder: s3FolderName };
+    await (0, files_tools_1.createZipFileFromDirectory)("admin-uploads/db", "admin-uploads/db.zip");
+    (0, files_tools_1.deleteFolder)("admin-uploads/db");
+    return {
+        commandResponse,
+        folder: `api/admin-uploads/db.zip?hash=${await (0, validateAdminCredentials_1.encryptCredentials)({
+            user: process.env.ADMIN_USER,
+            password: process.env.ADMIN_PASSWORD,
+        })}`,
+    };
 }
 exports.exportNeptuneDatabase = exportNeptuneDatabase;
 //# sourceMappingURL=neptune.tools.js.map

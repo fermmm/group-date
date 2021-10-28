@@ -1,9 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminRoutes = void 0;
+exports.adminMountedFolders = exports.adminRoutes = void 0;
+const mount = require("koa-mount");
+const serve = require("koa-static");
 const route_tools_1 = require("../../common-tools/route-tools/route-tools");
 const configurations_1 = require("../../configurations");
 const models_1 = require("./models");
+const validateAdminCredentials_1 = require("./tools/validateAdminCredentials");
 function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/validate/credentials", "GET", models_1.validateCredentialsGet);
     (0, route_tools_1.createRoute)(r, "/admin/chat", "GET", models_1.adminChatGet);
@@ -20,4 +23,14 @@ function adminRoutes(r) {
     r.post(`${configurations_1.USERS_API_PATH}/admin/upload-file`, models_1.onAdminFileReceived, async (ctx) => (ctx.body = await (0, models_1.onAdminFileSaved)(ctx.request.files, ctx)));
 }
 exports.adminRoutes = adminRoutes;
+function adminMountedFolders() {
+    return mount("/api/admin-uploads", async (context, next) => {
+        const validationResult = await (0, validateAdminCredentials_1.validateAdminCredentials)({ hash: context.request.query.hash });
+        if (!validationResult.isValid) {
+            return;
+        }
+        return serve("./admin-uploads/")(context, next);
+    });
+}
+exports.adminMountedFolders = adminMountedFolders;
 //# sourceMappingURL=routes.js.map

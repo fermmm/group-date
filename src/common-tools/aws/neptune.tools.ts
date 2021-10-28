@@ -1,9 +1,10 @@
 import { BaseContext } from "koa";
+import { encryptCredentials } from "../../components/admin/tools/validateAdminCredentials";
 import {
    ExportDatabaseResponse,
    ImportDatabasePostParams,
 } from "../../shared-tools/endpoints-interfaces/admin";
-import { databaseUrl } from "../database-tools/database-manager";
+import { createZipFileFromDirectory, deleteFolder } from "../files-tools/files-tools";
 import { httpRequest } from "../httpRequest/httpRequest";
 import { executeSystemCommand } from "../process/process-tools";
 
@@ -69,31 +70,22 @@ export async function exportNeptuneDatabase(ctx: BaseContext): Promise<ExportDat
       return;
    }
 
-   const s3FolderName = "db-export";
+   const loaderEndpoint = process.env.DATABASE_URL.replace("wss://", "").replace(":8182/gremlin", "");
 
-   const commandJson = {
-      params: {
-         endpoint: databaseUrl,
-         /**
-          * If this is set to true, the database will be cloned for data consistency.
-          * It takes a long time to finish and the export button looks like it's stuck.
-          * Also the clone is supposed to be deleted after finish but if the process is
-          * interrupted or fails you have to delete it manually.
-          * For productivity when testing it's recommended to be set as false.
-          */
-         cloneCluster: false,
-         profile: "neptune_ml",
-      },
-      outputS3Path: `s3://${process.env.AWS_BUCKET_NAME}/${s3FolderName}`,
-   };
-
-   var commandStr = `SERVICE_REGION=${
-      process.env.AWS_REGION
-   } java -jar vendor/neptune-export/neptune-export.jar nesvc --root-path admin-uploads/${s3FolderName} --json '${JSON.stringify(
-      commandJson,
-   )}'`;
+   var commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d admin-uploads/db ${
+      process.env.AWS_CLONE_CLUSTER_ON_BACKUP === "true" ? "--clone-cluster" : ""
+   }`;
 
    commandResponse = await executeSystemCommand(commandStr);
 
-   return { commandResponse, folder: s3FolderName };
+   await createZipFileFromDirectory("admin-uploads/db", "admin-uploads/db.zip");
+   deleteFolder("admin-uploads/db");
+
+   return {
+      commandResponse,
+      folder: `api/admin-uploads/db.zip?hash=${await encryptCredentials({
+         user: process.env.ADMIN_USER,
+         password: process.env.ADMIN_PASSWORD,
+      })}`,
+   };
 }

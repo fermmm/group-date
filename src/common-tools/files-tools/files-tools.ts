@@ -1,6 +1,7 @@
 import * as appRoot from "app-root-path";
 import * as fs from "fs";
 import * as path from "path";
+import * as archiver from "archiver";
 
 /**
  * Creates a folder. The path is relative to the root of the project. If the folder already exists does nothing.
@@ -12,6 +13,14 @@ export function createFolder(folderName: string) {
    }
 
    fs.mkdirSync(appRoot.path + `/${folderName}`, { recursive: true });
+}
+
+export function deleteFolder(folderName: string) {
+   if (!fileOrFolderExists(folderName)) {
+      return;
+   }
+
+   fs.rmSync(appRoot.path + `/${folderName}`, { recursive: true, force: true });
 }
 
 /**
@@ -38,4 +47,19 @@ export function getFileContent(path: string, encoding: BufferEncoding = "utf8") 
 
 export function writeFile(path: string, data: string, encoding: BufferEncoding = "utf8") {
    return fs.writeFileSync(appRoot.path + `/${path}`, data, { encoding });
+}
+
+export async function createZipFileFromDirectory(source: string, out: string) {
+   const archive = archiver("zip", { zlib: { level: 9 } });
+   const stream = fs.createWriteStream(out);
+
+   return new Promise<void>((resolve, reject) => {
+      archive
+         .directory(source, false)
+         .on("error", err => reject(err))
+         .pipe(stream);
+
+      stream.on("close", () => resolve());
+      archive.finalize();
+   });
 }

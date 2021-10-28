@@ -42,7 +42,7 @@ async function initializeAdmin() {
 }
 exports.initializeAdmin = initializeAdmin;
 async function validateCredentialsGet(params, ctx) {
-    return (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    return await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
 }
 exports.validateCredentialsGet = validateCredentialsGet;
 async function adminChatGet(params, ctx) {
@@ -131,7 +131,7 @@ async function logUsageReport() {
 exports.logUsageReport = logUsageReport;
 async function logFileListGet(params, ctx) {
     const { user, password } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         return null;
     }
@@ -145,7 +145,7 @@ async function logFileListGet(params, ctx) {
 exports.logFileListGet = logFileListGet;
 async function logGet(params, ctx) {
     const { user, password, fileName } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         return null;
     }
@@ -164,7 +164,7 @@ async function logGet(params, ctx) {
 exports.logGet = logGet;
 async function importDatabasePost(params, ctx) {
     const { user, password } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
@@ -176,7 +176,7 @@ async function importDatabasePost(params, ctx) {
 exports.importDatabasePost = importDatabasePost;
 async function exportDatabaseGet(params, ctx) {
     const { user, password } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
@@ -188,7 +188,7 @@ async function exportDatabaseGet(params, ctx) {
 exports.exportDatabaseGet = exportDatabaseGet;
 async function visualizerPost(params, ctx) {
     const { user, password, query, nodeLimit } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
@@ -202,7 +202,7 @@ async function visualizerPost(params, ctx) {
 exports.visualizerPost = visualizerPost;
 async function onAdminFileReceived(ctx, next) {
     const { user, password } = ctx.request.query;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
     }
@@ -240,7 +240,7 @@ async function onAdminFileSaved(files, ctx) {
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
     const { user, password, channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
@@ -280,7 +280,7 @@ exports.adminNotificationSendPost = adminNotificationSendPost;
 // Runs a system command and return output
 async function runCommandPost(params, ctx) {
     const { user, password, command } = params;
-    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }

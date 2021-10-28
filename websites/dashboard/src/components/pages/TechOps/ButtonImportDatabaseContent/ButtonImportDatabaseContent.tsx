@@ -67,7 +67,9 @@ const ButtonImportDatabaseContent: FC = props => {
 
    const handleExportClick = async () => {
       setLoading(true);
-      setResponse(JSON.stringify(await exportDbRequest(), null, 2));
+      const response = await exportDbRequest();
+      setResponse(JSON.stringify(response, null, 2));
+      window.location.href = `${window.location.origin}/${response.folder}`;
       setLoading(false);
    };
 

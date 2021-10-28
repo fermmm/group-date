@@ -1,4 +1,6 @@
 import * as Router from "@koa/router";
+import * as mount from "koa-mount";
+import * as serve from "koa-static";
 import { File } from "formidable";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { USERS_API_PATH } from "../../configurations";
@@ -13,6 +15,7 @@ import {
    notificationsGet,
    reportUserPost,
 } from "./models";
+import { imagesLogger } from "../../common-tools/log-tools/log-routes";
 
 export function userRoutes(r: Router): void {
    createRoute(r, "/user", "GET", userGet);
@@ -30,4 +33,11 @@ export function userRoutes(r: Router): void {
       onImageFileReceived,
       async ctx => (ctx.body = await onImageFileSaved(ctx.request.files.image as File, ctx)),
    );
+}
+
+export function userMountedFolders() {
+   return mount("/api/images", (context, next) => {
+      imagesLogger(context);
+      return serve("./uploads/")(context, next);
+   });
 }

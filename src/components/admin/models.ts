@@ -77,7 +77,7 @@ export async function validateCredentialsGet(
    params: AdminProtectionParams,
    ctx: BaseContext,
 ): Promise<CredentialsValidationResult> {
-   return validateAdminCredentials(params);
+   return await validateAdminCredentials(params);
 }
 
 export async function adminChatGet(params: AdminChatGetParams, ctx: BaseContext): Promise<ChatWithAdmins> {
@@ -185,7 +185,7 @@ export async function logUsageReport(): Promise<void> {
 export async function logFileListGet(params: AdminProtectionParams, ctx: BaseContext): Promise<string[]> {
    const { user, password } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       return null;
    }
@@ -203,7 +203,7 @@ export async function logFileListGet(params: AdminProtectionParams, ctx: BaseCon
 export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promise<string> {
    const { user, password, fileName } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       return null;
    }
@@ -225,7 +225,7 @@ export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promi
 export async function importDatabasePost(params: ImportDatabasePostParams, ctx: BaseContext) {
    const { user, password } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       ctx.throw(passwordValidation.error);
       return;
@@ -242,7 +242,7 @@ export async function exportDatabaseGet(
 ): Promise<ExportDatabaseResponse> {
    const { user, password } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       ctx.throw(passwordValidation.error);
       return;
@@ -256,7 +256,7 @@ export async function exportDatabaseGet(
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
    const { user, password, query, nodeLimit } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       return passwordValidation.error;
    }
@@ -272,7 +272,7 @@ export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseCon
 export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, next: Next): Promise<any> {
    const { user, password } = ctx.request.query as NodeJS.Dict<string>;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       ctx.throw(passwordValidation.error);
    }
@@ -320,7 +320,7 @@ export async function onAdminFileSaved(
 export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {
    const { user, password, channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       return passwordValidation.error;
    }
@@ -371,7 +371,7 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
 export async function runCommandPost(params: AdminCommandPostParams, ctx: BaseContext): Promise<string> {
    const { user, password, command } = params;
 
-   const passwordValidation = validateAdminCredentials({ user, password });
+   const passwordValidation = await validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
       return passwordValidation.error;
    }

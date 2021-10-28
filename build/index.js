@@ -9,8 +9,6 @@ const fs = require("fs");
 const Router = require("@koa/router");
 const Koa = require("koa");
 const koaBody = require("koa-body");
-const mount = require("koa-mount");
-const serve = require("koa-static");
 const cors = require("@koa/cors");
 const database_manager_1 = require("./common-tools/database-tools/database-manager");
 const log_routes_1 = require("./common-tools/log-tools/log-routes");
@@ -45,10 +43,8 @@ const configurations_1 = require("./configurations");
         .use(koaBody({ parsedMethods: ["GET", "POST"] }))
         .use(router.routes())
         .use(router.allowedMethods())
-        .use(mount("/api/images", (context, next) => {
-        (0, log_routes_1.imagesLogger)(context);
-        return serve("./uploads/")(context, next);
-    }));
+        .use((0, routes_7.userMountedFolders)())
+        .use((0, routes_1.adminMountedFolders)());
     (0, koa_tools_1.serveWebsite)("/", "./websites/promo", a, router);
     (0, koa_tools_1.serveWebsite)("/dashboard", "./websites/dashboard/build", a, router);
     const appCallback = app.callback();
