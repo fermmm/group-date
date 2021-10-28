@@ -14,8 +14,8 @@ package-lock.json
 .git/
 
 # Vendor
-vendor
-vendor/gremlin-local-server/run
+vendor/gremlin-local-server
+vendor/neptune-export
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

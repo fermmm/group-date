@@ -16,7 +16,7 @@ const RunCommandForm: FC = props => {
       setLoading(false);
    };
 
-   const commandPresets = ["java --version"];
+   const commandPresets = ["java --version", "pwd"];
 
    return (
       <CardColumn>

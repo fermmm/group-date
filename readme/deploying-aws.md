@@ -117,9 +117,11 @@ You can skip these steps if you will never load a backup in XML format.
 
 ### Setup AWS to enable database export:
 
-1. Go to the [EC2 Mangement Console](https://console.aws.amazon.com/ec2/v2/home) in the left panel click on "Instances", you probably have only one instance, click on the instance name, there you will see the `Subnet ID` remember it or paste it somewhere, you will use it later.
+1. Go to the dasboard and click on the `Export database content` button. The first time may take several minutes becase it has to download a big jat file
 
-2. Open [these instructions](https://docs.aws.amazon.com/neptune/latest/userguide/machine-learning-data-export-service.html), follow the instructions but on step 3 fill the form with the following:
+1.[Borrar]  Go to the [EC2 Mangement Console](https://console.aws.amazon.com/ec2/v2/home) in the left panel click on "Instances", you probably have only one instance, click on the instance name, there you will see the `Subnet ID` remember it or paste it somewhere, you will use it later.
+
+2. [Borrar] Open [these instructions](https://docs.aws.amazon.com/neptune/latest/userguide/machine-learning-data-export-service.html), follow the instructions but on step 3 fill the form with the following:
    
    **Subnet1 and Subnet2**: Use the Subnet ID you copied from the previous step. 
    

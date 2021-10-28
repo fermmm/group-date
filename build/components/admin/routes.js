@@ -12,7 +12,8 @@ function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/logs/files", "GET", models_1.logFileListGet);
     (0, route_tools_1.createRoute)(r, "/admin/log", "GET", models_1.logGet);
     (0, route_tools_1.createRoute)(r, "/admin/convert", "POST", models_1.convertToAdminPost);
-    (0, route_tools_1.createRoute)(r, "/admin/db/loadcsv", "POST", models_1.loadCsvPost);
+    (0, route_tools_1.createRoute)(r, "/admin/db/import", "POST", models_1.importDatabasePost);
+    (0, route_tools_1.createRoute)(r, "/admin/db/export", "GET", models_1.exportDatabaseGet);
     (0, route_tools_1.createRoute)(r, "/admin/db/visualizer", "POST", models_1.visualizerPost);
     (0, route_tools_1.createRoute)(r, "/admin/send-notifications", "POST", models_1.adminNotificationSendPost);
     (0, route_tools_1.createRoute)(r, "/admin/command", "POST", models_1.runCommandPost);

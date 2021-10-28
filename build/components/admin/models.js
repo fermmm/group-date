@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.loadCsvPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -19,7 +19,6 @@ const queries_4 = require("../groups-finder/queries");
 const configurations_1 = require("../../configurations");
 const types_1 = require("../groups-finder/tools/types");
 const validateAdminCredentials_1 = require("./tools/validateAdminCredentials");
-const httpRequest_1 = require("../../common-tools/httpRequest/httpRequest");
 const visualizer_proxy_tools_1 = require("../../common-tools/database-tools/visualizer-proxy-tools");
 const koa_tools_1 = require("../../common-tools/koa-tools/koa-tools");
 const files_tools_1 = require("../../common-tools/files-tools/files-tools");
@@ -28,6 +27,7 @@ const data_conversion_2 = require("../user/tools/data-conversion");
 const push_notifications_1 = require("../../common-tools/push-notifications/push-notifications");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const process_tools_1 = require("../../common-tools/process/process-tools");
+const neptune_tools_1 = require("../../common-tools/aws/neptune.tools");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -162,34 +162,30 @@ async function logGet(params, ctx) {
     return promise;
 }
 exports.logGet = logGet;
-async function loadCsvPost(params, ctx) {
-    var _a, _b, _c;
-    const { user, password, fileName } = params;
+async function importDatabasePost(params, ctx) {
+    const { user, password } = params;
     const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
     if (!passwordValidation.isValid) {
-        return passwordValidation.error;
+        ctx.throw(passwordValidation.error);
+        return;
     }
-    if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
-        return "AWS_BUCKET_NAME is not set in the .env file";
+    if (process.env.USING_AWS === "true") {
+        return await (0, neptune_tools_1.importNeptuneDatabase)(params, ctx);
     }
-    if (((_b = process.env.AWS_CSV_IAM_ROLE_ARN) !== null && _b !== void 0 ? _b : "").length < 2) {
-        return "AWS_CSV_IAM_ROLE_ARN is not set in the .env file";
-    }
-    if (((_c = process.env.AWS_REGION) !== null && _c !== void 0 ? _c : "").length < 2) {
-        return "AWS_REGION is not set in the .env file";
-    }
-    const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader").replace("wss:", "https:");
-    const requestParams = {
-        source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
-        format: "csv",
-        iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
-        region: process.env.AWS_REGION,
-        queueRequest: "TRUE",
-    };
-    const response = await (0, httpRequest_1.httpRequest)({ url: loaderEndpoint, method: "POST", params: requestParams });
-    return { request: { url: loaderEndpoint, ...requestParams }, response };
 }
-exports.loadCsvPost = loadCsvPost;
+exports.importDatabasePost = importDatabasePost;
+async function exportDatabaseGet(params, ctx) {
+    const { user, password } = params;
+    const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    if (!passwordValidation.isValid) {
+        ctx.throw(passwordValidation.error);
+        return;
+    }
+    if (process.env.USING_AWS === "true") {
+        return await (0, neptune_tools_1.exportNeptuneDatabase)(ctx);
+    }
+}
+exports.exportDatabaseGet = exportDatabaseGet;
 async function visualizerPost(params, ctx) {
     const { user, password, query, nodeLimit } = params;
     const passwordValidation = (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });

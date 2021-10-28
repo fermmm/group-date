@@ -1,7 +1,4 @@
-import { promisify } from "util";
-import * as child_process from "child_process";
-import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
-const exec = promisify(child_process.exec);
+import * as shell from "shelljs";
 
 type ExitSignal = NodeJS.Signals | "exit" | "uncaughtException" | any;
 const exitSignals: ExitSignal[] = [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`];
@@ -45,28 +42,22 @@ export function logEnvironmentMode() {
    }
 }
 
-export async function executeSystemCommand(
-   command: string,
-   options: child_process.ExecOptions = {},
-): Promise<string> {
-   let response: string;
+export async function executeSystemCommand(command: string): Promise<string> {
+   let resolve: (result: string) => void;
+   const promise = new Promise<string>(res => {
+      resolve = res;
+   });
+   let result: string = "";
+   var child = shell.exec(command, { async: true });
+   child.stdout.on("data", data => {
+      result += data;
+   });
+   child.stderr.on("data", data => {
+      result += data;
+   });
+   child.stdout.on("close", () => {
+      resolve(result.trim());
+   });
 
-   try {
-      const { stdout, stderr } = await exec(command, options);
-      console.log("HOLA");
-      response = stdout.length > 0 ? stdout : stderr;
-      response = response.trim();
-   } catch (error) {
-      if (error?.stderr?.length > 0) {
-         return error.stderr.trim();
-      }
-
-      if (error?.stdout?.length > 0) {
-         return error.stdout.trim();
-      }
-
-      return tryToGetErrorMessage(error);
-   }
-
-   return response;
+   return promise;
 }

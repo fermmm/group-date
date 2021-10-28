@@ -48,10 +48,16 @@ export interface VisualizerQueryParams extends AdminProtectionParams {
    nodeLimit: number;
 }
 
-export interface LoadCsvPostParams extends AdminProtectionParams {
+export interface ImportDatabasePostParams extends AdminProtectionParams {
    user: string;
    password: string;
    fileName: string;
+}
+
+export interface ExportDatabaseGetParams extends AdminProtectionParams {}
+export interface ExportDatabaseResponse {
+   commandResponse: string;
+   folder: string;
 }
 
 export interface CredentialsValidationResult {

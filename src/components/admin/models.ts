@@ -17,7 +17,9 @@ import {
    AdminProtectionParams,
    ChatWithAdmins,
    CredentialsValidationResult,
-   LoadCsvPostParams,
+   ExportDatabaseGetParams,
+   ExportDatabaseResponse,
+   ImportDatabasePostParams,
    UsageReport,
    VisualizerQueryParams,
 } from "../../shared-tools/endpoints-interfaces/admin";
@@ -56,6 +58,7 @@ import {
 } from "../../common-tools/push-notifications/push-notifications";
 import { time } from "../../common-tools/js-tools/js-tools";
 import { executeSystemCommand } from "../../common-tools/process/process-tools";
+import { exportNeptuneDatabase, importNeptuneDatabase } from "../../common-tools/aws/neptune.tools";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -219,38 +222,35 @@ export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promi
    return promise;
 }
 
-export async function loadCsvPost(params: LoadCsvPostParams, ctx: BaseContext): Promise<any> {
-   const { user, password, fileName } = params;
+export async function importDatabasePost(params: ImportDatabasePostParams, ctx: BaseContext) {
+   const { user, password } = params;
 
    const passwordValidation = validateAdminCredentials({ user, password });
    if (!passwordValidation.isValid) {
-      return passwordValidation.error;
+      ctx.throw(passwordValidation.error);
+      return;
    }
 
-   if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
-      return "AWS_BUCKET_NAME is not set in the .env file";
+   if (process.env.USING_AWS === "true") {
+      return await importNeptuneDatabase(params, ctx);
+   }
+}
+
+export async function exportDatabaseGet(
+   params: ExportDatabaseGetParams,
+   ctx: BaseContext,
+): Promise<ExportDatabaseResponse> {
+   const { user, password } = params;
+
+   const passwordValidation = validateAdminCredentials({ user, password });
+   if (!passwordValidation.isValid) {
+      ctx.throw(passwordValidation.error);
+      return;
    }
 
-   if ((process.env.AWS_CSV_IAM_ROLE_ARN ?? "").length < 2) {
-      return "AWS_CSV_IAM_ROLE_ARN is not set in the .env file";
+   if (process.env.USING_AWS === "true") {
+      return await exportNeptuneDatabase(ctx);
    }
-
-   if ((process.env.AWS_REGION ?? "").length < 2) {
-      return "AWS_REGION is not set in the .env file";
-   }
-
-   const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader").replace("wss:", "https:");
-   const requestParams = {
-      source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
-      format: "csv",
-      iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
-      region: process.env.AWS_REGION,
-      queueRequest: "TRUE",
-   };
-
-   const response = await httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
-
-   return { request: { url: loaderEndpoint, ...requestParams }, response };
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {

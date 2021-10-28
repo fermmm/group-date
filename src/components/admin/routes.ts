@@ -1,5 +1,4 @@
 import * as Router from "@koa/router";
-import { File } from "formidable";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { USERS_API_PATH } from "../../configurations";
 import {
@@ -8,7 +7,8 @@ import {
    adminNotificationSendPost,
    allChatsWithAdminsGet,
    convertToAdminPost,
-   loadCsvPost,
+   exportDatabaseGet,
+   importDatabasePost,
    logFileListGet,
    logGet,
    onAdminFileReceived,
@@ -26,7 +26,8 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/logs/files", "GET", logFileListGet);
    createRoute(r, "/admin/log", "GET", logGet);
    createRoute(r, "/admin/convert", "POST", convertToAdminPost);
-   createRoute(r, "/admin/db/loadcsv", "POST", loadCsvPost);
+   createRoute(r, "/admin/db/import", "POST", importDatabasePost);
+   createRoute(r, "/admin/db/export", "GET", exportDatabaseGet);
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
    createRoute(r, "/admin/command", "POST", runCommandPost);
