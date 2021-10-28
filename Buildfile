@@ -1,1 +1,1 @@
-make: sudo amazon-linux-extras install -y java-openjdk11
+make: sudo chmod +x build.sh && ./build.sh
