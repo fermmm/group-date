@@ -13,42 +13,42 @@ const queryPresetsByCategory: Array<{ categoryName: string; presets: PresetQuery
       presets: [
          {
             name: "Newest users",
-            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc)',
          },
          {
             name: "Newest woman",
-            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Woman")).has("isCoupleProfile", false)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Woman")).has("isCoupleProfile", false)',
          },
          {
             name: "Newest man",
-            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Man")).has("isCoupleProfile", false)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).where(out("isGender").has("genderId", "Man")).has("isCoupleProfile", false)',
          },
          {
             name: "Newest couples",
-            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).has("isCoupleProfile", true)'
+            query: 'g.V().hasLabel("user").has("profileCompleted", true).order().by(coalesce(values("registrationDate"), values("lastGroupJoinedDate")), desc).has("isCoupleProfile", true)',
          },
          {
             name: "Newest tags",
-            query: 'g.V().hasLabel("tag").order().by("creationDate", desc).has("global", false)'
+            query: 'g.V().hasLabel("tag").order().by("creationDate", desc).has("global", false)',
          },
          {
             name: "Newest matches",
-            query: 'g.E().hasLabel("Match").order().by("timestamp", desc).bothV()'
+            query: 'g.E().hasLabel("Match").order().by("timestamp", desc).bothV()',
          },
          {
             name: "Newest groups",
-            query: 'g.V().hasLabel("group").order().by("creationDate", desc)'
-         }
-      ]
+            query: 'g.V().hasLabel("group").order().by("creationDate", desc)',
+         },
+      ],
    },
    {
       categoryName: "Matches",
       presets: [
          {
             name: "All matches",
-            query: 'g.E().hasLabel("Match").bothV()'
-         }
-      ]
+            query: 'g.E().hasLabel("Match").bothV()',
+         },
+      ],
    },
    {
       categoryName: "User",
@@ -57,10 +57,16 @@ const queryPresetsByCategory: Array<{ categoryName: string; presets: PresetQuery
             name: "Get user by name",
             query: 'g.V().hasLabel("user").has("name", "ENTER_NAME")',
             carrotPosStart: 36,
-            carrotPosEnd: 46
-         }
-      ]
-   }
+            carrotPosEnd: 46,
+         },
+         {
+            name: "Get user by userId",
+            query: 'g.V().has("userId", "ENTER_USER_ID")',
+            carrotPosStart: 21,
+            carrotPosEnd: 34,
+         },
+      ],
+   },
 ];
 
 export const queryPresets = getQueryPresets();
@@ -69,9 +75,7 @@ function getQueryPresets(): PresetQueryItem[] {
    const result: PresetQueryItem[] = [];
 
    queryPresetsByCategory.forEach(category => {
-      category.presets.forEach(preset =>
-         result.push({ ...preset, category: category.categoryName })
-      );
+      category.presets.forEach(preset => result.push({ ...preset, category: category.categoryName }));
    });
 
    return result;
@@ -80,7 +84,7 @@ function getQueryPresets(): PresetQueryItem[] {
 export function getStartingPreset(): PresetQueryItem {
    return {
       query: 'g.V().has("name", "")',
-      carrotPos: 19
+      carrotPos: 19,
    };
 }
 

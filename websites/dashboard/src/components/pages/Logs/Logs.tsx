@@ -4,23 +4,26 @@ import { LazyLog } from "react-lazylog";
 import { useLog, useLogsFileList } from "../../../api/server/logs";
 import ContextMenu from "../../common/UI/ContextMenu/ContextMenu";
 import { RequestsStatus } from "../../common/UI/RequestStatus/RequestStatus";
-import { ContextMenuContainer, LogFileFeedbackMessage, LogsContainer } from "./styles.Logs";
+import { ContextMenuContainer, LazyLogStyled, LogFileFeedbackMessage, LogsContainer } from "./styles.Logs";
 import { useFileListToRender } from "./tools/useFileListToRender";
+import { useReadabilityImprovements } from "./tools/useReadabilityImprovements";
 
 const Logs: FC = () => {
    const [selectedLogFile, setSelectedLogFile] = useState<string | null>(null);
    const [selectedLogFileName, setSelectedLogFileName] = useState<string | null>(null);
    const { data: fileList, isLoading: fileListLoading, error: fileListError } = useLogsFileList();
-   const { data: log, isLoading: logLoading, error: logError } = useLog({
+   const {
+      data: log,
+      isLoading: logLoading,
+      error: logError,
+   } = useLog({
       params: { fileName: selectedLogFile },
-      options: { enabled: selectedLogFile != null }
+      options: { enabled: selectedLogFile != null },
    });
    const fileListToRender = useFileListToRender(fileList);
+   const improvedLog = useReadabilityImprovements(log);
 
-   const handleLogFileChange = (
-      logSelectedName: string | null,
-      logSelectedValue: string | null
-   ) => {
+   const handleLogFileChange = (logSelectedName: string | null, logSelectedValue: string | null) => {
       if (logSelectedValue == null) {
          return;
       }
@@ -33,9 +36,9 @@ const Logs: FC = () => {
       <RequestsStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
          <LogsContainer>
             {log ? (
-               <LazyLog
+               <LazyLogStyled
                   enableSearch
-                  text={log}
+                  text={improvedLog}
                   caseInsensitive
                   containerStyle={{ color: "#48b951" }}
                />

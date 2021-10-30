@@ -5,7 +5,7 @@ import {
    VscClose,
    VscTypeHierarchySuper,
    VscSymbolProperty,
-   VscMegaphone
+   VscMegaphone,
 } from "react-icons/vsc";
 import Drawer from "../../common/UI/Drawer/Drawer";
 import Logs from "../Logs/Logs";
@@ -31,29 +31,30 @@ const Main: FC = () => {
             {
                label: "Visualizer",
                icon: () => <VscTypeHierarchySuper />,
-               onClick: () => history.push("/visualizer")
+               onClick: () => history.push("/visualizer"),
             },
             {
                label: "Logs",
                icon: () => <VscListSelection />,
-               onClick: () => history.push("/logs")
+               onClick: () => history.push("/logs"),
+               marginBottom: 40,
             },
             {
                label: "Send Notifications",
                icon: () => <VscMegaphone />,
                onClick: () => history.push("/notifications"),
-               marginBottom: 40
+               marginBottom: 40,
             },
             {
                label: "Tech Operations",
                icon: () => <VscSymbolProperty />,
-               onClick: () => history.push("/tech-ops")
+               onClick: () => history.push("/tech-ops"),
             },
             {
                label: "Logout",
                icon: () => <VscClose />,
-               onClick: () => logout()
-            }
+               onClick: () => logout(),
+            },
          ]}
       >
          <Switch>

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { LazyLog } from "react-lazylog";
 
 export const LogsContainer = styled("div")`
    width: 100%;
@@ -20,4 +21,20 @@ export const LogFileFeedbackMessage = styled("div")`
    width: 100%;
    height: 100vh;
    padding-top: 150px;
+`;
+
+export const LazyLogStyled = styled(LazyLog)`
+   font-size: 12.5px;
+   font-family: monospace;
+   background-color: black;
+
+   div {
+      display: flex;
+      flex-direction: row;
+   }
+
+   span {
+      user-select: text;
+      white-space: pre;
+   }
 `;
