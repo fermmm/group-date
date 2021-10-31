@@ -7,9 +7,14 @@ import * as koaBody from "koa-body";
 import * as appRoot from "app-root-path";
 import * as path from "path";
 import { MAX_FILE_SIZE_UPLOAD_ALLOWED } from "../../configurations";
+import { hoursToMilliseconds } from "../math-tools/general";
 
 export function serveWebsite(route: string, websiteFilesPath: string, app: Koa, router: Router) {
-   app.use(mount(route, (context, next) => serve(websiteFilesPath + "/")(context, next)));
+   app.use(
+      mount(route, (context, next) =>
+         serve(websiteFilesPath + "/", { maxage: hoursToMilliseconds(24) * 14 })(context, next),
+      ),
+   );
 
    const pathsString: string[] = [];
    let path: string = route;

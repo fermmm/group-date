@@ -115,10 +115,5 @@
          "jest-extended"
       ],
       "snapshotResolver": "./build/tests/tools/snapshotsResolver.js"
-   },
-   "husky": {
-      "hooks": {
-         "pre-commit": "npm run prettier-differences"
-      }
    }
 }

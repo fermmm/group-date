@@ -16,6 +16,7 @@ import {
    reportUserPost,
 } from "./models";
 import { imagesLogger } from "../../common-tools/log-tools/log-routes";
+import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
 
 export function userRoutes(r: Router): void {
    createRoute(r, "/user", "GET", userGet);
@@ -38,6 +39,6 @@ export function userRoutes(r: Router): void {
 export function userMountedFolders() {
    return mount("/api/images", (context, next) => {
       imagesLogger(context);
-      return serve("./uploads/")(context, next);
+      return serve("./uploads/", { maxage: hoursToMilliseconds(24) * 360 })(context, next);
    });
 }
