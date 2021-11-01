@@ -8,8 +8,9 @@ const koaBody = require("koa-body");
 const appRoot = require("app-root-path");
 const path = require("path");
 const configurations_1 = require("../../configurations");
+const general_1 = require("../math-tools/general");
 function serveWebsite(route, websiteFilesPath, app, router) {
-    app.use(mount(route, (context, next) => serve(websiteFilesPath + "/")(context, next)));
+    app.use(mount(route, (context, next) => serve(websiteFilesPath + "/", { maxage: (0, general_1.hoursToMilliseconds)(24) * 14 })(context, next)));
     const pathsString = [];
     let path = route;
     // For some reason only 2 paths deeps are supported by router

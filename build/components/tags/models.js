@@ -135,16 +135,19 @@ async function creteAppAuthoredTags() {
         visible: true,
     }));
     // Crete app authored tags that are saved as questions
-    tagsToCreate.push(...configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.map(question => question.answers.map(answer => ({
-        tagId: answer.tagId,
-        category: answer.category,
-        name: answer.tagName,
-        country: "all",
-        creationDate: moment().unix(),
-        lastInteractionDate: moment().unix(),
-        global: true,
-        visible: true,
-    }))).flat());
+    tagsToCreate.push(...configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.map(question => question.answers.map(answer => {
+        var _a;
+        return ({
+            tagId: answer.tagId,
+            category: answer.category,
+            name: answer.tagName,
+            visible: (_a = answer.visible) !== null && _a !== void 0 ? _a : true,
+            country: "all",
+            creationDate: moment().unix(),
+            lastInteractionDate: moment().unix(),
+            global: true,
+        });
+    })).flat());
     await (0, data_conversion_1.fromQueryToTag)((0, common_queries_1.queryToCreateVerticesFromObjects)({
         objects: tagsToCreate,
         label: "tag",

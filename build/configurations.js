@@ -213,18 +213,43 @@ exports.MAX_TAG_SUBSCRIPTIONS_ALLOWED = 10;
 const politicsLeftTag = {
     tagId: "aat0",
     category: "Ideas",
-    name: "Left-wing / Anarchism",
+    name: "Left-wing",
 };
 const politicsRightTag = {
     tagId: "aat1",
     category: "Ideas",
-    name: "Right-wing / Free market",
+    name: "Right-wing",
 };
 /**
  * These are the "app authored" tags that will be shown as questions and are mandatory to interact on registration.
  * The tagId can be any string but all should be different for each tag here.
  * If you change or remove a tag id it's required to be changed for analytics when sending user data.
  */
+const unicornQuestion = {
+    questionId: "taq-3",
+    text: "What do you think this app is for?",
+    answers: [
+        {
+            text: "To go out to group meetings with those I like, enjoying the fact of being many, no matter how many. Only that.",
+            tagId: "q03-a00",
+            category: "App usage",
+            tagName: "Group polyamory",
+            visible: false,
+        },
+        {
+            text: "For anything, eg: threesomes, swingers, finding someone, any type of polyamory, etc.",
+            tagId: "q03-a01",
+            category: "App usage",
+            tagName: "The app is for anything",
+            visible: false,
+        },
+    ],
+    incompatibilitiesBetweenAnswers: {
+        0: [1],
+        1: [0],
+    },
+    filterSelectedByDefault: true,
+};
 const feminismQuestion = {
     questionId: "taq-0",
     text: "Do you agree with feminism in general?",
@@ -299,6 +324,7 @@ const spamQuestion = {
 };
 // Spam question may not be required because interest for group sex question includes the physical interaction intentions
 exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [
+    unicornQuestion,
     groupSexQuestion,
     feminismQuestion,
     spamQuestion,

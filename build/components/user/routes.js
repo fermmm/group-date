@@ -7,6 +7,7 @@ const route_tools_1 = require("../../common-tools/route-tools/route-tools");
 const configurations_1 = require("../../configurations");
 const models_1 = require("./models");
 const log_routes_1 = require("../../common-tools/log-tools/log-routes");
+const general_1 = require("../../common-tools/math-tools/general");
 function userRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/user", "GET", models_1.userGet);
     (0, route_tools_1.createRoute)(r, "/user", "POST", models_1.userPost);
@@ -21,7 +22,7 @@ exports.userRoutes = userRoutes;
 function userMountedFolders() {
     return mount("/api/images", (context, next) => {
         (0, log_routes_1.imagesLogger)(context);
-        return serve("./uploads/")(context, next);
+        return serve("./uploads/", { maxage: (0, general_1.hoursToMilliseconds)(24) * 360 })(context, next);
     });
 }
 exports.userMountedFolders = userMountedFolders;
