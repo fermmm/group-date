@@ -255,6 +255,33 @@ const politicsRightTag: Partial<Tag> = {
  * The tagId can be any string but all should be different for each tag here.
  * If you change or remove a tag id it's required to be changed for analytics when sending user data.
  */
+const unicornQuestion: TagsAsQuestion = {
+   questionId: "taq-3",
+   text: "What do you think this app is for?",
+   answers: [
+      {
+         text:
+            "To go out to group meetings with those I like, enjoying the fact of being many, no matter how many. Only that.",
+         tagId: "q03-a00",
+         category: "App usage",
+         tagName: "Group polyamory",
+         visible: false,
+      },
+      {
+         text: "For anything, eg: threesomes, swingers, finding someone, any type of polyamory, etc.",
+         tagId: "q03-a01",
+         category: "App usage",
+         tagName: "The app is for anything",
+         visible: false,
+      },
+   ],
+   incompatibilitiesBetweenAnswers: {
+      0: [1],
+      1: [0],
+   },
+   filterSelectedByDefault: true,
+};
+
 const feminismQuestion: TagsAsQuestion = {
    questionId: "taq-0",
    text: "Do you agree with feminism in general?",
@@ -332,6 +359,7 @@ const spamQuestion: TagsAsQuestion = {
 
 // Spam question may not be required because interest for group sex question includes the physical interaction intentions
 export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
+   unicornQuestion,
    groupSexQuestion,
    feminismQuestion,
    spamQuestion,

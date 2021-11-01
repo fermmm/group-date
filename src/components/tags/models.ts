@@ -59,8 +59,9 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       return;
    }
 
-   const validationResult: true | ValidationError[] | Promise<true | ValidationError[]> =
-      validateTagProps(params);
+   const validationResult: true | ValidationError[] | Promise<true | ValidationError[]> = validateTagProps(
+      params,
+   );
    if (validationResult !== true) {
       ctx.throw(400, JSON.stringify(validationResult));
       return;
@@ -191,11 +192,11 @@ export async function creteAppAuthoredTags() {
             tagId: answer.tagId,
             category: answer.category,
             name: answer.tagName,
+            visible: answer.visible ?? true,
             country: "all",
             creationDate: moment().unix(),
             lastInteractionDate: moment().unix(),
             global: true,
-            visible: true,
          })),
       ).flat(),
    );
