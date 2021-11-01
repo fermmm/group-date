@@ -241,13 +241,13 @@ export const MAX_TAG_SUBSCRIPTIONS_ALLOWED = 10;
 const politicsLeftTag: Partial<Tag> = {
    tagId: "aat0",
    category: "Ideas",
-   name: "Left-wing / Anarchism",
+   name: "Left-wing",
 };
 
 const politicsRightTag: Partial<Tag> = {
    tagId: "aat1",
    category: "Ideas",
-   name: "Right-wing / Free market",
+   name: "Right-wing",
 };
 
 /**
