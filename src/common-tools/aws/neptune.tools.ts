@@ -1,5 +1,5 @@
 import { BaseContext } from "koa";
-import { encryptCredentials } from "../../components/admin/tools/validateAdminCredentials";
+import { getCredentialsHash } from "../../components/admin/tools/validateAdminCredentials";
 import {
    ExportDatabaseResponse,
    ImportDatabasePostParams,
@@ -83,9 +83,6 @@ export async function exportNeptuneDatabase(ctx: BaseContext): Promise<ExportDat
 
    return {
       commandResponse,
-      folder: `api/admin-uploads/db.zip?hash=${await encryptCredentials({
-         user: process.env.ADMIN_USER,
-         password: process.env.ADMIN_PASSWORD,
-      })}`,
+      folder: `api/admin-uploads/db.zip?hash=${await getCredentialsHash()}`,
    };
 }
