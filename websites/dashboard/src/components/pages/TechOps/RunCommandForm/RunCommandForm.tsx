@@ -3,11 +3,11 @@ import { Autocomplete, TextField } from "@mui/material";
 import React, { FC, useState } from "react";
 import { executeCommandRequest } from "../../../../api/server/techOps";
 import CardColumn from "../../../common/UI/CardColumn/CardColumn";
-import ResponseText from "../ResponseText/ResponseText";
+import ResponseDisplay from "../ResponseDisplay/ResponseDisplay";
 
 const RunCommandForm: FC = props => {
    const [command, setCommand] = useState<string>("");
-   const [response, setResponse] = useState<string>();
+   const [response, setResponse] = useState<any>();
    const [loading, setLoading] = useState<boolean>(false);
 
    const handleClick = async () => {
@@ -20,7 +20,7 @@ const RunCommandForm: FC = props => {
 
    return (
       <CardColumn>
-         <ResponseText responseText={response} />
+         <ResponseDisplay response={response} />
          <Autocomplete
             fullWidth
             freeSolo
@@ -43,7 +43,7 @@ const RunCommandForm: FC = props => {
                />
             )}
          />
-         <LoadingButton loading={false} variant="outlined" onClick={handleClick}>
+         <LoadingButton loading={loading} variant="outlined" onClick={handleClick}>
             Run
          </LoadingButton>
       </CardColumn>

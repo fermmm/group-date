@@ -4,6 +4,7 @@ import { NotificationChannelId, NotificationContent, User } from "./user";
 export interface AdminProtectionParams {
    user: string;
    password: string;
+   hash?: string;
 }
 
 export interface AdminChatPostParams extends TokenParameter {
@@ -78,4 +79,10 @@ export interface AdminNotificationFilter {
 
 export interface AdminCommandPostParams extends AdminProtectionParams {
    command: string;
+}
+
+export interface SendEmailPostParams extends AdminProtectionParams {
+   to: string;
+   subject: string;
+   text: string;
 }

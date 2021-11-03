@@ -16,6 +16,7 @@ import {
    onAdminFileReceived,
    onAdminFileSaved,
    runCommandPost,
+   sendEmailPost,
    validateCredentialsGet,
    visualizerPost,
 } from "./models";
@@ -34,6 +35,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
    createRoute(r, "/admin/command", "POST", runCommandPost);
+   createRoute(r, "/admin/email", "POST", sendEmailPost);
    r.post(
       `${USERS_API_PATH}/admin/upload-file`,
       onAdminFileReceived,

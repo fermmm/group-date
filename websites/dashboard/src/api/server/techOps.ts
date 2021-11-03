@@ -4,6 +4,7 @@ import {
    AdminCommandPostParams,
    ExportDatabaseResponse,
    ImportDatabasePostParams,
+   SendEmailPostParams,
 } from "../tools/shared-tools/endpoints-interfaces/admin";
 
 export async function importDbRequest<Params extends Partial<ImportDatabasePostParams>>(
@@ -43,6 +44,14 @@ export async function executeCommandRequest<
    Response extends string,
 >(params: Params): Promise<Response> {
    const url = "admin/command";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest({ url, method: "POST", params: { ...credentials, ...params } });
+}
+
+export async function sendEmailRequest<Params extends Partial<SendEmailPostParams>, Response extends string>(
+   params: Params,
+): Promise<Response> {
+   const url = "admin/email";
    const credentials = getCredentialsFromStorage();
    return httpRequest({ url, method: "POST", params: { ...credentials, ...params } });
 }

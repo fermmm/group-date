@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -28,6 +28,8 @@ const push_notifications_1 = require("../../common-tools/push-notifications/push
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const process_tools_1 = require("../../common-tools/process/process-tools");
 const neptune_tools_1 = require("../../common-tools/aws/neptune.tools");
+const ses_tools_1 = require("../../common-tools/aws/ses-tools");
+const tryToGetErrorMessage_1 = require("../../common-tools/httpRequest/tools/tryToGetErrorMessage");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -130,8 +132,7 @@ async function logUsageReport() {
 }
 exports.logUsageReport = logUsageReport;
 async function logFileListGet(params, ctx) {
-    const { user, password } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return null;
     }
@@ -144,8 +145,8 @@ async function logFileListGet(params, ctx) {
 }
 exports.logFileListGet = logFileListGet;
 async function logGet(params, ctx) {
-    const { user, password, fileName } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const { fileName } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return null;
     }
@@ -163,8 +164,7 @@ async function logGet(params, ctx) {
 }
 exports.logGet = logGet;
 async function importDatabasePost(params, ctx) {
-    const { user, password } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
@@ -175,8 +175,7 @@ async function importDatabasePost(params, ctx) {
 }
 exports.importDatabasePost = importDatabasePost;
 async function exportDatabaseGet(params, ctx) {
-    const { user, password } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
@@ -187,8 +186,8 @@ async function exportDatabaseGet(params, ctx) {
 }
 exports.exportDatabaseGet = exportDatabaseGet;
 async function visualizerPost(params, ctx) {
-    const { user, password, query, nodeLimit } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const { query, nodeLimit } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
@@ -201,8 +200,7 @@ async function visualizerPost(params, ctx) {
 }
 exports.visualizerPost = visualizerPost;
 async function onAdminFileReceived(ctx, next) {
-    const { user, password } = ctx.request.query;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(ctx.request.query);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
     }
@@ -239,8 +237,8 @@ async function onAdminFileSaved(files, ctx) {
 }
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
-    const { user, password, channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const { channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
@@ -279,12 +277,26 @@ async function adminNotificationSendPost(params, ctx) {
 exports.adminNotificationSendPost = adminNotificationSendPost;
 // Runs a system command and return output
 async function runCommandPost(params, ctx) {
-    const { user, password, command } = params;
-    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)({ user, password });
+    const { command } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
     return await (0, process_tools_1.executeSystemCommand)(command);
 }
 exports.runCommandPost = runCommandPost;
+async function sendEmailPost(params, ctx) {
+    const { to, subject, text } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        return passwordValidation.error;
+    }
+    try {
+        return await (0, ses_tools_1.sendEmailUsingSES)({ to, subject, text });
+    }
+    catch (error) {
+        return (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error);
+    }
+}
+exports.sendEmailPost = sendEmailPost;
 //# sourceMappingURL=models.js.map

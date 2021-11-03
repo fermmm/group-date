@@ -13,6 +13,7 @@ export interface ServerInfoResponse {
    serverMessage?: string;
    locale: string;
    imagesHost: string;
+   emailLoginEnabled: boolean;
    serverConfigurations: {
       groupSlots: Slot[];
       minGroupSize: number;

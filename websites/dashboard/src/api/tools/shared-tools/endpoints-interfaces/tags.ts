@@ -48,6 +48,7 @@ export interface TagsAsQuestion {
    extraText?: string;
    answers: QuestionAnswerData[];
    incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
+   filterSelectedByDefault?: boolean;
 }
 
 export interface QuestionAnswerData {
@@ -55,6 +56,7 @@ export interface QuestionAnswerData {
    tagId?: string;
    category?: string;
    tagName?: string;
+   visible?: boolean;
    extraText?: string;
 }
 

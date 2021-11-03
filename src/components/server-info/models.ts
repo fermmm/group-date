@@ -29,6 +29,11 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
          MINIMUM_CLIENT_CODE_VERSION_ALLOWED,
       ),
       locale: getLocaleFromHeader(ctx),
+      emailLoginEnabled:
+         process.env.AWS_ACCESS_KEY_ID?.length > 1 &&
+         process.env.AWS_SECRET_ACCESS_KEY?.length > 1 &&
+         process.env.EMAIL_SENDER?.length > 1 &&
+         process.env.AWS_REGION?.length > 1,
       imagesHost: process.env.IMAGES_HOST,
       serverConfigurations: {
          groupSlots: GROUP_SLOTS_CONFIGS,

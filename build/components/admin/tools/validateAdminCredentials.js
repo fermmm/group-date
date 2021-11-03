@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.encryptCredentials = exports.validateAdminCredentials = void 0;
-const bcrypt = require("bcrypt");
+exports.getCredentialsHash = exports.validateAdminCredentials = void 0;
+const cryptography_tools_1 = require("../../../common-tools/cryptography-tools/cryptography-tools");
 const process_tools_1 = require("../../../common-tools/process/process-tools");
 async function validateAdminCredentials(params) {
     var _a, _b;
@@ -35,7 +35,7 @@ async function validateAdminCredentials(params) {
     }
     if (hash != null) {
         try {
-            const valid = await encryptedCredentialsAreValid(hash);
+            const valid = await (0, cryptography_tools_1.compareEncryption)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
             if (valid === true) {
                 return { isValid: true };
             }
@@ -56,44 +56,8 @@ async function validateAdminCredentials(params) {
     return { isValid: true };
 }
 exports.validateAdminCredentials = validateAdminCredentials;
-async function encryptCredentials(props) {
-    const { user, password } = props;
-    let resolve;
-    let reject;
-    const promise = new Promise((res, rej) => {
-        resolve = res;
-        reject = rej;
-    });
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-            reject(err);
-            return;
-        }
-        bcrypt.hash(user + password, salt, (err2, hash) => {
-            if (err2) {
-                reject(err2);
-                return;
-            }
-            resolve(hash);
-        });
-    });
-    return promise;
+async function getCredentialsHash() {
+    return await (0, cryptography_tools_1.encrypt)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
 }
-exports.encryptCredentials = encryptCredentials;
-async function encryptedCredentialsAreValid(hash) {
-    let resolve;
-    let reject;
-    const promise = new Promise((res, rej) => {
-        resolve = res;
-        reject = rej;
-    });
-    bcrypt.compare(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash, (err, isPasswordMatch) => {
-        if (err) {
-            reject(err);
-            return;
-        }
-        resolve(isPasswordMatch);
-    });
-    return promise;
-}
+exports.getCredentialsHash = getCredentialsHash;
 //# sourceMappingURL=validateAdminCredentials.js.map

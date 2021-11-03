@@ -3,7 +3,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { useFilePicker } from "use-file-picker";
 import { exportDbRequest, importDbRequest, uploadAdminFiles } from "../../../../api/server/techOps";
 import { tryToGetErrorMessage } from "../../../../api/tools/tryToGetErrorMessage";
-import ResponseText from "../ResponseText/ResponseText";
+import ResponseDisplay from "../ResponseDisplay/ResponseDisplay";
 import CardColumn from "../../../common/UI/CardColumn/CardColumn";
 
 const ButtonImportDatabaseContent: FC = props => {
@@ -75,7 +75,7 @@ const ButtonImportDatabaseContent: FC = props => {
 
    return (
       <CardColumn>
-         <ResponseText responseText={response} />
+         <ResponseDisplay response={response} />
          <LoadingButton loading={loading} variant="outlined" onClick={handleImportClick}>
             Import database content
          </LoadingButton>

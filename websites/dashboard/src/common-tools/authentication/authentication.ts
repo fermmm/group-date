@@ -10,7 +10,7 @@ export function saveCredentialsInStorage(credentials: AdminProtectionParams) {
 export function getCredentialsFromStorage(): AdminProtectionParams {
    return {
       user: localStorage.getItem("user"),
-      password: localStorage.getItem("password")
+      password: localStorage.getItem("password"),
    };
 }
 

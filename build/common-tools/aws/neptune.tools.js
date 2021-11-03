@@ -58,10 +58,7 @@ async function exportNeptuneDatabase(ctx) {
     (0, files_tools_1.deleteFolder)("admin-uploads/db");
     return {
         commandResponse,
-        folder: `api/admin-uploads/db.zip?hash=${await (0, validateAdminCredentials_1.encryptCredentials)({
-            user: process.env.ADMIN_USER,
-            password: process.env.ADMIN_PASSWORD,
-        })}`,
+        folder: `api/admin-uploads/db.zip?hash=${await (0, validateAdminCredentials_1.getCredentialsHash)()}`,
     };
 }
 exports.exportNeptuneDatabase = exportNeptuneDatabase;
