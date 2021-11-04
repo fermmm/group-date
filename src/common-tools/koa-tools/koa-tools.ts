@@ -9,25 +9,42 @@ import * as path from "path";
 import { MAX_FILE_SIZE_UPLOAD_ALLOWED } from "../../configurations";
 import { hoursToMilliseconds } from "../math-tools/general";
 
-export function serveWebsite(route: string, websiteFilesPath: string, app: Koa, router: Router) {
+/**
+ * This website serve implementation is garbage. The problem is Koa.js is very limited with not much
+ * community supporting it. Port all Koa.js code to Express is something that should be done in this repo.
+ */
+export function serveWebsite(
+   route: string,
+   websiteFilesPath: string,
+   app: Koa,
+   router: Router,
+   settings?: { enableCache?: boolean; websiteHasRouter?: boolean },
+): void {
+   const { enableCache = true, websiteHasRouter } = settings || {};
+
    app.use(
       mount(route, (context, next) =>
-         serve(websiteFilesPath + "/", { maxage: hoursToMilliseconds(24) * 14 })(context, next),
+         serve(websiteFilesPath + "/", enableCache ? { maxage: hoursToMilliseconds(24) * 14 } : null)(
+            context,
+            next,
+         ),
       ),
    );
 
    const pathsString: string[] = [];
    let path: string = route;
 
-   // For some reason only 2 paths deeps are supported by router
-   for (let i = 0; i < 2; i++) {
-      path += "/:param" + i;
-      pathsString.push(path);
-   }
+   if (websiteHasRouter) {
+      // For some reason only 2 paths deeps are supported by router
+      for (let i = 0; i < 2; i++) {
+         path += "/:param" + i;
+         pathsString.push(path);
+      }
 
-   router.get(pathsString, async ctx => {
-      await send(ctx, `${websiteFilesPath}/index.html`);
-   });
+      router.get(pathsString, async ctx => {
+         await send(ctx, `${websiteFilesPath}/index.html`);
+      });
+   }
 }
 
 export const fileSaverForImages = koaBody({

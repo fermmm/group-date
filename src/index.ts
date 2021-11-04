@@ -30,6 +30,7 @@ import { logEnvironmentMode } from "./common-tools/process/process-tools";
 import { serveWebsite } from "./common-tools/koa-tools/koa-tools";
 import { USERS_API_PATH } from "./configurations";
 import { emailLoginRoutes } from "./components/email-login/routes";
+import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
 
 (async () => {
    // Koa initialization:
@@ -47,8 +48,17 @@ import { emailLoginRoutes } from "./components/email-login/routes";
       .use(userMountedFolders())
       .use(adminMountedFolders());
 
+   /**
+    * To edit any of these 2 websites directly from chrome dev tools set the first parameter to "/" temporarily,
+    * if there is another one with "/" as first parameter comment that one so it does not interfere. Then from
+    * chrome dev tools go to Sources > Filesystem and open the corresponding website folder, then click "allow".
+    * When you finish editing restore all the temporary changes you made in this file.
+    */
    serveWebsite("/", "./websites/promo", a, router);
-   serveWebsite("/dashboard", "./websites/dashboard/build", a, router);
+   serveWebsite("/confirm-email", "./websites/email-login/confirm", a, router, { enableCache: false });
+
+   // To edit this website run "npm start" in the websites/dashboard folder and remember to run "npm run build" when finishing editing
+   serveWebsite("/dashboard", "./websites/dashboard/build", a, router, { websiteHasRouter: true });
 
    const appCallback = app.callback();
 
@@ -75,8 +85,8 @@ import { emailLoginRoutes } from "./components/email-login/routes";
 
    /**
     * Initializers that contains scheduled tasks and other initialization stuff.
-    * Important: This is not executed on the tests unless you add it to beforeAllTests.ts, if
-    * you add new initialization logic make sure it's also executed on the tests.
+    * Important: This is not executed on the tests because this file is not executed
+    * there, if you need any of this on the tests you must add it to beforeAllTests.ts.
     */
    await initializeUsers();
    await initializeGroups();
@@ -101,9 +111,9 @@ import { emailLoginRoutes } from "./components/email-login/routes";
 
    // Final console messages
    console.log("✓ Server initialized!");
-   console.log(`✓ Promo website available in http://localhost:${process.env.PORT}/`);
-   console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}${USERS_API_PATH}`);
-   console.log(`✓ Admin dashboard available in http://localhost:${process.env.PORT}/dashboard`);
+   console.log(`✓ Promo website available in ${getServerUrl()}/`);
+   console.log(`✓ Api endpoints available in ${getServerUrl()}${USERS_API_PATH}`);
+   console.log(`✓ Admin dashboard available in ${getServerUrl()}/dashboard`);
    if (httpsPortEnabled) {
       console.log(`✓ Also https port enabled`);
    }

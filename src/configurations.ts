@@ -28,6 +28,14 @@ export const APPLICATION_NAME = "Poly";
  */
 export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.2";
 export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.1";
+
+/**
+ * If you change this you also have to change it in:
+ *    - The api calls of the email-login website
+ *    - Dashboard api calls
+ *    - Mobile app api calls
+ *    - All client apps making requests to the api.
+ */
 export const USERS_API_PATH = "/api";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

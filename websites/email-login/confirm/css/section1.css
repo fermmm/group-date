@@ -1,0 +1,86 @@
+.section1-mainContainer {
+   display: flex;
+   position: relative;
+   width: 100vw;
+   min-height: 100vh;
+   animation: background-image-move-animation 45s ease-in-out 1s infinite reverse;
+   animation-direction: alternate;
+   animation-play-state: running;
+}
+
+@media only screen and (min-width: 600px) {
+   .section1-mainContainer {
+      background-image: url("../img/background1.jpeg");
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      align-items: center;
+   }
+}
+
+@keyframes background-image-move-animation {
+   from {
+      background-position: 0% 100%;
+   }
+   to {
+      background-position: 100% 0%;
+   }
+}
+
+.section1-content-container {
+   display: flex;
+   position: absolute;
+   width: 400px;
+   height: 400px;
+   transform-origin: center center;
+   left: 100px;
+   border-radius: 23px;
+   background: linear-gradient(180deg, #9b63f8 0%, #809ffc 100%);
+   flex-direction: column;
+   align-items: center;
+   justify-content: space-evenly;
+   padding: 21px 35px;
+   padding-bottom: 0px;
+}
+
+@media only screen and (max-width: 600px) {
+   .section1-content-container {
+      width: 100vw;
+      min-height: 100vh;
+      left: 0;
+      border-radius: 0;
+      padding: 20px 27px;
+   }
+}
+
+.section1-logo {
+   height: 100px;
+}
+
+@media only screen and (max-width: 600px) {
+   .section1-logo {
+      height: 20vh;
+   }
+}
+
+.section1-text {
+   font-weight: 200;
+   font-size: 29px;
+   line-height: 38px;
+   text-align: center;
+}
+
+.section1-text b {
+   font-weight: 400;
+}
+
+.section1-go-to-app-button {
+   background-color: #296195;
+   padding: 10px 30px;
+   font-size: 27px;
+   border-radius: 10px;
+   cursor: pointer;
+   font-weight: 300;
+   text-align: center;
+}

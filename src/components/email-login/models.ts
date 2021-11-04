@@ -24,7 +24,7 @@ import {
    LoginResponse,
    ResetPasswordPostParams,
 } from "../../shared-tools/endpoints-interfaces/email-login";
-import { createUser, retrieveUser } from "../user/models";
+import { createUser } from "../user/models";
 import {
    queryToGetUserByEmail,
    queryToGetUserById,
@@ -49,17 +49,15 @@ export async function createAccountPost(
       return;
    }
 
-   // TODO: Esta url es una pagina web asi que SARASAAAAA hay que reemplazarlo por el path
    try {
       await sendEmail({
          to: email,
          subject: `${APPLICATION_NAME}: ${t("Verify your email", { ctx })}`,
          html: `<h1>${t("Verify your email", { ctx })}</h1><br/>${t("Click on this link to verify your email", {
             ctx,
-         })}:<br/>${getServerUrl()}/SARASAAAAA?hash=${encode(JSON.stringify({ email, password }))}<br/><br/>${t(
-            "Good luck!",
-            { ctx },
-         )}`,
+         })}:<br/>${getServerUrl()}/confirm-email/?hash=${encode(
+            JSON.stringify({ email, password }),
+         )}<br/><br/>${t("Good luck!", { ctx })}`,
       });
 
       return { success: true };
