@@ -15,6 +15,7 @@ import {
 import { ServerInfoParams, ServerInfoResponse } from "../../shared-tools/endpoints-interfaces/server-info";
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
 import { NotificationChannelInfo } from "../../shared-tools/endpoints-interfaces/user";
+import { getServerUrl } from "../../common-tools/url-tools/getServerUrl";
 
 export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): ServerInfoResponse {
    return {
@@ -33,7 +34,8 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
          process.env.AWS_ACCESS_KEY_ID?.length > 1 &&
          process.env.AWS_SECRET_ACCESS_KEY?.length > 1 &&
          process.env.EMAIL_SENDER?.length > 1 &&
-         process.env.AWS_REGION?.length > 1,
+         process.env.AWS_REGION?.length > 1 &&
+         getServerUrl().length > 1,
       imagesHost: process.env.IMAGES_HOST,
       serverConfigurations: {
          groupSlots: GROUP_SLOTS_CONFIGS,

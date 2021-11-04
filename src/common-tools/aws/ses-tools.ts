@@ -14,7 +14,7 @@ let transporter = nodemailer.createTransport({
 });
 
 // Sends an email using nodemailer and AWS SES
-export async function sendEmailUsingSES(props: { to: string; subject: string; text: string; html?: string }) {
+export async function sendEmailUsingSES(props: { to: string; subject: string; text?: string; html?: string }) {
    return await transporter.sendMail({
       from: process.env.EMAIL_SENDER,
       ...props,

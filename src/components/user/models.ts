@@ -112,7 +112,7 @@ export async function retrieveUser(
    user = await fromQueryToUser(queryToGetUserByEmail(email), includeFullInfo);
 
    if (user != null) {
-      await queryToUpdateUserToken(email, token);
+      await queryToUpdateUserToken(queryToGetUserByEmail(email), token);
       return { ...user, token };
    }
 

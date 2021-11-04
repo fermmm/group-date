@@ -116,10 +116,11 @@ export function hasProfileCompleted(currentTraversal?: Traversal): Traversal {
    return currentTraversal.has("user", "profileCompleted", true);
 }
 
-export async function queryToUpdateUserToken(userEmail: string, newToken: string): Promise<void> {
-   await sendQuery(() =>
-      g.V().has("user", "email", userEmail).property(cardinality.single, "token", newToken).next(),
-   );
+/**
+ * Receives a traversal with a user and updates the token.
+ */
+export async function queryToUpdateUserToken(traversal: Traversal, newToken: string): Promise<void> {
+   await sendQuery(() => traversal.property(cardinality.single, "token", newToken).next());
 }
 
 export async function queryToUpdateUserProps(

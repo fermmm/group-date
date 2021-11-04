@@ -72,5 +72,15 @@
    "To go out to group meetings with those I like, enjoying the fact of being many, no matter how many. Only that.": "Para salir a encuentros grupales con lxs que me gusten, disfrutando el hecho de ser muchxs, no importa cuantos. Solo eso.",
    "Group polyamory": "Poliamor grupal",
    "For anything, eg: threesomes, swingers, finding someone, any type of polyamory, etc.": "Para cualquier cosa, ej.: trios, swinger, buscar pareja, cualquier tipo de poliamor, etc.",
-   "The app is for anything": "La app es para cualquier cosa"
+   "The app is for anything": "La app es para cualquier cosa",
+   "Verify your email": "Verifica tu email",
+   "Click on this link to verify your email": "Haz click en este link para verificar tu email",
+   "Our email sending service is not working in this moment, please create your account using a different kind of registration": "Nuestro sistema de envio de emails no esta funcionando en este momento, por favor crea tu cuenta usando otro tipo de sistema",
+   "Good luck!": "¡Buena suerte!",
+   "Invalid hash format, please register again": "Hash invalido. Por favor intenta registrarte nuevamente",
+   "Invalid email or password": "Email o password inválidos",
+   "Password reset": "Resetear password",
+   "Click on this link to create a new password": "Haz click en este link para crear un nuevo password",
+   "We don't have a user registered with that email": "No tenemos ningun usuario registrado con ese email",
+   "Our email sending service is not working in this moment, please try again in a while or report us the error": "Nuestro sistema de envio de emails no esta funcionando en este momento, por favor intenta en un rato o reporta el error"
 }

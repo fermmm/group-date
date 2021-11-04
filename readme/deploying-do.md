@@ -9,3 +9,5 @@
    `` sudo setcap 'cap_net_bind_service=+ep' `which node`  ``
 
    You may need to run them again in the future if you update node.
+
+4. Set the **SERVER_URL** variable in the .env file with the public url of your server, read the comment on top of the variable to know the correct format of the url you have to set there.

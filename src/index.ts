@@ -29,6 +29,7 @@ import { strToBool } from "./common-tools/string-tools/string-tools";
 import { logEnvironmentMode } from "./common-tools/process/process-tools";
 import { serveWebsite } from "./common-tools/koa-tools/koa-tools";
 import { USERS_API_PATH } from "./configurations";
+import { emailLoginRoutes } from "./components/email-login/routes";
 
 (async () => {
    // Koa initialization:
@@ -90,6 +91,7 @@ import { USERS_API_PATH } from "./configurations";
 
    // Routes:
    serverInfoRoutes(router);
+   emailLoginRoutes(router);
    userRoutes(router);
    cardsGameRoutes(router);
    groupsRoutes(router);

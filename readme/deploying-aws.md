@@ -35,7 +35,7 @@
       Use that command also to upload new versions.
       What that command do: Builds the js files and uploads all the files of the project folder to the EC2 instance(s) and executes the install command there. If you want to make changes in the run command you can edit the `Procfile` file.
 
-15.   After the upload finishes you should have something on the public url. To get the public url go to the [Elastic Beanstalk Dashboard](https://console.aws.amazon.com/elasticbeanstalk/home), you may need to click on your environment name and then on top you should see the url, something like this: **abcd1234.us-east-1.elasticbeanstalk.com**
+15.   After the upload finishes you should have something when navigating on the public url. Also you have to add it in the .env. To get the public url go to the [Elastic Beanstalk Dashboard](https://console.aws.amazon.com/elasticbeanstalk/home), you may need to click on your environment name and then on top you should see the url, something like this: **abcd1234.us-east-1.elasticbeanstalk.com**. Paste that url on the .env file in the `SERVER_URL` variable, read the comment on top of that variable to know the correct format you have to use there.
 
 ## Setup a new computer to upload changes to AWS
 

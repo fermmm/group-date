@@ -61,7 +61,7 @@ export async function compareEncryption(notEncrypted: string, encrypted: string)
 
 /**
  * Encodes a string into a hash that can be decoded using decode(). For encoding and decoding a password is used.
- * The password is reset every time the server restarts, so after a restart the hash will not be valid. Use this
+ * The password is changed every time the server restarts, so after a restart the hash will not be valid. Use this
  * function for temporary transaction of credentials.
  * */
 export function encode(text: string): string {
@@ -69,8 +69,8 @@ export function encode(text: string): string {
 }
 
 /**
- * Decodes a hash that was encoded using encode(). For encoding and decoding a password is used
- * The password is reset every time the server restarts, so after a restart the hash will not be valid. Use this
+ * Decodes a hash that was encoded using encode(). For encoding and decoding a password is used.
+ * The password is changed every time the server restarts, so after a restart the hash will not be valid. Use this
  * function for temporary transaction of credentials.
  * */
 export function decode(encrypted: string): string {
