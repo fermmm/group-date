@@ -51,14 +51,23 @@ export async function createAccountPost(
    }
 
    const hashToSend = encode(JSON.stringify({ email, password }));
+   const emailLink = `${getServerUrl()}/confirm-email/?hash=${hashToSend}`;
 
    try {
       await sendEmail({
          to: email,
-         subject: `${APPLICATION_NAME}: ${t("Verify your email", { ctx })}`,
-         html: `<h1>${t("Verify your email", { ctx })}</h1><br/>${t("Click on this link to verify your email", {
+         senderName: `${APPLICATION_NAME} app`,
+         subject: `${t("Verify your email", { ctx })}`,
+         html: `<h2>${t("Welcome to", {
             ctx,
-         })}:<br/>${getServerUrl()}/confirm-email/?hash=${hashToSend}<br/><br/>${t("Good luck!", { ctx })}`,
+         })} ${APPLICATION_NAME} =)</h2>${t("You need to verify your email, click on this link", {
+            ctx,
+         })}:<br/><a href="${emailLink}" style="font-size: 22px;">${t("Verify email", {
+            ctx,
+         })}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
+            ctx,
+         })}:<br/><br/>${emailLink}
+         <br/><br/>${t("Good luck!", { ctx })}`,
       });
 
       return { success: true };
@@ -161,7 +170,8 @@ export async function resetPasswordPost(
    try {
       await sendEmail({
          to: email,
-         subject: `${APPLICATION_NAME}: ${t("Password reset", { ctx })}`,
+         senderName: `${APPLICATION_NAME} app`,
+         subject: `${t("Password reset", { ctx })}`,
          html: `<h1>${t("Password reset", { ctx })}</h1><br/>${t(
             "Click on this link to create a new password",
             {

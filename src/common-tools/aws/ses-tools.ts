@@ -1,8 +1,6 @@
 import * as nodemailer from "nodemailer";
 import * as aws from "@aws-sdk/client-ses";
-
-// process.env.AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-// process.env.AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+import Mail = require("nodemailer/lib/mailer");
 
 const ses = new aws.SES({
    apiVersion: "2010-12-01",
@@ -14,9 +12,6 @@ let transporter = nodemailer.createTransport({
 });
 
 // Sends an email using nodemailer and AWS SES
-export async function sendEmailUsingSES(props: { to: string; subject: string; text?: string; html?: string }) {
-   return await transporter.sendMail({
-      from: process.env.EMAIL_SENDER,
-      ...props,
-   });
+export async function sendEmailUsingSES(props: Mail.Options) {
+   return await transporter.sendMail(props);
 }

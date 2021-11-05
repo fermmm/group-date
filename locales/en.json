@@ -92,7 +92,7 @@
    "For anything, eg: threesomes, swingers, finding someone, any type of polyamory, etc.": "For anything, eg: threesomes, swingers, finding someone, any type of polyamory, etc.",
    "The app is for anything": "The app is for anything",
    "Verify your email": "Verify your email",
-   "Click on this link to verify your email": "Click on this link to verify your email",
+   "Verify email": "Verify email",
    "Our email sending service is not working in this moment, please create your account using a different kind of registration": "Our email sending service is not working in this moment, please create your account using a different kind of registration",
    "Good luck!": "Good luck!",
    "Invalid hash format, please register again": "Invalid hash format, please register again",
@@ -100,5 +100,8 @@
    "Password reset": "Password reset",
    "Click on this link to create a new password": "Click on this link to create a new password",
    "We don't have a user registered with that email": "We don't have a user registered with that email",
-   "Our email sending service is not working in this moment, please try again in a while or report us the error" : "Our email sending service is not working in this moment, please try again in a while or report us the error"
+   "Our email sending service is not working in this moment, please try again in a while or report us the error" : "Our email sending service is not working in this moment, please try again in a while or report us the error",
+   "Welcome to": "Welcome to",
+   "Or if you prefer copy and paste this into your browser": "Or if you prefer copy and paste this into your browser",
+   "You need to verify your email, click on this link": "You need to verify your email, click on this link"
 }
