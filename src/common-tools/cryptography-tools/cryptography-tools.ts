@@ -1,12 +1,9 @@
 import * as bcrypt from "bcrypt";
-import * as crypto from "crypto";
+import Cryptr = require("cryptr");
+import { isProductionMode } from "../process/process-tools";
 import { generateId } from "../string-tools/string-tools";
 
-var algorithm = "aes256"; // Can be any other algorithm supported by OpenSSL
-var password = crypto.scryptSync(generateId(), "salt", 32); // Generates a random password
-const iv = crypto.randomBytes(16); // Generate different cipher text every time
-var cipher = crypto.createCipheriv(algorithm, password, iv);
-var decipher = crypto.createDecipheriv(algorithm, password, iv);
+const cryptr = new Cryptr(isProductionMode() ? generateId() : "1234");
 
 /**
  * Creates a hash based on the given string. The hash cannot be decoded back to the original string.
@@ -65,7 +62,7 @@ export async function compareEncryption(notEncrypted: string, encrypted: string)
  * function for temporary transaction of credentials.
  * */
 export function encode(text: string): string {
-   return cipher.update(text, "utf8", "hex") + cipher.final("hex");
+   return cryptr.encrypt(text);
 }
 
 /**
@@ -73,6 +70,6 @@ export function encode(text: string): string {
  * The password is changed every time the server restarts, so after a restart the hash will not be valid. Use this
  * function for temporary transaction of credentials.
  * */
-export function decode(encrypted: string): string {
-   return decipher.update(encrypted, "hex", "utf8") + decipher.final("utf8");
+export function decode(encryptedText: string): string {
+   return cryptr.decrypt(encryptedText);
 }

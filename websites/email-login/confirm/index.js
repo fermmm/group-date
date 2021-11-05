@@ -1,14 +1,24 @@
+let alreadyDone = false;
+
 document.onreadystatechange = () => {
+   if (alreadyDone) {
+      return;
+   }
+   alreadyDone = true;
+
    const statusText = document.querySelector(".section1-text");
    const buttonBackToApp = document.querySelector(".section1-go-to-app-button");
 
    buttonBackToApp.style.opacity = 0;
    statusText.innerHTML = "Cargando...";
 
+   const successText = "<b>¡Email confirmado!</b> Puedes volver a la app";
+   const generalErrorText =
+      "<b>Error:</b><br/>Este no es el link que te enviamos en el email, comprueba si lo has abierto correctamente";
+
    const hash = getJsonFromUrl().hash;
    if (!hash || hash.length < 4) {
-      statusText.innerHTML =
-         "<b>Error:</b><br/> Este no es el link que te enviamos en el email, comprueba si lo has abierto correctamente.";
+      statusText.innerHTML = generalErrorText;
       return;
    }
 
@@ -27,12 +37,13 @@ document.onreadystatechange = () => {
       })
       .then(response => {
          if (response.success === true) {
-            statusText.innerHTML = "<b>¡Email confirmado!</b> Puedes volver a la app";
+            statusText.innerHTML = successText;
             buttonBackToApp.style.opacity = 1;
          }
       })
       .catch(err => {
-         statusText.innerHTML = `<b>Error:</b><br/> ${tryToGetErrorMessage(err)}`;
+         statusText.innerHTML = `${generalErrorText}.<br/>${tryToGetErrorMessage(err)}`;
+         buttonBackToApp.style.opacity = 1;
          return;
       });
 };

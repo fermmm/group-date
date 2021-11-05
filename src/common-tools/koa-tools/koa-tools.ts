@@ -10,8 +10,8 @@ import { MAX_FILE_SIZE_UPLOAD_ALLOWED } from "../../configurations";
 import { hoursToMilliseconds } from "../math-tools/general";
 
 /**
- * This website serve implementation is garbage. The problem is Koa.js is very limited with not much
- * community supporting it. Port all Koa.js code to Express is something that should be done in this repo.
+ * This function is garbage. The problem is Koa.js, it's very limited with not much community supporting it.
+ * Porting all Koa.js code to Express is something that should be done in this repo.
  */
 export function serveWebsite(
    route: string,

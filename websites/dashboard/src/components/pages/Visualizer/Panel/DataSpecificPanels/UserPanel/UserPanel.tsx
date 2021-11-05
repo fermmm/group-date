@@ -45,7 +45,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
             <ValueLabel>
                {/*https://flagpedia.net/download/api*/}
                <img
-                  src={`https://flagcdn.com/20x15/${user.country.toLocaleLowerCase()}.png`}
+                  src={`https://flagcdn.com/20x15/${user.country?.toLocaleLowerCase()}.png`}
                   width="20"
                   height="15"
                />{" "}
@@ -56,7 +56,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          <ValueLabel>Idea: {user.dateIdea}</ValueLabel>
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>
-               {(JSON.parse(user.images as unknown as string) as string[]).map(image => (
+               {(JSON.parse(user.images as unknown as string) as string[])?.map(image => (
                   <img src={serverInfo?.data?.imagesHost + image} key={image} />
                ))}
             </ImagesCarousel>

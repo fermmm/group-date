@@ -24,6 +24,7 @@ import {
    LoginResponse,
    ResetPasswordPostParams,
 } from "../../shared-tools/endpoints-interfaces/email-login";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { createUser } from "../user/models";
 import {
    queryToGetUserByEmail,
@@ -49,15 +50,15 @@ export async function createAccountPost(
       return;
    }
 
+   const hashToSend = encode(JSON.stringify({ email, password }));
+
    try {
       await sendEmail({
          to: email,
          subject: `${APPLICATION_NAME}: ${t("Verify your email", { ctx })}`,
          html: `<h1>${t("Verify your email", { ctx })}</h1><br/>${t("Click on this link to verify your email", {
             ctx,
-         })}:<br/>${getServerUrl()}/confirm-email/?hash=${encode(
-            JSON.stringify({ email, password }),
-         )}<br/><br/>${t("Good luck!", { ctx })}`,
+         })}:<br/>${getServerUrl()}/confirm-email/?hash=${hashToSend}<br/><br/>${t("Good luck!", { ctx })}`,
       });
 
       return { success: true };
@@ -92,7 +93,13 @@ export async function confirmEmailPost(
       return;
    }
 
-   const user = await createUser(await encrypt(email + password), email, false, ctx);
+   let user = (await fromQueryToUser(queryToGetUserByEmail(email), false)) as Partial<User>;
+
+   if (user) {
+      return { success: true };
+   }
+
+   user = await createUser(await encrypt(email + password), email, false, ctx);
 
    if (user == null) {
       ctx.throw(500, "User not created. Please report error.");
