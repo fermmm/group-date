@@ -11,6 +11,8 @@ import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryTo
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
 import { getServerUrl } from "../../common-tools/url-tools/getServerUrl";
 import { APPLICATION_NAME } from "../../configurations";
+import { AuthenticationProvider } from "../../shared-tools/authentication/AuthenticationProvider";
+import { createExtendedInfoToken } from "../../shared-tools/authentication/tokenStringTools";
 import {
    ChangePasswordCredentials,
    ChangePasswordPostParams,
@@ -110,7 +112,10 @@ export async function confirmEmailPost(
       return { success: true };
    }
 
-   user = await createUser(await createTokenFromEmailPass({ email, password }), email, false, ctx);
+   const originalToken = await createTokenFromEmailPass({ email, password });
+   const extendedInfoToken = createExtendedInfoToken({ originalToken, provider: AuthenticationProvider.Email });
+
+   user = await createUser(extendedInfoToken, email, false, ctx);
 
    if (user == null) {
       ctx.throw(500, "User not created. Please report error.");
