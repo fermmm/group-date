@@ -272,17 +272,17 @@ const politicsRightTag: Partial<Tag> = {
  */
 const unicornQuestion: TagsAsQuestion = {
    questionId: "taq-3",
-   text: "What do you think this app is for?",
+   text: "What is this app is for?",
    answers: [
       {
-         text: "To go out to group meetings with those I like, enjoying the fact of being many, no matter how many. Only that.",
+         text: "To enjoy being many in a group where we like each other. Just that.",
          tagId: "q03-a00",
          category: "App usage",
          tagName: "Group polyamory",
          visible: false,
       },
       {
-         text: "For anything, eg: threesomes, swingers, finding someone, any type of polyamory, etc.",
+         text: "To find anything: threesome, couple, swinger, etc.",
          tagId: "q03-a01",
          category: "App usage",
          tagName: "The app is for anything",
