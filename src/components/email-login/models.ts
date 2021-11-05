@@ -23,6 +23,8 @@ import {
    LoginGetParams,
    LoginResponse,
    ResetPasswordPostParams,
+   TokenGetParams,
+   TokenGetResponse,
 } from "../../shared-tools/endpoints-interfaces/email-login";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { createUser } from "../user/models";
@@ -108,7 +110,7 @@ export async function confirmEmailPost(
       return { success: true };
    }
 
-   user = await createUser(await encrypt(email + password), email, false, ctx);
+   user = await createUser(await createTokenFromEmailPass({ email, password }), email, false, ctx);
 
    if (user == null) {
       ctx.throw(500, "User not created. Please report error.");
@@ -116,6 +118,28 @@ export async function confirmEmailPost(
    }
 
    return { success: true };
+}
+
+/**
+ * This endpoint is called by the client app to get the token when it has the user and password. In
+ * other words this endpoint returns the token when a email and password is provided. The token is
+ * always returned wether the user exists or not. To check the token is valid the login GET endpoint
+ * needs to be called.
+ */
+export async function tokenGet(params: TokenGetParams, ctx: BaseContext): Promise<TokenGetResponse> {
+   const { email, password } = params;
+
+   if (!email || typeof email !== "string" || email.length < 1) {
+      ctx.throw(500, "Invalid email.");
+      return;
+   }
+
+   if (!password || typeof password !== "string" || password.length < 1) {
+      ctx.throw(500, "Invalid password.");
+      return;
+   }
+
+   return { token: await createTokenFromEmailPass({ email, password }) };
 }
 
 /**
@@ -238,4 +262,10 @@ export async function changePasswordPost(
    await queryToUpdateUserToken(queryToGetUserById(userId), await encrypt(user.email + newPassword));
 
    return { success: true };
+}
+
+export async function createTokenFromEmailPass(props: EmailLoginCredentials) {
+   const { email, password } = props;
+
+   return await encrypt(email + password);
 }

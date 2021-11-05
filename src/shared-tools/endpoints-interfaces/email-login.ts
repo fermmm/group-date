@@ -19,6 +19,12 @@ export interface ConfirmEmailResponse {
    success?: boolean;
 }
 
+export interface TokenGetParams extends EmailLoginCredentials {}
+
+export interface TokenGetResponse {
+   token: string;
+}
+
 export interface LoginGetParams {
    token: string;
 }
