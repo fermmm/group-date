@@ -144,7 +144,15 @@ export async function tokenGet(params: TokenGetParams, ctx: BaseContext): Promis
       return;
    }
 
-   return { token: await createTokenFromEmailPass({ email, password }) };
+   const token = await createTokenFromEmailPass({ email, password });
+   const user = await fromQueryToUser(queryToGetUserByToken(token), false);
+
+   if (!user) {
+      ctx.throw(500, t("Invalid email or password", { ctx }));
+      return;
+   }
+
+   return { token };
 }
 
 /**
