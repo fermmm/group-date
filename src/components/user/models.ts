@@ -358,6 +358,8 @@ export async function addNotificationToUser(
             to: user.notificationsToken,
             title: notification.title,
             body: notification.text,
+            priority: "high",
+            sound: "default", // android 7.0 , 6, 5 , 4
             data: {
                type: notification.type,
                targetId: notification.targetId,
