@@ -31,6 +31,8 @@ const string_tools_1 = require("./common-tools/string-tools/string-tools");
 const process_tools_1 = require("./common-tools/process/process-tools");
 const koa_tools_1 = require("./common-tools/koa-tools/koa-tools");
 const configurations_1 = require("./configurations");
+const routes_8 = require("./components/email-login/routes");
+const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
 (async () => {
     // Koa initialization:
     const app = new Koa();
@@ -45,8 +47,16 @@ const configurations_1 = require("./configurations");
         .use(router.allowedMethods())
         .use((0, routes_7.userMountedFolders)())
         .use((0, routes_1.adminMountedFolders)());
+    /**
+     * To edit any of these 2 websites directly from chrome dev tools set the first parameter to "/" temporarily,
+     * if there is another one with "/" as first parameter comment that one so it does not interfere. Then from
+     * chrome dev tools go to Sources > Filesystem and open the corresponding website folder, then click "allow".
+     * When you finish editing restore all the temporary changes you made in this file.
+     */
     (0, koa_tools_1.serveWebsite)("/", "./websites/promo", a, router);
-    (0, koa_tools_1.serveWebsite)("/dashboard", "./websites/dashboard/build", a, router);
+    (0, koa_tools_1.serveWebsite)("/confirm-email", "./websites/email-login/confirm", a, router, { enableCache: false });
+    // To edit this website run "npm start" in the websites/dashboard folder and remember to run "npm run build" when finishing editing
+    (0, koa_tools_1.serveWebsite)("/dashboard", "./websites/dashboard/build", a, router, { websiteHasRouter: true });
     const appCallback = app.callback();
     http.createServer(appCallback).listen(process.env.PORT);
     const httpsPortEnabled = (0, string_tools_1.strToBool)(process.env.HTTPS_PORT_ENABLED);
@@ -65,8 +75,8 @@ const configurations_1 = require("./configurations");
     await (0, backups_1.initializeDatabaseBackups)();
     /**
      * Initializers that contains scheduled tasks and other initialization stuff.
-     * Important: This is not executed on the tests unless you add it to beforeAllTests.ts, if
-     * you add new initialization logic make sure it's also executed on the tests.
+     * Important: This is not executed on the tests because this file is not executed
+     * there, if you need any of this on the tests you must add it to beforeAllTests.ts.
      */
     await (0, models_6.initializeUsers)();
     await (0, models_4.initializeGroups)();
@@ -79,6 +89,7 @@ const configurations_1 = require("./configurations");
     (0, log_routes_1.routesLogger)(router);
     // Routes:
     (0, routes_4.serverInfoRoutes)(router);
+    (0, routes_8.emailLoginRoutes)(router);
     (0, routes_7.userRoutes)(router);
     (0, routes_2.cardsGameRoutes)(router);
     (0, routes_3.groupsRoutes)(router);
@@ -87,9 +98,9 @@ const configurations_1 = require("./configurations");
     (0, routes_5.testingRoutes)(router);
     // Final console messages
     console.log("✓ Server initialized!");
-    console.log(`✓ Promo website available in http://localhost:${process.env.PORT}/`);
-    console.log(`✓ Api endpoints available in http://localhost:${process.env.PORT}${configurations_1.USERS_API_PATH}`);
-    console.log(`✓ Admin dashboard available in http://localhost:${process.env.PORT}/dashboard`);
+    console.log(`✓ Promo website available in ${(0, getServerUrl_1.getServerUrl)()}/`);
+    console.log(`✓ Api endpoints available in ${(0, getServerUrl_1.getServerUrl)()}${configurations_1.USERS_API_PATH}`);
+    console.log(`✓ Admin dashboard available in ${(0, getServerUrl_1.getServerUrl)()}/dashboard`);
     if (httpsPortEnabled) {
         console.log(`✓ Also https port enabled`);
     }

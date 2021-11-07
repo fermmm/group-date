@@ -5,5 +5,6 @@ var AuthenticationProvider;
 (function (AuthenticationProvider) {
     AuthenticationProvider["Facebook"] = "Facebook";
     AuthenticationProvider["Google"] = "Google";
+    AuthenticationProvider["Email"] = "Email";
 })(AuthenticationProvider = exports.AuthenticationProvider || (exports.AuthenticationProvider = {}));
 //# sourceMappingURL=AuthenticationProvider.js.map

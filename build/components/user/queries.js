@@ -85,8 +85,11 @@ function hasProfileCompleted(currentTraversal) {
     return currentTraversal.has("user", "profileCompleted", true);
 }
 exports.hasProfileCompleted = hasProfileCompleted;
-async function queryToUpdateUserToken(userEmail, newToken) {
-    await (0, database_manager_1.sendQuery)(() => database_manager_1.g.V().has("user", "email", userEmail).property(database_manager_1.cardinality.single, "token", newToken).next());
+/**
+ * Receives a traversal with a user and updates the token.
+ */
+async function queryToUpdateUserToken(traversal, newToken) {
+    await (0, database_manager_1.sendQuery)(() => traversal.property(database_manager_1.cardinality.single, "token", newToken).next());
 }
 exports.queryToUpdateUserToken = queryToUpdateUserToken;
 async function queryToUpdateUserProps(tokenOrTraversal, props) {

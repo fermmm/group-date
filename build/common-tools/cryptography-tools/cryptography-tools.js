@@ -2,13 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.decode = exports.encode = exports.compareEncryption = exports.encrypt = void 0;
 const bcrypt = require("bcrypt");
-const crypto = require("crypto");
+const Cryptr = require("cryptr");
+const process_tools_1 = require("../process/process-tools");
 const string_tools_1 = require("../string-tools/string-tools");
-var algorithm = "aes256"; // Can be any other algorithm supported by OpenSSL
-var password = crypto.scryptSync((0, string_tools_1.generateId)(), "salt", 32); // Generates a random password
-const iv = crypto.randomBytes(16); // Generate different cipher text every time
-var cipher = crypto.createCipheriv(algorithm, password, iv);
-var decipher = crypto.createDecipheriv(algorithm, password, iv);
+const cryptr = new Cryptr((0, process_tools_1.isProductionMode)() ? (0, string_tools_1.generateId)() : "1234");
 /**
  * Creates a hash based on the given string. The hash cannot be decoded back to the original string.
  */
@@ -57,20 +54,20 @@ async function compareEncryption(notEncrypted, encrypted) {
 exports.compareEncryption = compareEncryption;
 /**
  * Encodes a string into a hash that can be decoded using decode(). For encoding and decoding a password is used.
- * The password is reset every time the server restarts, so after a restart the hash will not be valid. Use this
+ * The password is changed every time the server restarts, so after a restart the hash will not be valid. Use this
  * function for temporary transaction of credentials.
  * */
 function encode(text) {
-    return cipher.update(text, "utf8", "hex") + cipher.final("hex");
+    return cryptr.encrypt(text);
 }
 exports.encode = encode;
 /**
- * Decodes a hash that was encoded using encode(). For encoding and decoding a password is used
- * The password is reset every time the server restarts, so after a restart the hash will not be valid. Use this
+ * Decodes a hash that was encoded using encode(). For encoding and decoding a password is used.
+ * The password is changed every time the server restarts, so after a restart the hash will not be valid. Use this
  * function for temporary transaction of credentials.
  * */
-function decode(encrypted) {
-    return decipher.update(encrypted, "hex", "utf8") + decipher.final("utf8");
+function decode(encryptedText) {
+    return cryptr.decrypt(encryptedText);
 }
 exports.decode = decode;
 //# sourceMappingURL=cryptography-tools.js.map

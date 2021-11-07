@@ -4,6 +4,7 @@ exports.serverInfoGet = void 0;
 const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const configurations_1 = require("../../configurations");
 const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
+const getServerUrl_1 = require("../../common-tools/url-tools/getServerUrl");
 function serverInfoGet(params, ctx) {
     var _a, _b, _c, _d, _e, _f;
     return {
@@ -15,7 +16,8 @@ function serverInfoGet(params, ctx) {
         emailLoginEnabled: ((_c = process.env.AWS_ACCESS_KEY_ID) === null || _c === void 0 ? void 0 : _c.length) > 1 &&
             ((_d = process.env.AWS_SECRET_ACCESS_KEY) === null || _d === void 0 ? void 0 : _d.length) > 1 &&
             ((_e = process.env.EMAIL_SENDER) === null || _e === void 0 ? void 0 : _e.length) > 1 &&
-            ((_f = process.env.AWS_REGION) === null || _f === void 0 ? void 0 : _f.length) > 1,
+            ((_f = process.env.AWS_REGION) === null || _f === void 0 ? void 0 : _f.length) > 1 &&
+            (0, getServerUrl_1.getServerUrl)().length > 1,
         imagesHost: process.env.IMAGES_HOST,
         serverConfigurations: {
             groupSlots: configurations_1.GROUP_SLOTS_CONFIGS,

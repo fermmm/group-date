@@ -57,7 +57,7 @@ async function retrieveUser(token, includeFullInfo, ctx) {
     const email = await (0, getUserEmailFromAuthProvider_1.getUserEmailFromAuthProvider)(token, ctx);
     user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), includeFullInfo);
     if (user != null) {
-        await (0, queries_1.queryToUpdateUserToken)(email, token);
+        await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserByEmail)(email), token);
         return { ...user, token };
     }
     return createUser(token, email, includeFullInfo, ctx);
@@ -243,6 +243,8 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
                 to: user.notificationsToken,
                 title: notification.title,
                 body: notification.text,
+                priority: "high",
+                sound: "default",
                 data: {
                     type: notification.type,
                     targetId: notification.targetId,
