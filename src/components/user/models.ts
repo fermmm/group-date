@@ -365,7 +365,7 @@ export async function addNotificationToUser(
                targetId: notification.targetId,
                notificationId: finalNotification.notificationId,
             } as NotificationData,
-            // channelId: settings.channelId ? settings.channelId : NotificationChannelId.Default,
+            channelId: settings.channelId ? settings.channelId : NotificationChannelId.Default,
          },
       ]).then(expoPushTickets => {
          if (LOG_PUSH_NOTIFICATION_DELIVERING_RESULT) {

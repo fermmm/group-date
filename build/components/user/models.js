@@ -250,7 +250,7 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
                     targetId: notification.targetId,
                     notificationId: finalNotification.notificationId,
                 },
-                // channelId: settings.channelId ? settings.channelId : NotificationChannelId.Default,
+                channelId: settings.channelId ? settings.channelId : user_2.NotificationChannelId.Default,
             },
         ]).then(expoPushTickets => {
             if (configurations_1.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT) {
