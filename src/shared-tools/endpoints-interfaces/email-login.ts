@@ -19,9 +19,7 @@ export interface ConfirmEmailResponse {
    success?: boolean;
 }
 
-export interface LoginGetParams extends EmailLoginCredentials {
-   token: string;
-}
+export type LoginGetParams = Partial<EmailLoginCredentials & { token?: string }>;
 
 export interface LoginResponse {
    userExists: boolean;
