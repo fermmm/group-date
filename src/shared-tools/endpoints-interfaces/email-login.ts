@@ -25,12 +25,13 @@ export interface TokenGetResponse {
    token: string;
 }
 
-export interface LoginGetParams {
+export interface LoginGetParams extends EmailLoginCredentials {
    token: string;
 }
 
 export interface LoginResponse {
-   success?: boolean;
+   userExists: boolean;
+   token?: string;
 }
 
 export interface ResetPasswordPostParams {

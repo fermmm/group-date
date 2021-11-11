@@ -25,8 +25,6 @@ import {
    LoginGetParams,
    LoginResponse,
    ResetPasswordPostParams,
-   TokenGetParams,
-   TokenGetResponse,
 } from "../../shared-tools/endpoints-interfaces/email-login";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { createUser } from "../user/models";
@@ -51,6 +49,13 @@ export async function createAccountPost(
 
    if (email?.length < 4 || !email.includes("@") || password?.length < 1) {
       ctx.throw(400, "Invalid credentials");
+      return;
+   }
+
+   let user = await fromQueryToUser(queryToGetUserByEmail(email), false);
+
+   if (user) {
+      ctx.throw(400, t("An account already exists with this email", { ctx }));
       return;
    }
 
@@ -126,56 +131,51 @@ export async function confirmEmailPost(
 }
 
 /**
- * This endpoint is called by the client app to get the token when it has the user and password. In
- * other words this endpoint returns the token when a email and password is provided. The token is
- * always returned wether the user exists or not. To check the token is valid the login GET endpoint
- * needs to be called.
- */
-export async function tokenGet(params: TokenGetParams, ctx: BaseContext): Promise<TokenGetResponse> {
-   const { email, password } = params;
-
-   if (!email || typeof email !== "string" || email.length < 1) {
-      ctx.throw(500, "Invalid email.");
-      return;
-   }
-
-   if (!password || typeof password !== "string" || password.length < 1) {
-      ctx.throw(500, "Invalid password.");
-      return;
-   }
-
-   const token = await createTokenFromEmailPass({ email, password });
-   const user = await fromQueryToUser(queryToGetUserByToken(token), false);
-
-   if (!user) {
-      ctx.throw(500, t("Invalid email or password", { ctx }));
-      return;
-   }
-
-   return { token };
-}
-
-/**
- * This endpoint is called by the client app to check if the user is created and the credentials valid.
- * Since the token can be created using the email and password, the client app generates the token and sends
- * it to this endpoint to check if the user is created.
+ * This endpoint receives token or user and password and returns the user token if the user
+ * exists. This is called by the client app in 3 situations:
+ * 1. To verify that the email confirmation is completed (because the user was created)
+ * 2. To verify that a token is still valid when the app boots
+ * 3. In the login form to get the token
  */
 export async function loginGet(params: LoginGetParams, ctx: BaseContext): Promise<LoginResponse> {
-   const { token } = params;
+   let { token, email, password } = params;
 
-   if (!token || token.length < 5) {
-      ctx.throw(500, "Invalid hash format.");
+   if ((!token && !email && !password) || (email && !password) || (password && !email)) {
+      ctx.throw(400, t("Invalid credentials", { ctx }));
       return;
+   }
+
+   if (email && (typeof email !== "string" || email.length < 1)) {
+      ctx.throw(400, "Invalid email.");
+      return;
+   }
+
+   if (password && (typeof password !== "string" || password.length < 1)) {
+      ctx.throw(400, "Invalid password.");
+      return;
+   }
+
+   if (token && token.length < 5) {
+      ctx.throw(400, "Invalid hash format.");
+      return;
+   }
+
+   if (token == null) {
+      token = await createTokenFromEmailPass({ email, password });
    }
 
    const user = await fromQueryToUser(queryToGetUserByToken(token), false);
 
    if (!user) {
-      ctx.throw(500, t("Invalid email or password", { ctx }));
+      if (email) {
+         ctx.throw(400, t("Invalid email or password", { ctx }));
+      } else {
+         ctx.throw(400, t("Invalid token", { ctx }));
+      }
       return;
    }
 
-   return { success: true };
+   return { userExists: true, token: user.token };
 }
 
 /**

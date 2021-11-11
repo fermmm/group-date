@@ -103,5 +103,6 @@
    "Our email sending service is not working in this moment, please try again in a while or report us the error" : "Our email sending service is not working in this moment, please try again in a while or report us the error",
    "Welcome to": "Welcome to",
    "Or if you prefer copy and paste this into your browser": "Or if you prefer copy and paste this into your browser",
-   "You need to verify your email, click on this link": "You need to verify your email, click on this link"
+   "You need to verify your email, click on this link": "You need to verify your email, click on this link",
+   "An account already exists with this email": "An account already exists with this email"
 }

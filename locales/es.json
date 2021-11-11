@@ -85,5 +85,6 @@
    "Our email sending service is not working in this moment, please try again in a while or report us the error": "Nuestro sistema de envio de emails no esta funcionando en este momento, por favor intenta en un rato o reporta el error",
    "Welcome to": "Bienvenidx a",
    "Or if you prefer copy and paste this into your browser": "O si prefieres copia y pega esto en tu navegador",
-   "You need to verify your email, click on this link": "Debes verificar tu email, haz click en este link"
+   "You need to verify your email, click on this link": "Debes verificar tu email, haz click en este link",
+   "An account already exists with this email": "Ya existe una cuenta con ese email"
 }
