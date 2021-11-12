@@ -1,4 +1,4 @@
-import { compareEncryption, encrypt } from "../../../common-tools/cryptography-tools/cryptography-tools";
+import { compareHash, createHash } from "../../../common-tools/cryptography-tools/cryptography-tools";
 import { isProductionMode } from "../../../common-tools/process/process-tools";
 import { CredentialsValidationResult } from "../../../shared-tools/endpoints-interfaces/admin";
 
@@ -44,7 +44,7 @@ export async function validateAdminCredentials(params: {
 
    if (hash != null) {
       try {
-         const valid = await compareEncryption(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
+         const valid = await compareHash(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
          if (valid === true) {
             return { isValid: true };
          }
@@ -66,6 +66,6 @@ export async function validateAdminCredentials(params: {
    return { isValid: true };
 }
 
-export async function getCredentialsHash() {
-   return await encrypt(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
+export function getCredentialsHash() {
+   return createHash(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
 }

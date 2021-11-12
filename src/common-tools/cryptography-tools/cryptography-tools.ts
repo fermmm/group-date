@@ -1,5 +1,5 @@
-import * as bcrypt from "bcrypt";
 import Cryptr = require("cryptr");
+import * as forge from "node-forge";
 import { isProductionMode } from "../process/process-tools";
 import { generateId } from "../string-tools/string-tools";
 
@@ -8,52 +8,17 @@ const cryptr = new Cryptr(isProductionMode() ? generateId() : "1234");
 /**
  * Creates a hash based on the given string. The hash cannot be decoded back to the original string.
  */
-export async function encrypt(dataToEncrypt: string): Promise<string> {
-   let resolve: (hash: string) => void;
-   let reject: (error: Error) => void;
-   const promise = new Promise<string>((res, rej) => {
-      resolve = res;
-      reject = rej;
-   });
-
-   bcrypt.genSalt(10, (err, salt) => {
-      if (err) {
-         reject(err);
-         return;
-      }
-
-      bcrypt.hash(dataToEncrypt, salt, (err2, hash) => {
-         if (err2) {
-            reject(err2);
-            return;
-         }
-         resolve(hash);
-      });
-   });
-
-   return promise;
+export function createHash(dataToEncrypt: string): string {
+   var md5 = forge.md.md5.create();
+   md5.update(dataToEncrypt);
+   return md5.digest().toHex();
 }
 
 /**
- * Compares the given string to the hash created using encrypt(). Returns true if the strings match, false otherwise.
+ * Compares the given string to the hash created using createHash(). Returns true if the strings match, false otherwise.
  */
-export async function compareEncryption(notEncrypted: string, encrypted: string) {
-   let resolve: (valid: boolean) => void;
-   let reject: (error: Error) => void;
-   const promise = new Promise<boolean>((res, rej) => {
-      resolve = res;
-      reject = rej;
-   });
-
-   bcrypt.compare(notEncrypted, encrypted, (err, matches) => {
-      if (err) {
-         reject(err);
-         return;
-      }
-      resolve(matches);
-   });
-
-   return promise;
+export function compareHash(notEncrypted: string, encrypted: string) {
+   return createHash(notEncrypted) === encrypted;
 }
 
 /**

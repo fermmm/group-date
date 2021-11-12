@@ -1,10 +1,10 @@
 import { BaseContext } from "koa";
 import { has } from "typescript-collections/dist/lib/util";
 import {
-   compareEncryption,
+   compareHash,
    decode,
    encode,
-   encrypt,
+   createHash,
 } from "../../common-tools/cryptography-tools/cryptography-tools";
 import { sendEmail } from "../../common-tools/email-tools/email-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
@@ -117,7 +117,7 @@ export async function confirmEmailPost(
       return { success: true };
    }
 
-   const originalToken = await createTokenFromEmailPass({ email, password });
+   const originalToken = createToken({ email, password });
    const extendedInfoToken = createExtendedInfoToken({ originalToken, provider: AuthenticationProvider.Email });
 
    user = await createUser(extendedInfoToken, email, false, ctx);
@@ -161,7 +161,7 @@ export async function loginGet(params: LoginGetParams, ctx: BaseContext): Promis
    }
 
    if (token == null) {
-      token = await createTokenFromEmailPass({ email, password });
+      token = createToken({ email, password });
    }
 
    const user = await fromQueryToUser(queryToGetUserByToken(token), false);
@@ -217,7 +217,7 @@ export async function resetPasswordPost(
          )}:<br/>${getServerUrl()}/SARASAAAAA2?hash=${encode(
             JSON.stringify({
                userId: user.userId,
-               tokenHashed: await encrypt(user.token),
+               tokenHashed: await createHash(user.token),
             } as ChangePasswordCredentials),
          )}<br/><br/>${t("Good luck!", { ctx })}`,
       });
@@ -267,18 +267,21 @@ export async function changePasswordPost(
       return;
    }
 
-   if (!(await compareEncryption(user.token, tokenHashed))) {
+   if (!compareHash(user.token, tokenHashed)) {
       ctx.throw(400, "Invalid token hashed");
       return;
    }
 
-   await queryToUpdateUserToken(queryToGetUserById(userId), await encrypt(user.email + newPassword));
+   await queryToUpdateUserToken(
+      queryToGetUserById(userId),
+      createToken({ email: user.email, password: newPassword }),
+   );
 
    return { success: true };
 }
 
-export async function createTokenFromEmailPass(props: EmailLoginCredentials) {
+export function createToken(props: EmailLoginCredentials) {
    const { email, password } = props;
 
-   return await encrypt(email + password);
+   return createHash(email + password);
 }

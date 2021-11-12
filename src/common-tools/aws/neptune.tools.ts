@@ -83,6 +83,6 @@ export async function exportNeptuneDatabase(ctx: BaseContext): Promise<ExportDat
 
    return {
       commandResponse,
-      folder: `api/admin-uploads/db.zip?hash=${await getCredentialsHash()}`,
+      folder: `api/admin-uploads/db.zip?hash=${getCredentialsHash()}`,
    };
 }
