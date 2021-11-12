@@ -161,7 +161,10 @@ export async function loginGet(params: LoginGetParams, ctx: BaseContext): Promis
    }
 
    if (token == null) {
-      token = createToken({ email, password });
+      token = createExtendedInfoToken({
+         originalToken: createToken({ email, password }),
+         provider: AuthenticationProvider.Email,
+      });
    }
 
    const user = await fromQueryToUser(queryToGetUserByToken(token), false);
