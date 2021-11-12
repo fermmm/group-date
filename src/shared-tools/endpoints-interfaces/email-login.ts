@@ -47,3 +47,7 @@ export interface ChangePasswordCredentials {
    userId: string;
    tokenHashed: string;
 }
+
+export interface ResetPasswordResponse {
+   success?: boolean;
+}

@@ -25,6 +25,7 @@ import {
    LoginGetParams,
    LoginResponse,
    ResetPasswordPostParams,
+   ResetPasswordResponse,
 } from "../../shared-tools/endpoints-interfaces/email-login";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { createUser } from "../user/models";
@@ -191,7 +192,7 @@ export async function loginGet(params: LoginGetParams, ctx: BaseContext): Promis
 export async function resetPasswordPost(
    params: ResetPasswordPostParams,
    ctx: BaseContext,
-): Promise<CreateAccountResponse> {
+): Promise<ResetPasswordResponse> {
    const { email } = params;
 
    if (email?.length < 4 || !email.includes("@")) {
