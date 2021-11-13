@@ -87,5 +87,6 @@
 	"Or if you prefer copy and paste this into your browser": "O si prefieres copia y pega esto en tu navegador",
 	"You need to verify your email, click on this link": "Debes verificar tu email, haz click en este link",
 	"An account already exists with this email": "Ya existe una cuenta con ese email",
-	"Invalid credentials": "Credenciales inválidas"
+	"Invalid credentials": "Credenciales inválidas",
+	"Invalid token": "Invalid token"
 }
