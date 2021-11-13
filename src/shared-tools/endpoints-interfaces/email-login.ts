@@ -51,3 +51,11 @@ export interface ChangePasswordCredentials {
 export interface ResetPasswordResponse {
    success?: boolean;
 }
+
+export interface UserExistsGetParams {
+   email: string;
+}
+
+export interface UserExistsResponse {
+   userExists: boolean;
+}

@@ -26,6 +26,8 @@ import {
    LoginResponse,
    ResetPasswordPostParams,
    ResetPasswordResponse,
+   UserExistsGetParams,
+   UserExistsResponse,
 } from "../../shared-tools/endpoints-interfaces/email-login";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { createUser } from "../user/models";
@@ -288,4 +290,9 @@ export function createToken(props: EmailLoginCredentials) {
    const { email, password } = props;
 
    return createHash(email + password);
+}
+
+export async function userExistsGet(props: UserExistsGetParams, ctx: BaseContext): Promise<UserExistsResponse> {
+   let user = await fromQueryToUser(queryToGetUserByEmail(props.email), false);
+   return { userExists: user != null };
 }
