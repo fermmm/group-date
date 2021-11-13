@@ -48,7 +48,7 @@ export async function createAccountPost(
    params: CreateAccountParams,
    ctx: BaseContext,
 ): Promise<CreateAccountResponse> {
-   const { email, password } = params;
+   const { email, password, appUrl } = params;
 
    if (email?.length < 4 || !email.includes("@") || password?.length < 1) {
       ctx.throw(400, "Invalid credentials");
@@ -63,7 +63,7 @@ export async function createAccountPost(
    }
 
    const hashToSend = encode(JSON.stringify({ email, password }));
-   const emailLink = `${getServerUrl()}/confirm-email/?hash=${hashToSend}`;
+   const emailLink = `${getServerUrl()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
 
    try {
       await sendEmail({

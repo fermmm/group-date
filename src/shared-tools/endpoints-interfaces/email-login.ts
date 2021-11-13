@@ -7,7 +7,9 @@ export interface EncryptedEmailLoginCredentials {
    hash: string;
 }
 
-export interface CreateAccountParams extends EmailLoginCredentials {}
+export interface CreateAccountParams extends EmailLoginCredentials {
+   appUrl: string;
+}
 
 export interface CreateAccountResponse {
    success?: boolean;
