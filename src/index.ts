@@ -56,6 +56,7 @@ import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
     */
    serveWebsite("/", "./websites/promo", a, router);
    serveWebsite("/confirm-email", "./websites/email-login/confirm", a, router, { enableCache: false });
+   serveWebsite("/password-reset", "./websites/email-login/password-reset", a, router, { enableCache: false });
 
    // To edit this website run "npm start" in the websites/dashboard folder and remember to run "npm run build" when finishing editing
    serveWebsite("/dashboard", "./websites/dashboard/build", a, router, { websiteHasRouter: true });

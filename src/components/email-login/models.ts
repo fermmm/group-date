@@ -220,10 +220,10 @@ export async function resetPasswordPost(
             {
                ctx,
             },
-         )}:<br/>${getServerUrl()}/SARASAAAAA2?hash=${encode(
+         )}:<br/>${getServerUrl()}/password-reset/?hash=${encode(
             JSON.stringify({
                userId: user.userId,
-               tokenHashed: await createHash(user.token),
+               tokenHashed: createHash(user.token),
             } as ChangePasswordCredentials),
          )}<br/><br/>${t("Good luck!", { ctx })}`,
       });
@@ -254,7 +254,7 @@ export async function changePasswordPost(
 ): Promise<ChangePasswordResponse> {
    const { hash, newPassword } = params;
 
-   if (!hash || has.length < 1 || !newPassword || newPassword.length < 2) {
+   if (!hash || hash.length < 1 || !newPassword || newPassword.length < 2) {
       ctx.throw(400, "The new password is invalid");
       return;
    }
