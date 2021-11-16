@@ -195,7 +195,7 @@ export async function resetPasswordPost(
    params: ResetPasswordPostParams,
    ctx: BaseContext,
 ): Promise<ResetPasswordResponse> {
-   const { email } = params;
+   const { email, appUrl } = params;
 
    if (email?.length < 4 || !email.includes("@")) {
       ctx.throw(400, "Invalid email format");
@@ -209,23 +209,32 @@ export async function resetPasswordPost(
       return;
    }
 
-   // TODO: Esta url es una pagina web asi que SARASAAAAA2 hay que reemplazarlo por el path
+   const hashToSend = encode(
+      JSON.stringify({
+         userId: user.userId,
+         tokenHashed: createHash(user.token),
+      } as ChangePasswordCredentials),
+   );
+   const emailLink = `${getServerUrl()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
+
    try {
       await sendEmail({
          to: email,
          senderName: `${APPLICATION_NAME} app`,
          subject: `${t("Password reset", { ctx })}`,
-         html: `<h1>${t("Password reset", { ctx })}</h1><br/>${t(
+         html: `<h2>${t("Password reset", {
+            ctx,
+         })} =)</h2><br/>${t("You requested to create a new password", {
+            ctx,
+         })}<br/><a href="${emailLink}" style="font-size: 22px;">${t(
             "Click on this link to create a new password",
             {
                ctx,
             },
-         )}:<br/>${getServerUrl()}/password-reset/?hash=${encode(
-            JSON.stringify({
-               userId: user.userId,
-               tokenHashed: createHash(user.token),
-            } as ChangePasswordCredentials),
-         )}<br/><br/>${t("Good luck!", { ctx })}`,
+         )}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
+            ctx,
+         })}:<br/><br/>${emailLink}
+         <br/><br/>${t("Good luck!", { ctx })}`,
       });
 
       return { success: true };

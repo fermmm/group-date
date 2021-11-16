@@ -6,46 +6,80 @@ document.onreadystatechange = () => {
    }
    alreadyDone = true;
 
+   let passwordChanged = false;
+
+   const { hash, appUrl } = getJsonFromUrl();
    const statusText = document.querySelector(".section1-text");
-   const buttonBackToApp = document.querySelector(".section1-go-to-app-button");
+   const buttonContinue = document.querySelector(".section1-main-button");
+   const form = document.querySelector(".section1-form");
+   const passwordInput = document.querySelector(".password-input1");
+   const confirmPasswordInput = document.querySelector(".password-input2");
+   const errorLabel = document.querySelector(".error-label");
 
-   buttonBackToApp.style.opacity = 0;
-   statusText.innerHTML = "Cargando...";
+   buttonContinue.addEventListener("click", onContinueButtonClick);
 
-   const successText = "<b>¡Email confirmado!</b> Puedes volver a la app";
-   const generalErrorText =
-      "<b>Error:</b><br/>Este no es el link que te enviamos en el email, comprueba si lo has abierto correctamente";
+   statusText.innerHTML = "Nuevo password";
 
-   const hash = getJsonFromUrl().hash;
    if (!hash || hash.length < 4) {
-      statusText.innerHTML = generalErrorText;
+      statusText.innerHTML =
+         "<b>Error:</b><br/>Este no es el link que te enviamos en el email, comprueba si lo has abierto correctamente";
+      form.style.display = "none";
       return;
    }
 
-   fetch("/api/email-login/confirm-email", {
-      method: "POST",
-      body: JSON.stringify({ hash }),
-      headers: {
-         "Content-Type": "application/json",
-      },
-   })
-      .then(response => {
-         if (!response.ok) {
-            throw new Error(response.statusText);
-         }
-         return response.json();
-      })
-      .then(response => {
-         if (response.success === true) {
-            statusText.innerHTML = successText;
-            buttonBackToApp.style.opacity = 1;
-         }
-      })
-      .catch(err => {
-         statusText.innerHTML = `${generalErrorText}.<br/>${tryToGetErrorMessage(err)}`;
-         buttonBackToApp.style.opacity = 1;
+   form.style.opacity = 1;
+
+   function sendNewPassword() {
+      errorLabel.innerHTML = "";
+
+      if (passwordInput.value.trim() !== confirmPasswordInput.value.trim()) {
+         errorLabel.innerHTML = "Los passwords no coinciden";
          return;
-      });
+      }
+
+      if (passwordInput.value.trim().length < 2) {
+         errorLabel.innerHTML = "El password debe tener al menos 2 caracteres";
+         return;
+      }
+
+      errorLabel.innerHTML = "";
+      statusText.innerHTML = "Enviando...";
+      form.style.display = "none";
+
+      fetch("/api/email-login/change-password", {
+         method: "POST",
+         body: JSON.stringify({ hash, newPassword: passwordInput.value.trim() }),
+         headers: {
+            "Content-Type": "application/json",
+         },
+      })
+         .then(response => {
+            if (!response.ok) {
+               throw new Error(response.statusText);
+            }
+            return response.json();
+         })
+         .then(response => {
+            if (response.success === true) {
+               statusText.innerHTML = "<b>Password modificado!</b> Inicia sesión con tu nuevo password";
+               buttonContinue.innerHTML = "Volver a la app";
+               passwordChanged = true;
+            }
+         })
+         .catch(err => {
+            errorLabel.innerHTML = `${tryToGetErrorMessage(err)}`;
+            form.style.display = "block";
+            return;
+         });
+   }
+
+   function onContinueButtonClick() {
+      if (!passwordChanged) {
+         sendNewPassword();
+      } else {
+         window.location.href = appUrl;
+      }
+   }
 };
 
 function getJsonFromUrl(url) {

@@ -88,5 +88,6 @@
 	"You need to verify your email, click on this link": "Debes verificar tu email, haz click en este link",
 	"An account already exists with this email": "Ya existe una cuenta con ese email",
 	"Invalid credentials": "Credenciales inválidas",
-	"Invalid token": "Invalid token"
+	"Invalid token": "Invalid token",
+	"You requested to create a new password": "Has solicitado crear un nuevo password"
 }

@@ -30,6 +30,7 @@ export interface LoginResponse {
 
 export interface ResetPasswordPostParams {
    email: string;
+   appUrl: string;
 }
 
 export interface ResetPasswordResponse {

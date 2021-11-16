@@ -6,8 +6,13 @@ document.onreadystatechange = () => {
    }
    alreadyDone = true;
 
+   const { hash, appUrl } = getJsonFromUrl();
    const statusText = document.querySelector(".section1-text");
    const buttonBackToApp = document.querySelector(".section1-go-to-app-button");
+
+   buttonBackToApp.addEventListener("click", () => {
+      window.location.href = appUrl;
+   });
 
    buttonBackToApp.style.opacity = 0;
    statusText.innerHTML = "Cargando...";
@@ -16,7 +21,6 @@ document.onreadystatechange = () => {
    const generalErrorText =
       "<b>Error:</b><br/>Este no es el link que te enviamos en el email, comprueba si lo has abierto correctamente";
 
-   const hash = getJsonFromUrl().hash;
    if (!hash || hash.length < 4) {
       statusText.innerHTML = generalErrorText;
       return;
