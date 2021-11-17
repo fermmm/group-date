@@ -35,7 +35,7 @@ async function validateAdminCredentials(params) {
     }
     if (hash != null) {
         try {
-            const valid = await (0, cryptography_tools_1.compareEncryption)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
+            const valid = await (0, cryptography_tools_1.compareHash)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
             if (valid === true) {
                 return { isValid: true };
             }
@@ -56,8 +56,8 @@ async function validateAdminCredentials(params) {
     return { isValid: true };
 }
 exports.validateAdminCredentials = validateAdminCredentials;
-async function getCredentialsHash() {
-    return await (0, cryptography_tools_1.encrypt)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
+function getCredentialsHash() {
+    return (0, cryptography_tools_1.createHash)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
 }
 exports.getCredentialsHash = getCredentialsHash;
 //# sourceMappingURL=validateAdminCredentials.js.map

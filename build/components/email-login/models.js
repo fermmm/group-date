@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTokenFromEmailPass = exports.changePasswordPost = exports.resetPasswordPost = exports.loginGet = exports.tokenGet = exports.confirmEmailPost = exports.createAccountPost = void 0;
-const util_1 = require("typescript-collections/dist/lib/util");
+exports.userExistsGet = exports.createEmailLoginToken = exports.changePasswordPost = exports.resetPasswordPost = exports.loginGet = exports.confirmEmailPost = exports.createAccountPost = void 0;
 const cryptography_tools_1 = require("../../common-tools/cryptography-tools/cryptography-tools");
 const email_tools_1 = require("../../common-tools/email-tools/email-tools");
 const tryToGetErrorMessage_1 = require("../../common-tools/httpRequest/tools/tryToGetErrorMessage");
@@ -19,13 +18,18 @@ const data_conversion_1 = require("../user/tools/data-conversion");
  * encoded in the url. The website sends the hash back to the confirmEmailPost() endpoint to create the user.
  */
 async function createAccountPost(params, ctx) {
-    const { email, password } = params;
+    const { email, password, appUrl } = params;
     if ((email === null || email === void 0 ? void 0 : email.length) < 4 || !email.includes("@") || (password === null || password === void 0 ? void 0 : password.length) < 1) {
         ctx.throw(400, "Invalid credentials");
         return;
     }
+    let user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), false);
+    if (user) {
+        ctx.throw(400, (0, i18n_tools_1.t)("An account already exists with this email", { ctx }));
+        return;
+    }
     const hashToSend = (0, cryptography_tools_1.encode)(JSON.stringify({ email, password }));
-    const emailLink = `${(0, getServerUrl_1.getServerUrl)()}/confirm-email/?hash=${hashToSend}`;
+    const emailLink = `${(0, getServerUrl_1.getServerUrl)()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
     try {
         await (0, email_tools_1.sendEmail)({
             to: email,
@@ -68,9 +72,8 @@ async function confirmEmailPost(params, ctx) {
     if (user) {
         return { success: true };
     }
-    const originalToken = await createTokenFromEmailPass({ email, password });
-    const extendedInfoToken = (0, tokenStringTools_1.createExtendedInfoToken)({ originalToken, provider: AuthenticationProvider_1.AuthenticationProvider.Email });
-    user = await (0, models_1.createUser)(extendedInfoToken, email, false, ctx);
+    const token = createEmailLoginToken({ email, password });
+    user = await (0, models_1.createUser)(token, email, false, ctx);
     if (user == null) {
         ctx.throw(500, "User not created. Please report error.");
         return;
@@ -79,47 +82,44 @@ async function confirmEmailPost(params, ctx) {
 }
 exports.confirmEmailPost = confirmEmailPost;
 /**
- * This endpoint is called by the client app to get the token when it has the user and password. In
- * other words this endpoint returns the token when a email and password is provided. The token is
- * always returned wether the user exists or not. To check the token is valid the login GET endpoint
- * needs to be called.
- */
-async function tokenGet(params, ctx) {
-    const { email, password } = params;
-    if (!email || typeof email !== "string" || email.length < 1) {
-        ctx.throw(500, "Invalid email.");
-        return;
-    }
-    if (!password || typeof password !== "string" || password.length < 1) {
-        ctx.throw(500, "Invalid password.");
-        return;
-    }
-    const token = await createTokenFromEmailPass({ email, password });
-    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(token), false);
-    if (!user) {
-        ctx.throw(500, (0, i18n_tools_1.t)("Invalid email or password", { ctx }));
-        return;
-    }
-    return { token };
-}
-exports.tokenGet = tokenGet;
-/**
- * This endpoint is called by the client app to check if the user is created and the credentials valid.
- * Since the token can be created using the email and password, the client app generates the token and sends
- * it to this endpoint to check if the user is created.
+ * This endpoint receives token or user and password and returns the user token if the user
+ * exists. This is called by the client app in 3 situations:
+ * 1. To verify that the email confirmation is completed (because the user was created)
+ * 2. To verify that a token is still valid when the app boots
+ * 3. In the login form to get the token
  */
 async function loginGet(params, ctx) {
-    const { token } = params;
-    if (!token || token.length < 5) {
-        ctx.throw(500, "Invalid hash format.");
+    let { token, email, password } = params;
+    if ((!token && !email && !password) || (email && !password) || (password && !email)) {
+        ctx.throw(400, (0, i18n_tools_1.t)("Invalid credentials", { ctx }));
         return;
+    }
+    if (email && (typeof email !== "string" || email.length < 1)) {
+        ctx.throw(400, "Invalid email.");
+        return;
+    }
+    if (password && (typeof password !== "string" || password.length < 1)) {
+        ctx.throw(400, "Invalid password.");
+        return;
+    }
+    if (token && token.length < 5) {
+        ctx.throw(400, "Invalid hash format.");
+        return;
+    }
+    if (token == null) {
+        token = createEmailLoginToken({ email, password });
     }
     const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(token), false);
     if (!user) {
-        ctx.throw(500, (0, i18n_tools_1.t)("Invalid email or password", { ctx }));
+        if (email) {
+            ctx.throw(400, (0, i18n_tools_1.t)("Invalid email or password", { ctx }));
+        }
+        else {
+            ctx.throw(400, (0, i18n_tools_1.t)("Invalid token", { ctx }));
+        }
         return;
     }
-    return { success: true };
+    return { userExists: true, token: user.token };
 }
 exports.loginGet = loginGet;
 /**
@@ -130,7 +130,7 @@ exports.loginGet = loginGet;
  * password the user typed.
  */
 async function resetPasswordPost(params, ctx) {
-    const { email } = params;
+    const { email, appUrl } = params;
     if ((email === null || email === void 0 ? void 0 : email.length) < 4 || !email.includes("@")) {
         ctx.throw(400, "Invalid email format");
         return;
@@ -140,18 +140,26 @@ async function resetPasswordPost(params, ctx) {
         ctx.throw(400, (0, i18n_tools_1.t)("We don't have a user registered with that email", { ctx }));
         return;
     }
-    // TODO: Esta url es una pagina web asi que SARASAAAAA2 hay que reemplazarlo por el path
+    const hashToSend = (0, cryptography_tools_1.encode)(JSON.stringify({
+        userId: user.userId,
+        tokenHashed: (0, cryptography_tools_1.createHash)(user.token),
+    }));
+    const emailLink = `${(0, getServerUrl_1.getServerUrl)()}/password-reset/?hash=${hashToSend}&appUrl=${appUrl}`;
     try {
         await (0, email_tools_1.sendEmail)({
             to: email,
             senderName: `${configurations_1.APPLICATION_NAME} app`,
             subject: `${(0, i18n_tools_1.t)("Password reset", { ctx })}`,
-            html: `<h1>${(0, i18n_tools_1.t)("Password reset", { ctx })}</h1><br/>${(0, i18n_tools_1.t)("Click on this link to create a new password", {
+            html: `<h2>${(0, i18n_tools_1.t)("Password reset", {
                 ctx,
-            })}:<br/>${(0, getServerUrl_1.getServerUrl)()}/SARASAAAAA2?hash=${(0, cryptography_tools_1.encode)(JSON.stringify({
-                userId: user.userId,
-                tokenHashed: await (0, cryptography_tools_1.encrypt)(user.token),
-            }))}<br/><br/>${(0, i18n_tools_1.t)("Good luck!", { ctx })}`,
+            })} =)</h2><br/>${(0, i18n_tools_1.t)("You requested to create a new password", {
+                ctx,
+            })}<br/><a href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Click on this link to create a new password", {
+                ctx,
+            })}</a><br/><br/>${(0, i18n_tools_1.t)("Or if you prefer copy and paste this into your browser", {
+                ctx,
+            })}:<br/><br/>${emailLink}
+         <br/><br/>${(0, i18n_tools_1.t)("Good luck!", { ctx })}`,
         });
         return { success: true };
     }
@@ -170,7 +178,8 @@ exports.resetPasswordPost = resetPasswordPost;
  */
 async function changePasswordPost(params, ctx) {
     const { hash, newPassword } = params;
-    if (!hash || util_1.has.length < 1 || !newPassword || newPassword.length < 2) {
+    console.log("PARAMS", params);
+    if (!hash || hash.length < 1 || !newPassword || newPassword.length < 2) {
         ctx.throw(400, "The new password is invalid");
         return;
     }
@@ -181,20 +190,29 @@ async function changePasswordPost(params, ctx) {
     }
     const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
     if (!user) {
-        ctx.throw(400, "The user does not exist anymore");
+        ctx.throw(400, "The user does not exist");
         return;
     }
-    if (!(await (0, cryptography_tools_1.compareEncryption)(user.token, tokenHashed))) {
+    if (!(0, cryptography_tools_1.compareHash)(user.token, tokenHashed)) {
         ctx.throw(400, "Invalid token hashed");
         return;
     }
-    await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserById)(userId), await (0, cryptography_tools_1.encrypt)(user.email + newPassword));
+    await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserById)(userId), createEmailLoginToken({ email: user.email, password: newPassword }));
     return { success: true };
 }
 exports.changePasswordPost = changePasswordPost;
-async function createTokenFromEmailPass(props) {
+function createEmailLoginToken(props) {
     const { email, password } = props;
-    return await (0, cryptography_tools_1.encrypt)(email + password);
+    const hash = (0, cryptography_tools_1.createHash)(email + password);
+    return (0, tokenStringTools_1.createExtendedInfoToken)({
+        originalToken: hash,
+        provider: AuthenticationProvider_1.AuthenticationProvider.Email,
+    });
 }
-exports.createTokenFromEmailPass = createTokenFromEmailPass;
+exports.createEmailLoginToken = createEmailLoginToken;
+async function userExistsGet(props, ctx) {
+    let user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(props.email), false);
+    return { userExists: user != null };
+}
+exports.userExistsGet = userExistsGet;
 //# sourceMappingURL=models.js.map
