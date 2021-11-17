@@ -120,10 +120,9 @@ export async function confirmEmailPost(
       return { success: true };
    }
 
-   const originalToken = createToken({ email, password });
-   const extendedInfoToken = createExtendedInfoToken({ originalToken, provider: AuthenticationProvider.Email });
+   const token = createEmailLoginToken({ email, password });
 
-   user = await createUser(extendedInfoToken, email, false, ctx);
+   user = await createUser(token, email, false, ctx);
 
    if (user == null) {
       ctx.throw(500, "User not created. Please report error.");
@@ -164,10 +163,7 @@ export async function loginGet(params: LoginGetParams, ctx: BaseContext): Promis
    }
 
    if (token == null) {
-      token = createExtendedInfoToken({
-         originalToken: createToken({ email, password }),
-         provider: AuthenticationProvider.Email,
-      });
+      token = createEmailLoginToken({ email, password });
    }
 
    const user = await fromQueryToUser(queryToGetUserByToken(token), false);
@@ -215,7 +211,7 @@ export async function resetPasswordPost(
          tokenHashed: createHash(user.token),
       } as ChangePasswordCredentials),
    );
-   const emailLink = `${getServerUrl()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
+   const emailLink = `${getServerUrl()}/password-reset/?hash=${hashToSend}&appUrl=${appUrl}`;
 
    try {
       await sendEmail({
@@ -263,6 +259,8 @@ export async function changePasswordPost(
 ): Promise<ChangePasswordResponse> {
    const { hash, newPassword } = params;
 
+   console.log("PARAMS", params);
+
    if (!hash || hash.length < 1 || !newPassword || newPassword.length < 2) {
       ctx.throw(400, "The new password is invalid");
       return;
@@ -278,7 +276,7 @@ export async function changePasswordPost(
    const user = await fromQueryToUser(queryToGetUserById(userId), false);
 
    if (!user) {
-      ctx.throw(400, "The user does not exist anymore");
+      ctx.throw(400, "The user does not exist");
       return;
    }
 
@@ -289,16 +287,19 @@ export async function changePasswordPost(
 
    await queryToUpdateUserToken(
       queryToGetUserById(userId),
-      createToken({ email: user.email, password: newPassword }),
+      createEmailLoginToken({ email: user.email, password: newPassword }),
    );
 
    return { success: true };
 }
 
-export function createToken(props: EmailLoginCredentials) {
+export function createEmailLoginToken(props: EmailLoginCredentials) {
    const { email, password } = props;
-
-   return createHash(email + password);
+   const hash = createHash(email + password);
+   return createExtendedInfoToken({
+      originalToken: hash,
+      provider: AuthenticationProvider.Email,
+   });
 }
 
 export async function userExistsGet(props: UserExistsGetParams, ctx: BaseContext): Promise<UserExistsResponse> {
