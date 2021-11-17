@@ -15,6 +15,23 @@ document.onreadystatechange = () => {
    const passwordInput = document.querySelector(".password-input1");
    const confirmPasswordInput = document.querySelector(".password-input2");
    const errorLabel = document.querySelector(".error-label");
+   errorLabel.style.display = "none";
+
+   passwordInput.addEventListener("keyup", event => {
+      if (event.keyCode === 13) {
+         event.preventDefault();
+         confirmPasswordInput.focus();
+         confirmPasswordInput.scrollIntoView();
+      }
+   });
+
+   confirmPasswordInput.addEventListener("keyup", event => {
+      if (event.keyCode === 13) {
+         event.preventDefault();
+         buttonContinue.scrollIntoView();
+         buttonContinue.click();
+      }
+   });
 
    buttonContinue.addEventListener("click", onContinueButtonClick);
 
@@ -31,18 +48,20 @@ document.onreadystatechange = () => {
 
    function sendNewPassword() {
       errorLabel.innerHTML = "";
+      errorLabel.style.display = "none";
 
       if (passwordInput.value.trim() !== confirmPasswordInput.value.trim()) {
-         errorLabel.innerHTML = "Los passwords no coinciden";
+         errorLabel.innerHTML = "Error: Los passwords no coinciden";
+         errorLabel.style.display = "block";
          return;
       }
 
       if (passwordInput.value.trim().length < 2) {
-         errorLabel.innerHTML = "El password debe tener al menos 2 caracteres";
+         errorLabel.innerHTML = "Error: El password debe tener al menos 2 caracteres";
+         errorLabel.style.display = "block";
          return;
       }
 
-      errorLabel.innerHTML = "";
       statusText.innerHTML = "Enviando...";
       form.style.display = "none";
 
@@ -67,7 +86,9 @@ document.onreadystatechange = () => {
             }
          })
          .catch(err => {
-            errorLabel.innerHTML = `${tryToGetErrorMessage(err)}`;
+            statusText.innerHTML = "";
+            errorLabel.innerHTML = `Error: ${tryToGetErrorMessage(err)}`;
+            errorLabel.style.display = "block";
             form.style.display = "block";
             return;
          });

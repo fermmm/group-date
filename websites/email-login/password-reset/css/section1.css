@@ -107,10 +107,13 @@
 }
 
 .error-label {
-   color: #aa0042;
+   color: #94fff7;
    font-size: 14px;
    font-weight: 600;
    margin-bottom: 5px;
    width: 100%;
    text-align: center;
+   background-color: #c019197a;
+   border-radius: 10px;
+   padding: 10px;
 }
