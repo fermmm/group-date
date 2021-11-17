@@ -14,6 +14,7 @@ import {
    userPropsAsQuestionsGet,
    notificationsGet,
    reportUserPost,
+   deleteAccountPost,
 } from "./models";
 import { imagesLogger } from "../../common-tools/log-tools/log-routes";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
@@ -28,6 +29,7 @@ export function userRoutes(r: Router): void {
 
    createRoute(r, "/user/set-attraction", "POST", setAttractionPost);
    createRoute(r, "/user/report", "POST", reportUserPost);
+   createRoute(r, "/user/delete", "POST", deleteAccountPost);
 
    r.post(
       `${USERS_API_PATH}/user/upload-image`,

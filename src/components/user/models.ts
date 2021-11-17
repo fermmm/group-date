@@ -3,6 +3,8 @@ import {
    NotificationContent,
    ReportUserPostParams,
    ALL_GENDERS,
+   DeleteAccountResponse,
+   DeleteAccountPostParams,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import {
    isValidNotificationsToken,
@@ -69,7 +71,7 @@ import {
 import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models";
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
-import { getUserEmailFromAuthProvider } from "./tools/authentication/getUserEmailFromAuthProvider";
+import { getUserEmailFromToken } from "./tools/authentication/getUserEmailFromAuthProvider";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 import { fileSaverForImages } from "../../common-tools/koa-tools/koa-tools";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
@@ -108,7 +110,7 @@ export async function retrieveUser(
    }
 
    // This function throws ctx error if the email cannot be retrieved
-   const email = await getUserEmailFromAuthProvider(token, ctx);
+   const email = await getUserEmailFromToken(token, ctx);
    user = await fromQueryToUser(queryToGetUserByEmail(email), includeFullInfo);
 
    if (user != null) {
@@ -440,6 +442,23 @@ export async function attractionsReceivedGet(token: string, types?: AttractionTy
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
    return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
+}
+
+export async function deleteAccountPost(
+   params: DeleteAccountPostParams,
+   ctx: BaseContext,
+): Promise<DeleteAccountResponse> {
+   const user = await fromQueryToUser(queryToGetUserByToken(params.token), false);
+
+   if (user == null) {
+      return;
+   }
+
+   await sendQuery(() => queryToGetUserByTokenOrId({ token: params.token }).drop().iterate());
+
+   const userAfterDeletion = await fromQueryToUser(queryToGetUserByToken(params.token), false);
+
+   return { success: userAfterDeletion == null };
 }
 
 export async function createGenders() {

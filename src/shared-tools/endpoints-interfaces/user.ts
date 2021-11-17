@@ -185,6 +185,12 @@ export interface ReportUserPostParams extends TokenParameter {
    notes?: string;
 }
 
+export interface DeleteAccountPostParams extends TokenParameter {}
+
+export interface DeleteAccountResponse {
+   success: boolean;
+}
+
 export enum ReportUserType {
    NonEthical = "non-ethical",
    MissingPicture = "missing-picture",

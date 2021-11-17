@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
+exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
 const user_1 = require("./../../shared-tools/endpoints-interfaces/user");
 const push_notifications_1 = require("./../../common-tools/push-notifications/push-notifications");
 const security_tools_1 = require("./../../common-tools/security-tools/security-tools");
@@ -54,7 +54,7 @@ async function retrieveUser(token, includeFullInfo, ctx) {
         return user;
     }
     // This function throws ctx error if the email cannot be retrieved
-    const email = await (0, getUserEmailFromAuthProvider_1.getUserEmailFromAuthProvider)(token, ctx);
+    const email = await (0, getUserEmailFromAuthProvider_1.getUserEmailFromToken)(token, ctx);
     user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), includeFullInfo);
     if (user != null) {
         await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserByEmail)(email), token);
@@ -320,6 +320,16 @@ async function attractionsSentGet(token, types) {
     return (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetAttractionsSent)(token, types), false, false);
 }
 exports.attractionsSentGet = attractionsSentGet;
+async function deleteAccountPost(params, ctx) {
+    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(params.token), false);
+    if (user == null) {
+        return;
+    }
+    await (0, database_manager_1.sendQuery)(() => (0, queries_2.queryToGetUserByTokenOrId)({ token: params.token }).drop().iterate());
+    const userAfterDeletion = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(params.token), false);
+    return { success: userAfterDeletion == null };
+}
+exports.deleteAccountPost = deleteAccountPost;
 async function createGenders() {
     await (0, database_manager_1.sendQuery)(() => (0, common_queries_1.queryToCreateVerticesFromObjects)({
         objects: user_1.ALL_GENDERS.map(gender => ({ genderId: gender })),

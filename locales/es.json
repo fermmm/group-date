@@ -89,5 +89,6 @@
 	"An account already exists with this email": "Ya existe una cuenta con ese email",
 	"Invalid credentials": "Credenciales inválidas",
 	"Invalid token": "Invalid token",
-	"You requested to create a new password": "Has solicitado crear un nuevo password"
+	"You requested to create a new password": "Has solicitado crear un nuevo password",
+	"Invalid token, please login again": "Token invalido. Vuelve a iniciar sesión"
 }

@@ -94,6 +94,7 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
             // If the amount of retries hit the limit and returned an error log the error
             console.log(`Error from database, all retries failed: ${error}`);
             console.log(error);
+            throw error;
          }
       }
    }
