@@ -144,8 +144,14 @@ export function queryToGetAllGroupsOfUser(userToken: string): Traversal {
 }
 
 // For admin usage only
-export function queryToGetAllGroups(): Traversal {
-   return g.V().hasLabel("group");
+export function queryToGetAllGroups(includeDemoGroups: boolean = false): Traversal {
+   let traversal = g.V().hasLabel("group");
+
+   if (!includeDemoGroups) {
+      traversal = traversal.not(__.has("demoGroup", true));
+   }
+
+   return traversal;
 }
 
 export function queryToUpdateGroupProperty(

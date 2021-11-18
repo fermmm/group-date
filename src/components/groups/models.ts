@@ -65,6 +65,7 @@ export async function initializeGroups(): Promise<void> {
 export async function createGroup(
    initialUsers?: AddUsersToGroupSettings,
    initialQuality?: GroupQuality,
+   isDemoGroup: boolean = false,
 ): Promise<Group> {
    const dayOptions: DayOption[] = getComingWeekendDays(MAX_WEEKEND_DAYS_VOTE_OPTIONS).map(date => ({
       date,
@@ -78,6 +79,10 @@ export async function createGroup(
    );
 
    await queryToUpdateGroupProperty({ groupId: resultGroup.groupId, name: generateGroupName(resultGroup) });
+
+   if (isDemoGroup) {
+      await queryToUpdateGroupProperty({ groupId: resultGroup.groupId, isDemoGroup: true });
+   }
 
    // Send notifications
    for (const userId of initialUsers.usersIds) {

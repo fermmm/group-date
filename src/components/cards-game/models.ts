@@ -10,7 +10,7 @@ import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { BasicSingleTagParams } from "../../shared-tools/endpoints-interfaces/tags";
 import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
-import { queryToUpdateUserProps } from "../user/queries";
+import { queryToGetAllDemoUsers, queryToUpdateUserProps } from "../user/queries";
 import { fromQueryToUserList } from "../user/tools/data-conversion";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
@@ -29,6 +29,11 @@ export async function initializeCardsGame(): Promise<void> {
 
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
+
+   if (user.demoAccount) {
+      return await fromQueryToUserList(queryToGetAllDemoUsers(), true, false);
+   }
+
    const recommendationsQuery: Traversal = queryToGetCardsRecommendations(user);
    const result: CardsGameResult = await fromQueryToCardsResult(recommendationsQuery);
    return mergeResults(result);

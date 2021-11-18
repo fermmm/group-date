@@ -9,6 +9,7 @@ import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
 import {
    NotificationChannelId,
    NotificationChannelInfo,
+   User,
    UserPropAsQuestion,
 } from "./shared-tools/endpoints-interfaces/user";
 
@@ -559,3 +560,25 @@ export const LOG_ROUTE_ACCESS: boolean = true;
 export const LOG_IMAGE_ACCESS: boolean = true;
 
 export const LOG_PUSH_NOTIFICATION_DELIVERING_RESULT: boolean = false;
+
+/**
+ * Google Play requires to setup demo accounts so they can do their testing and censorship bs.
+ */
+export const DEMO_ACCOUNTS: Array<Partial<User> & { email: string; password: string }> = [
+   {
+      email: "demo@demo.com",
+      password: "demo",
+   },
+   {
+      email: "demo2@demo2.com",
+      password: "demo",
+   },
+   {
+      email: "demo3@demo2.com",
+      password: "demo",
+   },
+   {
+      email: "demo4@demo2.com",
+      password: "demo",
+   },
+];

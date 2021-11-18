@@ -409,11 +409,21 @@ export async function setAttractionPost(params: SetAttractionParams, ctx: BaseCo
 
 export async function reportUserPost(params: ReportUserPostParams, ctx: BaseContext) {
    const user: Partial<User> = await retrieveUser(params.token as string, false, ctx);
+   delete params.token;
+
    if (user == null) {
       return;
    }
 
-   delete params.token;
+   const reportedUser: Partial<User> = await fromQueryToUser(
+      queryToGetUserByTokenOrId({ userId: params.reportedUserId }),
+      false,
+   );
+
+   if (reportedUser.demoAccount) {
+      ctx.throw(400, "Demo accounts can't be reported");
+      return;
+   }
 
    const objectToLog: Omit<ReportUserPostParams, "token"> & { reportedBy: string } = {
       ...params,
@@ -451,6 +461,11 @@ export async function deleteAccountPost(
    const user = await fromQueryToUser(queryToGetUserByToken(params.token), false);
 
    if (user == null) {
+      return;
+   }
+
+   if (user.demoAccount) {
+      ctx.throw(400, "Demo accounts cannot be deleted");
       return;
    }
 

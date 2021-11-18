@@ -116,6 +116,10 @@ export function hasProfileCompleted(currentTraversal?: Traversal): Traversal {
    return currentTraversal.has("user", "profileCompleted", true);
 }
 
+export function isNotDemoAccount(currentTraversal?: Traversal): Traversal {
+   return currentTraversal.not(__.has("demoAccount", true));
+}
+
 /**
  * Receives a traversal with a user and updates the token.
  */
@@ -139,12 +143,24 @@ export async function queryToUpdateUserProps(
    });
 }
 
-export function queryToGetAllUsers(): Traversal {
-   return g.V().hasLabel("user");
+export function queryToGetAllUsers(props?: { includeDemoAccounts?: boolean }): Traversal {
+   const { includeDemoAccounts = false } = props ?? {};
+
+   let traversal = g.V().hasLabel("user");
+
+   if (!includeDemoAccounts) {
+      traversal = traversal.not(__.has("demoAccount", true));
+   }
+
+   return traversal;
 }
 
-export function queryToGetAllCompleteUsers(): Traversal {
-   return queryToGetAllUsers().has("profileCompleted", true);
+export function queryToGetAllCompleteUsers(props?: { includeDemoAccounts?: boolean }): Traversal {
+   return queryToGetAllUsers(props).has("profileCompleted", true);
+}
+
+export function queryToGetAllDemoUsers(): Traversal {
+   return g.V().has("user", "demoAccount", true);
 }
 
 /**
@@ -209,7 +225,9 @@ export function queryToSetUserProps(traversal: Traversal, userProps: Partial<Use
 
 export function queryToSetAttraction(params: SetAttractionParams): Traversal {
    const traversalInit = g.withSideEffect("injectedData", params.attractions);
-   return hasProfileCompleted(queryToGetUserByToken(params.token, traversalInit as unknown as Traversal))
+   return isNotDemoAccount(
+      hasProfileCompleted(queryToGetUserByToken(params.token, traversalInit as unknown as Traversal)),
+   )
       .as("user")
       .select("injectedData")
       .unfold()

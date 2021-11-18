@@ -44,6 +44,7 @@ export interface User {
    tagsBlocked?: TagBasicInfo[];
    genders: Gender[];
    likesGenders: Gender[];
+   demoAccount?: boolean;
 }
 
 export type UserPropsValueTypes = ValueOf<User>;

@@ -26,13 +26,21 @@ import {
 } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage, TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
+   AttractionType,
    NotificationChannelId,
    NotificationData,
    NotificationType,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
-import { addNotificationToUser, retrieveUser } from "../user/models";
-import { queryToGetAllCompleteUsers, queryToGetAllUsers, queryToUpdateUserProps } from "../user/queries";
+import { addNotificationToUser, retrieveUser, setAttractionPost } from "../user/models";
+import {
+   queryToGetAllCompleteUsers,
+   queryToGetAllUsers,
+   queryToGetUserByEmail,
+   queryToSetAttraction,
+   queryToUpdateUserProps,
+   queryToUpdateUserToken,
+} from "../user/queries";
 import {
    queryToGetAdminChatMessages,
    queryToGetAllChatsWithAdmins,
@@ -44,14 +52,14 @@ import { generateId } from "../../common-tools/string-tools/string-tools";
 import { databaseUrl, sendQuery } from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
-import { GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
+import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
 import { fileSaverForAdminFiles } from "../../common-tools/koa-tools/koa-tools";
 import { createFolder } from "../../common-tools/files-tools/files-tools";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
-import { fromQueryToUserList } from "../user/tools/data-conversion";
+import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    getNotificationsDeliveryErrors,
    sendPushNotifications,
@@ -61,6 +69,9 @@ import { executeSystemCommand } from "../../common-tools/process/process-tools";
 import { exportNeptuneDatabase, importNeptuneDatabase } from "../../common-tools/aws/neptune.tools";
 import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
+import { createFakeUser, createFakeUsers } from "../../tests/tools/users";
+import { createEmailLoginToken } from "../email-login/models";
+import { createGroup, getSlotIdFromUsersAmount } from "../groups/models";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -73,6 +84,7 @@ export async function initializeAdmin(): Promise<void> {
    setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
    // To create a report when server boots and preview database:
    logUsageReport();
+   await createDemoAccounts();
 }
 
 export async function validateCredentialsGet(
@@ -385,5 +397,52 @@ export async function sendEmailPost(params: SendEmailPostParams, ctx: BaseContex
       return await sendEmailUsingSES({ to, subject, text });
    } catch (error) {
       return tryToGetErrorMessage(error);
+   }
+}
+
+async function createDemoAccounts() {
+   const usersCreated: User[] = [];
+
+   // Create the users
+   for (const demoProps of DEMO_ACCOUNTS) {
+      const user = await fromQueryToUser(queryToGetUserByEmail(demoProps.email), false);
+      if (user) {
+         return;
+      }
+      const token = createEmailLoginToken({ email: demoProps.email, password: demoProps.password });
+      const demoUser = await createFakeUser({ ...demoProps, token, language: "es" });
+      usersCreated.push(demoUser);
+   }
+   // They should like each other to not bug the group interface
+   for (const user of usersCreated) {
+      const otherUsers = usersCreated.filter(u => u.userId !== user.userId);
+
+      await sendQuery(() =>
+         queryToSetAttraction({
+            token: user.token,
+            attractions: otherUsers.map(userToConnect => ({
+               userId: userToConnect.userId,
+               attractionType: AttractionType.Like,
+            })),
+         }).iterate(),
+      );
+   }
+
+   // Put them in a demo group
+   await createGroup(
+      {
+         usersIds: usersCreated.map(u => u.userId),
+         slotToUse: getSlotIdFromUsersAmount(usersCreated.length),
+      },
+      null,
+      true,
+   );
+
+   /*
+    * Set the demoAccount property to true for the users. This should be the last thing executed because setting
+    * this disables some functionality that we are using on the lines above.
+    */
+   for (const demoProps of DEMO_ACCOUNTS) {
+      await sendQuery(() => queryToGetUserByEmail(demoProps.email).property("demoAccount", true).iterate());
    }
 }
