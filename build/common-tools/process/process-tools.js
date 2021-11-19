@@ -32,10 +32,10 @@ function isProductionMode() {
 exports.isProductionMode = isProductionMode;
 function logEnvironmentMode() {
     if (isProductionMode()) {
-        console.log("Running server in production mode.");
+        console.log("Running server in production mode.", process.env.NODE_ENV);
     }
     else {
-        console.log("Running server in development mode.");
+        console.log("Running server in development mode.", process.env.NODE_ENV);
     }
 }
 exports.logEnvironmentMode = logEnvironmentMode;
