@@ -11,11 +11,13 @@ document.onreadystatechange = () => {
    const { hash, appUrl } = getJsonFromUrl();
    const statusText = document.querySelector(".section1-text");
    const buttonContinue = document.querySelector(".section1-main-button");
+   const buttonBackToApp = document.querySelector(".back-to-app");
    const form = document.querySelector(".section1-form");
    const passwordInput = document.querySelector(".password-input1");
    const confirmPasswordInput = document.querySelector(".password-input2");
    const errorLabel = document.querySelector(".error-label");
    errorLabel.style.display = "none";
+   buttonBackToApp.style.display = "none";
 
    passwordInput.addEventListener("keyup", event => {
       if (event.keyCode === 13) {
@@ -33,7 +35,8 @@ document.onreadystatechange = () => {
       }
    });
 
-   buttonContinue.addEventListener("click", onContinueButtonClick);
+   buttonContinue.addEventListener("click", sendNewPassword);
+   buttonBackToApp.addEventListener("click", () => (window.location.href = appUrl));
 
    statusText.innerHTML = "Nuevo password";
 
@@ -81,7 +84,7 @@ document.onreadystatechange = () => {
          .then(response => {
             if (response.success === true) {
                statusText.innerHTML = "<b>Password modificado!</b> Inicia sesión con tu nuevo password";
-               buttonContinue.innerHTML = "Volver a la app";
+               buttonBackToApp.style.display = "block";
                passwordChanged = true;
             }
          })
@@ -92,14 +95,6 @@ document.onreadystatechange = () => {
             form.style.display = "block";
             return;
          });
-   }
-
-   function onContinueButtonClick() {
-      if (!passwordChanged) {
-         sendNewPassword();
-      } else {
-         window.location.href = appUrl;
-      }
    }
 };
 
