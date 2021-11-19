@@ -68,7 +68,6 @@ import {
    SMALL_IMAGE_SIZE,
    USER_PROPS_AS_QUESTIONS,
 } from "../../configurations";
-import { getAmountOfUsersCount, updateAmountOfUsersCount } from "../admin/models";
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromToken } from "./tools/authentication/getUserEmailFromAuthProvider";
@@ -118,32 +117,18 @@ export async function retrieveUser(
       return { ...user, token };
    }
 
-   return createUser(token, email, includeFullInfo, ctx);
+   return createUser({ token, email, includeFullInfo, ctx });
 }
 
-export async function createUser(
-   token: string,
-   email: string,
-   includeFullInfo: boolean,
-   ctx: BaseContext,
-   setProfileCompletedForTesting?: boolean,
-   customUserIdForTesting?: string,
-): Promise<Partial<User>> {
-   let isAdmin = false;
-
-   // The first user registered is set automatically to be admin, just double check that is the first user
-   if (getAmountOfUsersCount() === 0) {
-      await updateAmountOfUsersCount();
-
-      if (getAmountOfUsersCount() === 0) {
-         isAdmin = true;
-      }
-   }
-
-   return fromQueryToUser(
-      queryToCreateUser(token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin),
-      includeFullInfo,
-   );
+export async function createUser(props: {
+   token: string;
+   email: string;
+   includeFullInfo: boolean;
+   ctx: BaseContext;
+   setProfileCompletedForTesting?: boolean;
+   customUserIdForTesting?: string;
+}): Promise<Partial<User>> {
+   return fromQueryToUser(queryToCreateUser(props), props.includeFullInfo);
 }
 
 /**

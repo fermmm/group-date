@@ -1,5 +1,4 @@
 import { BaseContext } from "koa";
-import { has } from "typescript-collections/dist/lib/util";
 import {
    compareHash,
    decode,
@@ -122,7 +121,7 @@ export async function confirmEmailPost(
 
    const token = createEmailLoginToken({ email, password });
 
-   user = await createUser(token, email, false, ctx);
+   user = await createUser({ token, email, includeFullInfo: false, ctx });
 
    if (user == null) {
       ctx.throw(500, "User not created. Please report error.");
@@ -258,8 +257,6 @@ export async function changePasswordPost(
    ctx: BaseContext,
 ): Promise<ChangePasswordResponse> {
    const { hash, newPassword } = params;
-
-   console.log("PARAMS", params);
 
    if (!hash || hash.length < 1 || !newPassword || newPassword.length < 2) {
       ctx.throw(400, "The new password is invalid");

@@ -80,7 +80,6 @@ import { createGroup, getSlotIdFromUsersAmount } from "../groups/models";
  */
 export async function initializeAdmin(): Promise<void> {
    createFolder("admin-uploads");
-   await updateAmountOfUsersCount();
    setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
    // To create a report when server boots and preview database:
    logUsageReport();
@@ -154,15 +153,6 @@ export async function convertToAdminPost(params: AdminConvertPostParams, ctx: Ba
 
 export async function convertToAdmin(token: string): Promise<void> {
    await queryToUpdateUserProps(token, [{ key: "isAdmin", value: true }]);
-}
-
-let amountOfUsersCount: number = null;
-export async function updateAmountOfUsersCount(): Promise<void> {
-   amountOfUsersCount = (await sendQuery(() => queryToGetAllUsers().count().next())).value;
-}
-
-export function getAmountOfUsersCount(): number {
-   return amountOfUsersCount;
 }
 
 export async function logUsageReport(): Promise<void> {

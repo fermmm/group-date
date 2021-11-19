@@ -40,11 +40,20 @@ export async function createFakeUser(
    customProps?: DeepPartial<User>,
    options?: { makeItAdmin?: boolean },
 ): Promise<User> {
+   const { makeItAdmin } = options || {};
    const userProps = generateRandomUserProps(customProps);
 
-   await createUser(userProps.token, userProps.email, false, fakeCtx, true, userProps.userId);
+   await createUser({
+      token: userProps.token,
+      email: userProps.email,
+      includeFullInfo: false,
+      ctx: fakeCtx,
+      setProfileCompletedForTesting: true,
+      customUserIdForTesting: userProps.userId,
+   });
+
    await userPost({ token: userProps.token, props: userProps as Partial<User> }, fakeCtx);
-   if (options?.makeItAdmin) {
+   if (makeItAdmin) {
       await convertToAdmin(userProps.token);
    }
 

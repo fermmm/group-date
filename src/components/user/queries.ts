@@ -18,14 +18,17 @@ import { TokenOrId } from "./tools/typings";
 import { checkTypeByMember } from "../../common-tools/ts-tools/ts-tools";
 import { DEFAULT_LANGUAGE } from "../../configurations";
 
-export function queryToCreateUser(
-   token: string,
-   email: string,
-   setProfileCompletedForTesting?: boolean,
-   customUserIdForTesting?: string,
-   isAdmin?: boolean,
-   currentTraversal?: Traversal,
-): Traversal {
+export function queryToCreateUser(props: {
+   token: string;
+   email: string;
+   setProfileCompletedForTesting?: boolean;
+   customUserIdForTesting?: string;
+   isAdmin?: boolean;
+   currentTraversal?: Traversal;
+}): Traversal {
+   const { token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin, currentTraversal } =
+      props;
+
    return queryToGetUserByToken(token, currentTraversal)
       .fold()
       .coalesce(
