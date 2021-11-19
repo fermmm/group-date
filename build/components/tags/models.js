@@ -25,6 +25,10 @@ async function createTagPost(params, ctx) {
         ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can set the tag country", { user }));
         return;
     }
+    if (user.demoAccount) {
+        ctx.throw(400, "Demo users cannot publish tags");
+        return;
+    }
     if (!user.isAdmin &&
         (params.fakeSubscribersAmount != null ||
             params.fakeBlockersAmount != null ||

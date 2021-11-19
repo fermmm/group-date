@@ -94,11 +94,12 @@ async function userGroupsGet(params, ctx, fullInfo) {
 }
 exports.userGroupsGet = userGroupsGet;
 async function groupSeenPost(params, ctx) {
+    var _a;
     const group = await (0, data_conversion_1.fromQueryToGroup)((0, queries_2.queryToGetGroupById)(params.groupId, {
         onlyIfAMemberHasToken: params.token,
         onlyIfAMemberHasUserId: params.userId,
     }), true, false);
-    const seenBy = [...group.seenBy];
+    const seenBy = [...((_a = group === null || group === void 0 ? void 0 : group.seenBy) !== null && _a !== void 0 ? _a : [])];
     if (!seenBy.includes(params.userId)) {
         seenBy.push(params.userId);
     }
