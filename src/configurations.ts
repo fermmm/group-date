@@ -295,7 +295,7 @@ const unicornQuestion: TagsAsQuestion = {
       1: [0],
    },
    filterSelectedByDefault: true,
-   filterSelectionInvisible: true,
+   filterSelectionInvisible: false, // Enabling this may lead to better results
 };
 
 const feminismQuestion: TagsAsQuestion = {
@@ -371,6 +371,7 @@ const spamQuestion: TagsAsQuestion = {
       0: [1],
       1: [0],
    },
+   filterSelectedByDefault: true,
 };
 
 // Spam question may not be required because interest for group sex question includes the physical interaction intentions
