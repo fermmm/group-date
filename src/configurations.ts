@@ -568,21 +568,21 @@ export const DEMO_ACCOUNTS: Array<Partial<User> & { email: string; password: str
    {
       email: "demo@demo.com",
       password: "demo",
-      images: ["demo_image"], // "demo_image" is replaced in the client for a demo image
+      images: ["demo_image1"], // "demo_image1" is replaced in the client for a demo image. There are 4 demo images available.
    },
    {
       email: "demo2@demo2.com",
       password: "demo",
-      images: ["demo_image"],
+      images: ["demo_image2"],
    },
    {
       email: "demo3@demo2.com",
       password: "demo",
-      images: ["demo_image"],
+      images: ["demo_image3"],
    },
    {
       email: "demo4@demo2.com",
       password: "demo",
-      images: ["demo_image"],
+      images: ["demo_image4"],
    },
 ];
