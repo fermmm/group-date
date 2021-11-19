@@ -18,6 +18,9 @@ async function initializeCardsGame() {
 exports.initializeCardsGame = initializeCardsGame;
 async function recommendationsGet(params, ctx) {
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
+    if (user.demoAccount) {
+        return await (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetAllDemoUsers)(), true, false);
+    }
     const recommendationsQuery = (0, queries_2.queryToGetCardsRecommendations)(user);
     const result = await (0, data_conversion_2.fromQueryToCardsResult)(recommendationsQuery);
     return mergeResults(result);

@@ -28,10 +28,18 @@ async function createFakeUsers(amount, customParams) {
 }
 exports.createFakeUsers = createFakeUsers;
 async function createFakeUser(customProps, options) {
+    const { makeItAdmin } = options || {};
     const userProps = generateRandomUserProps(customProps);
-    await (0, models_1.createUser)(userProps.token, userProps.email, false, replacements_1.fakeCtx, true, userProps.userId);
+    await (0, models_1.createUser)({
+        token: userProps.token,
+        email: userProps.email,
+        includeFullInfo: false,
+        ctx: replacements_1.fakeCtx,
+        setProfileCompletedForTesting: true,
+        customUserIdForTesting: userProps.userId,
+    });
     await (0, models_1.userPost)({ token: userProps.token, props: userProps }, replacements_1.fakeCtx);
-    if (options === null || options === void 0 ? void 0 : options.makeItAdmin) {
+    if (makeItAdmin) {
         await (0, models_2.convertToAdmin)(userProps.token);
     }
     fakeUsersCreated.push(userProps);

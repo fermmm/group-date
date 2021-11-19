@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
+exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
@@ -10,7 +10,8 @@ const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const ts_tools_1 = require("../../common-tools/ts-tools/ts-tools");
 const configurations_1 = require("../../configurations");
-function queryToCreateUser(token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin, currentTraversal) {
+function queryToCreateUser(props) {
+    const { token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin, currentTraversal } = props;
     return queryToGetUserByToken(token, currentTraversal)
         .fold()
         .coalesce(database_manager_1.__.unfold(), database_manager_1.__.addV("user")
@@ -85,6 +86,10 @@ function hasProfileCompleted(currentTraversal) {
     return currentTraversal.has("user", "profileCompleted", true);
 }
 exports.hasProfileCompleted = hasProfileCompleted;
+function isNotDemoAccount(currentTraversal) {
+    return currentTraversal.not(database_manager_1.__.has("demoAccount", true));
+}
+exports.isNotDemoAccount = isNotDemoAccount;
 /**
  * Receives a traversal with a user and updates the token.
  */
@@ -102,14 +107,23 @@ async function queryToUpdateUserProps(tokenOrTraversal, props) {
     });
 }
 exports.queryToUpdateUserProps = queryToUpdateUserProps;
-function queryToGetAllUsers() {
-    return database_manager_1.g.V().hasLabel("user");
+function queryToGetAllUsers(props) {
+    const { includeDemoAccounts = false } = props !== null && props !== void 0 ? props : {};
+    let traversal = database_manager_1.g.V().hasLabel("user");
+    if (!includeDemoAccounts) {
+        traversal = traversal.not(database_manager_1.__.has("demoAccount", true));
+    }
+    return traversal;
 }
 exports.queryToGetAllUsers = queryToGetAllUsers;
-function queryToGetAllCompleteUsers() {
-    return queryToGetAllUsers().has("profileCompleted", true);
+function queryToGetAllCompleteUsers(props) {
+    return queryToGetAllUsers(props).has("profileCompleted", true);
 }
 exports.queryToGetAllCompleteUsers = queryToGetAllCompleteUsers;
+function queryToGetAllDemoUsers() {
+    return database_manager_1.g.V().has("user", "demoAccount", true);
+}
+exports.queryToGetAllDemoUsers = queryToGetAllDemoUsers;
 /**
  * Only used in tests.
  * If no user list is provided all users on the database are removed.
@@ -160,7 +174,7 @@ function queryToSetUserProps(traversal, userProps) {
 exports.queryToSetUserProps = queryToSetUserProps;
 function queryToSetAttraction(params) {
     const traversalInit = database_manager_1.g.withSideEffect("injectedData", params.attractions);
-    return hasProfileCompleted(queryToGetUserByToken(params.token, traversalInit))
+    return isNotDemoAccount(hasProfileCompleted(queryToGetUserByToken(params.token, traversalInit)))
         .as("user")
         .select("injectedData")
         .unfold()

@@ -112,8 +112,12 @@ function queryToGetAllGroupsOfUser(userToken) {
 }
 exports.queryToGetAllGroupsOfUser = queryToGetAllGroupsOfUser;
 // For admin usage only
-function queryToGetAllGroups() {
-    return database_manager_1.g.V().hasLabel("group");
+function queryToGetAllGroups(includeDemoGroups = false) {
+    let traversal = database_manager_1.g.V().hasLabel("group");
+    if (!includeDemoGroups) {
+        traversal = traversal.not(database_manager_1.__.has("demoGroup", true));
+    }
+    return traversal;
 }
 exports.queryToGetAllGroups = queryToGetAllGroups;
 function queryToUpdateGroupProperty(group, filters) {

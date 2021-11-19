@@ -20,7 +20,6 @@ const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
 const queries_2 = require("./queries");
 const models_1 = require("../tags/models");
 const configurations_1 = require("../../configurations");
-const models_2 = require("../admin/models");
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const push_notifications_2 = require("../../common-tools/push-notifications/push-notifications");
 const getUserEmailFromAuthProvider_1 = require("./tools/authentication/getUserEmailFromAuthProvider");
@@ -60,19 +59,11 @@ async function retrieveUser(token, includeFullInfo, ctx) {
         await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserByEmail)(email), token);
         return { ...user, token };
     }
-    return createUser(token, email, includeFullInfo, ctx);
+    return createUser({ token, email, includeFullInfo, ctx });
 }
 exports.retrieveUser = retrieveUser;
-async function createUser(token, email, includeFullInfo, ctx, setProfileCompletedForTesting, customUserIdForTesting) {
-    let isAdmin = false;
-    // The first user registered is set automatically to be admin, just double check that is the first user
-    if ((0, models_2.getAmountOfUsersCount)() === 0) {
-        await (0, models_2.updateAmountOfUsersCount)();
-        if ((0, models_2.getAmountOfUsersCount)() === 0) {
-            isAdmin = true;
-        }
-    }
-    return (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToCreateUser)(token, email, setProfileCompletedForTesting, customUserIdForTesting, isAdmin), includeFullInfo);
+async function createUser(props) {
+    return (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToCreateUser)(props), props.includeFullInfo);
 }
 exports.createUser = createUser;
 /**
@@ -288,10 +279,15 @@ async function setAttractionPost(params, ctx) {
 exports.setAttractionPost = setAttractionPost;
 async function reportUserPost(params, ctx) {
     const user = await retrieveUser(params.token, false, ctx);
+    delete params.token;
     if (user == null) {
         return;
     }
-    delete params.token;
+    const reportedUser = await (0, data_conversion_1.fromQueryToUser)((0, queries_2.queryToGetUserByTokenOrId)({ userId: params.reportedUserId }), false);
+    if (reportedUser.demoAccount) {
+        ctx.throw(400, "Demo accounts can't be reported");
+        return;
+    }
     const objectToLog = {
         ...params,
         reportedBy: user.userId,
@@ -323,6 +319,10 @@ exports.attractionsSentGet = attractionsSentGet;
 async function deleteAccountPost(params, ctx) {
     const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(params.token), false);
     if (user == null) {
+        return;
+    }
+    if (user.demoAccount) {
+        ctx.throw(400, "Demo accounts cannot be deleted");
         return;
     }
     await (0, database_manager_1.sendQuery)(() => (0, queries_2.queryToGetUserByTokenOrId)({ token: params.token }).drop().iterate());

@@ -73,7 +73,7 @@ async function confirmEmailPost(params, ctx) {
         return { success: true };
     }
     const token = createEmailLoginToken({ email, password });
-    user = await (0, models_1.createUser)(token, email, false, ctx);
+    user = await (0, models_1.createUser)({ token, email, includeFullInfo: false, ctx });
     if (user == null) {
         ctx.throw(500, "User not created. Please report error.");
         return;
@@ -178,7 +178,6 @@ exports.resetPasswordPost = resetPasswordPost;
  */
 async function changePasswordPost(params, ctx) {
     const { hash, newPassword } = params;
-    console.log("PARAMS", params);
     if (!hash || hash.length < 1 || !newPassword || newPassword.length < 2) {
         ctx.throw(400, "The new password is invalid");
         return;

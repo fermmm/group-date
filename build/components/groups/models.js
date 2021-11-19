@@ -22,13 +22,16 @@ exports.initializeGroups = initializeGroups;
  * Internal function to create a group (this is not an endpoint)
  * @param initialUsers The initial users to add and the
  */
-async function createGroup(initialUsers, initialQuality) {
+async function createGroup(initialUsers, initialQuality, isDemoGroup = false) {
     const dayOptions = getComingWeekendDays(configurations_1.MAX_WEEKEND_DAYS_VOTE_OPTIONS).map(date => ({
         date,
         votersUserId: [],
     }));
     const resultGroup = await (0, data_conversion_1.fromQueryToGroup)((0, queries_2.queryToCreateGroup)({ dayOptions, initialUsers, initialQuality }), false, true);
     await (0, queries_2.queryToUpdateGroupProperty)({ groupId: resultGroup.groupId, name: generateGroupName(resultGroup) });
+    if (isDemoGroup) {
+        await (0, queries_2.queryToUpdateGroupProperty)({ groupId: resultGroup.groupId, isDemoGroup: true });
+    }
     // Send notifications
     for (const userId of initialUsers.usersIds) {
         await (0, models_1.addNotificationToUser)({ userId }, {

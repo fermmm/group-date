@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.getAmountOfUsersCount = exports.updateAmountOfUsersCount = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -30,6 +30,9 @@ const process_tools_1 = require("../../common-tools/process/process-tools");
 const neptune_tools_1 = require("../../common-tools/aws/neptune.tools");
 const ses_tools_1 = require("../../common-tools/aws/ses-tools");
 const tryToGetErrorMessage_1 = require("../../common-tools/httpRequest/tools/tryToGetErrorMessage");
+const users_1 = require("../../tests/tools/users");
+const models_2 = require("../email-login/models");
+const models_3 = require("../groups/models");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -37,10 +40,10 @@ const tryToGetErrorMessage_1 = require("../../common-tools/httpRequest/tools/try
  */
 async function initializeAdmin() {
     (0, files_tools_1.createFolder)("admin-uploads");
-    await updateAmountOfUsersCount();
     (0, dynamic_1.setIntervalAsync)(logUsageReport, configurations_1.LOG_USAGE_REPORT_FREQUENCY);
     // To create a report when server boots and preview database:
     logUsageReport();
+    await createDemoAccounts();
 }
 exports.initializeAdmin = initializeAdmin;
 async function validateCredentialsGet(params, ctx) {
@@ -96,15 +99,6 @@ async function convertToAdmin(token) {
     await (0, queries_1.queryToUpdateUserProps)(token, [{ key: "isAdmin", value: true }]);
 }
 exports.convertToAdmin = convertToAdmin;
-let amountOfUsersCount = null;
-async function updateAmountOfUsersCount() {
-    amountOfUsersCount = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().count().next())).value;
-}
-exports.updateAmountOfUsersCount = updateAmountOfUsersCount;
-function getAmountOfUsersCount() {
-    return amountOfUsersCount;
-}
-exports.getAmountOfUsersCount = getAmountOfUsersCount;
 async function logUsageReport() {
     const timeStart = perf_hooks_1.performance.now();
     const amountOfUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().count().next())).value;
@@ -299,4 +293,40 @@ async function sendEmailPost(params, ctx) {
     }
 }
 exports.sendEmailPost = sendEmailPost;
+async function createDemoAccounts() {
+    const usersCreated = [];
+    // Create the users
+    for (const demoProps of configurations_1.DEMO_ACCOUNTS) {
+        const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(demoProps.email), false);
+        if (user) {
+            return;
+        }
+        const token = (0, models_2.createEmailLoginToken)({ email: demoProps.email, password: demoProps.password });
+        const demoUser = await (0, users_1.createFakeUser)({ ...demoProps, token, language: "es" });
+        usersCreated.push(demoUser);
+    }
+    // They should like each other to not bug the group interface
+    for (const user of usersCreated) {
+        const otherUsers = usersCreated.filter(u => u.userId !== user.userId);
+        await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToSetAttraction)({
+            token: user.token,
+            attractions: otherUsers.map(userToConnect => ({
+                userId: userToConnect.userId,
+                attractionType: user_1.AttractionType.Like,
+            })),
+        }).iterate());
+    }
+    // Put them in a demo group
+    await (0, models_3.createGroup)({
+        usersIds: usersCreated.map(u => u.userId),
+        slotToUse: (0, models_3.getSlotIdFromUsersAmount)(usersCreated.length),
+    }, null, true);
+    /*
+     * Set the demoAccount property to true for the users. This should be the last thing executed because setting
+     * this disables some functionality that we are using on the lines above.
+     */
+    for (const demoProps of configurations_1.DEMO_ACCOUNTS) {
+        await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByEmail)(demoProps.email).property("demoAccount", true).iterate());
+    }
+}
 //# sourceMappingURL=models.js.map
