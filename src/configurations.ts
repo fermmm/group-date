@@ -295,6 +295,7 @@ const unicornQuestion: TagsAsQuestion = {
       1: [0],
    },
    filterSelectedByDefault: true,
+   filterSelectionInvisible: true,
 };
 
 const feminismQuestion: TagsAsQuestion = {
