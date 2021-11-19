@@ -179,7 +179,7 @@ export async function groupSeenPost(params: SeenByPostParams, ctx: BaseContext):
       false,
    );
 
-   const seenBy = [...group.seenBy];
+   const seenBy = [...(group?.seenBy ?? [])];
 
    if (!seenBy.includes(params.userId)) {
       seenBy.push(params.userId);
