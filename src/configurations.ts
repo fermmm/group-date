@@ -564,21 +564,25 @@ export const LOG_PUSH_NOTIFICATION_DELIVERING_RESULT: boolean = false;
 /**
  * Google Play requires to setup demo accounts so they can do their testing and censorship bs.
  */
-export const DEMO_ACCOUNTS: Array<Partial<User> & { email: string; password: string }> = [
+export const DEMO_ACCOUNTS: Array<Partial<User> & { email: string; password: string; images: string[] }> = [
    {
       email: "demo@demo.com",
       password: "demo",
+      images: ["demo_image"], // "demo_image" is replaced in the client for a demo image
    },
    {
       email: "demo2@demo2.com",
       password: "demo",
+      images: ["demo_image"],
    },
    {
       email: "demo3@demo2.com",
       password: "demo",
+      images: ["demo_image"],
    },
    {
       email: "demo4@demo2.com",
       password: "demo",
+      images: ["demo_image"],
    },
 ];

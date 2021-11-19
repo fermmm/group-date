@@ -400,7 +400,11 @@ async function createDemoAccounts() {
          return;
       }
       const token = createEmailLoginToken({ email: demoProps.email, password: demoProps.password });
-      const demoUser = await createFakeUser({ ...demoProps, token, language: "es" });
+      const demoUser = await createFakeUser({
+         ...demoProps,
+         token,
+         language: "es",
+      });
       usersCreated.push(demoUser);
    }
    // They should like each other to not bug the group interface
