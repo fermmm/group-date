@@ -9,7 +9,6 @@ interface PropsImagesCarousel {
 const ImagesCarousel: FC<PropsImagesCarousel> = ({ children }) => {
    const [selectedItem, setSelectedItem] = useState(0);
 
-   console.log("RENDER");
    const handleItemClick = (index: number) => {
       setSelectedItem(index + 1);
    };

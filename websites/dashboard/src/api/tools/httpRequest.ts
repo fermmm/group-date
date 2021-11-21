@@ -1,12 +1,13 @@
 import { stringify } from "query-string";
 import { serverUrlComposer } from "./serverUrlComposer";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { tryToGetErrorMessage } from "./tryToGetErrorMessage";
 
 /**
  * Wrapper for fetch for more simplification and issues solved.
  */
 export async function httpRequest<Response = null, Params = any, UrlParams = any>(
-   props: HttpRequestParams<Params, UrlParams>
+   props: HttpRequestParams<Params, UrlParams>,
 ): Promise<Response> {
    let { url, method = "GET", params, urlParams } = props;
    url = serverUrlComposer(url);
@@ -25,9 +26,20 @@ export async function httpRequest<Response = null, Params = any, UrlParams = any
       settings.data = params;
    }
 
-   const client: AxiosInstance = axios.create(settings);
-   const result = await client(settings);
-   return result.data as Response;
+   if (!props.handleErrorResponse) {
+      const client: AxiosInstance = axios.create(settings);
+      const result = await client(settings);
+      return result.data as Response;
+   } else {
+      try {
+         const client: AxiosInstance = axios.create(settings);
+         const result = await client(settings);
+         return result.data as Response;
+      } catch (error) {
+         alert(tryToGetErrorMessage(error));
+         return null;
+      }
+   }
 }
 
 export interface HttpRequestParams<Params = null, UrlParams = null> {
@@ -35,4 +47,8 @@ export interface HttpRequestParams<Params = null, UrlParams = null> {
    method?: "POST" | "GET" | "PUT" | "DELETE";
    params?: Params;
    urlParams?: UrlParams;
+   /**
+    * Always returns a success response, even if it's an error in that case returns null and shows an alert.
+    */
+   handleErrorResponse?: boolean;
 }

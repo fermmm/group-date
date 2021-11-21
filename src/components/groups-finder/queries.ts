@@ -72,7 +72,12 @@ export function queryToGetUsersAllowedToBeOnGroups(
          __.has("lastLoginDate", P.lt(moment().unix() - MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
             .and()
             .has("sendNewUsersNotification", P.lt(1)),
-      );
+      )
+
+      /**
+       * User is not banned
+       */
+      .not(__.has("banReasonsAmount", P.gt(0)));
 
    if (quality === GroupQuality.Bad) {
       traversal = traversal.where(

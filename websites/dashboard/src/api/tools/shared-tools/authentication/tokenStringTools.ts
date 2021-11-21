@@ -7,6 +7,8 @@ import { AuthenticationProvider } from "./AuthenticationProvider";
  *
  * For example the extended info token returned for Facebook looks like this: "Facebook[poly]abc1234".
  * The [poly] string will be used by getTokenInfo() to divide the string and parse the data.
+ *
+ * If the token is already an extended info token then it will be returned as is.
  */
 export function createExtendedInfoToken(props: {
    originalToken: string;
@@ -15,6 +17,11 @@ export function createExtendedInfoToken(props: {
    if (props.originalToken == null) {
       return null;
    }
+
+   if (props.originalToken.includes("[poly]")) {
+      return props.originalToken;
+   }
+
    return `${props.provider}[poly]${props.originalToken}`;
 }
 
@@ -29,6 +36,7 @@ export function getTokenInfo(extendedInfoToken: string): TokenInfo {
    const spitted = extendedInfoToken.split("[poly]");
 
    if (spitted.length !== 2) {
+      console.error("Error: The token provided is not valid or extended info token: " + extendedInfoToken);
       return null;
    }
 

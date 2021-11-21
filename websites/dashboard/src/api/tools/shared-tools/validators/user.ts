@@ -42,12 +42,17 @@ const REGISTRATION_USER_PROPS_SCHEMA = {
    } as V,
 };
 
+/**
+ * These props list are not required to finish registration
+ */
 const OTHER_USER_PROPS_SCHEMA = {
    notificationsToken: { type: "string", min: 0, max: 2000, optional: true } as V,
+   language: { type: "string", min: 0, max: 100, optional: true } as V,
 };
 
 /**
  * The only propuse of this line is to generate a TS error when the props of the schemas are not user props.
+ * If you see a red underlie on the "test" (variable name) it meas there is a wrong property in the schema.
  */
 const test: keyof User = "a" as EditableUserPropKey;
 

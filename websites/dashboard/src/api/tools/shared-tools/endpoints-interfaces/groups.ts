@@ -19,6 +19,7 @@ export interface Group {
    reminder1NotificationSent: boolean;
    reminder2NotificationSent: boolean;
    seenBy: string[];
+   isDemoGroup?: boolean;
 }
 
 export interface GroupChat {

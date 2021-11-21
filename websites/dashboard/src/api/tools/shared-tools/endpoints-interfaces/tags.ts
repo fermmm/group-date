@@ -49,6 +49,7 @@ export interface TagsAsQuestion {
    answers: QuestionAnswerData[];
    incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
    filterSelectedByDefault?: boolean;
+   filterSelectionInvisible?: boolean;
 }
 
 export interface QuestionAnswerData {

@@ -10,12 +10,13 @@ import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { BasicSingleTagParams } from "../../shared-tools/endpoints-interfaces/tags";
 import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
-import { queryToGetAllDemoUsers, queryToUpdateUserProps } from "../user/queries";
+import { queryToUpdateUserProps } from "../user/queries";
 import { fromQueryToUserList } from "../user/tools/data-conversion";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
    queryToGetAllUsersWantingNewCardsNotification,
    queryToGetCardsRecommendations,
+   queryToGetDemoCardsRecommendations,
    queryToGetDislikedUsers,
 } from "./queries";
 import { queryToGetUsersSubscribedToTags } from "../tags/queries";
@@ -31,7 +32,7 @@ export async function recommendationsGet(params: TokenParameter, ctx: BaseContex
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
 
    if (user.demoAccount) {
-      return await fromQueryToUserList(queryToGetAllDemoUsers(), true, false);
+      return await fromQueryToUserList(queryToGetDemoCardsRecommendations(user), true, false);
    }
 
    const recommendationsQuery: Traversal = queryToGetCardsRecommendations(user);
@@ -61,7 +62,7 @@ export async function recommendationsFromTagGet(
 }
 
 /**
- * TODO: This is too expensive, optimization: There is no point on notifying of new users that disliked you or
+ * TODO: This is too expensive. An optimization is possible: There is no point on notifying of new users that disliked you or
  * new users that did't see you yet. So the only remaining case where it's useful to notify is when you get a
  * like, so you can see the user and like it back, that's a lot less users to navigate and it's based on an
  * event instead of a repeating whole database search.

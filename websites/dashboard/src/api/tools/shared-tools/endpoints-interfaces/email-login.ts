@@ -7,7 +7,9 @@ export interface EncryptedEmailLoginCredentials {
    hash: string;
 }
 
-export interface CreateAccountParams extends EmailLoginCredentials {}
+export interface CreateAccountParams extends EmailLoginCredentials {
+   appUrl: string;
+}
 
 export interface CreateAccountResponse {
    success?: boolean;
@@ -19,16 +21,16 @@ export interface ConfirmEmailResponse {
    success?: boolean;
 }
 
-export interface LoginGetParams {
-   token: string;
-}
+export type LoginGetParams = Partial<EmailLoginCredentials & { token?: string }>;
 
 export interface LoginResponse {
-   success?: boolean;
+   userExists: boolean;
+   token?: string;
 }
 
 export interface ResetPasswordPostParams {
    email: string;
+   appUrl: string;
 }
 
 export interface ResetPasswordResponse {
@@ -47,4 +49,16 @@ export interface ChangePasswordResponse {
 export interface ChangePasswordCredentials {
    userId: string;
    tokenHashed: string;
+}
+
+export interface ResetPasswordResponse {
+   success?: boolean;
+}
+
+export interface UserExistsGetParams {
+   email: string;
+}
+
+export interface UserExistsResponse {
+   userExists: boolean;
 }

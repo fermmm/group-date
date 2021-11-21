@@ -8,6 +8,7 @@ import {
    adminChatPost,
    adminNotificationSendPost,
    allChatsWithAdminsGet,
+   banUserPost,
    convertToAdminPost,
    exportDatabaseGet,
    importDatabasePost,
@@ -15,6 +16,8 @@ import {
    logGet,
    onAdminFileReceived,
    onAdminFileSaved,
+   removeAllBanReasonsFromUser,
+   removeBanFromUserPost,
    runCommandPost,
    sendEmailPost,
    validateCredentialsGet,
@@ -36,6 +39,9 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
    createRoute(r, "/admin/command", "POST", runCommandPost);
    createRoute(r, "/admin/email", "POST", sendEmailPost);
+   createRoute(r, "/admin/user/ban", "POST", banUserPost);
+   createRoute(r, "/admin/user/remove-ban", "POST", removeBanFromUserPost);
+   createRoute(r, "/admin/user/remove-all-bans", "POST", removeAllBanReasonsFromUser);
    r.post(
       `${USERS_API_PATH}/admin/upload-file`,
       onAdminFileReceived,

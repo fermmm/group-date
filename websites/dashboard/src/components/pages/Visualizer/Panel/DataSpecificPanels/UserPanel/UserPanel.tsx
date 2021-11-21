@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { Button } from "@mui/material";
 import { useServerInfo } from "../../../../../../api/server/server-info";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
@@ -7,10 +7,22 @@ import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
 import { Row } from "../../../../../common/UI/Row/Row";
 import ImagesCarousel from "../../../../../common/UI/ImagesCarousel/ImagesCarousel";
 import { getCountryName } from "../../../../../../common-tools/strings/humanizeCountryCode";
+import BanUserDialog from "./BanUserDialog/BanUserDialog";
+import { UserBanReason } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/admin";
+import {
+   banUserRequest,
+   removeAllBansFromUserRequest,
+   removeBanFromUserRequest,
+} from "../../../../../../api/server/admin";
+import RemoveBanFromUserDialog from "./RemoveBanFromUserDialog/RemoveBanFromUserDialog";
+import ConfirmationDialog from "../../../../../common/UI/ConfirmationDialog/ConfirmationDialog";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const user = props.properties as unknown as Partial<User>;
    const serverInfo = useServerInfo();
+   const [banUserDialogOpen, setBanUserDialogOpen] = useState(false);
+   const [removeBanDialogOpen, setRemoveBanDialogOpen] = useState(false);
+   const [removeAllBansDialogOpen, setRemoveAllBansDialogOpen] = useState(false);
 
    const userQuery = `has("userId", "${user.userId}")`;
    const queryButtons = [
@@ -37,6 +49,26 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    ];
 
    const dangerousQueryButtons: QueryButtonProps[] = [];
+
+   const handleBanUser = async (reason: UserBanReason) => {
+      if (reason == null) {
+         return;
+      }
+
+      await banUserRequest({ reason, userId: user.userId });
+   };
+
+   const handleRemoveBan = async (reason: UserBanReason) => {
+      if (reason == null) {
+         return;
+      }
+
+      await removeBanFromUserRequest({ reason, userId: user.userId });
+   };
+
+   const handleRemoveAllBans = async () => {
+      await removeAllBansFromUserRequest({ userId: user.userId });
+   };
 
    return (
       <>
@@ -71,6 +103,15 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
+         <Button variant="outlined" color="secondary" onClick={() => setBanUserDialogOpen(true)}>
+            Ban user
+         </Button>
+         <Button variant="outlined" color="secondary" onClick={() => setRemoveBanDialogOpen(true)}>
+            Remove ban from user
+         </Button>
+         <Button variant="outlined" color="secondary" onClick={() => setRemoveAllBansDialogOpen(true)}>
+            Remove all bans from user
+         </Button>
          <GenericPanel {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
@@ -82,6 +123,25 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
+         <BanUserDialog
+            open={banUserDialogOpen}
+            onClose={() => setBanUserDialogOpen(false)}
+            onContinueClick={handleBanUser}
+         />
+         <RemoveBanFromUserDialog
+            open={removeBanDialogOpen}
+            user={user}
+            onClose={() => setRemoveBanDialogOpen(false)}
+            onContinueClick={handleRemoveBan}
+         />
+         <ConfirmationDialog
+            title="Confirm"
+            text="Remove all bans from user?"
+            continueButtonText="Remove all bans"
+            open={removeAllBansDialogOpen}
+            onClose={() => setRemoveAllBansDialogOpen(false)}
+            onContinueClick={handleRemoveAllBans}
+         />
       </>
    );
 };

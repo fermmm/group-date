@@ -15,11 +15,14 @@ import {
    AdminLogGetParams,
    AdminNotificationPostParams,
    AdminProtectionParams,
+   BanUserPostParams,
    ChatWithAdmins,
    CredentialsValidationResult,
    ExportDatabaseGetParams,
    ExportDatabaseResponse,
    ImportDatabasePostParams,
+   RemoveAllBanReasonsFromUserPostParams,
+   RemoveBanFromUserPostParams,
    SendEmailPostParams,
    UsageReport,
    VisualizerQueryParams,
@@ -37,6 +40,7 @@ import {
    queryToGetAllCompleteUsers,
    queryToGetAllUsers,
    queryToGetUserByEmail,
+   queryToGetUserById,
    queryToSetAttraction,
    queryToUpdateUserProps,
    queryToUpdateUserToken,
@@ -69,7 +73,7 @@ import { executeSystemCommand } from "../../common-tools/process/process-tools";
 import { exportNeptuneDatabase, importNeptuneDatabase } from "../../common-tools/aws/neptune.tools";
 import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
-import { createFakeUser, createFakeUsers } from "../../tests/tools/users";
+import { createFakeUser } from "../../tests/tools/users";
 import { createEmailLoginToken } from "../email-login/models";
 import { createGroup, getSlotIdFromUsersAmount } from "../groups/models";
 
@@ -375,12 +379,112 @@ export async function runCommandPost(params: AdminCommandPostParams, ctx: BaseCo
    return await executeSystemCommand(command);
 }
 
+export async function banUserPost(params: BanUserPostParams, ctx?: BaseContext) {
+   const { userId, reason } = params;
+
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      ctx?.throw(passwordValidation.error);
+      return;
+   }
+
+   const user = await fromQueryToUser(queryToGetUserById(userId), false);
+
+   if (!user) {
+      ctx?.throw(404, "User not found");
+      return;
+   }
+
+   if (user.banReasons?.includes(reason)) {
+      ctx?.throw(400, "User already banned for this reason");
+      return;
+   }
+
+   await sendQuery(() =>
+      queryToGetUserById(userId)
+         .property("banReasons", JSON.stringify([...(user.banReasons ?? []), reason]))
+         .property("banReasonsAmount", user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1)
+         .iterate(),
+   );
+
+   return { success: true };
+}
+
+export async function removeBanFromUserPost(params: RemoveBanFromUserPostParams, ctx?: BaseContext) {
+   const { userId, reason } = params;
+
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      ctx?.throw(passwordValidation.error);
+      return;
+   }
+
+   const user = await fromQueryToUser(queryToGetUserById(userId), false);
+
+   if (!user) {
+      ctx?.throw(404, "User not found");
+      return;
+   }
+
+   if (user.banReasons == null || !user.banReasons.includes(reason)) {
+      ctx?.throw(400, "User doesn't have this ban reason");
+      return;
+   }
+
+   const newBanReasonsList = user.banReasons.filter(banReason => banReason !== reason);
+   const newBanReasonsAmount = newBanReasonsList.length;
+
+   await sendQuery(() =>
+      queryToGetUserById(userId)
+         .property("banReasons", JSON.stringify(newBanReasonsList))
+         .property("banReasonsAmount", newBanReasonsAmount)
+         .iterate(),
+   );
+
+   return { success: true };
+}
+
+export async function removeAllBanReasonsFromUser(
+   params: RemoveAllBanReasonsFromUserPostParams,
+   ctx?: BaseContext,
+) {
+   const { userId } = params;
+
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      ctx?.throw(passwordValidation.error);
+      return;
+   }
+
+   const user = await fromQueryToUser(queryToGetUserById(userId), false);
+
+   if (!user) {
+      ctx?.throw(404, "User not found");
+      return;
+   }
+
+   if (user.banReasonsAmount == null || user.banReasonsAmount === 0) {
+      ctx?.throw(400, "User doesn't have any ban reasons");
+      return;
+   }
+
+   await sendQuery(() =>
+      queryToGetUserById(userId)
+         .property("banReasons", JSON.stringify([]))
+         .property("banReasonsAmount", 0)
+         .iterate(),
+   );
+
+   return { success: true };
+}
+
 export async function sendEmailPost(params: SendEmailPostParams, ctx: BaseContext) {
    const { to, subject, text } = params;
 
    const passwordValidation = await validateAdminCredentials(params);
    if (!passwordValidation.isValid) {
-      return passwordValidation.error;
+      ctx.throw(passwordValidation.error);
+      return;
    }
 
    try {

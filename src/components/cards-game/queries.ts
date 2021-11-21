@@ -22,6 +22,7 @@ import {
    queryToGetUserByToken,
    queryToGetUserById,
    queryToIncludeFullInfoInUserQuery,
+   queryToGetAllDemoUsers,
 } from "../user/queries";
 
 export function queryToGetCardsRecommendations(
@@ -156,6 +157,11 @@ export function queryToGetCardsRecommendations(
       .where(P.gte("a"))
       .by("targetDistance")
       .by(__.math(`abs(_ - ${searcherUser.locationLon}) * ${GPS_TO_KM}`).by("locationLon"));
+
+   /**
+    * User is not banned
+    */
+   traversal = traversal.not(__.has("banReasonsAmount", P.gt(0)));
 
    /**
     * Order the results
@@ -318,4 +324,23 @@ export function queryToGetDislikedUsers(props: {
 
 export function queryToGetAllUsersWantingNewCardsNotification(): Traversal {
    return queryToGetAllCompleteUsers().has("sendNewUsersNotification", P.gt(0));
+}
+
+/**
+ * This function could return the demo accounts and that is all but this is useful to test filters.
+ */
+export function queryToGetDemoCardsRecommendations(searcherUser: User) {
+   let traversal: Traversal = queryToGetAllDemoUsers();
+
+   /**
+    * User is not banned
+    */
+   traversal = traversal.not(__.has("banReasonsAmount", P.gt(0)));
+
+   /**
+    * It's another user (not self)
+    */
+   traversal = traversal.not(__.has("userId", searcherUser.userId));
+
+   return traversal;
 }

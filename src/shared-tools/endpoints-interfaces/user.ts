@@ -1,7 +1,8 @@
 import { TokenParameter } from "./common";
-import { RequiredUserPropKey, EditableUserProps } from "../validators/user";
+import { RequiredUserPropKey } from "../validators/user";
 import { TagBasicInfo } from "./tags";
 import { ValueOf } from "ts-essentials";
+import { UserBanReason } from "./admin";
 
 /**
  * If you want to add or remove a "user editable user prop" this is the basic todo list:
@@ -45,6 +46,8 @@ export interface User {
    genders: Gender[];
    likesGenders: Gender[];
    demoAccount?: boolean;
+   banReasonsAmount?: number;
+   banReasons?: UserBanReason[];
 }
 
 export type UserPropsValueTypes = ValueOf<User>;

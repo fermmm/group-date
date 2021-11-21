@@ -86,3 +86,26 @@ export interface SendEmailPostParams extends AdminProtectionParams {
    subject: string;
    text: string;
 }
+
+export enum UserBanReason {
+   Spam = "User is doing spam",
+   UnsupportedUsageIntention = "User wants to use the app with a not supported intention",
+   NotInterestedInTheApp = "User showed no interest about participating in what the app proposes but created a profile anyway",
+   NonEthicalUsage = "User is doing non-ethical usage of the app",
+   BanRequestedByAuthority = "Google or Apple requested the user to be banned",
+   BadQualityProfile = "The profile lacks basic information like a useful image. Profile quality is too bad.",
+}
+
+export interface BanUserPostParams extends AdminProtectionParams {
+   userId: string;
+   reason: UserBanReason;
+}
+
+export interface RemoveBanFromUserPostParams extends AdminProtectionParams {
+   userId: string;
+   reason: UserBanReason;
+}
+
+export interface RemoveAllBanReasonsFromUserPostParams extends AdminProtectionParams {
+   userId: string;
+}
