@@ -20,8 +20,8 @@ exports.APPLICATION_NAME = "Poly";
 /*
  * Versions of the client allowed to connect to the server
  */
-exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.2";
-exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.1";
+exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.5";
+exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.5";
 /**
  * If you change this you also have to change it in:
  *    - The api calls of the email-login website
