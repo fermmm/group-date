@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Button } from "@mui/material";
 import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
-import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
+import { Label } from "../GenericPanel/styles.GenericPanel";
 import { Tag } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/tags";
 
 const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
@@ -23,7 +23,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
 
    return (
       <>
-         <ValueLabel>{tag.name}</ValueLabel>
+         <Label>{tag.name}</Label>
          {queryButtons.map(buttonData => (
             <Button
                variant="outlined"

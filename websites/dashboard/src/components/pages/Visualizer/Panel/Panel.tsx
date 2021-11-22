@@ -1,6 +1,7 @@
 import { IconButton } from "@mui/material";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { VscChevronLeft, VscChevronRight, VscMultipleWindows } from "react-icons/vsc";
+import { visualizerGet } from "../../../../api/server/visualizer";
 import { createUrlParamString } from "../../../../common-tools/browser/url-tools";
 import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
 import { Tooltip } from "../../../common/UI/Tooltip/Tooltip";
@@ -86,6 +87,18 @@ const Panel: FC<PropsPanel> = props => {
       );
    };
 
+   const handlePropEdit = async (propName: string, propValue: string | number | boolean) => {
+      const typedPropValue = typeof propValue === "string" ? `'${propValue}'` : propValue;
+
+      console.log(typedPropValue, typeof typedPropValue);
+
+      await visualizerGet({
+         query: `g.V(${elementToShow.id}).property("${propName}", ${typedPropValue})`,
+         nodeLimit: 1,
+      });
+      props.onRefresh();
+   };
+
    let PanelToUse: React.FC<PropsGenericPropertiesTable>;
    switch (elementToShow?.type ?? "") {
       case "user":
@@ -141,6 +154,7 @@ const Panel: FC<PropsPanel> = props => {
                      onSearch={onSearch}
                      isVertex={elementToShowIsNode}
                      onRefresh={onRefresh}
+                     onPropEdit={handlePropEdit}
                   />
                </>
             )}

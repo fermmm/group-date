@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import { useServerInfo } from "../../../../../../api/server/server-info";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
 import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
-import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
+import { Label } from "../GenericPanel/styles.GenericPanel";
 import { Row } from "../../../../../common/UI/Row/Row";
 import ImagesCarousel from "../../../../../common/UI/ImagesCarousel/ImagesCarousel";
 import { getCountryName } from "../../../../../../common-tools/strings/humanizeCountryCode";
@@ -76,8 +76,8 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    return (
       <>
          <Row>
-            <ValueLabel>{user.name}</ValueLabel>
-            <ValueLabel>
+            <Label>{user.name}</Label>
+            <Label>
                {/*https://flagpedia.net/download/api*/}
                <img
                   src={`https://flagcdn.com/20x15/${user.country?.toLocaleLowerCase()}.png`}
@@ -85,10 +85,10 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
                   height="15"
                />{" "}
                {getCountryName(user.country)}
-            </ValueLabel>
+            </Label>
          </Row>
-         {user.profileDescription && <ValueLabel>{user.profileDescription}</ValueLabel>}
-         <ValueLabel>Idea: {user.dateIdea}</ValueLabel>
+         {user.profileDescription && <Label>{user.profileDescription}</Label>}
+         <Label>Idea: {user.dateIdea}</Label>
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>
                {(JSON.parse(user.images as unknown as string) as string[])?.map(image => (

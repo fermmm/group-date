@@ -1,9 +1,8 @@
-import Button from "@mui/material/Button";
 import React, { FC, useState } from "react";
-import { humanizeUnixTimeStamp } from "../../../../../../common-tools/strings/humanizeUnixTime";
+import Button from "@mui/material/Button";
 import ConfirmationDialog from "../../../../../common/UI/ConfirmationDialog/ConfirmationDialog";
 import { OnSearchFunc } from "../../../Visualizer";
-import { KeyLabel, PropertiesContainer, ValueLabel } from "./styles.GenericPanel";
+import Prop from "./Prop/Prop";
 
 export interface PropsGenericPropertiesTable {
    id: string | number;
@@ -13,6 +12,7 @@ export interface PropsGenericPropertiesTable {
    hideProps?: string[];
    onSearch: OnSearchFunc;
    onRefresh: () => void;
+   onPropEdit: (propName: string, propValue: string | number | boolean) => void;
 }
 
 export interface QueryButtonProps {
@@ -22,29 +22,11 @@ export interface QueryButtonProps {
 }
 
 const GenericPanel: FC<PropsGenericPropertiesTable> = props => {
-   const { properties, hideProps, id, isVertex } = props;
+   const { properties, hideProps, id, isVertex, onPropEdit } = props;
    const [confirmationDialogProps, setConfirmationDialogProps] =
       useState<{ message: string; onConfirm: () => void }>(null);
 
    const keys = Object.keys(properties ?? {}).sort();
-
-   const unixTimeProps = [
-      "lastGroupJoinedDate",
-      "birthDate",
-      "lastLoginDate",
-      "creationDate",
-      "mostVotedDate",
-      "lastInteractionDate",
-      "timestamp",
-   ];
-
-   const setupValueText = (key: string, value: string | number | boolean) => {
-      if (unixTimeProps.includes(key)) {
-         return humanizeUnixTimeStamp(Number(value));
-      }
-
-      return String(value);
-   };
 
    const elementSelectionQuery = isVertex
       ? `g.V(${typeof id === "string" ? `"${id}"` : id})`
@@ -63,10 +45,7 @@ const GenericPanel: FC<PropsGenericPropertiesTable> = props => {
          {keys.map(
             key =>
                (!hideProps || !hideProps.includes(key)) && (
-                  <div key={key}>
-                     <KeyLabel>{key}</KeyLabel>
-                     <ValueLabel>{setupValueText(key, properties[key])}</ValueLabel>
-                  </div>
+                  <Prop propName={key} propValue={properties[key]} onEdit={onPropEdit} key={key} />
                ),
          )}
          {dangerousQueryButtons.map((buttonData, i) => (

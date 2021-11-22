@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import GenericPanel, { PropsGenericPropertiesTable } from "../GenericPanel/GenericPanel";
-import { ValueLabel } from "../GenericPanel/styles.GenericPanel";
+import { Label } from "../GenericPanel/styles.GenericPanel";
 import { Group, GroupChat } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/groups";
 import { useTheme } from "styled-components";
 import ChatBubble from "./ChatBubble/ChatBubble";
@@ -52,7 +52,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
 
    return (
       <>
-         <ValueLabel>{group.name}</ValueLabel>
+         <Label>{group.name}</Label>
          {queryButtons.map(buttonData => (
             <Button
                variant="outlined"
