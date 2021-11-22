@@ -70,6 +70,14 @@ async function createTagPost(params, ctx) {
         subscribersAmount: (_f = params.fakeSubscribersAmount) !== null && _f !== void 0 ? _f : 0,
         blockersAmount: (_g = params.fakeBlockersAmount) !== null && _g !== void 0 ? _g : 0,
     };
+    /*
+     * Banned users cannot create tags but since it's a shadow ban we don't return an error, we
+     * return the tag object instead, like if it was created successfully but we are not calling
+     * the database query
+     */
+    if (user.banReasonsAmount > 0) {
+        return tagToCreate;
+    }
     return await (0, data_conversion_1.fromQueryToTag)((0, queries_1.queryToCreateTags)(user.userId, [tagToCreate]));
 }
 exports.createTagPost = createTagPost;

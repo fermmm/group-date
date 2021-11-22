@@ -261,6 +261,7 @@ const unicornQuestion = {
         1: [0],
     },
     filterSelectedByDefault: true,
+    filterSelectionInvisible: false, // Enabling this may lead to better results
 };
 const feminismQuestion = {
     questionId: "taq-0",
@@ -333,6 +334,7 @@ const spamQuestion = {
         0: [1],
         1: [0],
     },
+    filterSelectedByDefault: true,
 };
 // Spam question may not be required because interest for group sex question includes the physical interaction intentions
 exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [

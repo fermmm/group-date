@@ -102,7 +102,6 @@ const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
     console.log(`✓ Promo website available in ${(0, getServerUrl_1.getServerUrl)()}/`);
     console.log(`✓ Api endpoints available in ${(0, getServerUrl_1.getServerUrl)()}${configurations_1.USERS_API_PATH}`);
     console.log(`✓ Admin dashboard available in ${(0, getServerUrl_1.getServerUrl)()}/dashboard`);
-    console.log("HOLA", process.env.NODE_ENV);
     if (httpsPortEnabled) {
         console.log(`✓ Also https port enabled`);
     }

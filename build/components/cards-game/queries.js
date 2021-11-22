@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToGetAllUsersWantingNewCardsNotification = exports.queryToGetDislikedUsers = exports.queryToDivideLikingUsers = exports.queryToOrderResults = exports.queryToFilterUsersNotLikingSearcherGenders = exports.queryToFilterByLikedGender = exports.queryToGetCardsRecommendations = void 0;
+exports.queryToGetDemoCardsRecommendations = exports.queryToGetAllUsersWantingNewCardsNotification = exports.queryToGetDislikedUsers = exports.queryToDivideLikingUsers = exports.queryToOrderResults = exports.queryToFilterUsersNotLikingSearcherGenders = exports.queryToFilterByLikedGender = exports.queryToGetCardsRecommendations = void 0;
 const date_tools_1 = require("./../../common-tools/math-tools/date-tools");
 const moment = require("moment");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
@@ -92,6 +92,10 @@ function queryToGetCardsRecommendations(searcherUser, settings) {
         .where(database_manager_1.P.gte("a"))
         .by("targetDistance")
         .by(database_manager_1.__.math(`abs(_ - ${searcherUser.locationLon}) * ${constants_1.GPS_TO_KM}`).by("locationLon"));
+    /**
+     * User is not banned
+     */
+    traversal = traversal.not(database_manager_1.__.has("banReasonsAmount", database_manager_1.P.gt(0)));
     /**
      * Order the results
      */
@@ -215,4 +219,20 @@ function queryToGetAllUsersWantingNewCardsNotification() {
     return (0, queries_1.queryToGetAllCompleteUsers)().has("sendNewUsersNotification", database_manager_1.P.gt(0));
 }
 exports.queryToGetAllUsersWantingNewCardsNotification = queryToGetAllUsersWantingNewCardsNotification;
+/**
+ * This function could return the demo accounts and that is all but this is useful to test filters.
+ */
+function queryToGetDemoCardsRecommendations(searcherUser) {
+    let traversal = (0, queries_1.queryToGetAllDemoUsers)();
+    /**
+     * User is not banned
+     */
+    traversal = traversal.not(database_manager_1.__.has("banReasonsAmount", database_manager_1.P.gt(0)));
+    /**
+     * It's another user (not self)
+     */
+    traversal = traversal.not(database_manager_1.__.has("userId", searcherUser.userId));
+    return traversal;
+}
+exports.queryToGetDemoCardsRecommendations = queryToGetDemoCardsRecommendations;
 //# sourceMappingURL=queries.js.map

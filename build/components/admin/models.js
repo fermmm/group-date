@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -279,11 +279,87 @@ async function runCommandPost(params, ctx) {
     return await (0, process_tools_1.executeSystemCommand)(command);
 }
 exports.runCommandPost = runCommandPost;
+async function banUserPost(params, ctx) {
+    var _a;
+    const { userId, reason } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
+        return;
+    }
+    const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
+    if (!user) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(404, "User not found");
+        return;
+    }
+    if ((_a = user.banReasons) === null || _a === void 0 ? void 0 : _a.includes(reason)) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(400, "User already banned for this reason");
+        return;
+    }
+    await (0, database_manager_1.sendQuery)(() => {
+        var _a;
+        return (0, queries_1.queryToGetUserById)(userId)
+            .property("banReasons", JSON.stringify([...((_a = user.banReasons) !== null && _a !== void 0 ? _a : []), reason]))
+            .property("banReasonsAmount", user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1)
+            .iterate();
+    });
+    return { success: true };
+}
+exports.banUserPost = banUserPost;
+async function removeBanFromUserPost(params, ctx) {
+    const { userId, reason } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
+        return;
+    }
+    const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
+    if (!user) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(404, "User not found");
+        return;
+    }
+    if (user.banReasons == null || !user.banReasons.includes(reason)) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(400, "User doesn't have this ban reason");
+        return;
+    }
+    const newBanReasonsList = user.banReasons.filter(banReason => banReason !== reason);
+    const newBanReasonsAmount = newBanReasonsList.length;
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
+        .property("banReasons", JSON.stringify(newBanReasonsList))
+        .property("banReasonsAmount", newBanReasonsAmount)
+        .iterate());
+    return { success: true };
+}
+exports.removeBanFromUserPost = removeBanFromUserPost;
+async function removeAllBanReasonsFromUser(params, ctx) {
+    const { userId } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
+        return;
+    }
+    const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
+    if (!user) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(404, "User not found");
+        return;
+    }
+    if (user.banReasonsAmount == null || user.banReasonsAmount === 0) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(400, "User doesn't have any ban reasons");
+        return;
+    }
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
+        .property("banReasons", JSON.stringify([]))
+        .property("banReasonsAmount", 0)
+        .iterate());
+    return { success: true };
+}
+exports.removeAllBanReasonsFromUser = removeAllBanReasonsFromUser;
 async function sendEmailPost(params, ctx) {
     const { to, subject, text } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
-        return passwordValidation.error;
+        ctx.throw(passwordValidation.error);
+        return;
     }
     try {
         return await (0, ses_tools_1.sendEmailUsingSES)({ to, subject, text });

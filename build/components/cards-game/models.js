@@ -19,7 +19,7 @@ exports.initializeCardsGame = initializeCardsGame;
 async function recommendationsGet(params, ctx) {
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
     if (user.demoAccount) {
-        return await (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetAllDemoUsers)(), true, false);
+        return await (0, data_conversion_1.fromQueryToUserList)((0, queries_2.queryToGetDemoCardsRecommendations)(user), true, false);
     }
     const recommendationsQuery = (0, queries_2.queryToGetCardsRecommendations)(user);
     const result = await (0, data_conversion_2.fromQueryToCardsResult)(recommendationsQuery);
@@ -45,7 +45,7 @@ async function recommendationsFromTagGet(params, ctx) {
 }
 exports.recommendationsFromTagGet = recommendationsFromTagGet;
 /**
- * TODO: This is too expensive, optimization: There is no point on notifying of new users that disliked you or
+ * TODO: This is too expensive. An optimization is possible: There is no point on notifying of new users that disliked you or
  * new users that did't see you yet. So the only remaining case where it's useful to notify is when you get a
  * like, so you can see the user and like it back, that's a lot less users to navigate and it's based on an
  * event instead of a repeating whole database search.

@@ -38,6 +38,8 @@ function removePrivacySensitiveUserProps(user) {
     delete user.lastLoginDate;
     delete user.questionsShowed;
     delete user.registrationDate;
+    delete user.banReasonsAmount;
+    delete user.banReasons;
     return user;
 }
 exports.removePrivacySensitiveUserProps = removePrivacySensitiveUserProps;

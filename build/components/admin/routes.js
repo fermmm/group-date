@@ -21,6 +21,9 @@ function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/send-notifications", "POST", models_1.adminNotificationSendPost);
     (0, route_tools_1.createRoute)(r, "/admin/command", "POST", models_1.runCommandPost);
     (0, route_tools_1.createRoute)(r, "/admin/email", "POST", models_1.sendEmailPost);
+    (0, route_tools_1.createRoute)(r, "/admin/user/ban", "POST", models_1.banUserPost);
+    (0, route_tools_1.createRoute)(r, "/admin/user/remove-ban", "POST", models_1.removeBanFromUserPost);
+    (0, route_tools_1.createRoute)(r, "/admin/user/remove-all-bans", "POST", models_1.removeAllBanReasonsFromUser);
     r.post(`${configurations_1.USERS_API_PATH}/admin/upload-file`, models_1.onAdminFileReceived, async (ctx) => (ctx.body = await (0, models_1.onAdminFileSaved)(ctx.request.files, ctx)));
 }
 exports.adminRoutes = adminRoutes;

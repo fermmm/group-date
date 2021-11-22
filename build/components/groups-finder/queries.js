@@ -44,7 +44,11 @@ function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, quality, traversal)
         // Inactive means many time without login and no new users notifications pending
         .not(database_manager_1.__.has("lastLoginDate", database_manager_1.P.lt(moment().unix() - configurations_1.MAXIMUM_INACTIVITY_FOR_NEW_GROUPS))
         .and()
-        .has("sendNewUsersNotification", database_manager_1.P.lt(1)));
+        .has("sendNewUsersNotification", database_manager_1.P.lt(1)))
+        /**
+         * User is not banned
+         */
+        .not(database_manager_1.__.has("banReasonsAmount", database_manager_1.P.gt(0)));
     if (quality === types_1.GroupQuality.Bad) {
         traversal = traversal.where(database_manager_1.__.values("lastGroupJoinedDate").is(database_manager_1.P.lt(moment().unix() - configurations_1.FORM_BAD_QUALITY_GROUPS_TIME)));
     }
