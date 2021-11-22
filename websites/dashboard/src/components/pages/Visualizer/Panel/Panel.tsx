@@ -19,10 +19,12 @@ interface PropsPanel {
    onSearch: OnSearchFunc;
    onNextClick: () => void;
    onPrevClick: () => void;
+   onRefresh: () => void;
 }
 
 const Panel: FC<PropsPanel> = props => {
-   const { allNodes, allEdges, nodeIdSelected, edgeIdSelected, onSearch, onNextClick, onPrevClick } = props;
+   const { allNodes, allEdges, nodeIdSelected, edgeIdSelected, onSearch, onNextClick, onPrevClick, onRefresh } =
+      props;
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
    const [elementToShowIsNode, setElementToShowIsNode] = useState<boolean>();
    const leftKeyPressed = useKeyPress("ArrowLeft");
@@ -38,6 +40,28 @@ const Panel: FC<PropsPanel> = props => {
       setElementToShow(allEdges.find(edge => edge.id === edgeIdSelected));
       setElementToShowIsNode(false);
    }, [edgeIdSelected]);
+
+   /**
+    * This effect refreshes the panel content when allNodes or allEdges changes. When
+    * those props changes setElementToShow needs to be called again to get the new
+    * info of the selected element.
+    */
+   useEffect(() => {
+      let selectedElementUpdated: GremlinElement<Record<string, string | number | boolean>>;
+
+      if (elementToShowIsNode) {
+         selectedElementUpdated = allNodes.find(node => node.id === nodeIdSelected);
+      } else {
+         selectedElementUpdated = allEdges.find(edge => edge.id === edgeIdSelected);
+      }
+
+      if (selectedElementUpdated == null) {
+         setElementToShow(null);
+         return;
+      }
+
+      setElementToShow(selectedElementUpdated);
+   }, [allNodes, allEdges]);
 
    useEffect(() => {
       if (leftKeyPressed && elementToShow != null) {
@@ -98,6 +122,7 @@ const Panel: FC<PropsPanel> = props => {
                      label={elementToShow.label}
                      onSearch={onSearch}
                      isVertex={elementToShowIsNode}
+                     onRefresh={onRefresh}
                   />
                </>
             )}

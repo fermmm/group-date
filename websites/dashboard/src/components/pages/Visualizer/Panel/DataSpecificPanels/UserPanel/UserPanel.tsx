@@ -56,6 +56,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
       }
 
       await banUserRequest({ reason, userId: user.userId });
+      props.onRefresh();
    };
 
    const handleRemoveBan = async (reason: UserBanReason) => {
@@ -64,10 +65,12 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
       }
 
       await removeBanFromUserRequest({ reason, userId: user.userId });
+      props.onRefresh();
    };
 
    const handleRemoveAllBans = async () => {
       await removeAllBansFromUserRequest({ userId: user.userId });
+      props.onRefresh();
    };
 
    return (

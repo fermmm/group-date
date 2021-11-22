@@ -12,6 +12,7 @@ export interface PropsGenericPropertiesTable {
    isVertex: boolean | undefined;
    hideProps?: string[];
    onSearch: OnSearchFunc;
+   onRefresh: () => void;
 }
 
 export interface QueryButtonProps {

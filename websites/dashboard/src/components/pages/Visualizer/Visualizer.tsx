@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { DataSet } from "vis-network/standalone";
 import { visualizerGet } from "../../../api/server/visualizer";
 import Graph from "./Graph/Graph";
@@ -7,14 +7,14 @@ import {
    getDiffEdges,
    getDiffNodes,
    GremlinElement,
-   NodeLabelInfo
+   NodeLabelInfo,
 } from "./tools/visualizerUtils";
 import { SearchPartContainer, VisualizerContainer } from "./styles.Visualizer";
 import Header from "./Header/Header";
 import Panel from "./Panel/Panel";
 import useUserChangesUrlWatcher, {
    getUrlParameter,
-   setUrlParameter
+   setUrlParameter,
 } from "../../../common-tools/browser/url-tools";
 
 export type OnSearchFunc = (props: {
@@ -36,6 +36,8 @@ const Visualizer: FC = () => {
    const [edgeIdSelected, setEdgeIdSelected] = useState<string | number>();
    const [selectedElementType, setSelectedElementType] = useState<"edge" | "node">();
    const queryFromUrlParams = getUrlParameter("visualizer-search");
+   const lastQuery = useRef<string>();
+   const lastNodeLimit = useRef<number>();
 
    const sendQueryFromUrlParams = () => {
       if (queryFromUrlParams != null) {
@@ -68,6 +70,8 @@ const Visualizer: FC = () => {
          return;
       }
 
+      lastQuery.current = query;
+      lastNodeLimit.current = nodeLimit;
       const { nodes, edges, nodeLabels = [] } = extractEdgesAndNodes(result, nodeLabelsToShow);
 
       // Saving the current query on the url makes possible to go back and open new window without losing state.
@@ -140,14 +144,19 @@ const Visualizer: FC = () => {
       }
    };
 
+   const handleRefresh = async () => {
+      setLoading(true);
+      const result = await visualizerGet({ query: lastQuery.current, nodeLimit: lastNodeLimit.current });
+      setLoading(false);
+      const { nodes, edges } = extractEdgesAndNodes(result, nodeLabelsToShow);
+      setAllNodes(nodes);
+      setAllEdges(edges);
+   };
+
    return (
       <VisualizerContainer>
          <SearchPartContainer>
-            <Header
-               defaultSearchInputValue={queryFromUrlParams}
-               loading={loading}
-               onSearch={handleSendQuery}
-            />
+            <Header defaultSearchInputValue={queryFromUrlParams} loading={loading} onSearch={handleSendQuery} />
             <Graph
                nodesHolder={nodeHolder}
                edgesHolder={edgeHolder}
@@ -165,6 +174,7 @@ const Visualizer: FC = () => {
             onSearch={handleSendQuery}
             onNextClick={handleNextClick}
             onPrevClick={handlePrevClick}
+            onRefresh={handleRefresh}
          />
       </VisualizerContainer>
    );
