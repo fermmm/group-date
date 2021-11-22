@@ -27,8 +27,8 @@ export const APPLICATION_NAME = "Poly";
 /*
  * Versions of the client allowed to connect to the server
  */
-export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.2";
-export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.1";
+export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.5";
+export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.5";
 
 /**
  * If you change this you also have to change it in:
