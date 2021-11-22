@@ -1,7 +1,6 @@
 import ListItem, { ListItemProps } from "@mui/material/ListItem";
 import styled from "styled-components";
 import { styled as styledMui } from "@mui/material/styles";
-import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 
 const drawerWidthExpanded = 320;
 const drawerWidthCollapsed = 80;
@@ -14,7 +13,7 @@ export const DrawerContainer = styled("div")`
 `;
 
 export const ChildrenContainer = styled("div").withConfig({
-   shouldForwardProp: p => !["expanded", "expandOnHover"].includes(p)
+   shouldForwardProp: p => !["expanded", "expandOnHover"].includes(p),
 })<{ expanded?: boolean; expandOnHover?: boolean }>`
    padding-right: 5px;
    padding-left: 5px;
@@ -41,7 +40,7 @@ export const PageContainer = styled("div")`
 `;
 
 export const ButtonsContainer = styled("div").withConfig({
-   shouldForwardProp: p => !["expanded", "expandOnHover"].includes(p)
+   shouldForwardProp: p => !["expanded", "expandOnHover"].includes(p),
 })<{ expanded?: boolean; expandOnHover?: boolean }>`
    display: flex;
    flex-direction: column;
@@ -53,7 +52,7 @@ export const ButtonsContainer = styled("div").withConfig({
 `;
 
 export const LogoContainer = styled("div").withConfig({
-   shouldForwardProp: p => !["expanded"].includes(p)
+   shouldForwardProp: p => !["expanded"].includes(p),
 })<{ expanded?: boolean }>`
    margin: 40px 0;
    width: 100%;
@@ -63,7 +62,7 @@ export const LogoContainer = styled("div").withConfig({
 `;
 
 export const ListItemStyled = styledMui(ListItem)<ListItemProps>(({ theme }) => ({
-   width: drawerWidthExpanded
+   width: drawerWidthExpanded,
 }));
 
 // export const TooltipStyled = styled(Tooltip)`
@@ -75,11 +74,3 @@ export const ListItemStyled = styledMui(ListItem)<ListItemProps>(({ theme }) => 
 //       }
 //    }
 // `;
-
-export const TooltipStyled = styledMui(({ className, ...props }: TooltipProps) => (
-   <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-   [`& .${tooltipClasses.tooltip}`]: {
-      fontSize: 14
-   }
-}));

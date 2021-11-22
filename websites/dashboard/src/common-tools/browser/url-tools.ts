@@ -12,6 +12,12 @@ export function getUrlParameter(key: string) {
    return queryParams.get(key);
 }
 
+export function createUrlParamString(key: string, value: string) {
+   var queryParams = new URLSearchParams();
+   queryParams.set(key, value);
+   return queryParams.toString();
+}
+
 /**
  * Checks for url parameter value changes and re-renders the component on change.
  */

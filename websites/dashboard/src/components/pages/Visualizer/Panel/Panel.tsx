@@ -1,7 +1,9 @@
 import { IconButton } from "@mui/material";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { VscChevronLeft, VscChevronRight } from "react-icons/vsc";
+import { VscChevronLeft, VscChevronRight, VscMultipleWindows } from "react-icons/vsc";
+import { createUrlParamString } from "../../../../common-tools/browser/url-tools";
 import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
+import { Tooltip } from "../../../common/UI/Tooltip/Tooltip";
 import { GremlinElement } from "../tools/visualizerUtils";
 import { OnSearchFunc } from "../Visualizer";
 import EdgePanel from "./DataSpecificPanels/EdgePanel/EdgePanel";
@@ -55,13 +57,8 @@ const Panel: FC<PropsPanel> = props => {
          selectedElementUpdated = allEdges.find(edge => edge.id === edgeIdSelected);
       }
 
-      if (selectedElementUpdated == null) {
-         setElementToShow(null);
-         return;
-      }
-
       setElementToShow(selectedElementUpdated);
-   }, [allNodes, allEdges]);
+   }, [allNodes, allEdges, elementToShowIsNode]);
 
    useEffect(() => {
       if (leftKeyPressed && elementToShow != null) {
@@ -79,27 +76,37 @@ const Panel: FC<PropsPanel> = props => {
       scrollContainerRef.current.scrollTo({ top: 0 });
    }, [elementToShow]);
 
-   let Panel: React.FC<PropsGenericPropertiesTable>;
+   const handleOpenInNewTab = () => {
+      window.open(
+         `${window.location.origin}${window.location.pathname}?${createUrlParamString(
+            "visualizer-search",
+            `g.V(${elementToShow.id})`,
+         )}`,
+         "_blank",
+      );
+   };
+
+   let PanelToUse: React.FC<PropsGenericPropertiesTable>;
    switch (elementToShow?.type ?? "") {
       case "user":
-         Panel = UserPanel;
+         PanelToUse = UserPanel;
          break;
 
       case "group":
-         Panel = GroupPanel;
+         PanelToUse = GroupPanel;
          break;
 
       case "tag":
-         Panel = TagsPanel;
+         PanelToUse = TagsPanel;
          break;
 
       default:
-         Panel = GenericPanel;
+         PanelToUse = GenericPanel;
          break;
    }
 
    if (elementToShow?.from != null) {
-      Panel = EdgePanel;
+      PanelToUse = EdgePanel;
    }
 
    return (
@@ -108,15 +115,26 @@ const Panel: FC<PropsPanel> = props => {
             {elementToShow != null && (
                <>
                   <NavigationButtonsContainer>
-                     <IconButton onClick={onPrevClick}>
-                        <VscChevronLeft />
-                     </IconButton>
-                     <IconButton onClick={onNextClick}>
-                        <VscChevronRight />
-                     </IconButton>
+                     {elementToShowIsNode && (
+                        <Tooltip text={"Open element in new tab"} placement="bottom">
+                           <IconButton onClick={handleOpenInNewTab}>
+                              <VscMultipleWindows />
+                           </IconButton>
+                        </Tooltip>
+                     )}
+                     <Tooltip text={"Previous element"} placement="bottom">
+                        <IconButton onClick={onPrevClick}>
+                           <VscChevronLeft />
+                        </IconButton>
+                     </Tooltip>
+                     <Tooltip text={"Next element"} placement="bottom">
+                        <IconButton onClick={onNextClick}>
+                           <VscChevronRight />
+                        </IconButton>
+                     </Tooltip>
                   </NavigationButtonsContainer>
                   <NodeElementTitle>{elementToShow.type}</NodeElementTitle>
-                  <Panel
+                  <PanelToUse
                      properties={elementToShow.properties}
                      id={elementToShow.id}
                      label={elementToShow.label}

@@ -6,13 +6,12 @@ import {
    ButtonsContainer,
    PageContainer,
    ListItemStyled,
-   TooltipStyled
 } from "./styles.Drawer";
-import Zoom from "@mui/material/Zoom";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import logo from "../../../../assets/logo.png";
-import { IconButton, Tooltip } from "@mui/material";
+import { IconButton } from "@mui/material";
+import { Tooltip } from "../Tooltip/Tooltip";
 
 interface PropsDrawer {
    expandOnHover?: boolean;
@@ -49,11 +48,7 @@ const Drawer: FC<PropsDrawer> = props => {
             onMouseLeave={handleDrawerContract}
          >
             <LogoContainer expanded={expanded}>
-               <img
-                  src={logo}
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                  alt={"logo"}
-               />
+               <img src={logo} style={{ width: "100%", height: "100%", objectFit: "contain" }} alt={"logo"} />
             </LogoContainer>
             <ButtonsContainer expanded={expanded} expandOnHover={expandOnHover}>
                {buttons.map(button =>
@@ -70,21 +65,12 @@ const Drawer: FC<PropsDrawer> = props => {
                         <ListItemText primary={button.label} />
                      </ListItemStyled>
                   ) : (
-                     <TooltipStyled
-                        title={button.label}
-                        arrow
-                        placement="right"
-                        TransitionComponent={Zoom}
-                        key={button.label}
-                     >
-                        <IconButton
-                           onClick={button.onClick}
-                           style={{ marginBottom: button.marginBottom ?? 0 }}
-                        >
+                     <Tooltip text={button.label} key={button.label}>
+                        <IconButton onClick={button.onClick} style={{ marginBottom: button.marginBottom ?? 0 }}>
                            {button.icon()}
                         </IconButton>
-                     </TooltipStyled>
-                  )
+                     </Tooltip>
+                  ),
                )}
             </ButtonsContainer>
          </ChildrenContainer>
