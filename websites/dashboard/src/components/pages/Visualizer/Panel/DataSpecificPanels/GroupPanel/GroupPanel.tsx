@@ -8,6 +8,7 @@ import ChatBubble from "./ChatBubble/ChatBubble";
 import { visualizerGet } from "../../../../../../api/server/visualizer";
 import { GremlinElement } from "../../../tools/visualizerUtils";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
+import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
 
 const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    const group = props.properties as unknown as Partial<Group>;
@@ -38,6 +39,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
       {
          name: "Members",
          query: `g.V().union(${groupQuery}, ${groupQuery}.both("member"))`,
+         enableMiddleClick: true,
       },
    ];
 
@@ -58,6 +60,13 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
                variant="outlined"
                color="secondary"
                onClick={() => props.onSearch({ query: buttonData.query })}
+               onMouseDown={e => {
+                  if (e.button === 1 && buttonData.enableMiddleClick) {
+                     // This doesn't work
+                     e.preventDefault();
+                     openQueryInNewTab(buttonData.query);
+                  }
+               }}
             >
                {buttonData.name}
             </Button>

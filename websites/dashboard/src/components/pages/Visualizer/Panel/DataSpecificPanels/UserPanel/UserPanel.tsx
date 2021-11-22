@@ -16,6 +16,7 @@ import {
 } from "../../../../../../api/server/admin";
 import RemoveBanFromUserDialog from "./RemoveBanFromUserDialog/RemoveBanFromUserDialog";
 import ConfirmationDialog from "../../../../../common/UI/ConfirmationDialog/ConfirmationDialog";
+import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const user = props.properties as unknown as Partial<User>;
@@ -25,28 +26,39 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const [removeAllBansDialogOpen, setRemoveAllBansDialogOpen] = useState(false);
 
    const userQuery = `has("userId", "${user.userId}")`;
+
+   /**
+    * enableMiddleClick opens the query in a new tab when doing middle click on the button
+    */
    const queryButtons = [
       {
-         name: "Genders",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("isGender", "likesGender"))`,
-      },
-      {
-         name: "Matches",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("Match"))`,
+         name: "Tags",
+         query: `g.V().union(${userQuery}, ${userQuery}.both("subscribed", "blocked").hasLabel("tag"))`,
+         enableMiddleClick: true,
       },
       {
          name: "Likes Dislikes",
          query: `g.V().union(${userQuery}, ${userQuery}.both("Like", "Dislike"))`,
+         enableMiddleClick: true,
       },
       {
-         name: "Tags",
-         query: `g.V().union(${userQuery}, ${userQuery}.both("subscribed", "blocked").hasLabel("tag"))`,
+         name: "Matches",
+         query: `g.V().union(${userQuery}, ${userQuery}.both("Match"))`,
+         enableMiddleClick: true,
       },
       {
          name: "Groups",
          query: `g.V().union(${userQuery}, ${userQuery}.both().hasLabel("group"))`,
+         enableMiddleClick: true,
+      },
+      {
+         name: "Genders",
+         query: `g.V().union(${userQuery}, ${userQuery}.both("isGender", "likesGender"))`,
+         enableMiddleClick: true,
       },
    ];
+
+   // openQueryInNewTab(`g.V(${elementToShow.id})`);
 
    const dangerousQueryButtons: QueryButtonProps[] = [];
 
@@ -101,6 +113,13 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
                variant="outlined"
                color="secondary"
                onClick={() => props.onSearch({ query: buttonData.query })}
+               onMouseDown={e => {
+                  if (e.button === 1 && buttonData.enableMiddleClick) {
+                     // This doesn't work
+                     e.preventDefault();
+                     openQueryInNewTab(buttonData.query);
+                  }
+               }}
                key={i}
             >
                {buttonData.name}

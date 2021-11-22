@@ -5,6 +5,7 @@ import { visualizerGet } from "../../../../api/server/visualizer";
 import { createUrlParamString } from "../../../../common-tools/browser/url-tools";
 import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
 import { Tooltip } from "../../../common/UI/Tooltip/Tooltip";
+import { openQueryInNewTab } from "../tools/openQueryInNewTab";
 import { GremlinElement } from "../tools/visualizerUtils";
 import { OnSearchFunc } from "../Visualizer";
 import EdgePanel from "./DataSpecificPanels/EdgePanel/EdgePanel";
@@ -30,8 +31,8 @@ const Panel: FC<PropsPanel> = props => {
       props;
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
    const [elementToShowIsNode, setElementToShowIsNode] = useState<boolean>();
-   const leftKeyPressed = useKeyPress("ArrowLeft");
-   const rightKeyPressed = useKeyPress("ArrowRight");
+   const leftKeyPressed = useKeyPress("-");
+   const rightKeyPressed = useKeyPress("+");
    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
@@ -78,19 +79,11 @@ const Panel: FC<PropsPanel> = props => {
    }, [elementToShow]);
 
    const handleOpenInNewTab = () => {
-      window.open(
-         `${window.location.origin}${window.location.pathname}?${createUrlParamString(
-            "visualizer-search",
-            `g.V(${elementToShow.id})`,
-         )}`,
-         "_blank",
-      );
+      openQueryInNewTab(`g.V(${elementToShow.id})`);
    };
 
    const handlePropEdit = async (propName: string, propValue: string | number | boolean) => {
       const typedPropValue = typeof propValue === "string" ? `'${propValue}'` : propValue;
-
-      console.log(typedPropValue, typeof typedPropValue);
 
       await visualizerGet({
          query: `g.V(${elementToShow.id}).property("${propName}", ${typedPropValue})`,
