@@ -198,29 +198,29 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
  * Receives a query that returns a user and adds properties to it.
  * @param traversal A query with one user vertex
  */
-export function queryToSetUserProps(traversal: Traversal, userProps: Partial<User>): Traversal {
+export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<User>): Traversal {
    editableUserPropsList.forEach(editableUserProp => {
-      if (userProps[editableUserProp] == null) {
+      if (newUserProps[editableUserProp] == null) {
          return;
       }
 
       traversal = traversal.property(
          cardinality.single,
          editableUserProp,
-         serializeIfNeeded(userProps[editableUserProp]),
+         serializeIfNeeded(newUserProps[editableUserProp]),
       );
    });
 
-   if (userProps.images?.length > 0) {
-      traversal = traversal.property(cardinality.single, "imagesAmount", userProps.images?.length);
+   if (newUserProps.images) {
+      traversal = traversal.property(cardinality.single, "imagesAmount", newUserProps.images.length ?? 0);
    }
 
-   if (userProps.genders?.length > 0) {
-      traversal = queryToSetUserGender(traversal, userProps.genders);
+   if (newUserProps.genders?.length > 0) {
+      traversal = queryToSetUserGender(traversal, newUserProps.genders);
    }
 
-   if (userProps.likesGenders?.length > 0) {
-      traversal = queryToSetLikingGender(traversal, userProps.likesGenders);
+   if (newUserProps.likesGenders?.length > 0) {
+      traversal = queryToSetLikingGender(traversal, newUserProps.likesGenders);
    }
 
    return traversal;

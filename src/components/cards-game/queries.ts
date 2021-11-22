@@ -164,6 +164,11 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.not(__.has("banReasonsAmount", P.gt(0)));
 
    /**
+    * User has images
+    */
+   traversal = traversal.has("imagesAmount", P.gt(0));
+
+   /**
     * Order the results
     */
    if (!settings?.unordered) {
@@ -341,6 +346,11 @@ export function queryToGetDemoCardsRecommendations(searcherUser: User) {
     * It's another user (not self)
     */
    traversal = traversal.not(__.has("userId", searcherUser.userId));
+
+   /**
+    * User has images
+    */
+   traversal = traversal.has("imagesAmount", P.gt(0));
 
    return traversal;
 }
