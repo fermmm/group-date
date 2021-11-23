@@ -97,6 +97,10 @@ function queryToGetCardsRecommendations(searcherUser, settings) {
      */
     traversal = traversal.not(database_manager_1.__.has("banReasonsAmount", database_manager_1.P.gt(0)));
     /**
+     * User has images
+     */
+    traversal = traversal.has("imagesAmount", database_manager_1.P.gt(0));
+    /**
      * Order the results
      */
     if (!(settings === null || settings === void 0 ? void 0 : settings.unordered)) {
@@ -232,6 +236,10 @@ function queryToGetDemoCardsRecommendations(searcherUser) {
      * It's another user (not self)
      */
     traversal = traversal.not(database_manager_1.__.has("userId", searcherUser.userId));
+    /**
+     * User has images
+     */
+    traversal = traversal.has("imagesAmount", database_manager_1.P.gt(0));
     return traversal;
 }
 exports.queryToGetDemoCardsRecommendations = queryToGetDemoCardsRecommendations;

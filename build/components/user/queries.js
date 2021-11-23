@@ -152,22 +152,30 @@ exports.queryToRemoveUsers = queryToRemoveUsers;
  * Receives a query that returns a user and adds properties to it.
  * @param traversal A query with one user vertex
  */
-function queryToSetUserProps(traversal, userProps) {
-    var _a, _b, _c, _d;
+function queryToSetUserProps(traversal, newUserProps) {
+    var _a, _b, _c;
+    // Don't save the unicorn hunter as false since we want to know if the user was a unicorn hunter at any time
+    if (newUserProps.isUnicornHunter === false) {
+        delete newUserProps.isUnicornHunter;
+    }
+    // Don't save the unicorn hunter insisting as false since we want to know if the user was a unicorn hunter insisting at any time
+    if (newUserProps.isUnicornHunterInsisting === false) {
+        delete newUserProps.isUnicornHunterInsisting;
+    }
     user_2.editableUserPropsList.forEach(editableUserProp => {
-        if (userProps[editableUserProp] == null) {
+        if (newUserProps[editableUserProp] == null) {
             return;
         }
-        traversal = traversal.property(database_manager_1.cardinality.single, editableUserProp, (0, data_conversion_tools_1.serializeIfNeeded)(userProps[editableUserProp]));
+        traversal = traversal.property(database_manager_1.cardinality.single, editableUserProp, (0, data_conversion_tools_1.serializeIfNeeded)(newUserProps[editableUserProp]));
     });
-    if (((_a = userProps.images) === null || _a === void 0 ? void 0 : _a.length) > 0) {
-        traversal = traversal.property(database_manager_1.cardinality.single, "imagesAmount", (_b = userProps.images) === null || _b === void 0 ? void 0 : _b.length);
+    if (newUserProps.images) {
+        traversal = traversal.property(database_manager_1.cardinality.single, "imagesAmount", (_a = newUserProps.images.length) !== null && _a !== void 0 ? _a : 0);
     }
-    if (((_c = userProps.genders) === null || _c === void 0 ? void 0 : _c.length) > 0) {
-        traversal = queryToSetUserGender(traversal, userProps.genders);
+    if (((_b = newUserProps.genders) === null || _b === void 0 ? void 0 : _b.length) > 0) {
+        traversal = queryToSetUserGender(traversal, newUserProps.genders);
     }
-    if (((_d = userProps.likesGenders) === null || _d === void 0 ? void 0 : _d.length) > 0) {
-        traversal = queryToSetLikingGender(traversal, userProps.likesGenders);
+    if (((_c = newUserProps.likesGenders) === null || _c === void 0 ? void 0 : _c.length) > 0) {
+        traversal = queryToSetLikingGender(traversal, newUserProps.likesGenders);
     }
     return traversal;
 }
