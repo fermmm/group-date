@@ -199,6 +199,16 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
  * @param traversal A query with one user vertex
  */
 export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<User>): Traversal {
+   // Don't save the unicorn hunter as false since we want to know if the user was a unicorn hunter at any time
+   if (newUserProps.isUnicornHunter === false) {
+      delete newUserProps.isUnicornHunter;
+   }
+
+   // Don't save the unicorn hunter insisting as false since we want to know if the user was a unicorn hunter insisting at any time
+   if (newUserProps.isUnicornHunterInsisting === false) {
+      delete newUserProps.isUnicornHunterInsisting;
+   }
+
    editableUserPropsList.forEach(editableUserProp => {
       if (newUserProps[editableUserProp] == null) {
          return;
