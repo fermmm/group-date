@@ -44,11 +44,13 @@ const REGISTRATION_USER_PROPS_SCHEMA = {
 };
 
 /**
- * These props list are not required to finish registration
+ * These props list are not showed on registration and not required to finish registration
  */
 const OTHER_USER_PROPS_SCHEMA = {
    notificationsToken: { type: "string", min: 0, max: 2000, optional: true } as V,
    language: { type: "string", min: 0, max: 100, optional: true } as V,
+   isUnicornHunter: { type: "boolean", optional: true } as V,
+   isUnicornHunterInsisting: { type: "boolean", optional: true } as V,
 };
 
 /**

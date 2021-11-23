@@ -48,6 +48,8 @@ export interface User {
    demoAccount?: boolean;
    banReasonsAmount?: number;
    banReasons?: UserBanReason[];
+   isUnicornHunter?: boolean;
+   isUnicornHunterInsisting?: boolean;
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
