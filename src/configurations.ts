@@ -276,14 +276,14 @@ const unicornQuestion: TagsAsQuestion = {
    text: "What is this app is for?",
    answers: [
       {
-         text: "To find anything: threesome, couple, swinger, etc.",
+         text: "Threesome, finding couple or swinger",
          tagId: "q03-a01",
          category: "App usage",
          tagName: "The app is for anything",
          visible: false,
       },
       {
-         text: "To enjoy the fact of being many in a group where we like each other. Just that.",
+         text: "To enjoy the fact of being many in a group where we like each other",
          tagId: "q03-a00",
          category: "App usage",
          tagName: "Group polyamory",
