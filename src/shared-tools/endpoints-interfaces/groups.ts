@@ -74,6 +74,7 @@ export interface DayOptionsVotePostParams extends BasicGroupParams {
 
 export interface ChatPostParams extends BasicGroupParams {
    message: string;
+   respondingToChatMessageId?: string;
 }
 
 export interface FeedbackPostParams extends BasicGroupParams {

@@ -209,6 +209,7 @@ async function chatPost(params, ctx) {
     group.chat.messages.push({
         chatMessageId: (0, string_tools_1.generateId)(),
         messageText: params.message,
+        respondingToChatMessageId: params.respondingToChatMessageId,
         time: moment().unix(),
         authorUserId: user.userId,
     });

@@ -312,6 +312,7 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
    group.chat.messages.push({
       chatMessageId: generateId(),
       messageText: params.message,
+      respondingToChatMessageId: params.respondingToChatMessageId,
       time: moment().unix(),
       authorUserId: user.userId,
    });
