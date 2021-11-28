@@ -68,7 +68,7 @@
 	"Non binary": "No binario",
 	"Other": "Otro",
 	"Pangender": "Pangénero",
-	"What is this app for?. What do you want it for?": "¿Para qué sirve esta app? ¿Para qué la quieres?",
+	"What would you like to use the app for?": "¿Para qué te gustaría usar la app?",
 	"To enjoy the fact of being many in a group where we like each other": "Para disfrutar el hecho de ser muchxs en un grupo donde nos gustamos",
 	"Group polyamory": "Poliamor grupal",
 	"Threesome": "Para trio",
@@ -91,5 +91,9 @@
 	"Invalid credentials": "Credenciales inválidas",
 	"Invalid token": "Invalid token",
 	"You requested to create a new password": "Has solicitado crear un nuevo password",
-	"Invalid token, please login again": "Token invalido. Vuelve a iniciar sesión"
+	"Invalid token, please login again": "Token invalido. Vuelve a iniciar sesión",
+	"The app is for: Find someone": "The app is for: Find someone",
+	"The app is for: Group polyamory": "The app is for: Group polyamory",
+	"Left-wing / Anarchism": "Left-wing / Anarchism",
+	"Right-wing / Free market": "Right-wing / Free market"
 }

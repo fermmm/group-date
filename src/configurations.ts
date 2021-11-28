@@ -273,7 +273,7 @@ const politicsRightTag: Partial<Tag> = {
  */
 const appUsageQuestion: TagsAsQuestion = {
    questionId: "taq-3-v2",
-   text: "What is this app for?. What do you want it for?",
+   text: "What would you like to use the app for?",
    answers: [
       {
          text: "Threesome",
