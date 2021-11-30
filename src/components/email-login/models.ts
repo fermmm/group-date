@@ -73,7 +73,7 @@ export async function createAccountPost(
             ctx,
          })} ${APPLICATION_NAME} =)</h2>${t("You need to verify your email, click on this link", {
             ctx,
-         })}:<br/><a href="${emailLink}" style="font-size: 22px;">${t("Verify email", {
+         })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t("Verify email", {
             ctx,
          })}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
             ctx,
@@ -221,7 +221,7 @@ export async function resetPasswordPost(
             ctx,
          })} =)</h2><br/>${t("You requested to create a new password", {
             ctx,
-         })}<br/><a href="${emailLink}" style="font-size: 22px;">${t(
+         })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t(
             "Click on this link to create a new password",
             {
                ctx,
