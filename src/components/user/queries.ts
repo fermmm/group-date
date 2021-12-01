@@ -9,7 +9,7 @@ import {
    SetAttractionParams,
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
-import { EditableUserProps, editableUserPropsList } from "../../shared-tools/validators/user";
+import { editableUserPropsList } from "../../shared-tools/validators/user";
 import * as moment from "moment";
 import { ValueOf } from "ts-essentials";
 import { generateId } from "../../common-tools/string-tools/string-tools";
@@ -372,4 +372,33 @@ export function queryToSetLikingGender(traversal: Traversal, genders: Gender[]):
             .addE("likesGender")
             .from_("user"),
       );
+}
+
+/**
+ * This query is called when a user requests a SeenMatch to become a Match, so they can be in a
+ * group together again. This is useful when the group didn't meet because not enough users wanted
+ * to meet but those who wanted to meet can request to be in a group together again.
+ * To make the change is required that both users request the change. So the first user requesting
+ * is only saved and no change is made.
+ */
+export function queryToRemoveSeen(props: { requesterUserId: string; targetUserId: string }): Traversal {
+   const { requesterUserId, targetUserId } = props;
+
+   let traversal = queryToGetUserById(requesterUserId).as("user");
+   traversal = queryToGetUserById(targetUserId, traversal).as("targetUser");
+
+   // Get the seen match edge, we are going to add the request there or replace it.
+   traversal = traversal
+      .bothE("SeenMatch")
+      .where(__.bothV().as("user"))
+
+      .choose(
+         __.has("requestedToRemoveSeen", targetUserId),
+         // If the target user already requested to remove the seen match we replace the SeenMatch by a Match
+         __.sideEffect(__.drop()).select("user").addE("Match").to("targetUser"),
+         // If this is the first request between them we only store the request
+         __.property("requestedToRemoveSeen", requesterUserId),
+      );
+
+   return traversal;
 }

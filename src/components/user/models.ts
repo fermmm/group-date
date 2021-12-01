@@ -5,6 +5,8 @@ import {
    ALL_GENDERS,
    DeleteAccountResponse,
    DeleteAccountPostParams,
+   RequestRemoveSeenPostParams,
+   RequestRemoveSeenResponse,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import {
    isValidNotificationsToken,
@@ -47,6 +49,7 @@ import {
    queryToGetUserByEmail,
    queryToGetUserById,
    queryToGetUserByToken,
+   queryToRemoveSeen,
    queryToSetAttraction,
    queryToSetUserProps,
    queryToUpdateUserProps,
@@ -437,6 +440,34 @@ export async function attractionsReceivedGet(token: string, types?: AttractionTy
  */
 export async function attractionsSentGet(token: string, types?: AttractionType[]): Promise<User[]> {
    return fromQueryToUserList(queryToGetAttractionsSent(token, types), false, false);
+}
+
+/**
+ * This endpoint is called when a user requests a SeenMatch to become a Match, so they can be in a
+ * group together again. This is useful when the group didn't meet because not enough users wanted
+ * to meet but those who wanted to meet can request to be in a group together again.
+ * To make the change is required that both users request the change. So the first user requesting
+ * is only saved and no change is made.
+ */
+export async function removeSeenPost(
+   params: RequestRemoveSeenPostParams,
+   ctx: BaseContext,
+): Promise<RequestRemoveSeenResponse> {
+   const { token, targetUserId } = params;
+
+   const user: Partial<User> = await retrieveUser(token, false, ctx);
+
+   if (user == null) {
+      return;
+   }
+
+   if (user.demoAccount) {
+      return;
+   }
+
+   await sendQuery(() => queryToRemoveSeen({ requesterUserId: user.userId, targetUserId }).iterate());
+
+   return { success: true };
 }
 
 export async function deleteAccountPost(

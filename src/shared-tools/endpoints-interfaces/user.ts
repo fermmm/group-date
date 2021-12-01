@@ -201,3 +201,11 @@ export enum ReportUserType {
    NonEthical = "non-ethical",
    MissingPicture = "missing-picture",
 }
+
+export interface RequestRemoveSeenPostParams extends TokenParameter {
+   targetUserId: string;
+}
+
+export interface RequestRemoveSeenResponse {
+   success: boolean;
+}
