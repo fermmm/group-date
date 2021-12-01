@@ -92,8 +92,6 @@
 	"Invalid token": "Invalid token",
 	"You requested to create a new password": "Has solicitado crear un nuevo password",
 	"Invalid token, please login again": "Token invalido. Vuelve a iniciar sesión",
-	"The app is for: Find someone": "The app is for: Find someone",
-	"The app is for: Group polyamory": "The app is for: Group polyamory",
-	"Left-wing / Anarchism": "Left-wing / Anarchism",
-	"Right-wing / Free market": "Right-wing / Free market"
+	"The app is for: Find someone": "Usar la app para: Encontrar a alguien",
+	"The app is for: Group polyamory": "Usar la app para: Poliamor grupal"
 }
