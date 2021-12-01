@@ -16,7 +16,6 @@ import {
    DateIdeaVotePostParams,
    DayOption,
    DayOptionsVotePostParams,
-   FeedbackPostParams,
    Group,
    IdeaOption,
    SeenByPostParams,
@@ -348,28 +347,6 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
             translateNotification: true,
          },
       );
-   }
-}
-
-/**
- * Endpoint to send feedback about a group experience
- */
-export async function feedbackPost(params: FeedbackPostParams, ctx: BaseContext): Promise<void> {
-   const user: User = await retrieveFullyRegisteredUser(params.token, false, ctx);
-   const group: Group = await getGroupById(params.groupId, {
-      filters: { onlyIfAMemberHasToken: params.token },
-      protectPrivacy: false,
-      ctx,
-   });
-
-   if (group.feedback.find(f => f.userId === user.userId) == null) {
-      group.feedback.push({
-         userId: user.userId,
-         feedbackType: params.feedback.feedbackType,
-         description: params.feedback.description,
-      });
-
-      await queryToUpdateGroupProperty({ groupId: group.groupId, feedback: group.feedback });
    }
 }
 

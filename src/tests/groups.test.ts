@@ -4,8 +4,6 @@ import {
    createGroup,
    dateDayVotePost,
    dateIdeaVotePost,
-   feedbackPost,
-   getGroupById,
    getSlotIdFromUsersAmount,
    groupGet,
    chatGet,
@@ -15,7 +13,7 @@ import {
 import { queryToRemoveGroups } from "../components/groups/queries";
 import { retrieveFullyRegisteredUser, retrieveUser } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
-import { ExperienceFeedbackType, Group } from "../shared-tools/endpoints-interfaces/groups";
+import { Group } from "../shared-tools/endpoints-interfaces/groups";
 import { NotificationType, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createFakeUsers, getAllTestUsersCreated } from "./tools/users";
@@ -189,33 +187,6 @@ describe("Groups", () => {
          fakeCtx,
       );
       expect(unreadMessages.unread).toBe(5);
-   });
-
-   test("Feedback gets saved correctly", async () => {
-      await feedbackPost(
-         {
-            token: mainUser.token,
-            groupId: group.groupId,
-            feedback: {
-               feedbackType: ExperienceFeedbackType.AssistedAndLovedIt,
-               description: "Everything went so good!. I love the world!",
-            },
-         },
-         fakeCtx,
-      );
-      await feedbackPost(
-         {
-            token: mainUser2.token,
-            groupId: group.groupId,
-            feedback: {
-               feedbackType: ExperienceFeedbackType.DidntWantToGo,
-               description: "I hate this app.",
-            },
-         },
-         fakeCtx,
-      );
-      group = await getGroupById(group.groupId, { protectPrivacy: false });
-      expect(group.feedback.length).toBe(2);
    });
 
    test("User groups are retrieved correctly", async () => {

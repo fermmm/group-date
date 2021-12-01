@@ -4,7 +4,6 @@ import {
    chatPost,
    dateDayVotePost,
    dateIdeaVotePost,
-   feedbackPost,
    groupGet,
    userGroupsGet,
    chatGet,
@@ -24,5 +23,4 @@ export function groupsRoutes(r: Router): void {
    createRoute(r, "/group/days/vote", "POST", dateDayVotePost);
    createRoute(r, "/group/chat", "POST", chatPost);
    createRoute(r, "/group/seen", "POST", groupSeenPost);
-   createRoute(r, "/group/feedback", "POST", feedbackPost);
 }

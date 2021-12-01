@@ -12,7 +12,6 @@ export interface Group {
    dateIdeasVotes: IdeaOption[];
    dayOptions: DayOption[];
    openForMoreUsers: boolean;
-   feedback: ExperienceFeedback[];
    matches: UserWithMatches[];
    mostVotedDate?: number;
    mostVotedIdea?: string;
@@ -43,22 +42,6 @@ export interface IdeaOption {
    votersUserId: string[];
 }
 
-export interface ExperienceFeedback {
-   userId: string;
-   feedbackType: ExperienceFeedbackType;
-   description?: string;
-}
-
-export enum ExperienceFeedbackType {
-   DidntWantToGo = "DidntWantToGo",
-   CouldNotGo = "CouldNotGo",
-   NoCommunication = "NoCommunication",
-   NoInterestFromGroup = "NoInterestFromGroup",
-   AssistedAndLiked = "AssistedAndLiked",
-   AssistedAndNotLiked = "AssistedAndNotLiked",
-   AssistedAndLovedIt = "AssistedAndLovedIt",
-}
-
 export interface BasicGroupParams {
    token: string;
    groupId: string;
@@ -74,10 +57,7 @@ export interface DayOptionsVotePostParams extends BasicGroupParams {
 
 export interface ChatPostParams extends BasicGroupParams {
    message: string;
-}
-
-export interface FeedbackPostParams extends BasicGroupParams {
-   feedback: Omit<ExperienceFeedback, "userId">;
+   respondingToChatMessageId?: string;
 }
 
 export interface UserWithMatches {

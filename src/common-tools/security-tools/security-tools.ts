@@ -50,7 +50,8 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
  * Removes group props and member user props that should never get out of the server
  */
 export function removePrivacySensitiveGroupProps(group: Group): Group {
-   delete group.feedback;
+   // Here you delete all the group props that should never get out of the server
+   // delete group.whatever;
    return group;
 }
 

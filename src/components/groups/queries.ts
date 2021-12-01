@@ -31,8 +31,7 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property(cardinality.single, "initialQuality", params.initialQuality ?? GroupQuality.Good)
       .property(cardinality.single, "reminder1NotificationSent", false)
       .property(cardinality.single, "reminder2NotificationSent", false)
-      .property(cardinality.single, "seenBy", serializeIfNeeded([]))
-      .property(cardinality.single, "feedback", serializeIfNeeded([]));
+      .property(cardinality.single, "seenBy", serializeIfNeeded([]));
 
    if (params.initialUsers != null) {
       traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
