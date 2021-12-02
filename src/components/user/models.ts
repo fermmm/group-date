@@ -7,6 +7,9 @@ import {
    DeleteAccountPostParams,
    RequestRemoveSeenPostParams,
    RequestRemoveSeenResponse,
+   TaskCompletedPostParams,
+   TaskCompletedResponse,
+   RequiredTask,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import {
    isValidNotificationsToken,
@@ -468,6 +471,58 @@ export async function removeSeenPost(
    await sendQuery(() => queryToRemoveSeen({ requesterUserId: user.userId, targetUserId }).iterate());
 
    return { success: true };
+}
+
+/**
+ * This function is not an endpoint. Is called internally to add a required task to a user.
+ * Required tasks is an array in the user props that contains information about the tasks that the user
+ * has to complete at login.
+ */
+export async function createRequiredTaskForUser(params: { userId: string; task: RequiredTask }) {
+   const { userId, task } = params;
+
+   const user = await fromQueryToUser(queryToGetUserById(userId), false);
+
+   if (user == null) {
+      return;
+   }
+
+   const newRequiredTasks = [...(user.requiredTasks ?? []), task];
+
+   await sendQuery(() =>
+      queryToGetUserById(userId)
+         .property(cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
+         .iterate(),
+   );
+}
+
+/**
+ * This endpoint is called to notify that the user completed a required task. Removes the fist task of the list.
+ * Required tasks is an array in the user props that contains information about the tasks that the user
+ * has to complete at login.
+ */
+export async function taskCompletedPost(
+   params: TaskCompletedPostParams,
+   ctx: BaseContext,
+): Promise<TaskCompletedResponse> {
+   const { token } = params;
+
+   const user: Partial<User> = await retrieveUser(token, false, ctx);
+
+   if (user == null) {
+      return;
+   }
+
+   const newRequiredTasks = [...(user.requiredTasks ?? [])];
+   const taskRemoved = newRequiredTasks.shift();
+
+   await sendQuery(() =>
+      queryToGetUserByToken(params.token)
+         .property(cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
+         .iterate(),
+   );
+
+   return { success: true, taskRemoved };
 }
 
 export async function deleteAccountPost(

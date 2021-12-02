@@ -380,6 +380,8 @@ export function queryToSetLikingGender(traversal: Traversal, genders: Gender[]):
  * to meet but those who wanted to meet can request to be in a group together again.
  * To make the change is required that both users request the change. So the first user requesting
  * is only saved and no change is made.
+ *
+ * https://gremlify.com/fnm8oj1ni5s
  */
 export function queryToRemoveSeen(props: { requesterUserId: string; targetUserId: string }): Traversal {
    const { requesterUserId, targetUserId } = props;

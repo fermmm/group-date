@@ -61,6 +61,7 @@ export function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinVa
       "genders",
       "likesGenders",
       "banReasons",
+      "requiredTasks",
    ]);
 
    return result;

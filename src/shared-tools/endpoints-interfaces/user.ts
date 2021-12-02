@@ -50,6 +50,7 @@ export interface User {
    banReasons?: UserBanReason[];
    isUnicornHunter?: boolean;
    isUnicornHunterInsisting?: boolean;
+   requiredTasks?: RequiredTask[];
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
@@ -208,4 +209,20 @@ export interface RequestRemoveSeenPostParams extends TokenParameter {
 
 export interface RequestRemoveSeenResponse {
    success: boolean;
+}
+
+export interface RequiredTask {
+   type: RequiredTasksType;
+   taskInfo?: string;
+}
+
+export interface TaskCompletedPostParams extends TokenParameter {}
+
+export interface TaskCompletedResponse {
+   success: true;
+   taskRemoved: RequiredTask;
+}
+
+export enum RequiredTasksType {
+   RemoveSeen = "RemoveSeen",
 }
