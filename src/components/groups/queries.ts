@@ -3,7 +3,7 @@ import { MarkRequired } from "ts-essentials";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, column, g, P, sendQuery, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { GROUP_SLOTS_CONFIGS } from "../../configurations";
+import { GROUP_ACTIVE_TIME, GROUP_SLOTS_CONFIGS } from "../../configurations";
 import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { queryToGetUserByToken } from "../user/queries";
@@ -31,7 +31,8 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property(cardinality.single, "initialQuality", params.initialQuality ?? GroupQuality.Good)
       .property(cardinality.single, "reminder1NotificationSent", false)
       .property(cardinality.single, "reminder2NotificationSent", false)
-      .property(cardinality.single, "seenBy", serializeIfNeeded([]));
+      .property(cardinality.single, "seenBy", serializeIfNeeded([]))
+      .property(cardinality.single, "isActive", true);
 
    if (params.initialUsers != null) {
       traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
@@ -154,13 +155,13 @@ export function queryToGetAllGroups(includeDemoGroups: boolean = false): Travers
 }
 
 export function queryToUpdateGroupProperty(
-   group: MarkRequired<Partial<Group>, "groupId">,
+   newProps: MarkRequired<Partial<Group>, "groupId">,
    filters?: GroupFilters,
 ): Promise<void> {
-   let traversal = queryToGetGroupById(group.groupId, filters);
+   let traversal = queryToGetGroupById(newProps.groupId, filters);
 
-   for (const key of Object.keys(group)) {
-      traversal = traversal.property(cardinality.single, key, serializeIfNeeded(group[key]));
+   for (const key of Object.keys(newProps)) {
+      traversal = traversal.property(cardinality.single, key, serializeIfNeeded(newProps[key]));
    }
 
    return sendQuery(() => traversal.iterate());
@@ -326,6 +327,12 @@ export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
          )
          .iterate(),
    );
+}
+
+export function queryToFindShouldBeInactiveGroups() {
+   let traversal = queryToGetAllGroups();
+   traversal = traversal.has("creationDate", P.lt(moment().unix() - GROUP_ACTIVE_TIME));
+   return traversal;
 }
 
 export interface AddUsersToGroupSettings {

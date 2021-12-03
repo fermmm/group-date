@@ -28,6 +28,9 @@ export async function fromQueryToGroup(
 
 /**
  * Converts a gremlin query that should return a list of groups' vertices into a list of Group as object.
+ * @param protectPrivacy If this group object is going to be sent to the client, this should be true.
+ * @param includeFullDetails Include or not the full group details: members, votes and matches relationships. Default = true
+ * @returns
  */
 export async function fromQueryToGroupList(
    queryOfGroups: Traversal,

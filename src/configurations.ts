@@ -123,6 +123,14 @@ export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
 export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
 
 /**
+ * The time a group is considered active (in seconds). An inactive group currently involves only 2 things:
+ * 1) Can potentially be displayed more hidden in the client app.
+ * 2) When the group becomes inactive all users receive a task where they have to choose who in the group
+ *    they want to see again in future group matches.
+ */
+export const GROUP_ACTIVE_TIME = WEEK_IN_SECONDS * 4;
+
+/**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
  * Quality means more matches between members and better distribution of them.
@@ -480,6 +488,7 @@ i18n.configure({
 export const SEARCH_GROUPS_FREQUENCY = minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(4)
 export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(24)
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(24);
+export const FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = hoursToMilliseconds(24);
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;

@@ -3,6 +3,7 @@ import * as moment from "moment";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import {
    FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY,
+   FIND_INACTIVE_GROUPS_CHECK_FREQUENCY,
    FIRST_DATE_REMINDER_TIME,
    GROUP_SLOTS_CONFIGS,
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
@@ -21,8 +22,13 @@ import {
    SeenByPostParams,
    UnreadMessagesAmount,
 } from "../../shared-tools/endpoints-interfaces/groups";
-import { NotificationChannelId, NotificationType, User } from "../../shared-tools/endpoints-interfaces/user";
-import { addNotificationToUser, retrieveFullyRegisteredUser } from "../user/models";
+import {
+   NotificationChannelId,
+   NotificationType,
+   TaskType,
+   User,
+} from "../../shared-tools/endpoints-interfaces/user";
+import { addNotificationToUser, createRequiredTaskForUser, retrieveFullyRegisteredUser } from "../user/models";
 import {
    GroupFilters,
    queryToFindSlotsToRelease,
@@ -31,6 +37,7 @@ import {
    queryToGetMembersForNewMsgNotification,
    queryToUpdatedReadMessagesAmount,
    queryToUpdateMembershipProperty,
+   queryToFindShouldBeInactiveGroups,
 } from "./queries";
 import {
    AddUsersToGroupSettings,
@@ -52,8 +59,11 @@ import {
    fromQueryToSpecificPropValue,
 } from "../../common-tools/database-tools/data-conversion-tools";
 
+// TODO: Escribir tests de todo
+// TODO: Implementar el envio de notificaciones para las tasks
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
+   setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
    setIntervalAsync(sendDateReminderNotifications, SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
 }
 
@@ -395,6 +405,25 @@ export async function sendDateReminderNotifications(): Promise<void> {
                { sendPushNotification: true, channelId: NotificationChannelId.DateReminders },
             );
          }
+      }
+   }
+}
+
+/**
+ * Find groups that should be set to inactive, this also executed code that should be executed when a
+ * group becomes inactive.
+ */
+export async function findInactiveGroups() {
+   const groups: Group[] = await fromQueryToGroupList(queryToFindShouldBeInactiveGroups(), false, true);
+
+   for (const group of groups) {
+      await queryToUpdateGroupProperty({ groupId: group.groupId, isActive: false });
+
+      for (const member of group.members) {
+         await createRequiredTaskForUser({
+            userId: member.userId,
+            task: { type: TaskType.ShowRemoveSeenMenu, taskInfo: group.groupId },
+         });
       }
    }
 }

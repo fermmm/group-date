@@ -212,7 +212,7 @@ export interface RequestRemoveSeenResponse {
 }
 
 export interface RequiredTask {
-   type: RequiredTasksType;
+   type: TaskType;
    taskInfo?: string;
 }
 
@@ -223,6 +223,6 @@ export interface TaskCompletedResponse {
    taskRemoved: RequiredTask;
 }
 
-export enum RequiredTasksType {
-   RemoveSeen = "RemoveSeen",
+export enum TaskType {
+   ShowRemoveSeenMenu = "ShowRemoveSeenMenu",
 }
