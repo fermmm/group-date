@@ -15,6 +15,8 @@ import { getAllTestUsersCreatedExperimental } from "./_experimental";
 import { APP_AUTHORED_TAGS_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
 import { DeepPartial } from "ts-essentials";
 import { convertToAdmin } from "../../components/admin/models";
+import { g, __ } from "../../common-tools/database-tools/database-manager";
+import { queryToGetUserById } from "../../components/user/queries";
 
 let fakeUsersCreated: DeepPartial<User>[] = [];
 
@@ -175,6 +177,14 @@ export async function createFakeCompatibleUsers(
       result.push(await createFakeUser({ ...compatibleProps, ...(customProps ?? {}) }));
    }
    return result;
+}
+
+export async function getEdgeLabelsBetweenUsers(userId1: string, userId2: string): Promise<string[]> {
+   return (await queryToGetUserById(userId1)
+      .bothE()
+      .where(__.bothV().has("userId", userId2))
+      .label()
+      .toList()) as string[];
 }
 
 export function getAllTestUsersCreated(): User[] {

@@ -59,7 +59,6 @@ import {
    fromQueryToSpecificPropValue,
 } from "../../common-tools/database-tools/data-conversion-tools";
 
-// TODO: Escribir tests de todo
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
    setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);

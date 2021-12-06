@@ -1,4 +1,6 @@
 import "jest";
+import * as JestDateMock from "jest-date-mock";
+import * as GroupCandTestTools from "./tools/group-finder/group-candidate-test-editing";
 import {
    chatPost,
    createGroup,
@@ -9,25 +11,37 @@ import {
    chatGet,
    userGroupsGet,
    chatUnreadAmountGet,
+   findInactiveGroups,
 } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
-import { retrieveFullyRegisteredUser, retrieveUser } from "../components/user/models";
+import { removeSeenPost, retrieveFullyRegisteredUser, retrieveUser, userGet } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
 import { Group } from "../shared-tools/endpoints-interfaces/groups";
-import { NotificationType, User } from "../shared-tools/endpoints-interfaces/user";
+import { NotificationType, TaskType, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
-import { createFakeUsers, getAllTestUsersCreated } from "./tools/users";
+import { createFakeUsers, getAllTestUsersCreated, getEdgeLabelsBetweenUsers } from "./tools/users";
+import { GROUP_ACTIVE_TIME, MIN_GROUP_SIZE } from "../configurations";
+import { createFullUsersFromGroupCandidate } from "./tools/group-finder/user-creation-tools";
+import { hoursToMilliseconds } from "../common-tools/math-tools/general";
 
 describe("Groups", () => {
    let group: Group;
    let group2: Group;
+   let group3: Group;
    let fakeUsers: User[];
+   let fakeMatchingUsers: User[];
    let mainUser: User;
    let mainUser2: User;
    let mainUser3: User;
 
    beforeAll(async () => {
       fakeUsers = await createFakeUsers(10);
+      fakeMatchingUsers = await createFullUsersFromGroupCandidate(
+         GroupCandTestTools.createGroupCandidate({
+            amountOfInitialUsers: MIN_GROUP_SIZE,
+            connectAllWithAll: true,
+         }),
+      );
       mainUser = fakeUsers[0];
       mainUser2 = fakeUsers[1];
       mainUser3 = fakeUsers[2];
@@ -36,6 +50,10 @@ describe("Groups", () => {
          slotToUse: getSlotIdFromUsersAmount(fakeUsers.length),
       });
       group2 = await createGroup({ usersIds: [mainUser2.userId], slotToUse: getSlotIdFromUsersAmount(1) });
+      group3 = await createGroup({
+         usersIds: fakeMatchingUsers.map(u => u.userId),
+         slotToUse: getSlotIdFromUsersAmount(fakeMatchingUsers.length),
+      });
    });
 
    test("Voting dating ideas works correctly and not cheating is allowed", async () => {
@@ -194,6 +212,50 @@ describe("Groups", () => {
       const user2Groups: Group[] = await userGroupsGet({ token: mainUser2.token }, fakeCtx);
       expect(user1Groups.length).toBe(1);
       expect(user2Groups.length).toBe(2);
+   });
+
+   test("Group active property is set to false after some time and related tasks are executed", async () => {
+      await findInactiveGroups();
+
+      group3 = await groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, fakeCtx);
+      expect(group3.isActive).toBeTrue();
+
+      // Simulate time passing
+      JestDateMock.advanceBy(GROUP_ACTIVE_TIME * 1000 + hoursToMilliseconds(1));
+
+      await findInactiveGroups();
+
+      group3 = await groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, fakeCtx);
+      expect(group3.isActive).toBeFalse();
+
+      const updatedUser: Partial<User> = await userGet({ token: fakeMatchingUsers[0].token }, fakeCtx);
+      const removeSeenTask = updatedUser.requiredTasks?.find(t => t.type === TaskType.ShowRemoveSeenMenu);
+
+      expect(removeSeenTask).toBeDefined();
+
+      JestDateMock.clear();
+   });
+
+   test("SeenMatch can be changed to Match when both users request it", async () => {
+      let edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+      expect(edges.includes("SeenMatch")).toBeTrue();
+
+      await removeSeenPost(
+         { token: fakeMatchingUsers[0].token, targetUserId: fakeMatchingUsers[1].token },
+         fakeCtx,
+      );
+
+      edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+      expect(edges.includes("SeenMatch")).toBeTrue();
+
+      await removeSeenPost(
+         { token: fakeMatchingUsers[1].token, targetUserId: fakeMatchingUsers[0].token },
+         fakeCtx,
+      );
+
+      edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+      expect(edges.includes("SeenMatch")).toBeFalse();
+      expect(edges.includes("Match")).toBeTrue();
    });
 
    afterAll(async () => {
