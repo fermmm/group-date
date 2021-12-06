@@ -93,5 +93,7 @@
 	"You requested to create a new password": "Has solicitado crear un nuevo password",
 	"Invalid token, please login again": "Token invalido. Vuelve a iniciar sesión",
 	"The app is for: Find someone": "Usar la app para: Encontrar a alguien",
-	"The app is for: Group polyamory": "Usar la app para: Poliamor grupal"
+	"The app is for: Group polyamory": "Usar la app para: Poliamor grupal",
+	"About your date with": "Sobre tu cita con",
+	"Do you want to see them again in your next date? Choose who": "¿Quieres volver a verles en tu proxima cita? Elige a quienes"
 }

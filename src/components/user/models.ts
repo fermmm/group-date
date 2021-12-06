@@ -478,8 +478,13 @@ export async function removeSeenPost(
  * Required tasks is an array in the user props that contains information about the tasks that the user
  * has to complete at login.
  */
-export async function createRequiredTaskForUser(params: { userId: string; task: RequiredTask }) {
-   const { userId, task } = params;
+export async function createRequiredTaskForUser(params: {
+   userId: string;
+   task: RequiredTask;
+   notification?: NotificationContent;
+   translateNotification?: boolean;
+}) {
+   const { userId, task, notification, translateNotification } = params;
 
    const user = await fromQueryToUser(queryToGetUserById(userId), false);
 
@@ -494,6 +499,13 @@ export async function createRequiredTaskForUser(params: { userId: string; task: 
          .property(cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
          .iterate(),
    );
+
+   if (notification) {
+      await addNotificationToUser({ userId }, notification, {
+         sendPushNotification: true,
+         translateNotification,
+      });
+   }
 }
 
 /**

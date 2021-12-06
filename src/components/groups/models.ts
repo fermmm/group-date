@@ -60,7 +60,6 @@ import {
 } from "../../common-tools/database-tools/data-conversion-tools";
 
 // TODO: Escribir tests de todo
-// TODO: Implementar el envio de notificaciones para las tasks
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
    setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
@@ -418,13 +417,22 @@ export async function findInactiveGroups() {
 
    for (const group of groups) {
       await queryToUpdateGroupProperty({ groupId: group.groupId, isActive: false });
+      await createTaskToShowRemoveSeenMenu(group);
+   }
+}
 
-      for (const member of group.members) {
-         await createRequiredTaskForUser({
-            userId: member.userId,
-            task: { type: TaskType.ShowRemoveSeenMenu, taskInfo: group.groupId },
-         });
-      }
+async function createTaskToShowRemoveSeenMenu(group: Group) {
+   for (const member of group.members) {
+      await createRequiredTaskForUser({
+         userId: member.userId,
+         task: { type: TaskType.ShowRemoveSeenMenu, taskInfo: group.groupId },
+         notification: {
+            type: NotificationType.Group,
+            title: t("About your date with", { user: member }) + " " + group.name,
+            text: t("Do you want to see them again in your next date? Choose who", { user: member }),
+            targetId: group.groupId,
+         },
+      });
    }
 }
 
