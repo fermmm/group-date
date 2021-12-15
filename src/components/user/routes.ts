@@ -15,7 +15,7 @@ import {
    notificationsGet,
    reportUserPost,
    deleteAccountPost,
-   removeSeenPost,
+   setSeenPost,
    taskCompletedPost,
 } from "./models";
 import { imagesLogger } from "../../common-tools/log-tools/log-routes";
@@ -30,7 +30,7 @@ export function userRoutes(r: Router): void {
    createRoute(r, "/user/notifications", "GET", notificationsGet);
 
    createRoute(r, "/user/set-attraction", "POST", setAttractionPost);
-   createRoute(r, "/user/remove-seen", "POST", removeSeenPost);
+   createRoute(r, "/user/set-seen", "POST", setSeenPost);
    createRoute(r, "/user/report", "POST", reportUserPost);
    createRoute(r, "/user/tasks/completed", "POST", taskCompletedPost);
    createRoute(r, "/user/delete", "POST", deleteAccountPost);

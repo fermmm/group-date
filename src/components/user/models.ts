@@ -5,11 +5,12 @@ import {
    ALL_GENDERS,
    DeleteAccountResponse,
    DeleteAccountPostParams,
-   RequestRemoveSeenPostParams,
-   RequestRemoveSeenResponse,
+   SetSeenPostParams,
+   SetSeenResponse,
    TaskCompletedPostParams,
    TaskCompletedResponse,
    RequiredTask,
+   SetSeenAction,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import {
    isValidNotificationsToken,
@@ -452,11 +453,8 @@ export async function attractionsSentGet(token: string, types?: AttractionType[]
  * To make the change is required that both users request the change. So the first user requesting
  * is only saved and no change is made.
  */
-export async function removeSeenPost(
-   params: RequestRemoveSeenPostParams,
-   ctx: BaseContext,
-): Promise<RequestRemoveSeenResponse> {
-   const { token, targetUserId } = params;
+export async function setSeenPost(params: SetSeenPostParams, ctx: BaseContext): Promise<SetSeenResponse> {
+   const { token, setSeenActions } = params;
 
    const user: Partial<User> = await retrieveUser(token, false, ctx);
 
@@ -464,11 +462,18 @@ export async function removeSeenPost(
       return;
    }
 
-   if (user.demoAccount) {
-      return;
+   // This can be optimized by sending the array to the query but this endpoint is not executed very often
+   for (const seenAction of setSeenActions) {
+      // Other actions are not implemented yet, (like set as seen again)
+      if (seenAction.action === SetSeenAction.RequestRemoveSeen) {
+         await sendQuery(() =>
+            queryToRemoveSeen({
+               requesterUserId: user.userId,
+               targetUserId: seenAction.targetUserId,
+            }).iterate(),
+         );
+      }
    }
-
-   await sendQuery(() => queryToRemoveSeen({ requesterUserId: user.userId, targetUserId }).iterate());
 
    return { success: true };
 }
@@ -480,11 +485,12 @@ export async function removeSeenPost(
  */
 export async function createRequiredTaskForUser(params: {
    userId: string;
-   task: RequiredTask;
+   task: Omit<RequiredTask, "taskId">;
    notification?: NotificationContent;
    translateNotification?: boolean;
+   avoidDuplication?: boolean;
 }) {
-   const { userId, task, notification, translateNotification } = params;
+   const { userId, task, notification, translateNotification, avoidDuplication = true } = params;
 
    const user = await fromQueryToUser(queryToGetUserById(userId), false);
 
@@ -492,7 +498,16 @@ export async function createRequiredTaskForUser(params: {
       return;
    }
 
-   const newRequiredTasks = [...(user.requiredTasks ?? []), task];
+   if (avoidDuplication) {
+      const existingTask = user.requiredTasks.find(
+         requiredTask => requiredTask.type === task.type && requiredTask.taskInfo === task.taskInfo,
+      );
+      if (existingTask) {
+         return;
+      }
+   }
+
+   const newRequiredTasks = [...(user.requiredTasks ?? []), { ...task, taskId: generateId() }];
 
    await sendQuery(() =>
       queryToGetUserById(userId)
@@ -509,7 +524,7 @@ export async function createRequiredTaskForUser(params: {
 }
 
 /**
- * This endpoint is called to notify that the user completed a required task. Removes the fist task of the list.
+ * This endpoint is called to notify that the user completed a required task. Removes the task by taskId.
  * Required tasks is an array in the user props that contains information about the tasks that the user
  * has to complete at login.
  */
@@ -517,7 +532,7 @@ export async function taskCompletedPost(
    params: TaskCompletedPostParams,
    ctx: BaseContext,
 ): Promise<TaskCompletedResponse> {
-   const { token } = params;
+   const { token, taskId } = params;
 
    const user: Partial<User> = await retrieveUser(token, false, ctx);
 
@@ -525,8 +540,7 @@ export async function taskCompletedPost(
       return;
    }
 
-   const newRequiredTasks = [...(user.requiredTasks ?? [])];
-   const taskRemoved = newRequiredTasks.shift();
+   const newRequiredTasks = user.requiredTasks.filter(task => task.taskId !== taskId);
 
    await sendQuery(() =>
       queryToGetUserByToken(params.token)
@@ -534,7 +548,7 @@ export async function taskCompletedPost(
          .iterate(),
    );
 
-   return { success: true, taskRemoved };
+   return { success: true };
 }
 
 export async function deleteAccountPost(

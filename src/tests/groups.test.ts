@@ -14,10 +14,10 @@ import {
    findInactiveGroups,
 } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
-import { removeSeenPost, retrieveFullyRegisteredUser, retrieveUser, userGet } from "../components/user/models";
+import { setSeenPost, retrieveFullyRegisteredUser, retrieveUser, userGet } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
 import { Group } from "../shared-tools/endpoints-interfaces/groups";
-import { NotificationType, TaskType, User } from "../shared-tools/endpoints-interfaces/user";
+import { NotificationType, SetSeenAction, TaskType, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createFakeUsers, getAllTestUsersCreated, getEdgeLabelsBetweenUsers } from "./tools/users";
 import { GROUP_ACTIVE_TIME, MIN_GROUP_SIZE } from "../configurations";
@@ -240,16 +240,26 @@ describe("Groups", () => {
       let edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
       expect(edges.includes("SeenMatch")).toBeTrue();
 
-      await removeSeenPost(
-         { token: fakeMatchingUsers[0].token, targetUserId: fakeMatchingUsers[1].token },
+      await setSeenPost(
+         {
+            token: fakeMatchingUsers[0].token,
+            setSeenActions: [
+               { targetUserId: fakeMatchingUsers[1].token, action: SetSeenAction.RequestRemoveSeen },
+            ],
+         },
          fakeCtx,
       );
 
       edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
       expect(edges.includes("SeenMatch")).toBeTrue();
 
-      await removeSeenPost(
-         { token: fakeMatchingUsers[1].token, targetUserId: fakeMatchingUsers[0].token },
+      await setSeenPost(
+         {
+            token: fakeMatchingUsers[1].token,
+            setSeenActions: [
+               { targetUserId: fakeMatchingUsers[0].token, action: SetSeenAction.RequestRemoveSeen },
+            ],
+         },
          fakeCtx,
       );
 

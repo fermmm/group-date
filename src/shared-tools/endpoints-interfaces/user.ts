@@ -203,24 +203,31 @@ export enum ReportUserType {
    MissingPicture = "missing-picture",
 }
 
-export interface RequestRemoveSeenPostParams extends TokenParameter {
-   targetUserId: string;
+export interface SetSeenPostParams extends TokenParameter {
+   setSeenActions: Array<{ targetUserId: string; action: SetSeenAction }>;
 }
 
-export interface RequestRemoveSeenResponse {
+export enum SetSeenAction {
+   RequestRemoveSeen,
+   // SetAsSeen, // Not implemented
+}
+
+export interface SetSeenResponse {
    success: boolean;
 }
 
 export interface RequiredTask {
+   taskId: string;
    type: TaskType;
    taskInfo?: string;
 }
 
-export interface TaskCompletedPostParams extends TokenParameter {}
+export interface TaskCompletedPostParams extends TokenParameter {
+   taskId: string;
+}
 
 export interface TaskCompletedResponse {
    success: true;
-   taskRemoved: RequiredTask;
 }
 
 export enum TaskType {
