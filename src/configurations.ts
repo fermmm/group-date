@@ -281,28 +281,28 @@ const politicsRightTag: Partial<Tag> = {
  */
 const appUsageQuestion: TagsAsQuestion = {
    questionId: "taq-3-v2",
-   text: "What would you like to use the app for?",
+   text: "What kind of date would you like?",
    answers: [
       {
-         text: "Threesome",
-         tagId: "q03-a01-v2",
-         category: "App usage",
-         tagName: "The app is for: Threesome",
-         visible: false,
-      },
-      {
-         text: "Find someone I like",
+         text: "With someone I like, both of us",
          tagId: "q03-a02-v2",
          category: "App usage",
-         tagName: "The app is for: Find someone",
-         visible: false,
+         tagName: "Desired date: With someone",
+         tagIsVisible: false,
       },
       {
-         text: "To enjoy the fact of being many in a group where we like each other",
+         text: "A date of 3, without anyone else",
+         tagId: "q03-a01-v2",
+         category: "App usage",
+         tagName: "Desired date: Only 3 people",
+         tagIsVisible: false,
+      },
+      {
+         text: "A group date where we like each other",
          tagId: "q03-a00-v2",
          category: "App usage",
-         tagName: "The app is for: Group polyamory",
-         visible: false,
+         tagName: "Desired date: Group date",
+         tagIsVisible: false,
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -311,7 +311,7 @@ const appUsageQuestion: TagsAsQuestion = {
       2: [0, 1],
    },
    filterSelectedByDefault: true,
-   filterSelectionInvisible: false, // Enabling this may lead to better results
+   filterSelectionInvisible: true, // Enabling this may lead to better results
 };
 
 const feminismQuestion: TagsAsQuestion = {
