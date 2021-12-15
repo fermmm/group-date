@@ -39,7 +39,7 @@ async function createAccountPost(params, ctx) {
                 ctx,
             })} ${configurations_1.APPLICATION_NAME} =)</h2>${(0, i18n_tools_1.t)("You need to verify your email, click on this link", {
                 ctx,
-            })}:<br/><a href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Verify email", {
+            })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Verify email", {
                 ctx,
             })}</a><br/><br/>${(0, i18n_tools_1.t)("Or if you prefer copy and paste this into your browser", {
                 ctx,
@@ -154,7 +154,7 @@ async function resetPasswordPost(params, ctx) {
                 ctx,
             })} =)</h2><br/>${(0, i18n_tools_1.t)("You requested to create a new password", {
                 ctx,
-            })}<br/><a href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Click on this link to create a new password", {
+            })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Click on this link to create a new password", {
                 ctx,
             })}</a><br/><br/>${(0, i18n_tools_1.t)("Or if you prefer copy and paste this into your browser", {
                 ctx,

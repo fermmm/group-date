@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
+exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
 const user_1 = require("./../../shared-tools/endpoints-interfaces/user");
 const push_notifications_1 = require("./../../common-tools/push-notifications/push-notifications");
 const security_tools_1 = require("./../../common-tools/security-tools/security-tools");
@@ -316,6 +316,80 @@ async function attractionsSentGet(token, types) {
     return (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetAttractionsSent)(token, types), false, false);
 }
 exports.attractionsSentGet = attractionsSentGet;
+/**
+ * This endpoint is called when a user requests a SeenMatch to become a Match, so they can be in a
+ * group together again. This is useful when the group didn't meet because not enough users wanted
+ * to meet but those who wanted to meet can request to be in a group together again.
+ * To make the change is required that both users request the change. So the first user requesting
+ * is only saved and no change is made.
+ */
+async function setSeenPost(params, ctx) {
+    const { token, setSeenActions } = params;
+    const user = await retrieveUser(token, false, ctx);
+    if (user == null) {
+        return;
+    }
+    // This can be optimized by sending the array to the query but this endpoint is not executed very often
+    for (const seenAction of setSeenActions) {
+        // Other actions are not implemented yet, (like set as seen again)
+        if (seenAction.action === user_1.SetSeenAction.RequestRemoveSeen) {
+            await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToRemoveSeen)({
+                requesterUserId: user.userId,
+                targetUserId: seenAction.targetUserId,
+            }).iterate());
+        }
+    }
+    return { success: true };
+}
+exports.setSeenPost = setSeenPost;
+/**
+ * This function is not an endpoint. Is called internally to add a required task to a user.
+ * Required tasks is an array in the user props that contains information about the tasks that the user
+ * has to complete at login.
+ */
+async function createRequiredTaskForUser(params) {
+    var _a;
+    const { userId, task, notification, translateNotification, avoidDuplication = true } = params;
+    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
+    if (user == null) {
+        return;
+    }
+    if (avoidDuplication) {
+        const existingTask = user.requiredTasks.find(requiredTask => requiredTask.type === task.type && requiredTask.taskInfo === task.taskInfo);
+        if (existingTask) {
+            return;
+        }
+    }
+    const newRequiredTasks = [...((_a = user.requiredTasks) !== null && _a !== void 0 ? _a : []), { ...task, taskId: (0, string_tools_1.generateId)() }];
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
+        .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
+        .iterate());
+    if (notification) {
+        await addNotificationToUser({ userId }, notification, {
+            sendPushNotification: true,
+            translateNotification,
+        });
+    }
+}
+exports.createRequiredTaskForUser = createRequiredTaskForUser;
+/**
+ * This endpoint is called to notify that the user completed a required task. Removes the task by taskId.
+ * Required tasks is an array in the user props that contains information about the tasks that the user
+ * has to complete at login.
+ */
+async function taskCompletedPost(params, ctx) {
+    const { token, taskId } = params;
+    const user = await retrieveUser(token, false, ctx);
+    if (user == null) {
+        return;
+    }
+    const newRequiredTasks = user.requiredTasks.filter(task => task.taskId !== taskId);
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByToken)(params.token)
+        .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
+        .iterate());
+    return { success: true };
+}
+exports.taskCompletedPost = taskCompletedPost;
 async function deleteAccountPost(params, ctx) {
     const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(params.token), false);
     if (user == null) {

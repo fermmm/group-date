@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
+exports.queryToRemoveSeen = exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
@@ -281,4 +281,29 @@ function queryToSetLikingGender(traversal, genders) {
         .from_("user"));
 }
 exports.queryToSetLikingGender = queryToSetLikingGender;
+/**
+ * This query is called when a user requests a SeenMatch to become a Match, so they can be in a
+ * group together again. This is useful when the group didn't meet because not enough users wanted
+ * to meet but those who wanted to meet can request for a second chance.
+ * To make the change is required that both users request the change. So the first user requesting
+ * is only saved and no change is made.
+ *
+ * https://gremlify.com/fnm8oj1ni5s
+ */
+function queryToRemoveSeen(props) {
+    const { requesterUserId, targetUserId } = props;
+    let traversal = queryToGetUserById(requesterUserId).as("user");
+    traversal = queryToGetUserById(targetUserId, traversal).as("targetUser");
+    // Get the seen match edge, we are going to add the request there or replace it.
+    traversal = traversal
+        .bothE("SeenMatch")
+        .where(database_manager_1.__.bothV().as("user"))
+        .choose(database_manager_1.__.has("requestedToRemoveSeen", targetUserId), 
+    // If the target user already requested to remove the seen match we replace the SeenMatch by a Match
+    database_manager_1.__.sideEffect(database_manager_1.__.drop()).select("user").addE("Match").to("targetUser"), 
+    // If this is the first request between them we only store the request
+    database_manager_1.__.property("requestedToRemoveSeen", requesterUserId));
+    return traversal;
+}
+exports.queryToRemoveSeen = queryToRemoveSeen;
 //# sourceMappingURL=queries.js.map

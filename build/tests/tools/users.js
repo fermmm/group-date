@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllTestUsersCreated = exports.createFakeCompatibleUsers = exports.setAttractionAllWithAll = exports.setAttractionMatch = exports.setAttraction = exports.getRandomFakeImage = exports.generateRandomUserProps = exports.createMultipleFakeCustomUsers = exports.createFakeUser = exports.createFakeUsers = void 0;
+exports.getAllTestUsersCreated = exports.getEdgeLabelsBetweenUsers = exports.createFakeCompatibleUsers = exports.setAttractionAllWithAll = exports.setAttractionMatch = exports.setAttraction = exports.getRandomFakeImage = exports.generateRandomUserProps = exports.createMultipleFakeCustomUsers = exports.createFakeUser = exports.createFakeUsers = void 0;
 const moment = require("moment");
 const date_tools_1 = require("./../../common-tools/math-tools/date-tools");
 const models_1 = require("../../components/user/models");
@@ -11,6 +11,8 @@ const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const _experimental_1 = require("./_experimental");
 const configurations_1 = require("../../configurations");
 const models_2 = require("../../components/admin/models");
+const database_manager_1 = require("../../common-tools/database-tools/database-manager");
+const queries_1 = require("../../components/user/queries");
 let fakeUsersCreated = [];
 async function createFakeUsers(amount, customParams) {
     const users = [];
@@ -150,6 +152,14 @@ async function createFakeCompatibleUsers(user, amount, customProps) {
     return result;
 }
 exports.createFakeCompatibleUsers = createFakeCompatibleUsers;
+async function getEdgeLabelsBetweenUsers(userId1, userId2) {
+    return (await (0, queries_1.queryToGetUserById)(userId1)
+        .bothE()
+        .where(database_manager_1.__.bothV().has("userId", userId2))
+        .label()
+        .toList());
+}
+exports.getEdgeLabelsBetweenUsers = getEdgeLabelsBetweenUsers;
 function getAllTestUsersCreated() {
     const result = [...fakeUsersCreated, ...(0, _experimental_1.getAllTestUsersCreatedExperimental)()];
     fakeUsersCreated = [];

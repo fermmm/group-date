@@ -153,7 +153,7 @@ async function creteAppAuthoredTags() {
             tagId: answer.tagId,
             category: answer.category,
             name: answer.tagName,
-            visible: (_a = answer.visible) !== null && _a !== void 0 ? _a : true,
+            visible: (_a = answer.tagIsVisible) !== null && _a !== void 0 ? _a : true,
             country: "all",
             creationDate: moment().unix(),
             lastInteractionDate: moment().unix(),

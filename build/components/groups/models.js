@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSlotIdFromUsersAmount = exports.sendDateReminderNotifications = exports.findSlotsToRelease = exports.feedbackPost = exports.chatPost = exports.voteResultGet = exports.chatUnreadAmountGet = exports.chatGet = exports.dateDayVotePost = exports.dateIdeaVotePost = exports.groupSeenPost = exports.userGroupsGet = exports.groupGet = exports.addUsersToGroup = exports.getGroupById = exports.createGroup = exports.initializeGroups = void 0;
+exports.getSlotIdFromUsersAmount = exports.findInactiveGroups = exports.sendDateReminderNotifications = exports.findSlotsToRelease = exports.chatPost = exports.voteResultGet = exports.chatUnreadAmountGet = exports.chatGet = exports.dateDayVotePost = exports.dateIdeaVotePost = exports.groupSeenPost = exports.userGroupsGet = exports.groupGet = exports.addUsersToGroup = exports.getGroupById = exports.createGroup = exports.initializeGroups = void 0;
 const moment = require("moment");
 const dynamic_1 = require("set-interval-async/dynamic");
 const configurations_1 = require("../../configurations");
@@ -16,6 +16,9 @@ const data_conversion_tools_1 = require("../../common-tools/database-tools/data-
 async function initializeGroups() {
     (0, dynamic_1.setIntervalAsync)(findSlotsToRelease, configurations_1.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
     (0, dynamic_1.setIntervalAsync)(sendDateReminderNotifications, configurations_1.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
+    // TODO: Enable this when the published client supports it
+    // setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
+    // findInactiveGroups();
 }
 exports.initializeGroups = initializeGroups;
 /**
@@ -238,26 +241,6 @@ async function chatPost(params, ctx) {
     }
 }
 exports.chatPost = chatPost;
-/**
- * Endpoint to send feedback about a group experience
- */
-async function feedbackPost(params, ctx) {
-    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, false, ctx);
-    const group = await getGroupById(params.groupId, {
-        filters: { onlyIfAMemberHasToken: params.token },
-        protectPrivacy: false,
-        ctx,
-    });
-    if (group.feedback.find(f => f.userId === user.userId) == null) {
-        group.feedback.push({
-            userId: user.userId,
-            feedbackType: params.feedback.feedbackType,
-            description: params.feedback.description,
-        });
-        await (0, queries_2.queryToUpdateGroupProperty)({ groupId: group.groupId, feedback: group.feedback });
-    }
-}
-exports.feedbackPost = feedbackPost;
 async function findSlotsToRelease() {
     const porfiler = logTimeToFile("groupsTasks");
     await (0, queries_1.queryToFindSlotsToRelease)().iterate();
@@ -290,6 +273,32 @@ async function sendDateReminderNotifications() {
     }
 }
 exports.sendDateReminderNotifications = sendDateReminderNotifications;
+/**
+ * Find groups that should be set to inactive, this also executed code that should be executed when a
+ * group becomes inactive.
+ */
+async function findInactiveGroups() {
+    const groups = await (0, data_conversion_1.fromQueryToGroupList)((0, queries_1.queryToFindShouldBeInactiveGroups)(), false, true);
+    for (const group of groups) {
+        await (0, queries_2.queryToUpdateGroupProperty)({ groupId: group.groupId, isActive: false });
+        await createTaskToShowRemoveSeenMenu(group);
+    }
+}
+exports.findInactiveGroups = findInactiveGroups;
+async function createTaskToShowRemoveSeenMenu(group) {
+    for (const member of group.members) {
+        await (0, models_1.createRequiredTaskForUser)({
+            userId: member.userId,
+            task: { type: user_1.TaskType.ShowRemoveSeenMenu, taskInfo: group.groupId },
+            notification: {
+                type: user_1.NotificationType.Group,
+                title: (0, i18n_tools_1.t)("About your date with", { user: member }) + " " + group.name,
+                text: (0, i18n_tools_1.t)("Do you want to see them again in your next date? Choose who", { user: member }),
+                targetId: group.groupId,
+            },
+        });
+    }
+}
 function getComingWeekendDays(limitAmount) {
     const result = [];
     let i = 1;

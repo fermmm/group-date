@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReportUserType = exports.NotificationChannelId = exports.allMatchTypes = exports.allAttractionTypes = exports.NotificationType = exports.MatchType = exports.AttractionType = exports.NON_CIS_GENDERS = exports.TRANS_GENDERS = exports.CIS_GENDERS = exports.ALL_GENDERS = exports.Gender = void 0;
+exports.TaskType = exports.SetSeenAction = exports.ReportUserType = exports.NotificationChannelId = exports.allMatchTypes = exports.allAttractionTypes = exports.NotificationType = exports.MatchType = exports.AttractionType = exports.NON_CIS_GENDERS = exports.TRANS_GENDERS = exports.CIS_GENDERS = exports.ALL_GENDERS = exports.Gender = void 0;
 /**
  * The order here in this enum determines the order the genders will appear in some places
  */
@@ -61,4 +61,13 @@ var ReportUserType;
     ReportUserType["NonEthical"] = "non-ethical";
     ReportUserType["MissingPicture"] = "missing-picture";
 })(ReportUserType = exports.ReportUserType || (exports.ReportUserType = {}));
+var SetSeenAction;
+(function (SetSeenAction) {
+    SetSeenAction[SetSeenAction["RequestRemoveSeen"] = 0] = "RequestRemoveSeen";
+    // SetAsSeen, // Not implemented
+})(SetSeenAction = exports.SetSeenAction || (exports.SetSeenAction = {}));
+var TaskType;
+(function (TaskType) {
+    TaskType["ShowRemoveSeenMenu"] = "ShowRemoveSeenMenu";
+})(TaskType = exports.TaskType || (exports.TaskType = {}));
 //# sourceMappingURL=user.js.map

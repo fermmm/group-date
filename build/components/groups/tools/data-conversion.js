@@ -17,6 +17,9 @@ async function fromQueryToGroup(queryOfGroup, protectPrivacy = true, includeFull
 exports.fromQueryToGroup = fromQueryToGroup;
 /**
  * Converts a gremlin query that should return a list of groups' vertices into a list of Group as object.
+ * @param protectPrivacy If this group object is going to be sent to the client, this should be true.
+ * @param includeFullDetails Include or not the full group details: members, votes and matches relationships. Default = true
+ * @returns
  */
 async function fromQueryToGroupList(queryOfGroups, protectPrivacy = true, includeFullDetails = true) {
     const resultGremlinOutput = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetGroupsInFinalFormat)(queryOfGroups, includeFullDetails).toList()));
@@ -42,7 +45,7 @@ function fromGremlinMapToGroup(groupFromDatabase, protectPrivacy = true) {
     });
     groupFromDatabase.delete("members");
     // Now the rest of the group properties can be converted
-    const group = (0, data_conversion_tools_1.fromGremlinMapToObject)(groupFromDatabase, ["chat", "dayOptions", "feedback", "seenBy"]);
+    const group = (0, data_conversion_tools_1.fromGremlinMapToObject)(groupFromDatabase, ["chat", "dayOptions", "seenBy"]);
     group.members = membersConverted;
     if (protectPrivacy) {
         return (0, security_tools_1.removePrivacySensitiveGroupProps)(group);

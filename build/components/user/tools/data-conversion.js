@@ -56,6 +56,7 @@ function fromGremlinMapToUser(userFromDatabase) {
         "genders",
         "likesGenders",
         "banReasons",
+        "requiredTasks",
     ]);
     return result;
 }

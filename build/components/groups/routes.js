@@ -13,7 +13,6 @@ function groupsRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/group/days/vote", "POST", models_1.dateDayVotePost);
     (0, route_tools_1.createRoute)(r, "/group/chat", "POST", models_1.chatPost);
     (0, route_tools_1.createRoute)(r, "/group/seen", "POST", models_1.groupSeenPost);
-    (0, route_tools_1.createRoute)(r, "/group/feedback", "POST", models_1.feedbackPost);
 }
 exports.groupsRoutes = groupsRoutes;
 //# sourceMappingURL=routes.js.map

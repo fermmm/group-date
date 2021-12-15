@@ -40,6 +40,7 @@ function removePrivacySensitiveUserProps(user) {
     delete user.registrationDate;
     delete user.banReasonsAmount;
     delete user.banReasons;
+    delete user.requiredTasks;
     return user;
 }
 exports.removePrivacySensitiveUserProps = removePrivacySensitiveUserProps;
@@ -47,7 +48,8 @@ exports.removePrivacySensitiveUserProps = removePrivacySensitiveUserProps;
  * Removes group props and member user props that should never get out of the server
  */
 function removePrivacySensitiveGroupProps(group) {
-    delete group.feedback;
+    // Here you delete all the group props that should never get out of the server
+    // delete group.whatever;
     return group;
 }
 exports.removePrivacySensitiveGroupProps = removePrivacySensitiveGroupProps;

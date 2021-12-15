@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = exports.DATABASE_BACKUP_HOUR = exports.DATABASE_BACKUP_MONTHLY = exports.DATABASE_BACKUP_WEEKLY = exports.DATABASE_BACKUP_DAILY = exports.ENABLE_MULTITHREADING_IN_GROUP_FINDER = exports.SINGLE_QUERY_GROUP_FINDER = exports.SMALL_IMAGE_SIZE = exports.BIG_IMAGE_SIZE = exports.MAX_FILE_SIZE_UPLOAD_ALLOWED = exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = exports.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = exports.SEARCH_GROUPS_FREQUENCY = exports.DEFAULT_LANGUAGE = exports.PUSH_NOTIFICATION_CHANNELS = exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = exports.SECOND_DATE_REMINDER_TIME = exports.FIRST_DATE_REMINDER_TIME = exports.USER_PROPS_AS_QUESTIONS = exports.APP_AUTHORED_TAGS = exports.APP_AUTHORED_TAGS_AS_QUESTIONS = exports.MAX_TAG_SUBSCRIPTIONS_ALLOWED = exports.TAG_CREATION_TIME_FRAME = exports.TAGS_PER_TIME_FRAME = exports.SHUFFLE_LIKING_NON_LIKING_RESULTS = exports.NON_SEARCHER_LIKING_CHUNK = exports.SEARCHER_LIKING_CHUNK = exports.MAXIMUM_INACTIVITY_FOR_CARDS = exports.MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = exports.EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = exports.MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = exports.MAX_WEEKEND_DAYS_VOTE_OPTIONS = exports.MAX_CONNECTIONS_POSSIBLE_IN_REALITY = exports.ALLOW_SMALL_GROUPS_BECOME_BIG = exports.ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS = exports.CREATE_BIGGER_GROUPS_FIRST = exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = exports.FORM_BAD_QUALITY_GROUPS_TIME = exports.SEARCH_BAD_QUALITY_GROUPS = exports.GROUP_SLOTS_CONFIGS = exports.MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = exports.MAX_GROUP_SIZE = exports.MIN_GROUP_SIZE = exports.USERS_API_PATH = exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = exports.APPLICATION_NAME = void 0;
-exports.DEMO_ACCOUNTS = exports.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT = exports.LOG_IMAGE_ACCESS = exports.LOG_ROUTE_ACCESS = exports.REPORT_DATABASE_RETRYING = exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = exports.LOG_USAGE_REPORT_FREQUENCY = exports.LOG_FILES = void 0;
+exports.DATABASE_BACKUP_MONTHLY = exports.DATABASE_BACKUP_WEEKLY = exports.DATABASE_BACKUP_DAILY = exports.ENABLE_MULTITHREADING_IN_GROUP_FINDER = exports.SINGLE_QUERY_GROUP_FINDER = exports.SMALL_IMAGE_SIZE = exports.BIG_IMAGE_SIZE = exports.MAX_FILE_SIZE_UPLOAD_ALLOWED = exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = exports.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = exports.SEARCH_GROUPS_FREQUENCY = exports.DEFAULT_LANGUAGE = exports.PUSH_NOTIFICATION_CHANNELS = exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = exports.SECOND_DATE_REMINDER_TIME = exports.FIRST_DATE_REMINDER_TIME = exports.USER_PROPS_AS_QUESTIONS = exports.APP_AUTHORED_TAGS = exports.APP_AUTHORED_TAGS_AS_QUESTIONS = exports.MAX_TAG_SUBSCRIPTIONS_ALLOWED = exports.TAG_CREATION_TIME_FRAME = exports.TAGS_PER_TIME_FRAME = exports.SHUFFLE_LIKING_NON_LIKING_RESULTS = exports.NON_SEARCHER_LIKING_CHUNK = exports.SEARCHER_LIKING_CHUNK = exports.MAXIMUM_INACTIVITY_FOR_CARDS = exports.MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = exports.EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = exports.MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = exports.MAX_WEEKEND_DAYS_VOTE_OPTIONS = exports.MAX_CONNECTIONS_POSSIBLE_IN_REALITY = exports.ALLOW_SMALL_GROUPS_BECOME_BIG = exports.ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS = exports.CREATE_BIGGER_GROUPS_FIRST = exports.GROUP_ACTIVE_TIME = exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = exports.FORM_BAD_QUALITY_GROUPS_TIME = exports.SEARCH_BAD_QUALITY_GROUPS = exports.GROUP_SLOTS_CONFIGS = exports.MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = exports.MAX_GROUP_SIZE = exports.MIN_GROUP_SIZE = exports.USERS_API_PATH = exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = exports.APPLICATION_NAME = void 0;
+exports.DEMO_ACCOUNTS = exports.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT = exports.LOG_IMAGE_ACCESS = exports.LOG_ROUTE_ACCESS = exports.REPORT_DATABASE_RETRYING = exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = exports.LOG_USAGE_REPORT_FREQUENCY = exports.LOG_FILES = exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = exports.DATABASE_BACKUP_HOUR = void 0;
 const appRoot = require("app-root-path");
 const i18n = require("i18n");
 const path = require("path");
@@ -106,6 +106,13 @@ exports.FORM_BAD_QUALITY_GROUPS_TIME = constants_1.WEEK_IN_SECONDS * 6;
  * are now "seen matches". So it's a good idea to keep this setting low.
  */
 exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = constants_1.DAY_IN_SECONDS * 2;
+/**
+ * The time a group is considered active (in seconds). An inactive group currently involves only 2 things:
+ * 1) Can potentially be displayed more hidden in the client app.
+ * 2) When the group becomes inactive all users receive a task where they have to choose who in the group
+ *    they want to see again in future group matches.
+ */
+exports.GROUP_ACTIVE_TIME = constants_1.WEEK_IN_SECONDS * 4;
 /**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
@@ -239,28 +246,28 @@ const politicsRightTag = {
  */
 const appUsageQuestion = {
     questionId: "taq-3-v2",
-    text: "What would you like to use the app for?",
+    text: "What kind of date would you like?",
     answers: [
         {
-            text: "Threesome",
-            tagId: "q03-a01-v2",
-            category: "App usage",
-            tagName: "The app is for: Threesome",
-            visible: false,
-        },
-        {
-            text: "Find someone I like",
+            text: "With someone I like, both of us",
             tagId: "q03-a02-v2",
             category: "App usage",
-            tagName: "The app is for: Find someone",
-            visible: false,
+            tagName: "Desired date: With someone",
+            tagIsVisible: false,
         },
         {
-            text: "To enjoy the fact of being many in a group where we like each other",
+            text: "A date of 3, without anyone else",
+            tagId: "q03-a01-v2",
+            category: "App usage",
+            tagName: "Desired date: Only 3 people",
+            tagIsVisible: false,
+        },
+        {
+            text: "A group date where we like each other",
             tagId: "q03-a00-v2",
             category: "App usage",
-            tagName: "The app is for: Group polyamory",
-            visible: false,
+            tagName: "Desired date: Group date",
+            tagIsVisible: false,
         },
     ],
     incompatibilitiesBetweenAnswers: {
@@ -269,7 +276,7 @@ const appUsageQuestion = {
         2: [0, 1],
     },
     filterSelectedByDefault: true,
-    filterSelectionInvisible: false, // Enabling this may lead to better results
+    filterSelectionInvisible: true, // Enabling this may lead to better results
 };
 const feminismQuestion = {
     questionId: "taq-0",
@@ -430,6 +437,7 @@ i18n.configure({
 exports.SEARCH_GROUPS_FREQUENCY = (0, general_1.minutesToMilliseconds)(5); // In the final version this should be: hoursToMilliseconds(4)
 exports.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = (0, general_1.minutesToMilliseconds)(5); // In the final version this should be: hoursToMilliseconds(24)
 exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = (0, general_1.hoursToMilliseconds)(24);
+exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = (0, general_1.hoursToMilliseconds)(24);
 exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;

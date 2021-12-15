@@ -1,23 +1,33 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("jest");
+const JestDateMock = require("jest-date-mock");
+const GroupCandTestTools = require("./tools/group-finder/group-candidate-test-editing");
 const models_1 = require("../components/groups/models");
 const queries_1 = require("../components/groups/queries");
 const models_2 = require("../components/user/models");
 const queries_2 = require("../components/user/queries");
-const groups_1 = require("../shared-tools/endpoints-interfaces/groups");
 const user_1 = require("../shared-tools/endpoints-interfaces/user");
 const replacements_1 = require("./tools/replacements");
 const users_1 = require("./tools/users");
+const configurations_1 = require("../configurations");
+const user_creation_tools_1 = require("./tools/group-finder/user-creation-tools");
+const general_1 = require("../common-tools/math-tools/general");
 describe("Groups", () => {
     let group;
     let group2;
+    let group3;
     let fakeUsers;
+    let fakeMatchingUsers;
     let mainUser;
     let mainUser2;
     let mainUser3;
     beforeAll(async () => {
         fakeUsers = await (0, users_1.createFakeUsers)(10);
+        fakeMatchingUsers = await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(GroupCandTestTools.createGroupCandidate({
+            amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE,
+            connectAllWithAll: true,
+        }));
         mainUser = fakeUsers[0];
         mainUser2 = fakeUsers[1];
         mainUser3 = fakeUsers[2];
@@ -26,6 +36,10 @@ describe("Groups", () => {
             slotToUse: (0, models_1.getSlotIdFromUsersAmount)(fakeUsers.length),
         });
         group2 = await (0, models_1.createGroup)({ usersIds: [mainUser2.userId], slotToUse: (0, models_1.getSlotIdFromUsersAmount)(1) });
+        group3 = await (0, models_1.createGroup)({
+            usersIds: fakeMatchingUsers.map(u => u.userId),
+            slotToUse: (0, models_1.getSlotIdFromUsersAmount)(fakeMatchingUsers.length),
+        });
     });
     test("Voting dating ideas works correctly and not cheating is allowed", async () => {
         // Main user votes for some ideas
@@ -115,31 +129,47 @@ describe("Groups", () => {
         const unreadMessages = await (0, models_1.chatUnreadAmountGet)({ groupId: group.groupId, token: mainUser2.token }, replacements_1.fakeCtx);
         expect(unreadMessages.unread).toBe(5);
     });
-    test("Feedback gets saved correctly", async () => {
-        await (0, models_1.feedbackPost)({
-            token: mainUser.token,
-            groupId: group.groupId,
-            feedback: {
-                feedbackType: groups_1.ExperienceFeedbackType.AssistedAndLovedIt,
-                description: "Everything went so good!. I love the world!",
-            },
-        }, replacements_1.fakeCtx);
-        await (0, models_1.feedbackPost)({
-            token: mainUser2.token,
-            groupId: group.groupId,
-            feedback: {
-                feedbackType: groups_1.ExperienceFeedbackType.DidntWantToGo,
-                description: "I hate this app.",
-            },
-        }, replacements_1.fakeCtx);
-        group = await (0, models_1.getGroupById)(group.groupId, { protectPrivacy: false });
-        expect(group.feedback.length).toBe(2);
-    });
     test("User groups are retrieved correctly", async () => {
         const user1Groups = await (0, models_1.userGroupsGet)({ token: mainUser.token }, replacements_1.fakeCtx);
         const user2Groups = await (0, models_1.userGroupsGet)({ token: mainUser2.token }, replacements_1.fakeCtx);
         expect(user1Groups.length).toBe(1);
         expect(user2Groups.length).toBe(2);
+    });
+    test("Group active property is set to false after some time and related tasks are executed", async () => {
+        var _a;
+        await (0, models_1.findInactiveGroups)();
+        group3 = await (0, models_1.groupGet)({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
+        expect(group3.isActive).toBeTrue();
+        // Simulate time passing
+        JestDateMock.advanceBy(configurations_1.GROUP_ACTIVE_TIME * 1000 + (0, general_1.hoursToMilliseconds)(1));
+        await (0, models_1.findInactiveGroups)();
+        group3 = await (0, models_1.groupGet)({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
+        expect(group3.isActive).toBeFalse();
+        const updatedUser = await (0, models_2.userGet)({ token: fakeMatchingUsers[0].token }, replacements_1.fakeCtx);
+        const removeSeenTask = (_a = updatedUser.requiredTasks) === null || _a === void 0 ? void 0 : _a.find(t => t.type === user_1.TaskType.ShowRemoveSeenMenu);
+        expect(removeSeenTask).toBeDefined();
+        JestDateMock.clear();
+    });
+    test("SeenMatch can be changed to Match when both users request it", async () => {
+        let edges = await (0, users_1.getEdgeLabelsBetweenUsers)(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+        expect(edges.includes("SeenMatch")).toBeTrue();
+        await (0, models_2.setSeenPost)({
+            token: fakeMatchingUsers[0].token,
+            setSeenActions: [
+                { targetUserId: fakeMatchingUsers[1].token, action: user_1.SetSeenAction.RequestRemoveSeen },
+            ],
+        }, replacements_1.fakeCtx);
+        edges = await (0, users_1.getEdgeLabelsBetweenUsers)(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+        expect(edges.includes("SeenMatch")).toBeTrue();
+        await (0, models_2.setSeenPost)({
+            token: fakeMatchingUsers[1].token,
+            setSeenActions: [
+                { targetUserId: fakeMatchingUsers[0].token, action: user_1.SetSeenAction.RequestRemoveSeen },
+            ],
+        }, replacements_1.fakeCtx);
+        edges = await (0, users_1.getEdgeLabelsBetweenUsers)(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+        expect(edges.includes("SeenMatch")).toBeFalse();
+        expect(edges.includes("Match")).toBeTrue();
     });
     afterAll(async () => {
         await (0, queries_2.queryToRemoveUsers)((0, users_1.getAllTestUsersCreated)());

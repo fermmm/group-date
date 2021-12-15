@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToRemoveGroups = exports.queryToGetGroupsInFinalFormat = exports.queryToGetGroupsToSendReminder = exports.queryToGetMembersForNewMsgNotification = exports.queryToGetReadMessagesAndTotal = exports.queryToUpdatedReadMessagesAmount = exports.queryToUpdateMembershipProperty = exports.queryToUpdateGroupProperty = exports.queryToGetAllGroups = exports.queryToGetAllGroupsOfUser = exports.queryToGetGroupById = exports.queryToVoteDateIdeas = exports.queryToFindSlotsToRelease = exports.queryToAddUsersToGroup = exports.queryToCreateGroup = void 0;
+exports.queryToFindShouldBeInactiveGroups = exports.queryToRemoveGroups = exports.queryToGetGroupsInFinalFormat = exports.queryToGetGroupsToSendReminder = exports.queryToGetMembersForNewMsgNotification = exports.queryToGetReadMessagesAndTotal = exports.queryToUpdatedReadMessagesAmount = exports.queryToUpdateMembershipProperty = exports.queryToUpdateGroupProperty = exports.queryToGetAllGroups = exports.queryToGetAllGroupsOfUser = exports.queryToGetGroupById = exports.queryToVoteDateIdeas = exports.queryToFindSlotsToRelease = exports.queryToAddUsersToGroup = exports.queryToCreateGroup = void 0;
 const moment = require("moment");
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
@@ -28,7 +28,7 @@ function queryToCreateGroup(params) {
         .property(database_manager_1.cardinality.single, "reminder1NotificationSent", false)
         .property(database_manager_1.cardinality.single, "reminder2NotificationSent", false)
         .property(database_manager_1.cardinality.single, "seenBy", (0, data_conversion_tools_1.serializeIfNeeded)([]))
-        .property(database_manager_1.cardinality.single, "feedback", (0, data_conversion_tools_1.serializeIfNeeded)([]));
+        .property(database_manager_1.cardinality.single, "isActive", true);
     if (params.initialUsers != null) {
         traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
     }
@@ -120,10 +120,10 @@ function queryToGetAllGroups(includeDemoGroups = false) {
     return traversal;
 }
 exports.queryToGetAllGroups = queryToGetAllGroups;
-function queryToUpdateGroupProperty(group, filters) {
-    let traversal = queryToGetGroupById(group.groupId, filters);
-    for (const key of Object.keys(group)) {
-        traversal = traversal.property(database_manager_1.cardinality.single, key, (0, data_conversion_tools_1.serializeIfNeeded)(group[key]));
+function queryToUpdateGroupProperty(newProps, filters) {
+    let traversal = queryToGetGroupById(newProps.groupId, filters);
+    for (const key of Object.keys(newProps)) {
+        traversal = traversal.property(database_manager_1.cardinality.single, key, (0, data_conversion_tools_1.serializeIfNeeded)(newProps[key]));
     }
     return (0, database_manager_1.sendQuery)(() => traversal.iterate());
 }
@@ -254,4 +254,10 @@ async function queryToRemoveGroups(groups) {
         .iterate());
 }
 exports.queryToRemoveGroups = queryToRemoveGroups;
+function queryToFindShouldBeInactiveGroups() {
+    let traversal = queryToGetAllGroups().has("isActive", true);
+    traversal = traversal.has("creationDate", database_manager_1.P.lt(moment().unix() - configurations_1.GROUP_ACTIVE_TIME));
+    return traversal;
+}
+exports.queryToFindShouldBeInactiveGroups = queryToFindShouldBeInactiveGroups;
 //# sourceMappingURL=queries.js.map
