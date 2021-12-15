@@ -377,7 +377,7 @@ export function queryToSetLikingGender(traversal: Traversal, genders: Gender[]):
 /**
  * This query is called when a user requests a SeenMatch to become a Match, so they can be in a
  * group together again. This is useful when the group didn't meet because not enough users wanted
- * to meet but those who wanted to meet can request to be in a group together again.
+ * to meet but those who wanted to meet can request for a second chance.
  * To make the change is required that both users request the change. So the first user requesting
  * is only saved and no change is made.
  *
