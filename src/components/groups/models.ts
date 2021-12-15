@@ -62,9 +62,8 @@ import {
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
    setIntervalAsync(sendDateReminderNotifications, SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
-   // TODO: Enable this when the published client supports it
-   // setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
-   // findInactiveGroups();
+   setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
+   findInactiveGroups();
 }
 
 /**

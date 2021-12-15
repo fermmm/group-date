@@ -20,7 +20,7 @@ exports.APPLICATION_NAME = "Poly";
 /*
  * Versions of the client allowed to connect to the server
  */
-exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.6";
+exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.9";
 exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.6";
 /**
  * If you change this you also have to change it in:

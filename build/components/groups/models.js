@@ -16,9 +16,8 @@ const data_conversion_tools_1 = require("../../common-tools/database-tools/data-
 async function initializeGroups() {
     (0, dynamic_1.setIntervalAsync)(findSlotsToRelease, configurations_1.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
     (0, dynamic_1.setIntervalAsync)(sendDateReminderNotifications, configurations_1.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
-    // TODO: Enable this when the published client supports it
-    // setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
-    // findInactiveGroups();
+    (0, dynamic_1.setIntervalAsync)(findInactiveGroups, configurations_1.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
+    findInactiveGroups();
 }
 exports.initializeGroups = initializeGroups;
 /**

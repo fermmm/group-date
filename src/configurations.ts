@@ -27,7 +27,7 @@ export const APPLICATION_NAME = "Poly";
 /*
  * Versions of the client allowed to connect to the server
  */
-export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.6";
+export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.9";
 export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.6";
 
 /**
