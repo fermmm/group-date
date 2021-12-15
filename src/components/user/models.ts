@@ -499,7 +499,7 @@ export async function createRequiredTaskForUser(params: {
    }
 
    if (avoidDuplication) {
-      const existingTask = user.requiredTasks.find(
+      const existingTask = user.requiredTasks?.find(
          requiredTask => requiredTask.type === task.type && requiredTask.taskInfo === task.taskInfo,
       );
       if (existingTask) {

@@ -348,19 +348,19 @@ exports.setSeenPost = setSeenPost;
  * has to complete at login.
  */
 async function createRequiredTaskForUser(params) {
-    var _a;
+    var _a, _b;
     const { userId, task, notification, translateNotification, avoidDuplication = true } = params;
     const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
     if (user == null) {
         return;
     }
     if (avoidDuplication) {
-        const existingTask = user.requiredTasks.find(requiredTask => requiredTask.type === task.type && requiredTask.taskInfo === task.taskInfo);
+        const existingTask = (_a = user.requiredTasks) === null || _a === void 0 ? void 0 : _a.find(requiredTask => requiredTask.type === task.type && requiredTask.taskInfo === task.taskInfo);
         if (existingTask) {
             return;
         }
     }
-    const newRequiredTasks = [...((_a = user.requiredTasks) !== null && _a !== void 0 ? _a : []), { ...task, taskId: (0, string_tools_1.generateId)() }];
+    const newRequiredTasks = [...((_b = user.requiredTasks) !== null && _b !== void 0 ? _b : []), { ...task, taskId: (0, string_tools_1.generateId)() }];
     await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
         .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
         .iterate());
