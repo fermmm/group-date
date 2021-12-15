@@ -330,7 +330,7 @@ export async function queryToRemoveGroups(groups?: Group[]): Promise<void> {
 }
 
 export function queryToFindShouldBeInactiveGroups() {
-   let traversal = queryToGetAllGroups().has("isActive", true);
+   let traversal = queryToGetAllGroups().not(__.has("isActive", false));
    traversal = traversal.has("creationDate", P.lt(moment().unix() - GROUP_ACTIVE_TIME));
    return traversal;
 }

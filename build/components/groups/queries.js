@@ -255,7 +255,7 @@ async function queryToRemoveGroups(groups) {
 }
 exports.queryToRemoveGroups = queryToRemoveGroups;
 function queryToFindShouldBeInactiveGroups() {
-    let traversal = queryToGetAllGroups().has("isActive", true);
+    let traversal = queryToGetAllGroups().not(database_manager_1.__.has("isActive", false));
     traversal = traversal.has("creationDate", database_manager_1.P.lt(moment().unix() - configurations_1.GROUP_ACTIVE_TIME));
     return traversal;
 }
