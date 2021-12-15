@@ -318,7 +318,7 @@ export async function onAdminFileSaved(
 }
 
 export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {
-   const { channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
+   const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification } = params;
 
    const passwordValidation = await validateAdminCredentials(params);
    if (!passwordValidation.isValid) {
@@ -335,6 +335,7 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
       await addNotificationToUser({ token: user.token }, notificationContent, {
          translateNotification: false,
          sendPushNotification: false,
+         sendEmailNotification,
          channelId,
       });
    }

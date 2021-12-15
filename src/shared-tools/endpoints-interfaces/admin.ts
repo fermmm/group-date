@@ -69,6 +69,7 @@ export interface CredentialsValidationResult {
 export interface AdminNotificationPostParams extends AdminProtectionParams {
    onlyReturnUsersAmount?: boolean;
    notificationContent?: NotificationContent;
+   sendEmailNotification?: boolean;
    channelId?: NotificationChannelId;
    filters: AdminNotificationFilter;
 }

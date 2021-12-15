@@ -69,6 +69,7 @@ import { queryToGetUserByTokenOrId } from "./queries";
 import { TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../tags/models";
 import {
+   APPLICATION_NAME,
    BIG_IMAGE_SIZE,
    LOG_PUSH_NOTIFICATION_DELIVERING_RESULT,
    MAX_FILE_SIZE_UPLOAD_ALLOWED,
@@ -83,6 +84,7 @@ import { fileSaverForImages } from "../../common-tools/koa-tools/koa-tools";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { isProductionMode } from "../../common-tools/process/process-tools";
+import { sendEmail } from "../../common-tools/email-tools/email-tools";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -309,6 +311,7 @@ export async function addNotificationToUser(
    settings?: {
       translateNotification?: boolean;
       sendPushNotification?: boolean;
+      sendEmailNotification?: boolean;
       channelId?: NotificationChannelId;
    },
 ) {
@@ -373,6 +376,22 @@ export async function addNotificationToUser(
          }
       });
    }
+
+   if (settings?.sendEmailNotification) {
+      sendEmailNotification({ user, notification });
+   }
+}
+
+export async function sendEmailNotification(props: { user: Partial<User>; notification: NotificationContent }) {
+   const { user, notification } = props;
+
+   return await sendEmail({
+      to: user.email,
+      senderName: `${APPLICATION_NAME} app`,
+      subject: notification.title,
+      html: `<h2>${notification.title} =)</h2><br/>${notification.text}<br/>
+      <br/><br/>${t("Good luck!", { user })}`,
+   });
 }
 
 export async function notificationsGet(params: TokenParameter, ctx: BaseContext): Promise<string> {
