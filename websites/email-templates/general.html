@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <title></title>
+  <style type="text/css">
+    @import url(https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800&display=swap);
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      height: 170px;
+      background: #7c9cff;
+      background: linear-gradient(0deg, #7c9cff 0%, #a45bff 100%);
+    }
+
+    .logo {
+      position: relative;
+      bottom: 8px;
+      height: 30%;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    .main-content {
+      max-width: 500px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 31px;
+      font-weight: 200;
+    }
+
+    p {
+
+    }
+
+    b {
+      font-weight: 600;
+      color: #313131;
+    }
+
+    a {
+      display: block;
+      color: #4646b4;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      text-decoration-line: underline;
+      cursor: pointer;
+    }
+
+    a:hover, a:visited, a:link, a:active {
+      color: #2dd3c6;
+    }
+
+    .footer {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      align-items: center;
+      justify-content: center;
+      background: #6c65b4;
+      color: white;
+      padding-top: 20px;
+    }
+
+    .store-buttons-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .storeButton {
+      height: 50px;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      font-family: Montserrat, sans-serif;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 400;
+      color: #272727;
+      background: #f0f0f0;
+    }
+
+    a:hover, a:visited, a:link, a:active {
+      border:          none;   /* Removes border in linked items */
+      outline:         none;   /* Removes points border in images */
+    }
+    
+    *:focus {
+      outline: none;           /* Removes the selection outline from inputs and buttons */
+    }
+    
+    *, :after, :before {
+      box-sizing: border-box;  /* Do not include border and margin in the sizes numbers */
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet" type="text/css">
+</head>
+
+<body class="">
+  <header class="header">
+    <img src="{{ logoUrl }}" class="logo"/>
+  </header>
+  <main class="main">
+    <div class="main-content">
+      <h2 style="margin-bottom: 20px;">
+        {{ title }}
+      </h2>
+      {{ content }}
+    </div>
+  </main>
+  <footer class="footer">
+    {{ footerText }}
+    <div class="store-buttons-container">
+      <a ses:no-track href="{{ googlePlayUrl }}" target="_blank" style="margin-bottom: 0px; margin: 5px 5px">
+        <img src="{{ googlePlayImageUrl }}" class="storeButton"/>
+      </a>
+      <a ses:no-track href="{{ appStoreUrl }}" target="_blank" style="margin-bottom: 0px; margin: 5px 5px">
+        <img src="{{ appStoreImageUrl }}" class="storeButton"/>
+      </a>
+    </div>
+  </footer>
+</body>
+
+</html>
