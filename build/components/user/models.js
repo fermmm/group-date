@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
+exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.sendEmailNotification = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
 const user_1 = require("./../../shared-tools/endpoints-interfaces/user");
 const push_notifications_1 = require("./../../common-tools/push-notifications/push-notifications");
 const security_tools_1 = require("./../../common-tools/security-tools/security-tools");
@@ -28,6 +28,8 @@ const koa_tools_1 = require("../../common-tools/koa-tools/koa-tools");
 const general_1 = require("../../common-tools/math-tools/general");
 const s3_tools_1 = require("../../common-tools/aws/s3-tools");
 const process_tools_1 = require("../../common-tools/process/process-tools");
+const email_tools_1 = require("../../common-tools/email-tools/email-tools");
+const loadHtmlTemplate_1 = require("../../common-tools/email-tools/loadHtmlTemplate");
 async function initializeUsers() {
     (0, files_tools_1.createFolder)("uploads");
     createGenders();
@@ -255,8 +257,28 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
             }
         });
     }
+    if (settings === null || settings === void 0 ? void 0 : settings.sendEmailNotification) {
+        sendEmailNotification({ user, notification });
+    }
 }
 exports.addNotificationToUser = addNotificationToUser;
+async function sendEmailNotification(props) {
+    const { user, notification } = props;
+    return await (0, email_tools_1.sendEmail)({
+        to: user.email,
+        senderName: `${configurations_1.APPLICATION_NAME} app`,
+        subject: notification.title,
+        html: (0, loadHtmlTemplate_1.loadHtmlTemplate)({
+            htmlFilePath: "websites/email-templates/notifications/new-group.html",
+            variablesToReplace: {
+                temp: "James",
+            },
+        }),
+        /*html: `<h2>${notification.title} =)</h2><br/>${notification.text}<br/>
+        <br/><br/>${t("Good luck!", { user })}`,*/
+    });
+}
+exports.sendEmailNotification = sendEmailNotification;
 async function notificationsGet(params, ctx) {
     const traversal = (0, queries_1.queryToGetUserByToken)(params.token, null, true);
     return await (0, data_conversion_tools_1.fromQueryToSpecificPropValue)(traversal, "notifications");

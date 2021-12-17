@@ -20,7 +20,7 @@ exports.APPLICATION_NAME = "Poly";
 /*
  * Versions of the client allowed to connect to the server
  */
-exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.1.9";
+exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.2.1";
 exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.6";
 /**
  * If you change this you also have to change it in:
@@ -300,64 +300,8 @@ const feminismQuestion = {
         1: [0],
     },
 };
-/**
- * If you change or remove a tag id it's required to be changed for analytics when sending user data.
- */
-const groupSexQuestion = {
-    questionId: "taq-1",
-    text: "Do you think group sex might be interesting to try one day?",
-    answers: [
-        {
-            text: "Yes",
-            tagId: "q01-a00",
-            category: "Sex",
-            tagName: "Group sex: Could be interesting",
-        },
-        {
-            text: "No",
-            tagId: "q01-a01",
-            category: "Sex",
-            tagName: "Group sex: Not interested",
-        },
-    ],
-    incompatibilitiesBetweenAnswers: {
-        0: [1],
-        1: [0],
-    },
-};
-/**
- * If you change or remove a tag id it's required to be changed for analytics when sending user data.
- */
-const spamQuestion = {
-    questionId: "taq-2",
-    text: "Is your goal in this app to meet new people?",
-    answers: [
-        {
-            tagId: "q02-a01",
-            text: "Yes, meet new people",
-            category: "App usage",
-            tagName: "Meet new people",
-        },
-        {
-            tagId: "q02-a00",
-            text: "No, other goal. For example: Get followers, promote something, etc.",
-            category: "App usage",
-            tagName: "Get followers, promote, etc.",
-        },
-    ],
-    incompatibilitiesBetweenAnswers: {
-        0: [1],
-        1: [0],
-    },
-    filterSelectedByDefault: true,
-};
 // Spam question may not be required because interest for group sex question includes the physical interaction intentions
-exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [
-    appUsageQuestion,
-    groupSexQuestion,
-    feminismQuestion,
-    spamQuestion,
-];
+exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [appUsageQuestion, feminismQuestion];
 exports.APP_AUTHORED_TAGS = [politicsLeftTag, politicsRightTag];
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////

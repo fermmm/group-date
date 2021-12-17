@@ -231,7 +231,7 @@ async function onAdminFileSaved(files, ctx) {
 }
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
-    const { channelId, onlyReturnUsersAmount, filters, notificationContent } = params;
+    const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
@@ -244,6 +244,7 @@ async function adminNotificationSendPost(params, ctx) {
         await (0, models_1.addNotificationToUser)({ token: user.token }, notificationContent, {
             translateNotification: false,
             sendPushNotification: false,
+            sendEmailNotification,
             channelId,
         });
     }
