@@ -50,6 +50,7 @@ export interface User {
    banReasons?: UserBanReason[];
    isUnicornHunter?: boolean;
    isUnicornHunterInsisting?: boolean;
+   requiredTasks?: RequiredTask[];
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
@@ -200,4 +201,35 @@ export interface DeleteAccountResponse {
 export enum ReportUserType {
    NonEthical = "non-ethical",
    MissingPicture = "missing-picture",
+}
+
+export interface SetSeenPostParams extends TokenParameter {
+   setSeenActions: Array<{ targetUserId: string; action: SetSeenAction }>;
+}
+
+export enum SetSeenAction {
+   RequestRemoveSeen,
+   // SetAsSeen, // Not implemented
+}
+
+export interface SetSeenResponse {
+   success: boolean;
+}
+
+export interface RequiredTask {
+   taskId: string;
+   type: TaskType;
+   taskInfo?: string;
+}
+
+export interface TaskCompletedPostParams extends TokenParameter {
+   taskId: string;
+}
+
+export interface TaskCompletedResponse {
+   success: true;
+}
+
+export enum TaskType {
+   ShowRemoveSeenMenu = "ShowRemoveSeenMenu",
 }

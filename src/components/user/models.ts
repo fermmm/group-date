@@ -85,6 +85,7 @@ import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { isProductionMode } from "../../common-tools/process/process-tools";
 import { sendEmail } from "../../common-tools/email-tools/email-tools";
+import { loadHtmlTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -389,8 +390,14 @@ export async function sendEmailNotification(props: { user: Partial<User>; notifi
       to: user.email,
       senderName: `${APPLICATION_NAME} app`,
       subject: notification.title,
-      html: `<h2>${notification.title} =)</h2><br/>${notification.text}<br/>
-      <br/><br/>${t("Good luck!", { user })}`,
+      html: loadHtmlTemplate({
+         htmlFilePath: "websites/email-templates/notifications/new-group.html",
+         variablesToReplace: {
+            temp: "James",
+         },
+      }),
+      /*html: `<h2>${notification.title} =)</h2><br/>${notification.text}<br/>
+      <br/><br/>${t("Good luck!", { user })}`,*/
    });
 }
 

@@ -15,17 +15,28 @@ import DashboardPageContainer from "../../common/DashboardPageContainer/Dashboar
 import CardColumn from "../../common/UI/CardColumn/CardColumn";
 import ConfirmationDialog from "../../common/UI/ConfirmationDialog/ConfirmationDialog";
 import FormEmailSelector from "./FormEmailSelector/FormEmailSelector";
-import FormNotificationContent from "./FormNotificationContent/FormNotificationContent";
+import FormNotificationContent, {
+   NotificationSendingOptions,
+} from "./FormNotificationContent/FormNotificationContent";
 import { ContinueButtonContainer } from "./styles.Notifications";
 
 const Notifications: FC = () => {
    const [notificationContent, setNotificationContent] = useState<NotificationContent>();
+   const [notificationOptions, setNotificationOptions] = useState<NotificationSendingOptions>();
    const [emailFilter, setEmailFilter] = useState<string[]>();
    const [loading, setLoading] = useState<boolean>(false);
    const [response, setResponse] = useState<string>();
    const [error, setError] = useState<string>();
    const [confirmResponse, setConfirmResponse] = useState<string>();
    const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
+
+   const handleNotificationContentChange = (
+      notificationContent: NotificationContent,
+      options: NotificationSendingOptions,
+   ) => {
+      setNotificationContent(notificationContent);
+      setNotificationOptions(options);
+   };
 
    const handleSend = async (onlyReturnUsersAmount: boolean) => {
       setError(null);
@@ -40,6 +51,7 @@ const Notifications: FC = () => {
          onlyReturnUsersAmount,
          filters,
          notificationContent,
+         sendEmailNotification: notificationOptions?.sendEmailNotification,
          channelId:
             notificationContent?.type === NotificationType.NearbyPartyOrEvent
                ? NotificationChannelId.Events
@@ -83,7 +95,7 @@ const Notifications: FC = () => {
          <h1>Send Notification</h1>
          <CardColumn>
             <h3>Notification content</h3>
-            <FormNotificationContent onChange={setNotificationContent} />
+            <FormNotificationContent onChange={handleNotificationContentChange} />
             <h3>Select target users</h3>
             <FormEmailSelector onChange={setEmailFilter} />
             {error && (

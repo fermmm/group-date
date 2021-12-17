@@ -18,6 +18,7 @@ export interface Group {
    reminder1NotificationSent: boolean;
    reminder2NotificationSent: boolean;
    seenBy: string[];
+   isActive: boolean;
    isDemoGroup?: boolean;
 }
 

@@ -57,7 +57,7 @@ export interface QuestionAnswerData {
    tagId?: string;
    category?: string;
    tagName?: string;
-   visible?: boolean;
+   tagIsVisible?: boolean;
    extraText?: string;
 }
 

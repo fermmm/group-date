@@ -1,29 +1,34 @@
-import { Autocomplete, TextField } from "@mui/material";
-import React, { FC, useEffect, useState } from "react";
+import { Autocomplete, Checkbox, FormControlLabel, TextField } from "@mui/material";
+import React, { ChangeEvent, FC, useEffect, useState } from "react";
 import {
    NotificationContent,
-   NotificationType
+   NotificationType,
 } from "../../../../api/tools/shared-tools/endpoints-interfaces/user";
 import { FormContainer } from "../common/containers";
 
 export interface PropsNotificationContent {
-   onChange: (notificationContent: NotificationContent) => void;
+   onChange: (notificationContent: NotificationContent, options: NotificationSendingOptions) => void;
+}
+
+export interface NotificationSendingOptions {
+   sendEmailNotification: boolean;
 }
 
 const FormNotificationContent: FC<PropsNotificationContent> = props => {
    const [title, setTitle] = useState<string>();
    const [text, setText] = useState<string>();
+   const [sendEmail, setSendEmail] = useState<boolean>(false);
    const [targetId, setTargetId] = useState<string>();
    const [type, setType] = useState<NotificationType>(NotificationType.TextOnly);
 
-   const notificationTypesAllowed = [
-      NotificationType.NearbyPartyOrEvent,
-      NotificationType.TextOnly
-   ];
+   const notificationTypesAllowed = [NotificationType.NearbyPartyOrEvent, NotificationType.TextOnly];
 
    useEffect(() => {
-      props.onChange({ title, text, type, idForReplacement: `${title}${text}${type}` });
-   }, [title, text, type]);
+      props.onChange(
+         { title, text, type, idForReplacement: `${title}${text}${type}` },
+         { sendEmailNotification: sendEmail },
+      );
+   }, [title, text, type, sendEmail]);
 
    return (
       <FormContainer>
@@ -41,6 +46,16 @@ const FormNotificationContent: FC<PropsNotificationContent> = props => {
             value={text}
             onChange={e => setText(e.target.value)}
          />
+         <FormControlLabel
+            label={"Also send an email notification"}
+            control={
+               <Checkbox
+                  checked={sendEmail}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSendEmail(e.target.checked)}
+                  inputProps={{ "aria-label": "controlled" }}
+               />
+            }
+         />
          The notification type affects the icon and what happens when clicked
          <Autocomplete
             options={notificationTypesAllowed}
@@ -51,12 +66,10 @@ const FormNotificationContent: FC<PropsNotificationContent> = props => {
                }
             }}
             getOptionLabel={(selected: NotificationType) => NotificationType[selected]}
-            renderInput={params => (
-               <TextField {...params} label="Notification type" variant="outlined" />
-            )}
+            renderInput={params => <TextField {...params} label="Notification type" variant="outlined" />}
          />
-         If the notification should open a webpage when clicked paste the link here. This only works
-         for NearbyPartyOrEvent notification type
+         If the notification should open a webpage when clicked paste the link here. This only works for
+         NearbyPartyOrEvent notification type
          <TextField
             label="Link"
             variant="outlined"
