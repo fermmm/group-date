@@ -10,7 +10,7 @@ const user_1 = require("../../shared-tools/endpoints-interfaces/user");
 const queries_1 = require("../user/queries");
 function queryToGetCardsRecommendations(searcherUser, settings) {
     var _a;
-    let traversal = (_a = settings === null || settings === void 0 ? void 0 : settings.traversal) !== null && _a !== void 0 ? _a : (0, queries_1.queryToGetAllCompleteUsers)();
+    let traversal = (_a = settings === null || settings === void 0 ? void 0 : settings.traversal) !== null && _a !== void 0 ? _a : queries_1.queryToGetAllCompleteUsers();
     /**
      * Is inside the distance range the user wants
      */
@@ -48,7 +48,7 @@ function queryToGetCardsRecommendations(searcherUser, settings) {
         .fold()
         .as("results")
         // Get the searcher user and save it as "searcherUser"
-        .union((0, queries_1.queryToGetUserById)(searcherUser.userId, database_manager_1.__).as("searcherUser"))
+        .union(queries_1.queryToGetUserById(searcherUser.userId, database_manager_1.__).as("searcherUser"))
         // Save all elements required later
         .sideEffect(database_manager_1.__.out("blocked").store("blockedTags"))
         .sideEffect(database_manager_1.__.out("subscribed").store("subscribedTags"))
@@ -70,11 +70,11 @@ function queryToGetCardsRecommendations(searcherUser, settings) {
     /**
      * User likes the age
      */
-    traversal = traversal.not(database_manager_1.__.has("birthDate", database_manager_1.P.outside((0, date_tools_1.fromAgeToBirthDate)(searcherUser.targetAgeMax), (0, date_tools_1.fromAgeToBirthDate)(searcherUser.targetAgeMin))));
+    traversal = traversal.not(database_manager_1.__.has("birthDate", database_manager_1.P.outside(date_tools_1.fromAgeToBirthDate(searcherUser.targetAgeMax), date_tools_1.fromAgeToBirthDate(searcherUser.targetAgeMin))));
     /**
      * Likes the age of the user
      */
-    const searcherUserAge = (0, date_tools_1.fromBirthDateToAge)(searcherUser.birthDate);
+    const searcherUserAge = date_tools_1.fromBirthDateToAge(searcherUser.birthDate);
     traversal = traversal.not(database_manager_1.__.has("targetAgeMin", database_manager_1.P.gt(searcherUserAge)));
     traversal = traversal.not(database_manager_1.__.has("targetAgeMax", database_manager_1.P.lt(searcherUserAge)));
     /**
@@ -195,17 +195,17 @@ function queryToDivideLikingUsers(traversal, searcherUser) {
         .group()
         .by(database_manager_1.__.choose(database_manager_1.__.out(user_1.AttractionType.Like).has("userId", searcherUser.userId), database_manager_1.__.constant("liking"), database_manager_1.__.constant("others")))
         .project("liking", "others")
-        .by((0, queries_1.queryToIncludeFullInfoInUserQuery)(database_manager_1.__.select("liking").unfold())
+        .by(queries_1.queryToIncludeFullInfoInUserQuery(database_manager_1.__.select("liking").unfold())
         .limit(configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING)
         .fold())
-        .by((0, queries_1.queryToIncludeFullInfoInUserQuery)(database_manager_1.__.select("others").unfold())
+        .by(queries_1.queryToIncludeFullInfoInUserQuery(database_manager_1.__.select("others").unfold())
         .limit(configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS)
         .fold());
 }
 exports.queryToDivideLikingUsers = queryToDivideLikingUsers;
 function queryToGetDislikedUsers(props) {
     const { token, searcherUser, invertOrder } = props;
-    let traversal = (0, queries_1.queryToGetUserByToken)(token)
+    let traversal = queries_1.queryToGetUserByToken(token)
         .outE(user_1.AttractionType.Dislike)
         .order()
         .by("timestamp", invertOrder === true ? database_manager_1.order.desc : database_manager_1.order.asc)
@@ -220,14 +220,14 @@ function queryToGetDislikedUsers(props) {
 }
 exports.queryToGetDislikedUsers = queryToGetDislikedUsers;
 function queryToGetAllUsersWantingNewCardsNotification() {
-    return (0, queries_1.queryToGetAllCompleteUsers)().has("sendNewUsersNotification", database_manager_1.P.gt(0));
+    return queries_1.queryToGetAllCompleteUsers().has("sendNewUsersNotification", database_manager_1.P.gt(0));
 }
 exports.queryToGetAllUsersWantingNewCardsNotification = queryToGetAllUsersWantingNewCardsNotification;
 /**
  * This function could return the demo accounts and that is all but this is useful to test filters.
  */
 function queryToGetDemoCardsRecommendations(searcherUser) {
-    let traversal = (0, queries_1.queryToGetAllDemoUsers)();
+    let traversal = queries_1.queryToGetAllDemoUsers();
     /**
      * User is not banned
      */

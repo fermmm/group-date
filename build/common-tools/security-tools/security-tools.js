@@ -5,7 +5,7 @@ const dynamic_1 = require("set-interval-async/dynamic");
 const configurations_1 = require("../../configurations");
 const db = new Map();
 async function initializeSecurityTools() {
-    (0, dynamic_1.setIntervalAsync)(clearRateLimiterCache, configurations_1.RATE_LIMITER_CACHE_CLEAR_INTERVAL);
+    dynamic_1.setIntervalAsync(clearRateLimiterCache, configurations_1.RATE_LIMITER_CACHE_CLEAR_INTERVAL);
 }
 exports.initializeSecurityTools = initializeSecurityTools;
 exports.rateLimiterConfig = {

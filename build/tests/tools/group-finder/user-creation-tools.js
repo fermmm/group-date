@@ -18,22 +18,22 @@ const testGroupsCreated = [];
  */
 async function createFullUsersFromGroupCandidate(group, useMultithreading = false) {
     const usersCreated = [];
-    const creationPromises = group.users.map(u => async () => usersCreated.push(await (0, _experimental_1.createFakeUser2)({ userId: u.userId, token: u.userId }, useMultithreading)));
+    const creationPromises = group.users.map(u => async () => usersCreated.push(await _experimental_1.createFakeUser2({ userId: u.userId, token: u.userId }, useMultithreading)));
     // Once all users are created we can connect the users
-    const attractionPromises = group.users.map(user => async () => await (0, models_3.setAttractionPost)({
+    const attractionPromises = group.users.map(user => async () => await models_3.setAttractionPost({
         token: user.userId,
         attractions: user.matches.map(userId => ({ userId, attractionType: user_1.AttractionType.Like })),
     }, replacements_1.fakeCtx));
-    await (0, js_tools_1.executePromises)(creationPromises, useMultithreading);
+    await js_tools_1.executePromises(creationPromises, useMultithreading);
     // This is not thread safe in any DB for the moment
-    await (0, js_tools_1.executePromises)(attractionPromises, false);
+    await js_tools_1.executePromises(attractionPromises, false);
     return usersCreated;
 }
 exports.createFullUsersFromGroupCandidate = createFullUsersFromGroupCandidate;
 async function callGroupFinder(times = 3) {
     let groupsCreated = [];
     for (let i = 0; i < times; i++) {
-        groupsCreated = [...groupsCreated, ...(await (0, models_1.searchAndCreateNewGroups)())];
+        groupsCreated = [...groupsCreated, ...(await models_1.searchAndCreateNewGroups())];
     }
     testGroupsCreated.push(...groupsCreated);
     return groupsCreated;
@@ -47,7 +47,7 @@ async function retrieveFinalGroupsOf(groupCandidateUsers) {
     for (const user of groupCandidateUsers) {
         const token = typeof user === "string" ? user : user.userId;
         // userId and token are the same in these tests
-        const userGroups = await (0, models_2.userGroupsGet)({ token }, replacements_1.fakeCtx, true);
+        const userGroups = await models_2.userGroupsGet({ token }, replacements_1.fakeCtx, true);
         userGroups.forEach(userGroup => {
             if (result.find(g => g.groupId === userGroup.groupId) == null) {
                 result.push(userGroup);

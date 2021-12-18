@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStandardUrls = exports.loadHtmlEmailTemplate = void 0;
+const moment = require("moment");
 const nunjucks = require("nunjucks");
 const configurations_1 = require("../../configurations");
 const i18n_tools_1 = require("../i18n-tools/i18n-tools");
@@ -16,16 +17,17 @@ function loadHtmlEmailTemplate(props) {
 }
 exports.loadHtmlEmailTemplate = loadHtmlEmailTemplate;
 function getStandardUrls(translationSources) {
-    const emailImagesFolderUrl = (0, getServerUrl_1.getServerUrl)() + "/email-images/";
+    const emailImagesFolderUrl = getServerUrl_1.getServerUrl() + "/email-images/";
     return {
         title: "",
         content: "",
-        footerText: (0, i18n_tools_1.t)(configurations_1.APPLICATION_NAME_COMPLETE, translationSources),
-        logoUrl: emailImagesFolderUrl + "logo.svg",
-        googlePlayImageUrl: emailImagesFolderUrl + "buttonGooglePlay.svg",
-        appStoreImageUrl: emailImagesFolderUrl + "appStoreButton.svg",
+        footerText: i18n_tools_1.t(configurations_1.APPLICATION_NAME_COMPLETE, translationSources),
+        logoUrl: emailImagesFolderUrl + "logo.png",
+        googlePlayImageUrl: emailImagesFolderUrl + "buttonGooglePlay.png",
+        appStoreImageUrl: emailImagesFolderUrl + "appStoreButton.png",
         googlePlayUrl: configurations_1.GOOGLE_PLAY_URL,
         appStoreUrl: configurations_1.APP_STORE_URL,
+        date: moment().unix().toString(),
     };
 }
 exports.getStandardUrls = getStandardUrls;

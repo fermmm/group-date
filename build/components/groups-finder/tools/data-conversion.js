@@ -10,9 +10,9 @@ const group_candidate_analysis_1 = require("./group-candidate-analysis");
 async function fromQueryToGroupCandidates(query) {
     const resultGremlinOutput = (await query.toList());
     const result = resultGremlinOutput.map(groupAsMap => {
-        return { groupId: (0, string_tools_1.generateId)(), users: groupAsMap.map(g => (0, data_conversion_tools_1.fromGremlinMapToObject)(g)) };
+        return { groupId: string_tools_1.generateId(), users: groupAsMap.map(g => data_conversion_tools_1.fromGremlinMapToObject(g)) };
     });
-    (0, group_candidate_analysis_1.reportPossibleDataCorruption)(result);
+    group_candidate_analysis_1.reportPossibleDataCorruption(result);
     return result;
 }
 exports.fromQueryToGroupCandidates = fromQueryToGroupCandidates;
@@ -21,7 +21,7 @@ exports.fromQueryToGroupCandidates = fromQueryToGroupCandidates;
  */
 async function fromQueryToGroupsReceivingNewUsers(query) {
     const resultGremlinOutput = (await query.toList());
-    return resultGremlinOutput.map(r => (0, data_conversion_tools_1.fromGremlinMapToObject)(r));
+    return resultGremlinOutput.map(r => data_conversion_tools_1.fromGremlinMapToObject(r));
 }
 exports.fromQueryToGroupsReceivingNewUsers = fromQueryToGroupsReceivingNewUsers;
 //# sourceMappingURL=data-conversion.js.map

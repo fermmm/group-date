@@ -10,8 +10,8 @@ const files_tools_1 = require("../files-tools/files-tools");
  * edges in the xml and modifies their id to make them unique.
  */
 function fixGraphMlBug(filePath) {
-    const fileContantes = (0, files_tools_1.getFileContent)(filePath);
-    (0, xml2js_1.parseString)(fileContantes, (err, result) => {
+    const fileContantes = files_tools_1.getFileContent(filePath);
+    xml2js_1.parseString(fileContantes, (err, result) => {
         var _a, _b, _c;
         const edges = (_c = (_b = (_a = result === null || result === void 0 ? void 0 : result.graphml) === null || _a === void 0 ? void 0 : _a.graph) === null || _b === void 0 ? void 0 : _b[0]) === null || _c === void 0 ? void 0 : _c.edge;
         if (edges == null) {
@@ -29,7 +29,7 @@ function fixGraphMlBug(filePath) {
         result.graphml.graph[0].edge = newEdges;
         var builder = new xml2js_1.Builder();
         var xml = builder.buildObject(result);
-        (0, files_tools_1.writeFile)(filePath, xml);
+        files_tools_1.writeFile(filePath, xml);
     });
 }
 exports.fixGraphMlBug = fixGraphMlBug;

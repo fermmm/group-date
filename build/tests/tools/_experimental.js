@@ -19,7 +19,7 @@ const users_1 = require("./users");
 let fakeUsersCreated = [];
 async function createFakeUsers2(amount, customParams, useMultithreading = false) {
     const usersCreated = [];
-    (0, js_tools_1.numberChunksCallback)(amount, 40, async (amountForRequest) => {
+    js_tools_1.numberChunksCallback(amount, 40, async (amountForRequest) => {
         usersCreated.push(...(await generateAndCreateFakeUsers(amountForRequest, customParams, useMultithreading)));
     });
     return usersCreated;
@@ -39,9 +39,9 @@ async function generateAndCreateFakeUsers(amount, customParams, useMultithreadin
         finalParams === null || finalParams === void 0 ? true : delete finalParams.email;
     }
     for (let i = 0; i < amount; i++) {
-        users.push((0, users_1.generateRandomUserProps)(finalParams));
+        users.push(users_1.generateRandomUserProps(finalParams));
     }
-    await (0, database_manager_1.sendQuery)(() => (0, common_queries_1.queryToCreateVerticesFromObjects)({
+    await database_manager_1.sendQuery(() => common_queries_1.queryToCreateVerticesFromObjects({
         objects: users,
         label: "user",
         duplicationAvoidanceProperty: !useMultithreading ? "userId" : null, // Checking for duplication is not supported in multithreading

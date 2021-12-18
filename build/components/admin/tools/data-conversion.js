@@ -9,14 +9,14 @@ const data_conversion_1 = require("../../user/tools/data-conversion");
  * Converts into a Group object a gremlin query that should return a single group vertex.
  */
 async function fromQueryToChatWithAdmins(query, protectPrivacy = true) {
-    return fromGremlinMapToChatWithAdmins((await (0, database_manager_1.sendQuery)(() => query.next())).value, protectPrivacy);
+    return fromGremlinMapToChatWithAdmins((await database_manager_1.sendQuery(() => query.next())).value, protectPrivacy);
 }
 exports.fromQueryToChatWithAdmins = fromQueryToChatWithAdmins;
 /**
  * Converts a gremlin query that should return a list of groups' vertices into a list of Group as object.
  */
 async function fromQueryToChatWithAdminsList(query, protectPrivacy = true) {
-    const resultGremlinOutput = (await (0, database_manager_1.sendQuery)(() => query.toList()));
+    const resultGremlinOutput = (await database_manager_1.sendQuery(() => query.toList()));
     return resultGremlinOutput.map(queryElement => {
         return fromGremlinMapToChatWithAdmins(queryElement, protectPrivacy);
     });
@@ -30,13 +30,13 @@ function fromGremlinMapToChatWithAdmins(chatWithAdmins, protectPrivacy = true) {
         return null;
     }
     // Convert user prop with the corresponding converter for the users
-    let nonAdminUser = (0, data_conversion_1.fromGremlinMapToUser)(chatWithAdmins.get("nonAdminUser"));
+    let nonAdminUser = data_conversion_1.fromGremlinMapToUser(chatWithAdmins.get("nonAdminUser"));
     chatWithAdmins.delete("nonAdminUser");
     if (nonAdminUser != null && protectPrivacy) {
-        nonAdminUser = (0, security_tools_1.removePrivacySensitiveUserProps)(nonAdminUser);
+        nonAdminUser = security_tools_1.removePrivacySensitiveUserProps(nonAdminUser);
     }
     // Now the rest of the properties can be converted
-    const result = (0, data_conversion_tools_1.fromGremlinMapToObject)(chatWithAdmins, ["messages"]);
+    const result = data_conversion_tools_1.fromGremlinMapToObject(chatWithAdmins, ["messages"]);
     result.nonAdminUser = nonAdminUser;
     return result;
 }

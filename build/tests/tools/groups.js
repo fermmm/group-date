@@ -10,9 +10,9 @@ const users_1 = require("./users");
  * @param settings Example {connectionsPerUser: {min: 0, max: 3}}
  */
 async function createMatchingUsers(amount, settings) {
-    const users = await (0, users_1.createFakeUsers)(amount);
+    const users = await users_1.createFakeUsers(amount);
     if ((settings === null || settings === void 0 ? void 0 : settings.connectionsPerUser) == null) {
-        await (0, users_1.setAttractionAllWithAll)(users);
+        await users_1.setAttractionAllWithAll(users);
         return users;
     }
     for (const user of users) {
@@ -21,7 +21,7 @@ async function createMatchingUsers(amount, settings) {
             continue;
         }
         const usersToMatch = generalTools_1.chance.pickset(users, amountOfUsersToMatch);
-        await (0, users_1.setAttractionMatch)(user, usersToMatch);
+        await users_1.setAttractionMatch(user, usersToMatch);
     }
     return users;
 }
@@ -34,7 +34,7 @@ exports.createMatchingUsers = createMatchingUsers;
 async function matchUserWithUsers(user, usersToMatch, amountOfUsersToMatch) {
     amountOfUsersToMatch = amountOfUsersToMatch !== null && amountOfUsersToMatch !== void 0 ? amountOfUsersToMatch : usersToMatch.length;
     const users = generalTools_1.chance.pickset(usersToMatch, amountOfUsersToMatch);
-    await (0, users_1.setAttractionMatch)(user, users);
+    await users_1.setAttractionMatch(user, users);
     return users;
 }
 exports.matchUserWithUsers = matchUserWithUsers;
@@ -59,9 +59,9 @@ async function connectUsersInChain(users, connectTheEnds = false) {
         if (i === 0) {
             continue;
         }
-        await (0, users_1.setAttractionMatch)(users[i], [users[i - 1]]);
+        await users_1.setAttractionMatch(users[i], [users[i - 1]]);
         if (i === users.length - 1 && connectTheEnds) {
-            await (0, users_1.setAttractionMatch)(users[i], [users[0]]);
+            await users_1.setAttractionMatch(users[i], [users[0]]);
         }
     }
 }

@@ -12,12 +12,12 @@ const queries_1 = require("../queries");
  */
 async function fromQueryToUser(queryOfUser, includeFullInfo) {
     if (includeFullInfo) {
-        queryOfUser = (0, queries_1.queryToIncludeFullInfoInUserQuery)(queryOfUser);
+        queryOfUser = queries_1.queryToIncludeFullInfoInUserQuery(queryOfUser);
     }
     else {
-        queryOfUser = (0, common_queries_1.valueMap)(queryOfUser);
+        queryOfUser = common_queries_1.valueMap(queryOfUser);
     }
-    return fromGremlinMapToUser((await (0, database_manager_1.sendQuery)(() => queryOfUser.next())).value);
+    return fromGremlinMapToUser((await database_manager_1.sendQuery(() => queryOfUser.next())).value);
 }
 exports.fromQueryToUser = fromQueryToUser;
 /**
@@ -28,15 +28,15 @@ exports.fromQueryToUser = fromQueryToUser;
  */
 async function fromQueryToUserList(queryOfUsers, protectPrivacy = true, includeFullInfo = true) {
     if (includeFullInfo) {
-        queryOfUsers = (0, queries_1.queryToIncludeFullInfoInUserQuery)(queryOfUsers);
+        queryOfUsers = queries_1.queryToIncludeFullInfoInUserQuery(queryOfUsers);
     }
     else {
-        queryOfUsers = (0, common_queries_1.valueMap)(queryOfUsers);
+        queryOfUsers = common_queries_1.valueMap(queryOfUsers);
     }
-    const resultGremlinOutput = (await (0, database_manager_1.sendQuery)(() => queryOfUsers.toList()));
+    const resultGremlinOutput = (await database_manager_1.sendQuery(() => queryOfUsers.toList()));
     return resultGremlinOutput.map(userFromQuery => {
         if (protectPrivacy) {
-            return (0, security_tools_1.removePrivacySensitiveUserProps)(fromGremlinMapToUser(userFromQuery));
+            return security_tools_1.removePrivacySensitiveUserProps(fromGremlinMapToUser(userFromQuery));
         }
         return fromGremlinMapToUser(userFromQuery);
     });
@@ -49,7 +49,7 @@ function fromGremlinMapToUser(userFromDatabase) {
     if (userFromDatabase == null) {
         return null;
     }
-    const result = (0, data_conversion_tools_1.fromGremlinMapToObject)(userFromDatabase, [
+    const result = data_conversion_tools_1.fromGremlinMapToObject(userFromDatabase, [
         "images",
         "notifications",
         "questionsShowed",

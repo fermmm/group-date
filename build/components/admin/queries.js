@@ -12,17 +12,17 @@ function queryToGetAdminChatMessages(userId, includeUserData) {
         .group()
         .by(database_manager_1.__.select(database_manager_1.column.keys))
         .by(database_manager_1.__.select(database_manager_1.column.values));
-    return (0, queries_1.queryToGetUserById)(userId)
+    return queries_1.queryToGetUserById(userId)
         .as("user")
         .out("chatWithAdmins")
         .choose(database_manager_1.__.identity(), includeUserData ? projectWithUserData : projectWithoutUserData);
 }
 exports.queryToGetAdminChatMessages = queryToGetAdminChatMessages;
 function queryToSaveAdminChatMessage(userId, updatedMessagesList, lastMessageIsFromAdmin) {
-    return (0, queries_1.queryToGetUserById)(userId)
+    return queries_1.queryToGetUserById(userId)
         .as("user")
         .coalesce(database_manager_1.__.out("chatWithAdmins"), database_manager_1.__.addV("chatWithAdmins").as("x").addE("chatWithAdmins").from_("user").select("x"))
-        .property(database_manager_1.cardinality.single, "messages", (0, data_conversion_tools_1.serializeIfNeeded)(updatedMessagesList))
+        .property(database_manager_1.cardinality.single, "messages", data_conversion_tools_1.serializeIfNeeded(updatedMessagesList))
         .property(database_manager_1.cardinality.single, "adminHasResponded", lastMessageIsFromAdmin)
         .property(database_manager_1.cardinality.single, "lastMessageDate", moment().unix());
 }
@@ -41,7 +41,7 @@ function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin) {
 }
 exports.queryToGetAllChatsWithAdmins = queryToGetAllChatsWithAdmins;
 function queryToSelectUsersForNotification(filters) {
-    const traversal = (0, queries_1.queryToGetAllCompleteUsers)();
+    const traversal = queries_1.queryToGetAllCompleteUsers();
     console.log(filters.usersEmail);
     if (filters.usersEmail && filters.usersEmail.length > 0) {
         traversal.union(...filters.usersEmail.map(email => database_manager_1.__.has("email", email)));

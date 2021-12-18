@@ -31,7 +31,7 @@ const process_tools_1 = require("../../common-tools/process/process-tools");
 const email_tools_1 = require("../../common-tools/email-tools/email-tools");
 const loadHtmlTemplate_1 = require("../../common-tools/email-tools/loadHtmlTemplate");
 async function initializeUsers() {
-    (0, files_tools_1.createFolder)("uploads");
+    files_tools_1.createFolder("uploads");
     createGenders();
 }
 exports.initializeUsers = initializeUsers;
@@ -50,22 +50,22 @@ exports.initializeUsers = initializeUsers;
  */
 async function retrieveUser(token, includeFullInfo, ctx) {
     let user = null;
-    user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(token), includeFullInfo);
+    user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByToken(token), includeFullInfo);
     if (user != null) {
         return user;
     }
     // This function throws ctx error if the email cannot be retrieved
-    const email = await (0, getUserEmailFromAuthProvider_1.getUserEmailFromToken)(token, ctx);
-    user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), includeFullInfo);
+    const email = await getUserEmailFromAuthProvider_1.getUserEmailFromToken(token, ctx);
+    user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByEmail(email), includeFullInfo);
     if (user != null) {
-        await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserByEmail)(email), token);
+        await queries_1.queryToUpdateUserToken(queries_1.queryToGetUserByEmail(email), token);
         return { ...user, token };
     }
     return createUser({ token, email, includeFullInfo, ctx });
 }
 exports.retrieveUser = retrieveUser;
 async function createUser(props) {
-    return (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToCreateUser)(props), props.includeFullInfo);
+    return data_conversion_1.fromQueryToUser(queries_1.queryToCreateUser(props), props.includeFullInfo);
 }
 exports.createUser = createUser;
 /**
@@ -78,13 +78,13 @@ async function profileStatusGet(params, ctx) {
     const user = await retrieveUser(params.token, true, ctx);
     const result = {
         missingEditableUserProps: getMissingEditableUserProps(user),
-        notShowedTagQuestions: (0, models_1.getNotShowedQuestionIds)(user),
+        notShowedTagQuestions: models_1.getNotShowedQuestionIds(user),
         user,
     };
     const profileCompleted = result.missingEditableUserProps.length === 0 && result.notShowedTagQuestions.length === 0;
     const lastLoginDate = moment().unix();
-    const language = (0, i18n_tools_1.getLocaleFromHeader)(ctx);
-    await (0, queries_1.queryToUpdateUserProps)(user.token, [
+    const language = i18n_tools_1.getLocaleFromHeader(ctx);
+    await queries_1.queryToUpdateUserProps(user.token, [
         {
             key: "profileCompleted",
             value: profileCompleted,
@@ -113,7 +113,7 @@ async function profileStatusGet(params, ctx) {
 }
 exports.profileStatusGet = profileStatusGet;
 function profileStatusIsCompleted(user) {
-    return getMissingEditableUserProps(user).length === 0 && (0, models_1.getNotShowedQuestionIds)(user).length === 0;
+    return getMissingEditableUserProps(user).length === 0 && models_1.getNotShowedQuestionIds(user).length === 0;
 }
 function getMissingEditableUserProps(user) {
     const result = [];
@@ -129,11 +129,11 @@ function userPropsAsQuestionsGet(params, ctx) {
     // This just returns USER_PROPS_AS_QUESTIONS in the correct language:
     return configurations_1.USER_PROPS_AS_QUESTIONS.map(question => ({
         ...question,
-        text: (0, i18n_tools_1.t)(question.text, { ctx }),
-        shortVersion: (0, i18n_tools_1.t)(question.shortVersion, { ctx }),
+        text: i18n_tools_1.t(question.text, { ctx }),
+        shortVersion: i18n_tools_1.t(question.shortVersion, { ctx }),
         answers: question.answers.map(answer => ({
             ...answer,
-            text: (0, i18n_tools_1.t)(answer.text, { ctx }),
+            text: i18n_tools_1.t(answer.text, { ctx }),
         })),
     }));
 }
@@ -150,7 +150,7 @@ async function userGet(params, ctx) {
     }
     else {
         if (userFromToken != null) {
-            return (0, security_tools_1.removePrivacySensitiveUserProps)(await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserById)(params.userId), true));
+            return security_tools_1.removePrivacySensitiveUserProps(await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserById(params.userId), true));
         }
     }
 }
@@ -159,20 +159,20 @@ exports.userGet = userGet;
  * This endpoint is used to send the user props.
  */
 async function userPost(params, ctx) {
-    let query = (0, queries_1.queryToGetUserByToken)(params.token);
+    let query = queries_1.queryToGetUserByToken(params.token);
     if (params.props != null) {
-        const validationResult = (0, user_3.validateUserProps)(params.props);
+        const validationResult = user_3.validateUserProps(params.props);
         if (validationResult !== true) {
             ctx.throw(400, JSON.stringify(validationResult));
             return;
         }
-        query = (0, queries_1.queryToSetUserProps)(query, params.props);
+        query = queries_1.queryToSetUserProps(query, params.props);
     }
-    await (0, database_manager_1.sendQuery)(() => query.iterate());
+    await database_manager_1.sendQuery(() => query.iterate());
     if (params.updateProfileCompletedProp) {
         const user = await retrieveUser(params.token, false, ctx);
         const profileCompleted = profileStatusIsCompleted(user);
-        await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByToken)(params.token)
+        await database_manager_1.sendQuery(() => queries_1.queryToGetUserByToken(params.token)
             .property(database_manager_1.cardinality.single, "profileCompleted", profileCompleted)
             .iterate());
         /**
@@ -194,7 +194,7 @@ exports.userPost = userPost;
 async function retrieveFullyRegisteredUser(token, includeFullInfo, ctx) {
     const user = await retrieveUser(token, includeFullInfo, ctx);
     if (!user.profileCompleted) {
-        ctx.throw(400, (0, i18n_tools_1.t)("Incomplete profiles not allowed in this endpoint", { ctx }));
+        ctx.throw(400, i18n_tools_1.t("Incomplete profiles not allowed in this endpoint", { ctx }));
         return;
     }
     return user;
@@ -204,12 +204,12 @@ exports.retrieveFullyRegisteredUser = retrieveFullyRegisteredUser;
  * Internal function to add a notification to the user object and optionally send push notification.
  */
 async function addNotificationToUser(tokenOrId, notification, settings) {
-    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_2.queryToGetUserByTokenOrId)(tokenOrId), false);
+    const user = await data_conversion_1.fromQueryToUser(queries_2.queryToGetUserByTokenOrId(tokenOrId), false);
     if (settings === null || settings === void 0 ? void 0 : settings.translateNotification) {
         notification = {
             ...notification,
-            title: (0, i18n_tools_1.t)(notification.title, { user }),
-            text: (0, i18n_tools_1.t)(notification.text, { user }),
+            title: i18n_tools_1.t(notification.title, { user }),
+            text: i18n_tools_1.t(notification.text, { user }),
         };
     }
     if (notification.idForReplacement != null) {
@@ -220,18 +220,18 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
     }
     const finalNotification = {
         ...notification,
-        notificationId: (0, string_tools_1.generateId)(),
+        notificationId: string_tools_1.generateId(),
         date: moment().unix(),
     };
     user.notifications.push(finalNotification);
-    await (0, queries_1.queryToUpdateUserProps)((0, queries_2.queryToGetUserByTokenOrId)(tokenOrId), [
+    await queries_1.queryToUpdateUserProps(queries_2.queryToGetUserByTokenOrId(tokenOrId), [
         {
             key: "notifications",
             value: user.notifications,
         },
     ]);
-    if ((settings === null || settings === void 0 ? void 0 : settings.sendPushNotification) && (0, push_notifications_1.isValidNotificationsToken)(user.notificationsToken)) {
-        (0, push_notifications_2.sendPushNotifications)([
+    if ((settings === null || settings === void 0 ? void 0 : settings.sendPushNotification) && push_notifications_1.isValidNotificationsToken(user.notificationsToken)) {
+        push_notifications_2.sendPushNotifications([
             {
                 to: user.notificationsToken,
                 title: notification.title,
@@ -249,11 +249,11 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
             if (configurations_1.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT) {
                 // After an hour we log if the notifications were delivered without any error:
                 setTimeout(async () => {
-                    const errors = await (0, push_notifications_1.getNotificationsDeliveryErrors)(expoPushTickets);
+                    const errors = await push_notifications_1.getNotificationsDeliveryErrors(expoPushTickets);
                     if (errors.length > 0) {
                         errors.forEach(error => console.log(error));
                     }
-                }, (0, general_1.hoursToMilliseconds)(1));
+                }, general_1.hoursToMilliseconds(1));
             }
         });
     }
@@ -264,11 +264,11 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
 exports.addNotificationToUser = addNotificationToUser;
 async function sendEmailNotification(props) {
     const { user, notification } = props;
-    return await (0, email_tools_1.sendEmail)({
+    return await email_tools_1.sendEmail({
         to: user.email,
         senderName: `${configurations_1.APPLICATION_NAME} app`,
         subject: notification.title,
-        html: (0, loadHtmlTemplate_1.loadHtmlEmailTemplate)({
+        html: loadHtmlTemplate_1.loadHtmlEmailTemplate({
             variablesToReplace: {
                 title: notification.title,
                 content: notification.text,
@@ -279,8 +279,8 @@ async function sendEmailNotification(props) {
 }
 exports.sendEmailNotification = sendEmailNotification;
 async function notificationsGet(params, ctx) {
-    const traversal = (0, queries_1.queryToGetUserByToken)(params.token, null, true);
-    return await (0, data_conversion_tools_1.fromQueryToSpecificPropValue)(traversal, "notifications");
+    const traversal = queries_1.queryToGetUserByToken(params.token, null, true);
+    return await data_conversion_tools_1.fromQueryToSpecificPropValue(traversal, "notifications");
 }
 exports.notificationsGet = notificationsGet;
 /**
@@ -293,8 +293,8 @@ async function setAttractionPost(params, ctx) {
         ctx.throw(400, `More than ${limit} attractions are not allowed on the same request`);
         return;
     }
-    await (0, js_tools_1.divideArrayCallback)(attractions, 50, async (attractionsChunk) => {
-        await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToSetAttraction)({ token: params.token, attractions: attractionsChunk }).iterate());
+    await js_tools_1.divideArrayCallback(attractions, 50, async (attractionsChunk) => {
+        await database_manager_1.sendQuery(() => queries_1.queryToSetAttraction({ token: params.token, attractions: attractionsChunk }).iterate());
     });
 }
 exports.setAttractionPost = setAttractionPost;
@@ -304,7 +304,7 @@ async function reportUserPost(params, ctx) {
     if (user == null) {
         return;
     }
-    const reportedUser = await (0, data_conversion_1.fromQueryToUser)((0, queries_2.queryToGetUserByTokenOrId)({ userId: params.reportedUserId }), false);
+    const reportedUser = await data_conversion_1.fromQueryToUser(queries_2.queryToGetUserByTokenOrId({ userId: params.reportedUserId }), false);
     if (reportedUser.demoAccount) {
         ctx.throw(400, "Demo accounts can't be reported");
         return;
@@ -320,21 +320,21 @@ exports.reportUserPost = reportUserPost;
  * This function is not exposed to the server API. It's only for tests.
  */
 async function matchesGet(token) {
-    return (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetMatches)(token), false, false);
+    return data_conversion_1.fromQueryToUserList(queries_1.queryToGetMatches(token), false, false);
 }
 exports.matchesGet = matchesGet;
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 async function attractionsReceivedGet(token, types) {
-    return (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetAttractionsReceived)(token, types), false, false);
+    return data_conversion_1.fromQueryToUserList(queries_1.queryToGetAttractionsReceived(token, types), false, false);
 }
 exports.attractionsReceivedGet = attractionsReceivedGet;
 /**
  * This function is not exposed to the server API. It's only for tests.
  */
 async function attractionsSentGet(token, types) {
-    return (0, data_conversion_1.fromQueryToUserList)((0, queries_1.queryToGetAttractionsSent)(token, types), false, false);
+    return data_conversion_1.fromQueryToUserList(queries_1.queryToGetAttractionsSent(token, types), false, false);
 }
 exports.attractionsSentGet = attractionsSentGet;
 /**
@@ -354,7 +354,7 @@ async function setSeenPost(params, ctx) {
     for (const seenAction of setSeenActions) {
         // Other actions are not implemented yet, (like set as seen again)
         if (seenAction.action === user_1.SetSeenAction.RequestRemoveSeen) {
-            await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToRemoveSeen)({
+            await database_manager_1.sendQuery(() => queries_1.queryToRemoveSeen({
                 requesterUserId: user.userId,
                 targetUserId: seenAction.targetUserId,
             }).iterate());
@@ -371,7 +371,7 @@ exports.setSeenPost = setSeenPost;
 async function createRequiredTaskForUser(params) {
     var _a, _b;
     const { userId, task, notification, translateNotification, avoidDuplication = true } = params;
-    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
+    const user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserById(userId), false);
     if (user == null) {
         return;
     }
@@ -381,8 +381,8 @@ async function createRequiredTaskForUser(params) {
             return;
         }
     }
-    const newRequiredTasks = [...((_b = user.requiredTasks) !== null && _b !== void 0 ? _b : []), { ...task, taskId: (0, string_tools_1.generateId)() }];
-    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
+    const newRequiredTasks = [...((_b = user.requiredTasks) !== null && _b !== void 0 ? _b : []), { ...task, taskId: string_tools_1.generateId() }];
+    await database_manager_1.sendQuery(() => queries_1.queryToGetUserById(userId)
         .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
         .iterate());
     if (notification) {
@@ -405,14 +405,14 @@ async function taskCompletedPost(params, ctx) {
         return;
     }
     const newRequiredTasks = user.requiredTasks.filter(task => task.taskId !== taskId);
-    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByToken)(params.token)
+    await database_manager_1.sendQuery(() => queries_1.queryToGetUserByToken(params.token)
         .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
         .iterate());
     return { success: true };
 }
 exports.taskCompletedPost = taskCompletedPost;
 async function deleteAccountPost(params, ctx) {
-    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(params.token), false);
+    const user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByToken(params.token), false);
     if (user == null) {
         return;
     }
@@ -420,13 +420,13 @@ async function deleteAccountPost(params, ctx) {
         ctx.throw(400, "Demo accounts cannot be deleted");
         return;
     }
-    await (0, database_manager_1.sendQuery)(() => (0, queries_2.queryToGetUserByTokenOrId)({ token: params.token }).drop().iterate());
-    const userAfterDeletion = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(params.token), false);
+    await database_manager_1.sendQuery(() => queries_2.queryToGetUserByTokenOrId({ token: params.token }).drop().iterate());
+    const userAfterDeletion = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByToken(params.token), false);
     return { success: userAfterDeletion == null };
 }
 exports.deleteAccountPost = deleteAccountPost;
 async function createGenders() {
-    await (0, database_manager_1.sendQuery)(() => (0, common_queries_1.queryToCreateVerticesFromObjects)({
+    await database_manager_1.sendQuery(() => common_queries_1.queryToCreateVerticesFromObjects({
         objects: user_1.ALL_GENDERS.map(gender => ({ genderId: gender })),
         label: "gender",
         duplicationAvoidanceProperty: "genderId",
@@ -439,10 +439,10 @@ async function sendWelcomeNotification(user, ctx) {
         return;
     }
     const notificationContent = {
-        title: (0, i18n_tools_1.t)("Welcome to Poly!", { ctx }),
-        text: (0, i18n_tools_1.t)("Press this notification if you are someone curious", { ctx }),
+        title: i18n_tools_1.t("Welcome to Poly!", { ctx }),
+        text: i18n_tools_1.t("Press this notification if you are someone curious", { ctx }),
         type: user_2.NotificationType.About,
-        notificationId: (0, string_tools_1.generateId)(),
+        notificationId: string_tools_1.generateId(),
         date: moment().unix(),
         idForReplacement: "welcome",
     };
@@ -459,7 +459,7 @@ async function onImageFileReceived(ctx, next) {
     if (user == null) {
         return;
     }
-    return (0, koa_tools_1.fileSaverForImages)(ctx, next);
+    return koa_tools_1.fileSaverForImages(ctx, next);
 }
 exports.onImageFileReceived = onImageFileReceived;
 async function onImageFileSaved(file, ctx) {
@@ -467,7 +467,7 @@ async function onImageFileSaved(file, ctx) {
         if (file) {
             fs.promises.unlink(file.path);
         }
-        ctx.throw(400, (0, i18n_tools_1.t)("Invalid file provided", { ctx }));
+        ctx.throw(400, i18n_tools_1.t("Invalid file provided", { ctx }));
         return;
     }
     const originalFileExtension = path.extname(file.name).toLowerCase();
@@ -482,14 +482,14 @@ async function onImageFileSaved(file, ctx) {
      */
     if (file.type !== "image/jpeg" && file.type !== "image/png") {
         fs.promises.unlink(file.path);
-        ctx.throw(400, (0, i18n_tools_1.t)("File format not supported", { ctx }));
+        ctx.throw(400, i18n_tools_1.t("File format not supported", { ctx }));
         return;
     }
     if (originalFileExtension !== ".jpg" &&
         originalFileExtension !== ".jpeg" &&
         originalFileExtension !== ".png") {
         fs.promises.unlink(file.path);
-        ctx.throw(400, (0, i18n_tools_1.t)("Attempted to upload a file with wrong extension", { ctx }));
+        ctx.throw(400, i18n_tools_1.t("Attempted to upload a file with wrong extension", { ctx }));
         return;
     }
     /**
@@ -513,14 +513,14 @@ async function onImageFileSaved(file, ctx) {
     // Remove the original image file to save disk space:
     fs.promises.unlink(file.path);
     // If using AWS upload to S3
-    if ((0, process_tools_1.isProductionMode)() && process.env.USING_AWS === "true") {
-        const fileNameBigInS3 = await (0, s3_tools_1.uploadFileToS3)({
+    if (process_tools_1.isProductionMode() && process.env.USING_AWS === "true") {
+        const fileNameBigInS3 = await s3_tools_1.uploadFileToS3({
             fileName: fullPathBig,
             targetPath: `images/${fileNameBig}`,
             allowPublicRead: true,
             contentType: "image/jpeg",
         });
-        const fileNameSmallInS3 = await (0, s3_tools_1.uploadFileToS3)({
+        const fileNameSmallInS3 = await s3_tools_1.uploadFileToS3({
             fileName: fullPathSmall,
             targetPath: `images/${fileNameSmall}`,
             allowPublicRead: true,

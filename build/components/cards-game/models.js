@@ -13,34 +13,34 @@ const data_conversion_2 = require("./tools/data-conversion");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
 async function initializeCardsGame() {
-    (0, dynamic_1.setIntervalAsync)(notifyAllUsersAboutNewCards, configurations_1.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY);
+    dynamic_1.setIntervalAsync(notifyAllUsersAboutNewCards, configurations_1.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY);
 }
 exports.initializeCardsGame = initializeCardsGame;
 async function recommendationsGet(params, ctx) {
-    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
+    const user = await models_1.retrieveFullyRegisteredUser(params.token, true, ctx);
     if (user.demoAccount) {
-        return await (0, data_conversion_1.fromQueryToUserList)((0, queries_2.queryToGetDemoCardsRecommendations)(user), true, false);
+        return await data_conversion_1.fromQueryToUserList(queries_2.queryToGetDemoCardsRecommendations(user), true, false);
     }
-    const recommendationsQuery = (0, queries_2.queryToGetCardsRecommendations)(user);
-    const result = await (0, data_conversion_2.fromQueryToCardsResult)(recommendationsQuery);
+    const recommendationsQuery = queries_2.queryToGetCardsRecommendations(user);
+    const result = await data_conversion_2.fromQueryToCardsResult(recommendationsQuery);
     return mergeResults(result);
 }
 exports.recommendationsGet = recommendationsGet;
 async function dislikedUsersGet(params, ctx) {
-    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
-    const recommendationsQuery = (0, queries_2.queryToGetDislikedUsers)({
+    const user = await models_1.retrieveFullyRegisteredUser(params.token, true, ctx);
+    const recommendationsQuery = queries_2.queryToGetDislikedUsers({
         token: params.token,
         searcherUser: user,
         invertOrder: false,
     });
-    return await (0, data_conversion_1.fromQueryToUserList)(recommendationsQuery);
+    return await data_conversion_1.fromQueryToUserList(recommendationsQuery);
 }
 exports.dislikedUsersGet = dislikedUsersGet;
 async function recommendationsFromTagGet(params, ctx) {
-    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
-    let traversal = (0, queries_3.queryToGetUsersSubscribedToTags)([params.tagId]);
-    traversal = (0, queries_2.queryToGetCardsRecommendations)(user, { traversal });
-    const result = await (0, data_conversion_2.fromQueryToCardsResult)(traversal);
+    const user = await models_1.retrieveFullyRegisteredUser(params.token, true, ctx);
+    let traversal = queries_3.queryToGetUsersSubscribedToTags([params.tagId]);
+    traversal = queries_2.queryToGetCardsRecommendations(user, { traversal });
+    const result = await data_conversion_2.fromQueryToCardsResult(traversal);
     return mergeResults(result);
 }
 exports.recommendationsFromTagGet = recommendationsFromTagGet;
@@ -64,20 +64,20 @@ exports.recommendationsFromTagGet = recommendationsFromTagGet;
  */
 async function notifyAllUsersAboutNewCards() {
     const porfiler = logTimeToFile("notifyUsersAboutNewCardsTask");
-    const users = await (0, data_conversion_1.fromQueryToUserList)((0, queries_2.queryToGetAllUsersWantingNewCardsNotification)(), false);
+    const users = await data_conversion_1.fromQueryToUserList(queries_2.queryToGetAllUsersWantingNewCardsNotification(), false);
     for (const user of users) {
-        const recommendations = (await (0, queries_2.queryToGetCardsRecommendations)(user, { singleListResults: true, unordered: true }).toList()).length;
+        const recommendations = (await queries_2.queryToGetCardsRecommendations(user, { singleListResults: true, unordered: true }).toList()).length;
         if (recommendations >= user.sendNewUsersNotification) {
-            await (0, queries_1.queryToUpdateUserProps)(user.token, [
+            await queries_1.queryToUpdateUserProps(user.token, [
                 {
                     key: "sendNewUsersNotification",
                     value: -1,
                 },
             ]);
-            await (0, models_1.addNotificationToUser)({ token: user.token }, {
+            await models_1.addNotificationToUser({ token: user.token }, {
                 type: user_1.NotificationType.CardsGame,
-                title: (0, i18n_tools_1.t)(`There is new people in the app!`, { user }),
-                text: (0, i18n_tools_1.t)("There are %s new users", { user }, String(recommendations)),
+                title: i18n_tools_1.t(`There is new people in the app!`, { user }),
+                text: i18n_tools_1.t("There are %s new users", { user }, String(recommendations)),
                 idForReplacement: "newUsers",
             }, { sendPushNotification: true, channelId: user_1.NotificationChannelId.NewUsers });
         }
@@ -91,7 +91,7 @@ exports.notifyAllUsersAboutNewCards = notifyAllUsersAboutNewCards;
  */
 function mergeResults(cardsGameResult) {
     const result = [];
-    (0, js_tools_1.divideArrayCallback)(cardsGameResult.liking, configurations_1.SEARCHER_LIKING_CHUNK, likingChunk => {
+    js_tools_1.divideArrayCallback(cardsGameResult.liking, configurations_1.SEARCHER_LIKING_CHUNK, likingChunk => {
         const chunk = [];
         if (cardsGameResult.others.length > 0) {
             // splice cuts the array and returns the slice
@@ -99,7 +99,7 @@ function mergeResults(cardsGameResult) {
         }
         chunk.push(...likingChunk);
         if (configurations_1.SHUFFLE_LIKING_NON_LIKING_RESULTS) {
-            (0, js_tools_1.shuffleArray)(chunk);
+            js_tools_1.shuffleArray(chunk);
         }
         result.push(...chunk);
     });

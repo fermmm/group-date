@@ -15,8 +15,8 @@ exports.default = async () => {
     /**
      * These are the initialization functions from index.ts that needs to be executed on the tests
      */
-    await (0, database_manager_1.waitForDatabase)();
-    await (0, models_1.creteAppAuthoredTags)();
-    await (0, models_2.createGenders)();
+    await database_manager_1.waitForDatabase();
+    await models_1.creteAppAuthoredTags();
+    await models_2.createGenders();
 };
 //# sourceMappingURL=beforeAllTests.js.map

@@ -16,7 +16,7 @@ const log_routes_1 = require("../log-tools/log-routes");
  */
 function serveWebsite(route, websiteFilesPath, app, router, settings) {
     const { enableCache = true, websiteHasRouter } = settings || {};
-    app.use(mount(route, (context, next) => serve(websiteFilesPath + "/", enableCache ? { maxage: (0, general_1.hoursToMilliseconds)(24) * 14 } : null)(context, next)));
+    app.use(mount(route, (context, next) => serve(websiteFilesPath + "/", enableCache ? { maxage: general_1.hoursToMilliseconds(24) * 14 } : null)(context, next)));
     const pathsString = [];
     let path = route;
     if (websiteHasRouter) {
@@ -59,8 +59,8 @@ exports.fileSaverForAdminFiles = koaBody({
 function serveFolderFiles(props) {
     const { localFolderPath, urlToServe, enableCache = true } = props;
     return mount(urlToServe, (context, next) => {
-        (0, log_routes_1.imagesLogger)(context);
-        return serve(localFolderPath, enableCache ? { maxage: (0, general_1.hoursToMilliseconds)(24) * 360 } : undefined)(context, next);
+        log_routes_1.imagesLogger(context);
+        return serve(localFolderPath, enableCache ? { maxage: general_1.hoursToMilliseconds(24) * 360 } : undefined)(context, next);
     });
 }
 exports.serveFolderFiles = serveFolderFiles;

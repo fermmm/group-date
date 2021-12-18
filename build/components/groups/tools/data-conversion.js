@@ -12,7 +12,7 @@ const data_conversion_1 = require("../../user/tools/data-conversion");
  * @param includeFullDetails Include or not the full group details: members, votes and matches relationships. Default = true
  */
 async function fromQueryToGroup(queryOfGroup, protectPrivacy = true, includeFullDetails = true) {
-    return fromGremlinMapToGroup((await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetGroupsInFinalFormat)(queryOfGroup, includeFullDetails).next())).value, protectPrivacy);
+    return fromGremlinMapToGroup((await database_manager_1.sendQuery(() => queries_1.queryToGetGroupsInFinalFormat(queryOfGroup, includeFullDetails).next())).value, protectPrivacy);
 }
 exports.fromQueryToGroup = fromQueryToGroup;
 /**
@@ -22,7 +22,7 @@ exports.fromQueryToGroup = fromQueryToGroup;
  * @returns
  */
 async function fromQueryToGroupList(queryOfGroups, protectPrivacy = true, includeFullDetails = true) {
-    const resultGremlinOutput = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetGroupsInFinalFormat)(queryOfGroups, includeFullDetails).toList()));
+    const resultGremlinOutput = (await database_manager_1.sendQuery(() => queries_1.queryToGetGroupsInFinalFormat(queryOfGroups, includeFullDetails).toList()));
     return resultGremlinOutput.map(groupFromQuery => {
         return fromGremlinMapToGroup(groupFromQuery, protectPrivacy);
     });
@@ -39,16 +39,16 @@ function fromGremlinMapToGroup(groupFromDatabase, protectPrivacy = true) {
     const members = groupFromDatabase.get("members");
     const membersConverted = members === null || members === void 0 ? void 0 : members.map(userFromQuery => {
         if (protectPrivacy) {
-            return (0, security_tools_1.removePrivacySensitiveUserProps)((0, data_conversion_1.fromGremlinMapToUser)(userFromQuery));
+            return security_tools_1.removePrivacySensitiveUserProps(data_conversion_1.fromGremlinMapToUser(userFromQuery));
         }
-        return (0, data_conversion_1.fromGremlinMapToUser)(userFromQuery);
+        return data_conversion_1.fromGremlinMapToUser(userFromQuery);
     });
     groupFromDatabase.delete("members");
     // Now the rest of the group properties can be converted
-    const group = (0, data_conversion_tools_1.fromGremlinMapToObject)(groupFromDatabase, ["chat", "dayOptions", "seenBy"]);
+    const group = data_conversion_tools_1.fromGremlinMapToObject(groupFromDatabase, ["chat", "dayOptions", "seenBy"]);
     group.members = membersConverted;
     if (protectPrivacy) {
-        return (0, security_tools_1.removePrivacySensitiveGroupProps)(group);
+        return security_tools_1.removePrivacySensitiveGroupProps(group);
     }
     else {
         return group;

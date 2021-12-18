@@ -23,50 +23,50 @@ describe("Groups", () => {
     let mainUser2;
     let mainUser3;
     beforeAll(async () => {
-        fakeUsers = await (0, users_1.createFakeUsers)(10);
-        fakeMatchingUsers = await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(GroupCandTestTools.createGroupCandidate({
+        fakeUsers = await users_1.createFakeUsers(10);
+        fakeMatchingUsers = await user_creation_tools_1.createFullUsersFromGroupCandidate(GroupCandTestTools.createGroupCandidate({
             amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE,
             connectAllWithAll: true,
         }));
         mainUser = fakeUsers[0];
         mainUser2 = fakeUsers[1];
         mainUser3 = fakeUsers[2];
-        group = await (0, models_1.createGroup)({
+        group = await models_1.createGroup({
             usersIds: fakeUsers.map(u => u.userId),
-            slotToUse: (0, models_1.getSlotIdFromUsersAmount)(fakeUsers.length),
+            slotToUse: models_1.getSlotIdFromUsersAmount(fakeUsers.length),
         });
-        group2 = await (0, models_1.createGroup)({ usersIds: [mainUser2.userId], slotToUse: (0, models_1.getSlotIdFromUsersAmount)(1) });
-        group3 = await (0, models_1.createGroup)({
+        group2 = await models_1.createGroup({ usersIds: [mainUser2.userId], slotToUse: models_1.getSlotIdFromUsersAmount(1) });
+        group3 = await models_1.createGroup({
             usersIds: fakeMatchingUsers.map(u => u.userId),
-            slotToUse: (0, models_1.getSlotIdFromUsersAmount)(fakeMatchingUsers.length),
+            slotToUse: models_1.getSlotIdFromUsersAmount(fakeMatchingUsers.length),
         });
     });
     test("Voting dating ideas works correctly and not cheating is allowed", async () => {
         // Main user votes for some ideas
-        await (0, models_1.dateIdeaVotePost)({
+        await models_1.dateIdeaVotePost({
             token: mainUser.token,
             groupId: group.groupId,
             ideasToVoteAuthorsIds: [fakeUsers[3].userId, fakeUsers[4].userId],
         }, replacements_1.fakeCtx);
         // Main user 2 votes for the same ideas
-        await (0, models_1.dateIdeaVotePost)({
+        await models_1.dateIdeaVotePost({
             token: mainUser2.token,
             groupId: group.groupId,
             ideasToVoteAuthorsIds: [fakeUsers[3].userId, fakeUsers[4].userId],
         }, replacements_1.fakeCtx);
         // Main user 2 removed one vote
-        await (0, models_1.dateIdeaVotePost)({
+        await models_1.dateIdeaVotePost({
             token: mainUser2.token,
             groupId: group.groupId,
             ideasToVoteAuthorsIds: [fakeUsers[4].userId],
         }, replacements_1.fakeCtx);
         // Main user 2 votes the same thing 2 times (should have no effect)
-        await (0, models_1.dateIdeaVotePost)({
+        await models_1.dateIdeaVotePost({
             token: mainUser2.token,
             groupId: group.groupId,
             ideasToVoteAuthorsIds: [fakeUsers[4].userId],
         }, replacements_1.fakeCtx);
-        group = await (0, models_1.groupGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        group = await models_1.groupGet({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
         // The idea with index 4 should be voted by mainUser and mainUser2.
         expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(mainUser.userId);
         expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(mainUser2.userId);
@@ -77,30 +77,30 @@ describe("Groups", () => {
     });
     test("Voting day option works correctly and not cheating is allowed", async () => {
         // Main user votes for some ideas
-        await (0, models_1.dateDayVotePost)({
+        await models_1.dateDayVotePost({
             token: mainUser.token,
             groupId: group.groupId,
             daysToVote: [group.dayOptions[3].date, group.dayOptions[4].date],
         }, replacements_1.fakeCtx);
         // Main user 2 votes for the same ideas
-        await (0, models_1.dateDayVotePost)({
+        await models_1.dateDayVotePost({
             token: mainUser2.token,
             groupId: group.groupId,
             daysToVote: [group.dayOptions[3].date, group.dayOptions[4].date],
         }, replacements_1.fakeCtx);
         // Main user 2 removed one vote
-        await (0, models_1.dateDayVotePost)({
+        await models_1.dateDayVotePost({
             token: mainUser2.token,
             groupId: group.groupId,
             daysToVote: [group.dayOptions[4].date],
         }, replacements_1.fakeCtx);
         // Main user 2 votes the same thing 2 times (should have no effect)
-        await (0, models_1.dateDayVotePost)({
+        await models_1.dateDayVotePost({
             token: mainUser2.token,
             groupId: group.groupId,
             daysToVote: [group.dayOptions[4].date],
         }, replacements_1.fakeCtx);
-        group = await (0, models_1.groupGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        group = await models_1.groupGet({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
         // The idea with index 4 should be voted by mainUser and mainUser2.
         expect(group.dayOptions[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
         expect(group.dayOptions[4].votersUserId.indexOf(mainUser2.userId) !== -1).toBe(true);
@@ -110,70 +110,70 @@ describe("Groups", () => {
         expect(group.dayOptions[3].votersUserId.length === 1).toBe(true);
     });
     test("Chat messages are saved correctly", async () => {
-        await (0, models_1.chatPost)({ message: "Hey!", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        await (0, models_1.chatPost)({ message: "how are you today?", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        await (0, models_1.chatPost)({ message: "I'm so good, I love the world!", token: mainUser2.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        group = await (0, models_1.groupGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        const chat = JSON.parse(await (0, models_1.chatGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx));
+        await models_1.chatPost({ message: "Hey!", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        await models_1.chatPost({ message: "how are you today?", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        await models_1.chatPost({ message: "I'm so good, I love the world!", token: mainUser2.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        group = await models_1.groupGet({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        const chat = JSON.parse(await models_1.chatGet({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx));
         expect(chat.messages).toHaveLength(3);
         expect(group.chat.messages).toHaveLength(3);
     });
     test("Notifications of new chat messages are received and not with a spamming behavior", async () => {
-        mainUser2 = await (0, models_2.retrieveFullyRegisteredUser)(mainUser2.token, false, replacements_1.fakeCtx);
+        mainUser2 = await models_2.retrieveFullyRegisteredUser(mainUser2.token, false, replacements_1.fakeCtx);
         const chatNotifications = mainUser2.notifications.filter(n => n.targetId === group.groupId && n.type === user_1.NotificationType.Chat);
         expect(chatNotifications).toHaveLength(1);
     });
     test("Unread messages counter works", async () => {
-        await (0, models_1.chatPost)({ message: "Lets check counter!", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        await (0, models_1.chatPost)({ message: "With another one also!", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        const unreadMessages = await (0, models_1.chatUnreadAmountGet)({ groupId: group.groupId, token: mainUser2.token }, replacements_1.fakeCtx);
+        await models_1.chatPost({ message: "Lets check counter!", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        await models_1.chatPost({ message: "With another one also!", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        const unreadMessages = await models_1.chatUnreadAmountGet({ groupId: group.groupId, token: mainUser2.token }, replacements_1.fakeCtx);
         expect(unreadMessages.unread).toBe(5);
     });
     test("User groups are retrieved correctly", async () => {
-        const user1Groups = await (0, models_1.userGroupsGet)({ token: mainUser.token }, replacements_1.fakeCtx);
-        const user2Groups = await (0, models_1.userGroupsGet)({ token: mainUser2.token }, replacements_1.fakeCtx);
+        const user1Groups = await models_1.userGroupsGet({ token: mainUser.token }, replacements_1.fakeCtx);
+        const user2Groups = await models_1.userGroupsGet({ token: mainUser2.token }, replacements_1.fakeCtx);
         expect(user1Groups.length).toBe(1);
         expect(user2Groups.length).toBe(2);
     });
     test("Group active property is set to false after some time and related tasks are executed", async () => {
         var _a;
-        await (0, models_1.findInactiveGroups)();
-        group3 = await (0, models_1.groupGet)({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
+        await models_1.findInactiveGroups();
+        group3 = await models_1.groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
         expect(group3.isActive).toBeTrue();
         // Simulate time passing
-        JestDateMock.advanceBy(configurations_1.GROUP_ACTIVE_TIME * 1000 + (0, general_1.hoursToMilliseconds)(1));
-        await (0, models_1.findInactiveGroups)();
-        group3 = await (0, models_1.groupGet)({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
+        JestDateMock.advanceBy(configurations_1.GROUP_ACTIVE_TIME * 1000 + general_1.hoursToMilliseconds(1));
+        await models_1.findInactiveGroups();
+        group3 = await models_1.groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
         expect(group3.isActive).toBeFalse();
-        const updatedUser = await (0, models_2.userGet)({ token: fakeMatchingUsers[0].token }, replacements_1.fakeCtx);
+        const updatedUser = await models_2.userGet({ token: fakeMatchingUsers[0].token }, replacements_1.fakeCtx);
         const removeSeenTask = (_a = updatedUser.requiredTasks) === null || _a === void 0 ? void 0 : _a.find(t => t.type === user_1.TaskType.ShowRemoveSeenMenu);
         expect(removeSeenTask).toBeDefined();
         JestDateMock.clear();
     });
     test("SeenMatch can be changed to Match when both users request it", async () => {
-        let edges = await (0, users_1.getEdgeLabelsBetweenUsers)(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+        let edges = await users_1.getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
         expect(edges.includes("SeenMatch")).toBeTrue();
-        await (0, models_2.setSeenPost)({
+        await models_2.setSeenPost({
             token: fakeMatchingUsers[0].token,
             setSeenActions: [
                 { targetUserId: fakeMatchingUsers[1].token, action: user_1.SetSeenAction.RequestRemoveSeen },
             ],
         }, replacements_1.fakeCtx);
-        edges = await (0, users_1.getEdgeLabelsBetweenUsers)(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+        edges = await users_1.getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
         expect(edges.includes("SeenMatch")).toBeTrue();
-        await (0, models_2.setSeenPost)({
+        await models_2.setSeenPost({
             token: fakeMatchingUsers[1].token,
             setSeenActions: [
                 { targetUserId: fakeMatchingUsers[0].token, action: user_1.SetSeenAction.RequestRemoveSeen },
             ],
         }, replacements_1.fakeCtx);
-        edges = await (0, users_1.getEdgeLabelsBetweenUsers)(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
+        edges = await users_1.getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
         expect(edges.includes("SeenMatch")).toBeFalse();
         expect(edges.includes("Match")).toBeTrue();
     });
     afterAll(async () => {
-        await (0, queries_2.queryToRemoveUsers)((0, users_1.getAllTestUsersCreated)());
-        await (0, queries_1.queryToRemoveGroups)([group, group2]);
+        await queries_2.queryToRemoveUsers(users_1.getAllTestUsersCreated());
+        await queries_1.queryToRemoveGroups([group, group2]);
     });
 });
 //# sourceMappingURL=groups.test.js.map

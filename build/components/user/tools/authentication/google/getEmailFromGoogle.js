@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getEmailFromGoogle = void 0;
 const httpRequest_1 = require("../../../../../common-tools/httpRequest/httpRequest");
 async function getEmailFromGoogle(token, ctx) {
-    const userDataFromGoogle = await (0, httpRequest_1.httpRequest)({
+    const userDataFromGoogle = await httpRequest_1.httpRequest({
         url: `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`,
     });
     if (userDataFromGoogle.success === false) {

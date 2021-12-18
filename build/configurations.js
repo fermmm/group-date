@@ -342,7 +342,7 @@ exports.SECOND_DATE_REMINDER_TIME = constants_1.DAY_IN_SECONDS;
 /**
  * How often to execute the search of groups to send the remainder notification to members
  */
-exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = (0, general_1.hoursToMilliseconds)(5);
+exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = general_1.hoursToMilliseconds(5);
 /**
  * To update a push notification channel you must also update NotificationChannelId.
  * This information is sent to the client in the server info endpoint so the device
@@ -381,10 +381,10 @@ i18n.configure({
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  PERFORMANCE  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-exports.SEARCH_GROUPS_FREQUENCY = (0, general_1.minutesToMilliseconds)(5); // In the final version this should be: hoursToMilliseconds(4)
-exports.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = (0, general_1.minutesToMilliseconds)(5); // In the final version this should be: hoursToMilliseconds(24)
-exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = (0, general_1.hoursToMilliseconds)(24);
-exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = (0, general_1.hoursToMilliseconds)(24);
+exports.SEARCH_GROUPS_FREQUENCY = general_1.minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(4)
+exports.NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = general_1.minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(24)
+exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = general_1.hoursToMilliseconds(24);
+exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = general_1.hoursToMilliseconds(24);
 exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
@@ -425,7 +425,7 @@ exports.DATABASE_BACKUP_HOUR = 0;
 /**
  * How often the rate limiter cache is cleared.
  */
-exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = (0, general_1.hoursToMilliseconds)(5);
+exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = general_1.hoursToMilliseconds(5);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  DEBUGGING  ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,16 +433,16 @@ exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = (0, general_1.hoursToMilliseconds)(5
  * Log files that can be written and retrieved in the dashboard
  */
 exports.LOG_FILES = {
-    groupFinderTask: (0, winstonCreateLogger_1.createLog)("group_finder_tasks.log"),
-    groupsTasks: (0, winstonCreateLogger_1.createLog)("groups_tasks.log"),
-    notifyUsersAboutNewCardsTask: (0, winstonCreateLogger_1.createLog)("notify_users_about_new_cards_task.log"),
-    groupFinderProblems: (0, winstonCreateLogger_1.createLog)("group_finder_problems.log"),
-    usageReports: (0, winstonCreateLogger_1.createLog)("usage_reports.log"),
-    serverStatus: (0, winstonCreateLogger_1.createLog)("server_status.log"),
-    backups: (0, winstonCreateLogger_1.createLog)("backups.log"),
-    usersReported: (0, winstonCreateLogger_1.createLog)("users_reported.log"),
+    groupFinderTask: winstonCreateLogger_1.createLog("group_finder_tasks.log"),
+    groupsTasks: winstonCreateLogger_1.createLog("groups_tasks.log"),
+    notifyUsersAboutNewCardsTask: winstonCreateLogger_1.createLog("notify_users_about_new_cards_task.log"),
+    groupFinderProblems: winstonCreateLogger_1.createLog("group_finder_problems.log"),
+    usageReports: winstonCreateLogger_1.createLog("usage_reports.log"),
+    serverStatus: winstonCreateLogger_1.createLog("server_status.log"),
+    backups: winstonCreateLogger_1.createLog("backups.log"),
+    usersReported: winstonCreateLogger_1.createLog("users_reported.log"),
 };
-exports.LOG_USAGE_REPORT_FREQUENCY = (0, general_1.hoursToMilliseconds)(12);
+exports.LOG_USAGE_REPORT_FREQUENCY = general_1.hoursToMilliseconds(12);
 /**
  * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
  * trust that the query and multithreading is working correctly.

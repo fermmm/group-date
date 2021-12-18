@@ -22,18 +22,18 @@ describe("Group finder", () => {
             amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE - 1,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        expect(await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users)).toHaveLength(0);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        expect(await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users)).toHaveLength(0);
     });
     test("Matching in minimum amount creates a group", async () => {
         const groupCandidate = GroupCandTestTools.createGroupCandidate({
             amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
         expect(groups).toHaveLength(1);
         expect(groups[0].members).toHaveLength(configurations_1.MIN_GROUP_SIZE);
     });
@@ -42,12 +42,12 @@ describe("Group finder", () => {
             amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
         groupCandidate = GroupCandTestTools.createAndAddOneUser({ group: groupCandidate, connectWith: "all" });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
         expect(groups).toHaveLength(1);
         expect(groups[0].members).toHaveLength(configurations_1.MIN_GROUP_SIZE + 1);
     });
@@ -56,12 +56,12 @@ describe("Group finder", () => {
             amountOfInitialUsers: 4,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
         groupCandidate = GroupCandTestTools.createAndAddOneUser({ group: groupCandidate, connectWith: [0, 1] });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
         expect(groups).toHaveLength(1);
         expect(groups[0].members).toHaveLength(4);
     });
@@ -70,28 +70,28 @@ describe("Group finder", () => {
             amountOfInitialUsers: 4,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
         groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, configurations_1.MAX_GROUP_SIZE + 5, "all");
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect((0, groups_1.getBiggestGroup)(groups).members.length).toBeLessThanOrEqual(configurations_1.MAX_GROUP_SIZE);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
+        expect(groups_1.getBiggestGroup(groups).members.length).toBeLessThanOrEqual(configurations_1.MAX_GROUP_SIZE);
     });
     test("Additional users are not added after too much time", async () => {
         let groupCandidate = GroupCandTestTools.createGroupCandidate({
             amountOfInitialUsers: 4,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
         // Simulate time passing
-        JestDateMock.advanceBy(configurations_1.MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + (0, general_1.hoursToMilliseconds)(1));
+        JestDateMock.advanceBy(configurations_1.MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + general_1.hoursToMilliseconds(1));
         groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, 2, "all");
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
         JestDateMock.clear();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
         expect(groups).toHaveLength(1);
         expect(groups[0].members).toHaveLength(4);
     });
@@ -105,7 +105,7 @@ describe("Group finder", () => {
             }
             return result;
         }).flat();
-        groupsAllowedBySize.sort((0, thenby_1.firstBy)(s => s));
+        groupsAllowedBySize.sort(thenby_1.firstBy(s => s));
         // This map creates group candidates with each slot using the amount value
         const groupCandidates = configurations_1.GROUP_SLOTS_CONFIGS.map(slot => {
             var _a, _b;
@@ -128,13 +128,13 @@ describe("Group finder", () => {
         }).flat();
         // Create the full users
         for (const groupCandidate of groupCandidates) {
-            await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
+            await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
         }
         // Create the group
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const testUserGroups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)([testUserId]);
-        const allGroups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidates.map(g => g.users).flat());
-        testUserGroups.sort((0, thenby_1.firstBy)(g => g.members.length));
+        await user_creation_tools_1.callGroupFinder();
+        const testUserGroups = await user_creation_tools_1.retrieveFinalGroupsOf([testUserId]);
+        const allGroups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidates.map(g => g.users).flat());
+        testUserGroups.sort(thenby_1.firstBy(g => g.members.length));
         // The amount of groups for the users is correct:
         expect(testUserGroups).toHaveLength(groupsAllowedBySize.length);
         expect(allGroups).toHaveLength(groupCandidates.length);
@@ -148,9 +148,9 @@ describe("Group finder", () => {
             amountOfInitialUsers: configurations_1.MAX_GROUP_SIZE,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
         expect(groups).toHaveLength(1);
         expect(groups[0].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
     });
@@ -159,9 +159,9 @@ describe("Group finder", () => {
             amountOfInitialUsers: configurations_1.MAX_GROUP_SIZE * 2,
             connectAllWithAll: true,
         });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(groupCandidate.users);
         expect(groups).toHaveLength(2);
         expect(groups[0].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
         expect(groups[1].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
@@ -192,11 +192,11 @@ describe("Group finder", () => {
          * it, then we will create the other users. This way the big group cannot form because
          * one of the triangles already meet each other.
          */
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(triangle1);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(triangle2);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const createdGroups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)([...triangle1.users, ...triangle2.users]);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(triangle1);
+        await user_creation_tools_1.callGroupFinder();
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(triangle2);
+        await user_creation_tools_1.callGroupFinder();
+        const createdGroups = await user_creation_tools_1.retrieveFinalGroupsOf([...triangle1.users, ...triangle2.users]);
         expect(createdGroups).toHaveLength(2);
         expect(createdGroups[0].members).toHaveLength(3);
         expect(createdGroups[1].members).toHaveLength(3);
@@ -208,17 +208,17 @@ describe("Group finder", () => {
             connectAllWithAll: false,
         });
         const badGroupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupWith2, 8, [0, 1]);
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(badGroupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(badGroupCandidate.users);
-        const badGroupCandidateFixed = (0, group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded)((0, group_candidate_analysis_1.analiceGroupCandidate)(badGroupCandidate), (0, models_1.slotsIndexesOrdered)().reverse()[0]);
+        await user_creation_tools_1.createFullUsersFromGroupCandidate(badGroupCandidate);
+        await user_creation_tools_1.callGroupFinder();
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(badGroupCandidate.users);
+        const badGroupCandidateFixed = group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded(group_candidate_analysis_1.analiceGroupCandidate(badGroupCandidate), models_1.slotsIndexesOrdered().reverse()[0]);
         expect(groups).toHaveLength(1);
         expect(groups[0].members.length).toBeLessThanOrEqual(badGroupCandidateFixed.group.users.length);
     });
     test("From 2 groups that shares users only the best quality one is created", async () => {
         var _a, _b;
         const slotsOrdered = [...configurations_1.GROUP_SLOTS_CONFIGS];
-        slotsOrdered.sort((0, thenby_1.firstBy)(s => { var _a; return (_a = s.minimumSize) !== null && _a !== void 0 ? _a : 0; }));
+        slotsOrdered.sort(thenby_1.firstBy(s => { var _a; return (_a = s.minimumSize) !== null && _a !== void 0 ? _a : 0; }));
         const groupWith2 = GroupCandTestTools.createGroupCandidate({
             amountOfInitialUsers: 2,
             connectAllWithAll: true,
@@ -233,15 +233,15 @@ describe("Group finder", () => {
                  * the groups created next
                  */
                 badGroupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupWith2, ((_a = slot.maximumSize) !== null && _a !== void 0 ? _a : configurations_1.MAX_GROUP_SIZE) - 2, [0, 1]);
-                await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(badGroupCandidate);
+                await user_creation_tools_1.createFullUsersFromGroupCandidate(badGroupCandidate);
             }
             // Fill the rest of the slots with good groups
             for (let u = 0; u < slot.amount; u++) {
                 const goodGroupToFillSlot = GroupCandTestTools.createAndAddMultipleUsers(groupWith2, ((_b = slot.maximumSize) !== null && _b !== void 0 ? _b : configurations_1.MAX_GROUP_SIZE) - 2, "all");
-                await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(goodGroupToFillSlot);
+                await user_creation_tools_1.createFullUsersFromGroupCandidate(goodGroupToFillSlot);
             }
         }
-        await (0, user_creation_tools_1.callGroupFinder)();
+        await user_creation_tools_1.callGroupFinder();
         /**
          * Get the users that should not have a group and check they don't have it
          */
@@ -251,7 +251,7 @@ describe("Group finder", () => {
             }
             return p;
         }, []);
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(usersThatShouldNotHaveGroup);
+        const groups = await user_creation_tools_1.retrieveFinalGroupsOf(usersThatShouldNotHaveGroup);
         expect(groups).toHaveLength(0);
     });
     test("Slots gets free after time passes", async () => {
@@ -260,7 +260,7 @@ describe("Group finder", () => {
             amountOfInitialUsers: 1,
             connectAllWithAll: false,
         });
-        const smallerSlot = (0, user_creation_tools_1.getSmallerSlot)();
+        const smallerSlot = user_creation_tools_1.getSmallerSlot();
         const smallerSlotMinSize = (_a = smallerSlot.minimumSize) !== null && _a !== void 0 ? _a : configurations_1.MIN_GROUP_SIZE;
         const groupsRequiredToFillSlot = smallerSlot.amount;
         const groupCandidatesToCreate = groupsRequiredToFillSlot * 3;
@@ -269,36 +269,36 @@ describe("Group finder", () => {
          * in the smaller slot.
          */
         for (let i = 0; i < groupCandidatesToCreate; i++) {
-            await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(GroupCandTestTools.createAndAddMultipleUsers(singleUserGroup, smallerSlotMinSize - 1, "all"));
+            await user_creation_tools_1.createFullUsersFromGroupCandidate(GroupCandTestTools.createAndAddMultipleUsers(singleUserGroup, smallerSlotMinSize - 1, "all"));
         }
-        let groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
+        let groupsCreated = await user_creation_tools_1.callGroupFinder();
         // Only half of the group candidates created should be converted into final groups
         expect(groupsCreated).toHaveLength(groupsRequiredToFillSlot);
         // Call the function to release slots but shouldn't release any slot because no time has passed
-        await (0, models_2.findSlotsToRelease)();
+        await models_2.findSlotsToRelease();
         // Try again but still shouldn't be possible to create the other groups because slot is still full
-        groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
+        groupsCreated = await user_creation_tools_1.callGroupFinder();
         expect(groupsCreated).toHaveLength(0);
         // Simulate time passing
-        JestDateMock.advanceBy(smallerSlot.releaseTime * 1000 + (0, general_1.hoursToMilliseconds)(1));
+        JestDateMock.advanceBy(smallerSlot.releaseTime * 1000 + general_1.hoursToMilliseconds(1));
         // Now the function to release slot should release it because time has passed
-        await (0, models_2.findSlotsToRelease)();
+        await models_2.findSlotsToRelease();
         // Try again but this time the other group should be created because the slot got free
-        groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
+        groupsCreated = await user_creation_tools_1.callGroupFinder();
         expect(groupsCreated).toHaveLength(groupsRequiredToFillSlot);
         // Try again but this time should not create a group because the slot is full again
-        await (0, models_2.findSlotsToRelease)();
-        groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
+        await models_2.findSlotsToRelease();
+        groupsCreated = await user_creation_tools_1.callGroupFinder();
         expect(groupsCreated).toHaveLength(0);
         JestDateMock.clear();
     });
     test("All groups that should be created gets created", async () => {
-        const testingGroups = (0, group_candidates_ordering_1.getTestingGroups)();
-        const groupsFilteredAndSorted = (0, group_candidates_ordering_1.getTestingGroupsFilteredAndSorted)();
+        const testingGroups = group_candidates_ordering_1.getTestingGroups();
+        const groupsFilteredAndSorted = group_candidates_ordering_1.getTestingGroupsFilteredAndSorted();
         for (const groupCandidate of testingGroups) {
-            await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate.group);
+            await user_creation_tools_1.createFullUsersFromGroupCandidate(groupCandidate.group);
         }
-        const groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
+        const groupsCreated = await user_creation_tools_1.callGroupFinder();
         expect(groupsCreated.length).toBeGreaterThanOrEqual(groupsFilteredAndSorted.length);
     });
     test("Group analysis was not modified", async () => {
@@ -307,7 +307,7 @@ describe("Group finder", () => {
          * group analysis and you should check if everything is still working as expected before re
          * generating the snapshot.
          */
-        expect((0, group_candidates_ordering_1.groupAnalysisReport)()).toMatchSnapshot();
+        expect(group_candidates_ordering_1.groupAnalysisReport()).toMatchSnapshot();
         /**
          * In that case uncomment this line and check if you are happy with the console output
          * (besides checking all other possible things)
@@ -320,7 +320,7 @@ describe("Group finder", () => {
          * group analysis, filtering and/or sorting and you should check if everything is still working
          * as expected before re generating the snapshot.
          */
-        expect((0, group_candidates_ordering_1.analiceFilterAndSortReport)()).toMatchSnapshot();
+        expect(group_candidates_ordering_1.analiceFilterAndSortReport()).toMatchSnapshot();
         /**
          * In that case uncomment this line and check if you are happy with the console output
          * (besides checking all other possible things)
@@ -328,8 +328,8 @@ describe("Group finder", () => {
         //  consoleLog(analiceFilterAndSortReport());
     });
     afterEach(async () => {
-        await (0, queries_1.queryToRemoveGroups)((0, user_creation_tools_1.getAllTestGroupsCreated)());
-        await (0, queries_2.queryToRemoveUsers)((0, users_1.getAllTestUsersCreated)());
+        await queries_1.queryToRemoveGroups(user_creation_tools_1.getAllTestGroupsCreated());
+        await queries_2.queryToRemoveUsers(users_1.getAllTestUsersCreated());
     });
 });
 //# sourceMappingURL=groups-finder.test.js.map

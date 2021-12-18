@@ -7,7 +7,7 @@ const database_manager_1 = require("../../common-tools/database-tools/database-m
 const configurations_1 = require("../../configurations");
 const queries_1 = require("../user/queries");
 function queryToCreateTags(userId, tagsToCreate) {
-    const traversal = (0, common_queries_1.queryToCreateVerticesFromObjects)({
+    const traversal = common_queries_1.queryToCreateVerticesFromObjects({
         objects: tagsToCreate,
         label: "tag",
         duplicationAvoidanceProperty: "tagId",
@@ -18,7 +18,7 @@ function queryToCreateTags(userId, tagsToCreate) {
     return traversal
         .fold()
         .as("t")
-        .union((0, queries_1.queryToGetUserById)(userId, database_manager_1.__).as("user"))
+        .union(queries_1.queryToGetUserById(userId, database_manager_1.__).as("user"))
         .select("t")
         .unfold()
         .sideEffect(database_manager_1.__.map(
@@ -47,7 +47,7 @@ exports.queryToGetTags = queryToGetTags;
  * @param timeFilter This filter the results by time, for example: pass a week (in seconds) the get the tags created in the last week
  */
 function queryToGetTagsCreatedByUser(token, timeFilter) {
-    let traversal = (0, queries_1.queryToGetUserByToken)(token)
+    let traversal = queries_1.queryToGetUserByToken(token)
         .as("user")
         .out("createdTag")
         .where(database_manager_1.P.eq("user"))
@@ -87,7 +87,7 @@ function queryToRelateUserWithTag(token, tagsIds, relation, remove) {
     return database_manager_1.g
         .inject(tagsIds)
         .as("tags")
-        .union((0, queries_1.queryToGetUserByToken)(token, database_manager_1.__).as("user"))
+        .union(queries_1.queryToGetUserByToken(token, database_manager_1.__).as("user"))
         .select("tags")
         .unfold()
         .map(database_manager_1.__.as("tagId")

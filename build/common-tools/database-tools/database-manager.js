@@ -5,7 +5,7 @@ const gremlin = require("gremlin");
 const js_tools_1 = require("../js-tools/js-tools");
 const configurations_1 = require("../../configurations");
 const process_tools_1 = require("../process/process-tools");
-exports.databaseUrl = (0, process_tools_1.isProductionMode)() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
+exports.databaseUrl = process_tools_1.isProductionMode() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 exports.g = traversal().withRemote(new DriverRemoteConnection(exports.databaseUrl, {}));
@@ -81,7 +81,7 @@ async function sendQuery(query, logResult = false) {
                     consoleLog("Database retrying");
                 }
                 // Try again repeatedly waiting more time on each retry
-                result = await (0, js_tools_1.retryPromise)(query, configurations_1.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);
+                result = await js_tools_1.retryPromise(query, configurations_1.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, 1);
             }
             catch (error) {
                 // If the amount of retries hit the limit and returned an error log the error

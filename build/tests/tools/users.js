@@ -32,7 +32,7 @@ exports.createFakeUsers = createFakeUsers;
 async function createFakeUser(customProps, options) {
     const { makeItAdmin } = options || {};
     const userProps = generateRandomUserProps(customProps);
-    await (0, models_1.createUser)({
+    await models_1.createUser({
         token: userProps.token,
         email: userProps.email,
         includeFullInfo: false,
@@ -40,9 +40,9 @@ async function createFakeUser(customProps, options) {
         setProfileCompletedForTesting: true,
         customUserIdForTesting: userProps.userId,
     });
-    await (0, models_1.userPost)({ token: userProps.token, props: userProps }, replacements_1.fakeCtx);
+    await models_1.userPost({ token: userProps.token, props: userProps }, replacements_1.fakeCtx);
     if (makeItAdmin) {
-        await (0, models_2.convertToAdmin)(userProps.token);
+        await models_2.convertToAdmin(userProps.token);
     }
     fakeUsersCreated.push(userProps);
     return userProps;
@@ -74,10 +74,10 @@ function generateRandomUserProps(customProps) {
         ],
         isCoupleProfile: generalTools_1.chance.bool(),
         country: generalTools_1.chance.country(),
-        token: (0, string_tools_1.generateId)(),
-        userId: (0, string_tools_1.generateId)(),
+        token: string_tools_1.generateId(),
+        userId: string_tools_1.generateId(),
         email: generalTools_1.chance.email(),
-        birthDate: generalTools_1.chance.integer({ max: (0, date_tools_1.fromAgeToBirthDate)(18), min: (0, date_tools_1.fromAgeToBirthDate)(55) }),
+        birthDate: generalTools_1.chance.integer({ max: date_tools_1.fromAgeToBirthDate(18), min: date_tools_1.fromAgeToBirthDate(55) }),
         targetAgeMin: generalTools_1.chance.integer({ min: 18, max: 20 }),
         targetAgeMax: generalTools_1.chance.integer({ min: 30, max: 55 }),
         targetDistance: generalTools_1.chance.integer({ min: 25, max: 150 }),
@@ -93,7 +93,7 @@ function generateRandomUserProps(customProps) {
         profileCompleted: true,
         lastGroupJoinedDate: moment().unix(),
         questionsShowed: configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.map(q => q.questionId),
-        notificationsToken: (0, string_tools_1.generateId)(),
+        notificationsToken: string_tools_1.generateId(),
     };
     return { ...randomProps, ...(customProps !== null && customProps !== void 0 ? customProps : {}) };
 }
@@ -109,7 +109,7 @@ function getRandomFakeImage() {
 exports.getRandomFakeImage = getRandomFakeImage;
 async function setAttraction(from, to, attractionType) {
     const attractions = to.map(user => ({ userId: user.userId, attractionType }));
-    await (0, models_1.setAttractionPost)({
+    await models_1.setAttractionPost({
         token: from.token,
         attractions,
     }, replacements_1.fakeCtx);
@@ -133,13 +133,13 @@ async function createFakeCompatibleUsers(user, amount, customProps) {
     for (let i = 0; i < amount; i++) {
         const compatibleProps = {
             birthDate: generalTools_1.chance.integer({
-                max: (0, date_tools_1.fromAgeToBirthDate)(user.targetAgeMin),
-                min: (0, date_tools_1.fromAgeToBirthDate)(user.targetAgeMax),
+                max: date_tools_1.fromAgeToBirthDate(user.targetAgeMin),
+                min: date_tools_1.fromAgeToBirthDate(user.targetAgeMax),
             }),
             targetAgeMin: 18,
             targetAgeMax: generalTools_1.chance.integer({
-                min: (0, date_tools_1.fromBirthDateToAge)(user.birthDate),
-                max: (0, date_tools_1.fromBirthDateToAge)(user.birthDate) + 5,
+                min: date_tools_1.fromBirthDateToAge(user.birthDate),
+                max: date_tools_1.fromBirthDateToAge(user.birthDate) + 5,
             }),
             genders: [...user.likesGenders],
             likesGenders: [...user.genders],
@@ -153,7 +153,7 @@ async function createFakeCompatibleUsers(user, amount, customProps) {
 }
 exports.createFakeCompatibleUsers = createFakeCompatibleUsers;
 async function getEdgeLabelsBetweenUsers(userId1, userId2) {
-    return (await (0, queries_1.queryToGetUserById)(userId1)
+    return (await queries_1.queryToGetUserById(userId1)
         .bothE()
         .where(database_manager_1.__.bothV().has("userId", userId2))
         .label()
@@ -161,7 +161,7 @@ async function getEdgeLabelsBetweenUsers(userId1, userId2) {
 }
 exports.getEdgeLabelsBetweenUsers = getEdgeLabelsBetweenUsers;
 function getAllTestUsersCreated() {
-    const result = [...fakeUsersCreated, ...(0, _experimental_1.getAllTestUsersCreatedExperimental)()];
+    const result = [...fakeUsersCreated, ..._experimental_1.getAllTestUsersCreatedExperimental()];
     fakeUsersCreated = [];
     return result;
 }

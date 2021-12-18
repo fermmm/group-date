@@ -5,14 +5,14 @@ const database_manager_1 = require("../../../common-tools/database-tools/databas
 const security_tools_1 = require("../../../common-tools/security-tools/security-tools");
 const data_conversion_1 = require("../../user/tools/data-conversion");
 async function fromQueryToCardsResult(traversal) {
-    const queryMap = (await (0, database_manager_1.sendQuery)(() => traversal.next())).value;
+    const queryMap = (await database_manager_1.sendQuery(() => traversal.next())).value;
     return {
         liking: queryMap
             .get("liking")
-            .map(userFromQuery => (0, security_tools_1.removePrivacySensitiveUserProps)((0, data_conversion_1.fromGremlinMapToUser)(userFromQuery))),
+            .map(userFromQuery => security_tools_1.removePrivacySensitiveUserProps(data_conversion_1.fromGremlinMapToUser(userFromQuery))),
         others: queryMap
             .get("others")
-            .map(userFromQuery => (0, security_tools_1.removePrivacySensitiveUserProps)((0, data_conversion_1.fromGremlinMapToUser)(userFromQuery))),
+            .map(userFromQuery => security_tools_1.removePrivacySensitiveUserProps(data_conversion_1.fromGremlinMapToUser(userFromQuery))),
     };
 }
 exports.fromQueryToCardsResult = fromQueryToCardsResult;
