@@ -46,6 +46,10 @@ const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
         .use(router.routes())
         .use(router.allowedMethods())
         .use((0, routes_7.userMountedFolders)())
+        .use((0, koa_tools_1.serveFolderFiles)({
+        localFolderPath: "./websites/email-templates/img/",
+        urlToServe: "/email-images",
+    }))
         .use((0, routes_1.adminMountedFolders)());
     /**
      * To edit any of these 2 websites directly from chrome dev tools set the first parameter to "/" temporarily,

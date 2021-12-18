@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fileSaverForAdminFiles = exports.fileSaverForImages = exports.serveWebsite = void 0;
+exports.serveFolderFiles = exports.fileSaverForAdminFiles = exports.fileSaverForImages = exports.serveWebsite = void 0;
 const mount = require("koa-mount");
 const serve = require("koa-static");
 const send = require("koa-send");
@@ -9,6 +9,7 @@ const appRoot = require("app-root-path");
 const path = require("path");
 const configurations_1 = require("../../configurations");
 const general_1 = require("../math-tools/general");
+const log_routes_1 = require("../log-tools/log-routes");
 /**
  * This function is garbage. The problem is Koa.js, it's very limited with not much community supporting it.
  * Porting all Koa.js code to Express is something that should be done in this repo.
@@ -55,4 +56,12 @@ exports.fileSaverForAdminFiles = koaBody({
         ctx.throw(400, error);
     },
 });
+function serveFolderFiles(props) {
+    const { localFolderPath, urlToServe, enableCache = true } = props;
+    return mount(urlToServe, (context, next) => {
+        (0, log_routes_1.imagesLogger)(context);
+        return serve(localFolderPath, enableCache ? { maxage: (0, general_1.hoursToMilliseconds)(24) * 360 } : undefined)(context, next);
+    });
+}
+exports.serveFolderFiles = serveFolderFiles;
 //# sourceMappingURL=koa-tools.js.map

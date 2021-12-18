@@ -268,14 +268,13 @@ async function sendEmailNotification(props) {
         to: user.email,
         senderName: `${configurations_1.APPLICATION_NAME} app`,
         subject: notification.title,
-        html: (0, loadHtmlTemplate_1.loadHtmlTemplate)({
-            htmlFilePath: "websites/email-templates/notifications/new-group.html",
+        html: (0, loadHtmlTemplate_1.loadHtmlEmailTemplate)({
             variablesToReplace: {
-                temp: "James",
+                title: notification.title,
+                content: notification.text,
             },
+            translationSources: { user },
         }),
-        /*html: `<h2>${notification.title} =)</h2><br/>${notification.text}<br/>
-        <br/><br/>${t("Good luck!", { user })}`,*/
     });
 }
 exports.sendEmailNotification = sendEmailNotification;
