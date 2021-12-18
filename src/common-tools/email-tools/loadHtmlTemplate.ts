@@ -1,3 +1,4 @@
+import * as moment from "moment";
 import * as nunjucks from "nunjucks";
 import { APPLICATION_NAME_COMPLETE, APP_STORE_URL, GOOGLE_PLAY_URL } from "../../configurations";
 import { LocaleConfigurationSources, t } from "../i18n-tools/i18n-tools";
@@ -29,11 +30,12 @@ export function getStandardUrls(translationSources: LocaleConfigurationSources):
       title: "",
       content: "",
       footerText: t(APPLICATION_NAME_COMPLETE, translationSources),
-      logoUrl: emailImagesFolderUrl + "logo.svg",
-      googlePlayImageUrl: emailImagesFolderUrl + "buttonGooglePlay.svg",
-      appStoreImageUrl: emailImagesFolderUrl + "appStoreButton.svg",
+      logoUrl: emailImagesFolderUrl + "logo.png",
+      googlePlayImageUrl: emailImagesFolderUrl + "buttonGooglePlay.png",
+      appStoreImageUrl: emailImagesFolderUrl + "appStoreButton.png",
       googlePlayUrl: GOOGLE_PLAY_URL,
       appStoreUrl: APP_STORE_URL,
+      date: moment().unix().toString(),
    };
 }
 
@@ -46,4 +48,5 @@ export interface EmailTemplateVariables {
    appStoreImageUrl?: string;
    googlePlayUrl?: string;
    appStoreUrl?: string;
+   date?: string; // This can be a random number also, something to avoid gmail trimming repeated parts
 }

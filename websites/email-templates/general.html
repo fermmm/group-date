@@ -6,52 +6,59 @@
   <meta name="x-apple-disable-message-reformatting">
   <title></title>
   <style type="text/css">
+    /**
+      This html only uses the few features supported by gmail html rendering. Note that:
+        - Flexbox does not work
+        - position: absolute does not work
+        - transform does not work
+        - Adding style to body or html does not work
+        - JavaScript does not work
+    **/
+
     @import url(https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800&display=swap);
     
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
     .header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
+      text-align: center;
       height: 170px;
       background: #7c9cff;
       background: linear-gradient(0deg, #7c9cff 0%, #a45bff 100%);
+      font-family: Montserrat, sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .header-content {
+      display: inline-block;
+      height: 100%;
     }
 
     .logo {
-      position: relative;
-      bottom: 8px;
-      height: 30%;
+      display: inline-block;
+      height: 35%;
+      margin-top: 50px;
     }
 
     .main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      text-align: center;
       min-height: 300px;
+      text-align: center;
+      font-family: Montserrat, sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: #272727;
+      background: #f0f0f0;
     }
 
     .main-content {
+      display: inline-block;
       max-width: 500px;
-      padding-left: 20px;
-      padding-right: 20px;
+      padding: 20px;
     }
 
     h2 {
       text-align: center;
       font-size: 31px;
       font-weight: 200;
-    }
-
-    p {
-
     }
 
     b {
@@ -74,40 +81,39 @@
     }
 
     .footer {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      align-items: center;
-      justify-content: center;
-      background: #6c65b4;
+      min-height: 150px;
+      font-family: Montserrat, sans-serif;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 400;
+      background: #545454;
       color: white;
+    }
+
+    .footer-content {
       padding-top: 20px;
     }
 
     .store-buttons-container {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
       margin-top: 20px;
       margin-bottom: 20px;
     }
 
     .storeButton {
-      height: 50px;
+      height: 40px;
+      display: inline-block;
     }
 
+    /* This is only for preview in browser since gmail does not support html or body styles */
     html, body {
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      font-family: Montserrat, sans-serif;
-      text-align: center;
-      font-size: 17px;
-      font-weight: 400;
-      color: #272727;
-      background: #f0f0f0;
+    }
+
+    body {
+      overflow-y: auto;
+      min-height: 100vh;
     }
 
     a:hover, a:visited, a:link, a:active {
@@ -127,28 +133,41 @@
 </head>
 
 <body class="">
+  <!-- This is for gmail preview text -->
+  <div style="display: none;">{{ content }}</div>
+  
+  <!-- this ensures Gmail doesn't trim the email when there are more than 1 -->
+  <span style="display: none"> {{ date }} </span>
+
   <header class="header">
-    <img src="{{ logoUrl }}" class="logo"/>
+    <div class="header-content">
+      <img src="{{ logoUrl }}" class="logo" onerror="this.onerror=null; this.src='img/logo.png'"/>
+    </div>
   </header>
-  <main class="main">
+  <div class="main">
     <div class="main-content">
       <h2 style="margin-bottom: 20px;">
         {{ title }}
       </h2>
       {{ content }}
     </div>
-  </main>
+  </div>
   <footer class="footer">
-    {{ footerText }}
-    <div class="store-buttons-container">
-      <a ses:no-track href="{{ googlePlayUrl }}" target="_blank" style="margin-bottom: 0px; margin: 5px 5px">
-        <img src="{{ googlePlayImageUrl }}" class="storeButton"/>
-      </a>
-      <a ses:no-track href="{{ appStoreUrl }}" target="_blank" style="margin-bottom: 0px; margin: 5px 5px">
-        <img src="{{ appStoreImageUrl }}" class="storeButton"/>
-      </a>
+    <div class="footer-content">
+      {{ footerText }}
+      <div class="store-buttons-container">
+        <a ses:no-track href="{{ googlePlayUrl }}" target="_blank" style="margin-bottom: 0px; margin: 5px 5px; display: inline-block">
+          <img src="{{ googlePlayImageUrl }}" class="storeButton" onerror="this.onerror=null; this.src='img/buttonGooglePlay.png'"/>
+        </a>
+        <a ses:no-track href="{{ appStoreUrl }}" target="_blank" style="margin-bottom: 0px; margin: 5px 5px; display: inline-block">
+          <img src="{{ appStoreImageUrl }}" class="storeButton" onerror="this.onerror=null; this.src='img/appStoreButton.png'"/>
+        </a>
+      </div>
     </div>
-  </footer>
+    </footer>
+    
+    <!-- this ensures Gmail doesn't trim the email when there are more than 1 -->
+    <span style="display: none"> {{ date }} </span>
 </body>
 
 </html>
