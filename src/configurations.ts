@@ -20,6 +20,8 @@ import {
 // The name of the application to show to the users.
 export const APPLICATION_NAME = "Poly";
 export const APPLICATION_NAME_COMPLETE = "Poly - Group Dating"; // Translated on usage
+export const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.poly.dates";
+export const APP_STORE_URL = GOOGLE_PLAY_URL;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////  CLIENT  /////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ import { userMountedFolders, userRoutes } from "./components/user/routes";
 import { initializeDatabaseBackups } from "./common-tools/database-tools/backups";
 import { strToBool } from "./common-tools/string-tools/string-tools";
 import { logEnvironmentMode } from "./common-tools/process/process-tools";
-import { serveWebsite } from "./common-tools/koa-tools/koa-tools";
+import { serveFolderFiles, serveWebsite } from "./common-tools/koa-tools/koa-tools";
 import { USERS_API_PATH } from "./configurations";
 import { emailLoginRoutes } from "./components/email-login/routes";
 import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
@@ -46,6 +46,12 @@ import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
       .use(router.routes())
       .use(router.allowedMethods())
       .use(userMountedFolders())
+      .use(
+         serveFolderFiles({
+            localFolderPath: "./websites/email-templates/img/",
+            urlToServe: "/email-images",
+         }),
+      )
       .use(adminMountedFolders());
 
    /**

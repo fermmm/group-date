@@ -1,5 +1,5 @@
 import * as nunjucks from "nunjucks";
-import { APPLICATION_NAME_COMPLETE } from "../../configurations";
+import { APPLICATION_NAME_COMPLETE, APP_STORE_URL, GOOGLE_PLAY_URL } from "../../configurations";
 import { LocaleConfigurationSources, t } from "../i18n-tools/i18n-tools";
 import { getServerUrl } from "../url-tools/getServerUrl";
 
@@ -22,17 +22,18 @@ export function loadHtmlEmailTemplate(props: {
    return nunjucks.render(htmlFilePath, { ...getStandardUrls(translationSources), ...variablesToReplace });
 }
 
-// TODO: Terminar de resolver como completar estas variables
 export function getStandardUrls(translationSources: LocaleConfigurationSources): EmailTemplateVariables {
+   const emailImagesFolderUrl = getServerUrl() + "/email-images/";
+
    return {
       title: "",
       content: "",
       footerText: t(APPLICATION_NAME_COMPLETE, translationSources),
-      logoUrl: `${getServerUrl()}/images/logo.png`,
-      googlePlayUrl: "https://sarasa.png",
-      appStoreUrl: "",
-      googlePlayImageUrl: "https://sarasa.png",
-      appStoreImageUrl: "",
+      logoUrl: emailImagesFolderUrl + "logo.svg",
+      googlePlayImageUrl: emailImagesFolderUrl + "buttonGooglePlay.svg",
+      appStoreImageUrl: emailImagesFolderUrl + "appStoreButton.svg",
+      googlePlayUrl: GOOGLE_PLAY_URL,
+      appStoreUrl: APP_STORE_URL,
    };
 }
 
@@ -41,8 +42,8 @@ export interface EmailTemplateVariables {
    content?: string;
    footerText?: string;
    logoUrl?: string;
-   googlePlayUrl?: string;
-   appStoreUrl?: string;
    googlePlayImageUrl?: string;
    appStoreImageUrl?: string;
+   googlePlayUrl?: string;
+   appStoreUrl?: string;
 }

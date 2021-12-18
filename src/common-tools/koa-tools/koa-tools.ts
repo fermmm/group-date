@@ -8,6 +8,7 @@ import * as appRoot from "app-root-path";
 import * as path from "path";
 import { MAX_FILE_SIZE_UPLOAD_ALLOWED } from "../../configurations";
 import { hoursToMilliseconds } from "../math-tools/general";
+import { imagesLogger } from "../log-tools/log-routes";
 
 /**
  * This function is garbage. The problem is Koa.js, it's very limited with not much community supporting it.
@@ -73,3 +74,19 @@ export const fileSaverForAdminFiles = koaBody({
       ctx.throw(400, error);
    },
 });
+
+export function serveFolderFiles(props: {
+   localFolderPath: string;
+   urlToServe: string;
+   enableCache?: boolean;
+}) {
+   const { localFolderPath, urlToServe, enableCache = true } = props;
+
+   return mount(urlToServe, (context, next) => {
+      imagesLogger(context);
+      return serve(localFolderPath, enableCache ? { maxage: hoursToMilliseconds(24) * 360 } : undefined)(
+         context,
+         next,
+      );
+   });
+}
