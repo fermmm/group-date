@@ -313,6 +313,8 @@ export async function addNotificationToUser(
       translateNotification?: boolean;
       sendPushNotification?: boolean;
       sendEmailNotification?: boolean;
+      /* The email text is the notification text but here you can append extra content */
+      emailTextExtraContent?: string;
       channelId?: NotificationChannelId;
    },
 ) {
@@ -379,7 +381,13 @@ export async function addNotificationToUser(
    }
 
    if (settings?.sendEmailNotification) {
-      sendEmailNotification({ user, notification });
+      sendEmailNotification({
+         user,
+         notification: {
+            ...notification,
+            text: notification.text + (settings?.emailTextExtraContent ?? ""),
+         },
+      });
    }
 }
 

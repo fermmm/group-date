@@ -58,6 +58,7 @@ import {
    fromQueryToSpecificProps,
    fromQueryToSpecificPropValue,
 } from "../../common-tools/database-tools/data-conversion-tools";
+import { getUserImagesUrl } from "../../common-tools/url-tools/getUserImagesUrl";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -94,16 +95,7 @@ export async function createGroup(
 
    // Send notifications
    for (const userId of initialUsers.usersIds) {
-      await addNotificationToUser(
-         { userId },
-         {
-            type: NotificationType.Group,
-            title: "You are in a group!",
-            text: "A group just formed and you like each other!",
-            targetId: resultGroup.groupId,
-         },
-         { sendPushNotification: true, translateNotification: true },
-      );
+      await sendNewGroupNotification(userId, resultGroup);
    }
 
    return resultGroup;
@@ -141,16 +133,7 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
 
    // Send notifications:
    for (const userId of users.usersIds) {
-      await addNotificationToUser(
-         { userId },
-         {
-            type: NotificationType.Group,
-            title: "You are in a group!",
-            text: "A group just formed and you like each other!",
-            targetId: group.groupId,
-         },
-         { sendPushNotification: true, translateNotification: true },
-      );
+      await sendNewGroupNotification(userId, group);
    }
 }
 
@@ -419,6 +402,36 @@ export async function findInactiveGroups() {
       await queryToUpdateGroupProperty({ groupId: group.groupId, isActive: false });
       await createTaskToShowRemoveSeenMenu(group);
    }
+}
+
+// TODO: Testear, poner esta funcion en el endpoint temp y probar con todo hardcodeado
+export async function sendNewGroupNotification(userId: string, group: Group) {
+   await addNotificationToUser(
+      { userId },
+      {
+         type: NotificationType.Group,
+         title: "You are in a group!",
+         text: "A group just formed and you like each other!",
+         targetId: group.groupId,
+      },
+      {
+         sendPushNotification: true,
+         translateNotification: true,
+         sendEmailNotification: true,
+         emailTextExtraContent: `
+            <br/>
+            <br/>
+            ${group.members
+               .map(
+                  groupMember =>
+                     `<img src="${
+                        groupMember.images?.[0] ? getUserImagesUrl() + groupMember.images?.[0] : ""
+                     }" style="height: 150px;"/>`,
+               )
+               .join(" ")}
+         `,
+      },
+   );
 }
 
 async function createTaskToShowRemoveSeenMenu(group: Group) {
