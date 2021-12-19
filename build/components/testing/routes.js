@@ -5,8 +5,6 @@ const route_tools_1 = require("../../common-tools/route-tools/route-tools");
 const models_1 = require("../groups/models");
 const queries_1 = require("../groups/queries");
 const data_conversion_1 = require("../groups/tools/data-conversion");
-const queries_2 = require("../user/queries");
-const data_conversion_2 = require("../user/tools/data-conversion");
 const models_2 = require("./models");
 function testingRoutes(r) {
     route_tools_1.createRoute(r, "/testing/create-fake-users", "GET", models_2.createFakeUsersPost);
@@ -26,9 +24,12 @@ function testingRoutes(r) {
         // }
         // console.log("Done");
         // console.timeEnd("notify");
-        const user = await data_conversion_2.fromQueryToUser(queries_2.queryToGetAllUsers().has("name", "fer"), false);
-        const groups = await data_conversion_1.fromQueryToGroupList(queries_1.queryToGetAllGroupsOfUser(user.token));
-        await models_1.sendNewGroupNotification(user.userId, groups[0]);
+        const groups = await data_conversion_1.fromQueryToGroupList(queries_1.queryToGetAllGroups());
+        for (const group of groups) {
+            for (const member of group.members) {
+                await models_1.sendNewGroupNotification(member.userId, group);
+            }
+        }
         return "done";
     });
 }

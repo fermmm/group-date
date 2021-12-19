@@ -5,7 +5,7 @@ import { g, sendQuery, __ } from "../../common-tools/database-tools/database-man
 import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { notifyAllUsersAboutNewCards } from "../cards-game/models";
 import { sendNewGroupNotification } from "../groups/models";
-import { queryToGetAllGroupsOfUser } from "../groups/queries";
+import { queryToGetAllGroups, queryToGetAllGroupsOfUser } from "../groups/queries";
 import { fromQueryToGroupList } from "../groups/tools/data-conversion";
 import {
    queryToGetAllCompleteUsers,
@@ -43,10 +43,13 @@ export function testingRoutes(r: Router): void {
       // console.log("Done");
       // console.timeEnd("notify");
 
-      const user = await fromQueryToUser(queryToGetAllUsers().has("name", "fer"), false);
-      const groups = await fromQueryToGroupList(queryToGetAllGroupsOfUser(user.token));
+      const groups = await fromQueryToGroupList(queryToGetAllGroups());
 
-      await sendNewGroupNotification(user.userId, groups[0]);
+      for (const group of groups) {
+         for (const member of group.members) {
+            await sendNewGroupNotification(member.userId, group);
+         }
+      }
       return "done";
    });
 }
