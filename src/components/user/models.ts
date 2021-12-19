@@ -66,7 +66,7 @@ import { cardinality, sendQuery } from "../../common-tools/database-tools/databa
 import { divideArrayCallback } from "../../common-tools/js-tools/js-tools";
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
 import { queryToGetUserByTokenOrId } from "./queries";
-import { TokenOrId } from "./tools/typings";
+import { TokenIdOrUser, TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../tags/models";
 import {
    APPLICATION_NAME,
@@ -307,7 +307,7 @@ export async function retrieveFullyRegisteredUser(
  * Internal function to add a notification to the user object and optionally send push notification.
  */
 export async function addNotificationToUser(
-   tokenOrId: TokenOrId,
+   tokenIdOrUser: TokenIdOrUser,
    notification: NotificationContent,
    settings?: {
       translateNotification?: boolean;
@@ -318,7 +318,13 @@ export async function addNotificationToUser(
       channelId?: NotificationChannelId;
    },
 ) {
-   const user: Partial<User> = await fromQueryToUser(queryToGetUserByTokenOrId(tokenOrId), false);
+   let user: Partial<User>;
+
+   if (tokenIdOrUser["user"]) {
+      user = tokenIdOrUser["user"];
+   } else {
+      user = await fromQueryToUser(queryToGetUserByTokenOrId(tokenIdOrUser as TokenOrId), false);
+   }
 
    if (settings?.translateNotification) {
       notification = {
@@ -345,7 +351,7 @@ export async function addNotificationToUser(
 
    user.notifications.push(finalNotification);
 
-   await queryToUpdateUserProps(queryToGetUserByTokenOrId(tokenOrId), [
+   await queryToUpdateUserProps(queryToGetUserByTokenOrId({ userId: user.userId }), [
       {
          key: "notifications",
          value: user.notifications,
@@ -385,7 +391,7 @@ export async function addNotificationToUser(
          user,
          notification: {
             ...notification,
-            text: notification.text + (settings?.emailTextExtraContent ?? ""),
+            text: notification.text + " " + (settings?.emailTextExtraContent ?? ""),
          },
       });
    }

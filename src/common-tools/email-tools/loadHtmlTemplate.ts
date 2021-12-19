@@ -19,7 +19,7 @@ export function loadHtmlEmailTemplate(props: {
       translationSources,
    } = props;
 
-   nunjucks.configure({ autoescape: true });
+   nunjucks.configure({ autoescape: false });
    return nunjucks.render(htmlFilePath, { ...getStandardUrls(translationSources), ...variablesToReplace });
 }
 

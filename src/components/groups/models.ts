@@ -59,6 +59,8 @@ import {
    fromQueryToSpecificPropValue,
 } from "../../common-tools/database-tools/data-conversion-tools";
 import { getUserImagesUrl } from "../../common-tools/url-tools/getUserImagesUrl";
+import { queryToGetUserByTokenOrId } from "../user/queries";
+import { fromQueryToUser } from "../user/tools/data-conversion";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -404,32 +406,38 @@ export async function findInactiveGroups() {
    }
 }
 
-// TODO: Testear, poner esta funcion en el endpoint temp y probar con todo hardcodeado
 export async function sendNewGroupNotification(userId: string, group: Group) {
+   const user = await fromQueryToUser(queryToGetUserByTokenOrId({ userId }), false);
+
+   const emailTextExtraContent = `
+      <br/>
+      <br/>
+      ${group.members
+         .map(
+            groupMember =>
+               `<img src="${
+                  groupMember.images?.[0] ? getUserImagesUrl() + groupMember.images?.[0] : ""
+               }" style="height: 150px;"/>`,
+         )
+         .join(" ")}
+   `;
+
    await addNotificationToUser(
-      { userId },
+      { user },
       {
          type: NotificationType.Group,
-         title: "You are in a group!",
-         text: "A group just formed and you like each other!",
+         title: t("You are in a group!", { user }),
+         text:
+            t("A group just formed and you like each other", { user }) +
+            ": " +
+            group.members.map(member => member.name).join(", "),
          targetId: group.groupId,
       },
       {
          sendPushNotification: true,
-         translateNotification: true,
+         translateNotification: false,
          sendEmailNotification: true,
-         emailTextExtraContent: `
-            <br/>
-            <br/>
-            ${group.members
-               .map(
-                  groupMember =>
-                     `<img src="${
-                        groupMember.images?.[0] ? getUserImagesUrl() + groupMember.images?.[0] : ""
-                     }" style="height: 150px;"/>`,
-               )
-               .join(" ")}
-         `,
+         emailTextExtraContent,
       },
    );
 }

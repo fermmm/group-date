@@ -4,13 +4,16 @@ import { Console } from "winston/lib/winston/transports";
 import { g, sendQuery, __ } from "../../common-tools/database-tools/database-manager";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { notifyAllUsersAboutNewCards } from "../cards-game/models";
+import { sendNewGroupNotification } from "../groups/models";
+import { queryToGetAllGroupsOfUser } from "../groups/queries";
+import { fromQueryToGroupList } from "../groups/tools/data-conversion";
 import {
    queryToGetAllCompleteUsers,
    queryToGetAllUsers,
    queryToGetUserByToken,
    queryToSetUserProps,
 } from "../user/queries";
-import { fromQueryToUserList } from "../user/tools/data-conversion";
+import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    createFakeChatConversation,
    createFakeTagsPost,
@@ -28,17 +31,22 @@ export function testingRoutes(r: Router): void {
       console.time("notify");
       // await notifyAllUsersAboutNewCards();
 
-      const allUsers = await fromQueryToUserList(queryToGetAllCompleteUsers(), false, false);
-      for (const user of allUsers) {
-         if (user.images?.length != null) {
-            let query = queryToGetUserByToken(user.token);
-            query = query.property("imagesAmount", user.images.length);
-            await sendQuery(() => query.iterate());
-         }
-      }
+      // const allUsers = await fromQueryToUserList(queryToGetAllCompleteUsers(), false, false);
+      // for (const user of allUsers) {
+      //    if (user.images?.length != null) {
+      //       let query = queryToGetUserByToken(user.token);
+      //       query = query.property("imagesAmount", user.images.length);
+      //       await sendQuery(() => query.iterate());
+      //    }
+      // }
 
-      console.log("Done");
-      console.timeEnd("notify");
+      // console.log("Done");
+      // console.timeEnd("notify");
+
+      const user = await fromQueryToUser(queryToGetAllUsers().has("name", "fer"), false);
+      const groups = await fromQueryToGroupList(queryToGetAllGroupsOfUser(user.token));
+
+      await sendNewGroupNotification(user.userId, groups[0]);
       return "done";
    });
 }
