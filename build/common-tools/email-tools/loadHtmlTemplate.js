@@ -12,7 +12,7 @@ const getServerUrl_1 = require("../url-tools/getServerUrl");
  */
 function loadHtmlEmailTemplate(props) {
     const { htmlFilePath = "websites/email-templates/general.html", variablesToReplace, translationSources, } = props;
-    nunjucks.configure({ autoescape: true });
+    nunjucks.configure({ autoescape: false });
     return nunjucks.render(htmlFilePath, { ...getStandardUrls(translationSources), ...variablesToReplace });
 }
 exports.loadHtmlEmailTemplate = loadHtmlEmailTemplate;

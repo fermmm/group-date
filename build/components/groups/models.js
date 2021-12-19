@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSlotIdFromUsersAmount = exports.findInactiveGroups = exports.sendDateReminderNotifications = exports.findSlotsToRelease = exports.chatPost = exports.voteResultGet = exports.chatUnreadAmountGet = exports.chatGet = exports.dateDayVotePost = exports.dateIdeaVotePost = exports.groupSeenPost = exports.userGroupsGet = exports.groupGet = exports.addUsersToGroup = exports.getGroupById = exports.createGroup = exports.initializeGroups = void 0;
+exports.getSlotIdFromUsersAmount = exports.sendNewGroupNotification = exports.findInactiveGroups = exports.sendDateReminderNotifications = exports.findSlotsToRelease = exports.chatPost = exports.voteResultGet = exports.chatUnreadAmountGet = exports.chatGet = exports.dateDayVotePost = exports.dateIdeaVotePost = exports.groupSeenPost = exports.userGroupsGet = exports.groupGet = exports.addUsersToGroup = exports.getGroupById = exports.createGroup = exports.initializeGroups = void 0;
 const moment = require("moment");
 const dynamic_1 = require("set-interval-async/dynamic");
 const configurations_1 = require("../../configurations");
@@ -13,6 +13,9 @@ const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
+const getUserImagesUrl_1 = require("../../common-tools/url-tools/getUserImagesUrl");
+const queries_3 = require("../user/queries");
+const data_conversion_2 = require("../user/tools/data-conversion");
 async function initializeGroups() {
     dynamic_1.setIntervalAsync(findSlotsToRelease, configurations_1.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
     dynamic_1.setIntervalAsync(sendDateReminderNotifications, configurations_1.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
@@ -36,12 +39,7 @@ async function createGroup(initialUsers, initialQuality, isDemoGroup = false) {
     }
     // Send notifications
     for (const userId of initialUsers.usersIds) {
-        await models_1.addNotificationToUser({ userId }, {
-            type: user_1.NotificationType.Group,
-            title: "You are in a group!",
-            text: "A group just formed and you like each other!",
-            targetId: resultGroup.groupId,
-        }, { sendPushNotification: true, translateNotification: true });
+        await sendNewGroupNotification(userId, resultGroup);
     }
     return resultGroup;
 }
@@ -67,12 +65,7 @@ async function addUsersToGroup(groupId, users) {
     await queries_2.queryToUpdateGroupProperty({ groupId: group.groupId, name: generateGroupName(group) });
     // Send notifications:
     for (const userId of users.usersIds) {
-        await models_1.addNotificationToUser({ userId }, {
-            type: user_1.NotificationType.Group,
-            title: "You are in a group!",
-            text: "A group just formed and you like each other!",
-            targetId: group.groupId,
-        }, { sendPushNotification: true, translateNotification: true });
+        await sendNewGroupNotification(userId, group);
     }
 }
 exports.addUsersToGroup = addUsersToGroup;
@@ -284,6 +277,33 @@ async function findInactiveGroups() {
     }
 }
 exports.findInactiveGroups = findInactiveGroups;
+async function sendNewGroupNotification(userId, group) {
+    const user = await data_conversion_2.fromQueryToUser(queries_3.queryToGetUserByTokenOrId({ userId }), false);
+    const emailTextExtraContent = `
+      <br/>
+      <br/>
+      ${group.members
+        .map(groupMember => {
+        var _a, _b;
+        return `<img src="${((_a = groupMember.images) === null || _a === void 0 ? void 0 : _a[0]) ? getUserImagesUrl_1.getUserImagesUrl() + ((_b = groupMember.images) === null || _b === void 0 ? void 0 : _b[0]) : ""}" style="height: 150px;"/>`;
+    })
+        .join(" ")}
+   `;
+    await models_1.addNotificationToUser({ user }, {
+        type: user_1.NotificationType.Group,
+        title: i18n_tools_1.t("You are in a group!", { user }),
+        text: i18n_tools_1.t("A group just formed and you like each other", { user }) +
+            ": " +
+            group.members.map(member => member.name).join(", "),
+        targetId: group.groupId,
+    }, {
+        sendPushNotification: true,
+        translateNotification: false,
+        sendEmailNotification: true,
+        emailTextExtraContent,
+    });
+}
+exports.sendNewGroupNotification = sendNewGroupNotification;
 async function createTaskToShowRemoveSeenMenu(group) {
     for (const member of group.members) {
         await models_1.createRequiredTaskForUser({

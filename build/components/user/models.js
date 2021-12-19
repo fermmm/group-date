@@ -203,8 +203,15 @@ exports.retrieveFullyRegisteredUser = retrieveFullyRegisteredUser;
 /**
  * Internal function to add a notification to the user object and optionally send push notification.
  */
-async function addNotificationToUser(tokenOrId, notification, settings) {
-    const user = await data_conversion_1.fromQueryToUser(queries_2.queryToGetUserByTokenOrId(tokenOrId), false);
+async function addNotificationToUser(tokenIdOrUser, notification, settings) {
+    var _a;
+    let user;
+    if (tokenIdOrUser["user"]) {
+        user = tokenIdOrUser["user"];
+    }
+    else {
+        user = await data_conversion_1.fromQueryToUser(queries_2.queryToGetUserByTokenOrId(tokenIdOrUser), false);
+    }
     if (settings === null || settings === void 0 ? void 0 : settings.translateNotification) {
         notification = {
             ...notification,
@@ -224,7 +231,7 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
         date: moment().unix(),
     };
     user.notifications.push(finalNotification);
-    await queries_1.queryToUpdateUserProps(queries_2.queryToGetUserByTokenOrId(tokenOrId), [
+    await queries_1.queryToUpdateUserProps(queries_2.queryToGetUserByTokenOrId({ userId: user.userId }), [
         {
             key: "notifications",
             value: user.notifications,
@@ -258,7 +265,13 @@ async function addNotificationToUser(tokenOrId, notification, settings) {
         });
     }
     if (settings === null || settings === void 0 ? void 0 : settings.sendEmailNotification) {
-        sendEmailNotification({ user, notification });
+        sendEmailNotification({
+            user,
+            notification: {
+                ...notification,
+                text: notification.text + " " + ((_a = settings === null || settings === void 0 ? void 0 : settings.emailTextExtraContent) !== null && _a !== void 0 ? _a : ""),
+            },
+        });
     }
 }
 exports.addNotificationToUser = addNotificationToUser;
