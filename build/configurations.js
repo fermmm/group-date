@@ -247,7 +247,7 @@ const politicsRightTag = {
  * The tagId can be any string but all should be different for each tag here.
  * If you change or remove a tag id it's required to be changed for analytics when sending user data.
  */
-const appUsageQuestion = {
+const dateTypeQuestion = {
     questionId: "taq-3-v2",
     text: "What kind of date would you like?",
     answers: [
@@ -281,6 +281,32 @@ const appUsageQuestion = {
     filterSelectedByDefault: true,
     filterSelectionInvisible: true, // Enabling this may lead to better results
 };
+const usageIntentionQuestion = {
+    questionId: "taq-4",
+    text: "What are you looking for in a date in this app?",
+    answers: [
+        {
+            text: "Sexual experiences without much ado",
+            tagId: "q04-a01",
+            category: "App usage",
+            tagName: "Date activity: Sex directly",
+            tagIsVisible: false,
+        },
+        {
+            text: "Have a good time with the activities that come up, sexual or not",
+            tagId: "q04-a02",
+            category: "App usage",
+            tagName: "Date activity: Any activity",
+            tagIsVisible: false,
+        },
+    ],
+    incompatibilitiesBetweenAnswers: {
+        0: [1],
+        1: [0],
+    },
+    filterSelectedByDefault: true,
+    filterSelectionInvisible: true, // Enabling this may lead to better results
+};
 const feminismQuestion = {
     questionId: "taq-0",
     text: "Do you agree with feminism in general?",
@@ -304,7 +330,11 @@ const feminismQuestion = {
     },
 };
 // Spam question may not be required because interest for group sex question includes the physical interaction intentions
-exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [appUsageQuestion, feminismQuestion];
+exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [
+    dateTypeQuestion,
+    feminismQuestion,
+    usageIntentionQuestion,
+];
 exports.APP_AUTHORED_TAGS = [politicsLeftTag, politicsRightTag];
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
