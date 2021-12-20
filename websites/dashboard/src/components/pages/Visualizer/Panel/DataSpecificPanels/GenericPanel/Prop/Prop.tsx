@@ -2,14 +2,13 @@ import { Checkbox, FormControlLabel, IconButton, TextField } from "@mui/material
 import React, { ChangeEvent, FC, useState } from "react";
 import { VscChromeClose, VscEdit, VscSave } from "react-icons/vsc";
 import { humanizeUnixTimeStamp } from "../../../../../../../common-tools/strings/humanizeUnixTime";
-import { Column } from "../../../../../../common/UI/Column/Column";
 import { Row } from "../../../../../../common/UI/Row/Row";
-import { KeyLabel, MainContainer, ValueLabel } from "./styles.Prop";
+import { KeyLabel, MainContainer, NonEditModeContainer, ValueLabel } from "./styles.Prop";
 
 export interface PropsProp {
    propName: string;
-   propValue: string | number | boolean;
-   onEdit: (key: string, value: string | number | boolean) => void;
+   propValue?: string | number | boolean;
+   onEdit?: (key: string, value: string | number | boolean) => void;
 }
 
 const unixTimeProps = [
@@ -85,12 +84,12 @@ const Prop: FC<PropsProp> = props => {
                )}
             </>
          ) : (
-            <Column>
+            <NonEditModeContainer>
                <KeyLabel>
                   {propName} {/*typeof propValue*/}
                </KeyLabel>
-               <ValueLabel>{setupValueText(propName, propValue)}</ValueLabel>
-            </Column>
+               {propValue && <ValueLabel>{setupValueText(propName, propValue)}</ValueLabel>}
+            </NonEditModeContainer>
          )}
          <Row>
             {editMode && (
@@ -98,7 +97,9 @@ const Prop: FC<PropsProp> = props => {
                   <VscSave />
                </IconButton>
             )}
-            <IconButton onClick={switchEditMode}>{editMode ? <VscChromeClose /> : <VscEdit />}</IconButton>
+            {onEdit != null && (
+               <IconButton onClick={switchEditMode}>{editMode ? <VscChromeClose /> : <VscEdit />}</IconButton>
+            )}
          </Row>
       </MainContainer>
    );

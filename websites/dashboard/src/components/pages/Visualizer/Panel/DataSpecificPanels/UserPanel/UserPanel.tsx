@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import { useServerInfo } from "../../../../../../api/server/server-info";
 import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
@@ -17,6 +17,7 @@ import {
 import RemoveBanFromUserDialog from "./RemoveBanFromUserDialog/RemoveBanFromUserDialog";
 import ConfirmationDialog from "../../../../../common/UI/ConfirmationDialog/ConfirmationDialog";
 import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
+import ListAppTagsSubscribed from "./ListAppTagsSubscribed/ListAppTagsSubscribed";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const user = props.properties as unknown as Partial<User>;
@@ -24,6 +25,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const [banUserDialogOpen, setBanUserDialogOpen] = useState(false);
    const [removeBanDialogOpen, setRemoveBanDialogOpen] = useState(false);
    const [removeAllBansDialogOpen, setRemoveAllBansDialogOpen] = useState(false);
+   const [tagsSubscribed, setTagsSubscribed] = useState(false);
 
    const userQuery = `has("userId", "${user.userId}")`;
 
@@ -57,8 +59,6 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          enableMiddleClick: true,
       },
    ];
-
-   // openQueryInNewTab(`g.V(${elementToShow.id})`);
 
    const dangerousQueryButtons: QueryButtonProps[] = [];
 
@@ -134,6 +134,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          <Button variant="outlined" color="secondary" onClick={() => setRemoveAllBansDialogOpen(true)}>
             Remove all bans from user
          </Button>
+         <ListAppTagsSubscribed userId={user.userId} />
          <GenericPanel {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
