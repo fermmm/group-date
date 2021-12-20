@@ -101,6 +101,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          </Row>
          {user.profileDescription && <Label>{user.profileDescription}</Label>}
          <Label>Idea: {user.dateIdea}</Label>
+         <ListAppTagsSubscribed userId={user.userId} />
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>
                {(JSON.parse(user.images as unknown as string) as string[])?.map(image => (
@@ -134,7 +135,6 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          <Button variant="outlined" color="secondary" onClick={() => setRemoveAllBansDialogOpen(true)}>
             Remove all bans from user
          </Button>
-         <ListAppTagsSubscribed userId={user.userId} />
          <GenericPanel {...props} hideProps={["images"]} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
