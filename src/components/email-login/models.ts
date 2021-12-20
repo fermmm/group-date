@@ -6,6 +6,7 @@ import {
    createHash,
 } from "../../common-tools/cryptography-tools/cryptography-tools";
 import { sendEmail } from "../../common-tools/email-tools/email-tools";
+import { loadHtmlEmailTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
 import { getServerUrl } from "../../common-tools/url-tools/getServerUrl";
@@ -69,16 +70,20 @@ export async function createAccountPost(
          to: email,
          senderName: `${APPLICATION_NAME} app`,
          subject: `${t("Verify your email", { ctx })}`,
-         html: `<h2>${t("Welcome to", {
-            ctx,
-         })} ${APPLICATION_NAME} =)</h2>${t("You need to verify your email, click on this link", {
-            ctx,
-         })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t("Verify email", {
-            ctx,
-         })}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
-            ctx,
-         })}:<br/><br/>${emailLink}
-         <br/><br/>${t("Good luck!", { ctx })}`,
+         html: loadHtmlEmailTemplate({
+            variablesToReplace: {
+               title: `${t("Welcome to", { ctx })} ${APPLICATION_NAME} =)`,
+               content: `${t("You need to verify your email, click on this link", {
+                  ctx,
+               })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t("Verify email", {
+                  ctx,
+               })}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
+                  ctx,
+               })}:<br/><br/>${emailLink}
+               <br/><br/>${t("Good luck!", { ctx })}`,
+            },
+            translationSources: { ctx },
+         }),
       });
 
       return { success: true };
@@ -217,19 +222,23 @@ export async function resetPasswordPost(
          to: email,
          senderName: `${APPLICATION_NAME} app`,
          subject: `${t("Password reset", { ctx })}`,
-         html: `<h2>${t("Password reset", {
-            ctx,
-         })} =)</h2><br/>${t("You requested to create a new password", {
-            ctx,
-         })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t(
-            "Click on this link to create a new password",
-            {
-               ctx,
+         html: loadHtmlEmailTemplate({
+            variablesToReplace: {
+               title: `${t("Password reset", { ctx })} =)`,
+               content: `<br/>${t("You requested to create a new password", {
+                  ctx,
+               })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t(
+                  "Click on this link to create a new password",
+                  {
+                     ctx,
+                  },
+               )}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
+                  ctx,
+               })}:<br/><br/>${emailLink}
+               <br/><br/>${t("Good luck!", { ctx })}`,
             },
-         )}</a><br/><br/>${t("Or if you prefer copy and paste this into your browser", {
-            ctx,
-         })}:<br/><br/>${emailLink}
-         <br/><br/>${t("Good luck!", { ctx })}`,
+            translationSources: { ctx },
+         }),
       });
 
       return { success: true };

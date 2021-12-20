@@ -318,6 +318,11 @@ export async function addNotificationToUser(
       channelId?: NotificationChannelId;
    },
 ) {
+   if (!isProductionMode()) {
+      console.log("addNotificationToUser was called but notifications are only sent on production");
+      return;
+   }
+
    let user: Partial<User>;
 
    if (tokenIdOrUser["user"]) {

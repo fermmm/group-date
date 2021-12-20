@@ -205,6 +205,10 @@ exports.retrieveFullyRegisteredUser = retrieveFullyRegisteredUser;
  */
 async function addNotificationToUser(tokenIdOrUser, notification, settings) {
     var _a;
+    if (!process_tools_1.isProductionMode()) {
+        console.log("addNotificationToUser was called but notifications are only sent on production");
+        return;
+    }
     let user;
     if (tokenIdOrUser["user"]) {
         user = tokenIdOrUser["user"];

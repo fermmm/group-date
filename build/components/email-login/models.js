@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userExistsGet = exports.createEmailLoginToken = exports.changePasswordPost = exports.resetPasswordPost = exports.loginGet = exports.confirmEmailPost = exports.createAccountPost = void 0;
 const cryptography_tools_1 = require("../../common-tools/cryptography-tools/cryptography-tools");
 const email_tools_1 = require("../../common-tools/email-tools/email-tools");
+const loadHtmlTemplate_1 = require("../../common-tools/email-tools/loadHtmlTemplate");
 const tryToGetErrorMessage_1 = require("../../common-tools/httpRequest/tools/tryToGetErrorMessage");
 const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
 const getServerUrl_1 = require("../../common-tools/url-tools/getServerUrl");
@@ -35,16 +36,20 @@ async function createAccountPost(params, ctx) {
             to: email,
             senderName: `${configurations_1.APPLICATION_NAME} app`,
             subject: `${i18n_tools_1.t("Verify your email", { ctx })}`,
-            html: `<h2>${i18n_tools_1.t("Welcome to", {
-                ctx,
-            })} ${configurations_1.APPLICATION_NAME} =)</h2>${i18n_tools_1.t("You need to verify your email, click on this link", {
-                ctx,
-            })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${i18n_tools_1.t("Verify email", {
-                ctx,
-            })}</a><br/><br/>${i18n_tools_1.t("Or if you prefer copy and paste this into your browser", {
-                ctx,
-            })}:<br/><br/>${emailLink}
-         <br/><br/>${i18n_tools_1.t("Good luck!", { ctx })}`,
+            html: loadHtmlTemplate_1.loadHtmlEmailTemplate({
+                variablesToReplace: {
+                    title: `${i18n_tools_1.t("Welcome to", { ctx })} ${configurations_1.APPLICATION_NAME} =)`,
+                    content: `${i18n_tools_1.t("You need to verify your email, click on this link", {
+                        ctx,
+                    })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${i18n_tools_1.t("Verify email", {
+                        ctx,
+                    })}</a><br/><br/>${i18n_tools_1.t("Or if you prefer copy and paste this into your browser", {
+                        ctx,
+                    })}:<br/><br/>${emailLink}
+               <br/><br/>${i18n_tools_1.t("Good luck!", { ctx })}`,
+                },
+                translationSources: { ctx },
+            }),
         });
         return { success: true };
     }
@@ -150,16 +155,20 @@ async function resetPasswordPost(params, ctx) {
             to: email,
             senderName: `${configurations_1.APPLICATION_NAME} app`,
             subject: `${i18n_tools_1.t("Password reset", { ctx })}`,
-            html: `<h2>${i18n_tools_1.t("Password reset", {
-                ctx,
-            })} =)</h2><br/>${i18n_tools_1.t("You requested to create a new password", {
-                ctx,
-            })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${i18n_tools_1.t("Click on this link to create a new password", {
-                ctx,
-            })}</a><br/><br/>${i18n_tools_1.t("Or if you prefer copy and paste this into your browser", {
-                ctx,
-            })}:<br/><br/>${emailLink}
-         <br/><br/>${i18n_tools_1.t("Good luck!", { ctx })}`,
+            html: loadHtmlTemplate_1.loadHtmlEmailTemplate({
+                variablesToReplace: {
+                    title: `${i18n_tools_1.t("Password reset", { ctx })} =)`,
+                    content: `<br/>${i18n_tools_1.t("You requested to create a new password", {
+                        ctx,
+                    })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${i18n_tools_1.t("Click on this link to create a new password", {
+                        ctx,
+                    })}</a><br/><br/>${i18n_tools_1.t("Or if you prefer copy and paste this into your browser", {
+                        ctx,
+                    })}:<br/><br/>${emailLink}
+               <br/><br/>${i18n_tools_1.t("Good luck!", { ctx })}`,
+                },
+                translationSources: { ctx },
+            }),
         });
         return { success: true };
     }
