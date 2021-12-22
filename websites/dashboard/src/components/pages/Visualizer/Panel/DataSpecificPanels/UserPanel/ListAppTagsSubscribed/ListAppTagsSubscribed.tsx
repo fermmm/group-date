@@ -25,7 +25,11 @@ const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ userId }) => {
          setTagList(response?.map(({ properties }) => properties.name as string) ?? []);
          setIsLoading(false);
       })();
-   }, [isLoading, tagList]);
+   }, [isLoading, tagList, query]);
+
+   useEffect(() => {
+      setTagList(null);
+   }, [query]);
 
    if (isLoading || !tagList) {
       return <CircularProgress color="secondary" />;
