@@ -61,7 +61,7 @@ exports.serializeAllValuesIfNeeded = serializeAllValuesIfNeeded;
  */
 async function fromQueryToSpecificProps(query, propsToExtract, serializedPropsToParse) {
     var _a;
-    return fromGremlinMapToObject((_a = (await database_manager_1.sendQuery(() => query
+    return fromGremlinMapToObject((_a = (await (0, database_manager_1.sendQuery)(() => query
         .valueMap(...propsToExtract)
         .by(database_manager_1.__.unfold())
         .next()))) === null || _a === void 0 ? void 0 : _a.value, serializedPropsToParse);
@@ -74,7 +74,7 @@ exports.fromQueryToSpecificProps = fromQueryToSpecificProps;
  */
 async function fromQueryToSpecificPropValue(query, propToGetValue) {
     var _a;
-    return (_a = (await database_manager_1.sendQuery(() => query.values(propToGetValue).next()))) === null || _a === void 0 ? void 0 : _a.value;
+    return (_a = (await (0, database_manager_1.sendQuery)(() => query.values(propToGetValue).next()))) === null || _a === void 0 ? void 0 : _a.value;
 }
 exports.fromQueryToSpecificPropValue = fromQueryToSpecificPropValue;
 //# sourceMappingURL=data-conversion-tools.js.map

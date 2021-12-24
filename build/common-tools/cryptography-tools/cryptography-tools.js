@@ -5,7 +5,7 @@ const Cryptr = require("cryptr");
 const forge = require("node-forge");
 const process_tools_1 = require("../process/process-tools");
 const string_tools_1 = require("../string-tools/string-tools");
-const cryptr = new Cryptr(process_tools_1.isProductionMode() ? string_tools_1.generateId() : "1234");
+const cryptr = new Cryptr((0, process_tools_1.isProductionMode)() ? (0, string_tools_1.generateId)() : "1234");
 /**
  * Creates a hash based on the given string. The hash cannot be decoded back to the original string.
  */

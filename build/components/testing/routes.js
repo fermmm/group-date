@@ -7,11 +7,11 @@ const queries_1 = require("../groups/queries");
 const data_conversion_1 = require("../groups/tools/data-conversion");
 const models_2 = require("./models");
 function testingRoutes(r) {
-    route_tools_1.createRoute(r, "/testing/create-fake-users", "GET", models_2.createFakeUsersPost);
-    route_tools_1.createRoute(r, "/testing/create-fake-tags", "GET", models_2.createFakeTagsPost);
-    route_tools_1.createRoute(r, "/testing/force-groups-search", "GET", models_2.forceGroupSearch);
-    route_tools_1.createRoute(r, "/testing/create-fake-chat", "GET", models_2.createFakeChatConversation);
-    route_tools_1.createRoute(r, "/testing/temp", "GET", async (params, ctx) => {
+    (0, route_tools_1.createRoute)(r, "/testing/create-fake-users", "GET", models_2.createFakeUsersPost);
+    (0, route_tools_1.createRoute)(r, "/testing/create-fake-tags", "GET", models_2.createFakeTagsPost);
+    (0, route_tools_1.createRoute)(r, "/testing/force-groups-search", "GET", models_2.forceGroupSearch);
+    (0, route_tools_1.createRoute)(r, "/testing/create-fake-chat", "GET", models_2.createFakeChatConversation);
+    (0, route_tools_1.createRoute)(r, "/testing/temp", "GET", async (params, ctx) => {
         console.time("notify");
         // await notifyAllUsersAboutNewCards();
         // const allUsers = await fromQueryToUserList(queryToGetAllCompleteUsers(), false, false);
@@ -24,10 +24,10 @@ function testingRoutes(r) {
         // }
         // console.log("Done");
         // console.timeEnd("notify");
-        const groups = await data_conversion_1.fromQueryToGroupList(queries_1.queryToGetAllGroups());
+        const groups = await (0, data_conversion_1.fromQueryToGroupList)((0, queries_1.queryToGetAllGroups)());
         for (const group of groups) {
             for (const member of group.members) {
-                await models_1.sendNewGroupNotification(member.userId, group);
+                await (0, models_1.sendNewGroupNotification)(member.userId, group);
             }
         }
         return "done";

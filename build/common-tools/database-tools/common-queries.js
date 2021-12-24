@@ -25,7 +25,7 @@ function queryToCreateVerticesFromObjects(props) {
         currentTraversal = database_manager_1.g;
     }
     let objectsReadyForDB;
-    objectsReadyForDB = !serializeProperties ? objects : objects.map(o => data_conversion_tools_1.serializeAllValuesIfNeeded(o));
+    objectsReadyForDB = !serializeProperties ? objects : objects.map(o => (0, data_conversion_tools_1.serializeAllValuesIfNeeded)(o));
     let creationTraversal = database_manager_1.__.addV(label);
     Object.keys(objectsReadyForDB[0]).forEach(
     // For some reason the cardinality doesn't work here (probably a gremlin bug) but it does not matter because its a new vertex

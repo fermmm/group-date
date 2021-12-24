@@ -14,8 +14,8 @@ function createdUsersMatchesFakeData(createdUsers, dataUsed, alsoCheckOrder = fa
         createdUsers = [...createdUsers];
         dataUsed = [...dataUsed];
         const cmp = new Intl.Collator().compare;
-        createdUsers.sort(thenby_1.firstBy("userId", { cmp }));
-        dataUsed.sort(thenby_1.firstBy("userId", { cmp }));
+        createdUsers.sort((0, thenby_1.firstBy)("userId", { cmp }));
+        dataUsed.sort((0, thenby_1.firstBy)("userId", { cmp }));
     }
     for (let i = 0; i < createdUsers.length; i++) {
         const user = createdUsers[i];
@@ -25,7 +25,7 @@ function createdUsersMatchesFakeData(createdUsers, dataUsed, alsoCheckOrder = fa
 }
 exports.createdUsersMatchesFakeData = createdUsersMatchesFakeData;
 function usersDataMatches(user1, user2) {
-    return js_tools_1.objectsContentIsEqual(user1, user2);
+    return (0, js_tools_1.objectsContentIsEqual)(user1, user2);
 }
 exports.usersDataMatches = usersDataMatches;
 //# sourceMappingURL=reusable-tests.js.map

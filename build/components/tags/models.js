@@ -16,13 +16,13 @@ async function initializeTags() {
 exports.initializeTags = initializeTags;
 async function createTagPost(params, ctx) {
     var _a, _b, _c, _d, _e, _f, _g;
-    const user = await models_1.retrieveFullyRegisteredUser(params.token, false, ctx);
+    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, false, ctx);
     if (!user.isAdmin && params.global) {
-        ctx.throw(400, i18n_tools_1.t("Only admin users can create global tags", { user }));
+        ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can create global tags", { user }));
         return;
     }
     if (!user.isAdmin && params.country) {
-        ctx.throw(400, i18n_tools_1.t("Only admin users can set the tag country", { user }));
+        ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can set the tag country", { user }));
         return;
     }
     if (user.demoAccount) {
@@ -34,33 +34,33 @@ async function createTagPost(params, ctx) {
             params.fakeBlockersAmount != null ||
             params.creationDate != null ||
             params.lastInteractionDate != null)) {
-        ctx.throw(400, i18n_tools_1.t("Only admin users can set a fake information", { user }));
+        ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can set a fake information", { user }));
         return;
     }
-    const validationResult = tags_1.validateTagProps(params);
+    const validationResult = (0, tags_1.validateTagProps)(params);
     if (validationResult !== true) {
         ctx.throw(400, JSON.stringify(validationResult));
         return;
     }
-    const tagsCreatedByUserTraversal = queries_1.queryToGetTagsCreatedByUser(user.token, configurations_1.TAG_CREATION_TIME_FRAME);
-    const tagsCreatedByUser = await data_conversion_1.fromQueryToTagList(tagsCreatedByUserTraversal);
+    const tagsCreatedByUserTraversal = (0, queries_1.queryToGetTagsCreatedByUser)(user.token, configurations_1.TAG_CREATION_TIME_FRAME);
+    const tagsCreatedByUser = await (0, data_conversion_1.fromQueryToTagList)(tagsCreatedByUserTraversal);
     if (tagsCreatedByUser.length >= configurations_1.TAGS_PER_TIME_FRAME && !user.isAdmin) {
         const remaining = moment
             .duration(getRemainingTimeToCreateNewTag(tagsCreatedByUser), "seconds")
             .locale(user.language)
             .humanize();
-        ctx.throw(400, i18n_tools_1.t("Sorry you created too many tags", { user }, remaining));
+        ctx.throw(400, (0, i18n_tools_1.t)("Sorry you created too many tags", { user }, remaining));
         return;
     }
-    const userTagsTraversal = queries_1.queryToGetTags({ countryFilter: (_a = params.country) !== null && _a !== void 0 ? _a : user.country });
-    const userTags = await data_conversion_1.fromQueryToTagList(userTagsTraversal);
+    const userTagsTraversal = (0, queries_1.queryToGetTags)({ countryFilter: (_a = params.country) !== null && _a !== void 0 ? _a : user.country });
+    const userTags = await (0, data_conversion_1.fromQueryToTagList)(userTagsTraversal);
     const matchingTag = userTags.find(tag => tag.name.toLowerCase() === params.name.toLowerCase());
     if (matchingTag != null) {
-        ctx.throw(400, i18n_tools_1.t("A tag with the same name already exists in your country", { user }));
+        ctx.throw(400, (0, i18n_tools_1.t)("A tag with the same name already exists in your country", { user }));
         return;
     }
     const tagToCreate = {
-        tagId: string_tools_1.generateId(),
+        tagId: (0, string_tools_1.generateId)(),
         name: params.name,
         category: params.category.toLowerCase(),
         country: (_b = params.country) !== null && _b !== void 0 ? _b : user.country,
@@ -71,24 +71,24 @@ async function createTagPost(params, ctx) {
         blockersAmount: (_g = params.fakeBlockersAmount) !== null && _g !== void 0 ? _g : 0,
     };
     /*
-     * Banned users cannot create tags but since it's a shadow ban we don't return an error, we
+     * Banned or unwanted users cannot create tags but since it's a shadow ban we don't return an error, we
      * return the tag object instead, like if it was created successfully but we are not calling
      * the database query
      */
-    if (user.banReasonsAmount > 0) {
+    if (user.banReasonsAmount > 0 || user.unwantedUser) {
         return tagToCreate;
     }
-    return await data_conversion_1.fromQueryToTag(queries_1.queryToCreateTags(user.userId, [tagToCreate]));
+    return await (0, data_conversion_1.fromQueryToTag)((0, queries_1.queryToCreateTags)(user.userId, [tagToCreate]));
 }
 exports.createTagPost = createTagPost;
 async function tagsGet(params, ctx) {
-    const user = await models_1.retrieveUser(params.token, false, ctx);
+    const user = await (0, models_1.retrieveUser)(params.token, false, ctx);
     if (!user.country) {
         ctx.throw(400, "Reading tags without country selected, please report this error", { user });
         return;
     }
     let result;
-    result = await data_conversion_1.fromQueryToTagList(queries_1.queryToGetTags({ countryFilter: user.country }));
+    result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToGetTags)({ countryFilter: user.country }));
     result = translateAppAuthoredTags(result, { user });
     return result;
 }
@@ -98,42 +98,48 @@ function appAuthoredTagsAsQuestionsGet(params, ctx) {
 }
 exports.appAuthoredTagsAsQuestionsGet = appAuthoredTagsAsQuestionsGet;
 async function tagsCreatedByUserGet(token) {
-    return await data_conversion_1.fromQueryToTagList(queries_1.queryToGetTagsCreatedByUser(token));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToGetTagsCreatedByUser)(token));
 }
 exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
-async function subscribeToTagsPost(params) {
-    return await data_conversion_1.fromQueryToTagList(queries_1.queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false));
+async function subscribeToTagsPost(params, ctx) {
+    const result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "subscribed", false));
+    // Check if by subscribing to the tags the user is unwanted
+    const unwantedUser = (0, models_1.isUnwantedUser)({ tagsIdsToCheck: params.tagIds });
+    if (unwantedUser) {
+        await (0, models_1.userPost)({ token: params.token, props: { unwantedUser } }, ctx);
+    }
+    return result;
 }
 exports.subscribeToTagsPost = subscribeToTagsPost;
 async function blockTagsPost(params) {
-    return await data_conversion_1.fromQueryToTagList(queries_1.queryToRelateUserWithTag(params.token, params.tagIds, "blocked", false));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "blocked", false));
 }
 exports.blockTagsPost = blockTagsPost;
 async function removeSubscriptionToTagsPost(params) {
-    return await data_conversion_1.fromQueryToTagList(queries_1.queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", true));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "subscribed", true));
 }
 exports.removeSubscriptionToTagsPost = removeSubscriptionToTagsPost;
 async function removeBlockToTagsPost(params) {
-    return await data_conversion_1.fromQueryToTagList(queries_1.queryToRelateUserWithTag(params.token, params.tagIds, "blocked", true));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "blocked", true));
 }
 exports.removeBlockToTagsPost = removeBlockToTagsPost;
 async function removeTagsPost(params, ctx) {
-    const user = await models_1.retrieveFullyRegisteredUser(params.token, false, ctx);
+    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, false, ctx);
     if (!user.isAdmin) {
         const tagsCreatedByUser = await tagsCreatedByUserGet(params.token);
         for (const tag of params.tagIds) {
             const tagFound = tagsCreatedByUser.find(ut => ut.tagId === tag);
             if (tagFound == null) {
-                ctx.throw(400, i18n_tools_1.t("Only admin users can remove tags created by anyone", { user }));
+                ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can remove tags created by anyone", { user }));
                 return;
             }
             if (tagFound.subscribersAmount > 0 || tagFound.blockersAmount > 0) {
-                ctx.throw(400, i18n_tools_1.t("Sorry, %s users have interacted with your tag, it cannot be removed anymore", { user }, String(tagFound.subscribersAmount + tagFound.blockersAmount)));
+                ctx.throw(400, (0, i18n_tools_1.t)("Sorry, %s users have interacted with your tag, it cannot be removed anymore", { user }, String(tagFound.subscribersAmount + tagFound.blockersAmount)));
                 return;
             }
         }
     }
-    await queries_1.queryToRemoveTags(params.tagIds).iterate();
+    await (0, queries_1.queryToRemoveTags)(params.tagIds).iterate();
 }
 exports.removeTagsPost = removeTagsPost;
 async function creteAppAuthoredTags() {
@@ -160,7 +166,7 @@ async function creteAppAuthoredTags() {
             global: true,
         });
     })).flat());
-    await data_conversion_1.fromQueryToTag(common_queries_1.queryToCreateVerticesFromObjects({
+    await (0, data_conversion_1.fromQueryToTag)((0, common_queries_1.queryToCreateVerticesFromObjects)({
         objects: tagsToCreate,
         label: "tag",
         duplicationAvoidanceProperty: "tagId",
@@ -175,7 +181,7 @@ async function removeAllTagsCreatedBy(users) {
     for (const user of users) {
         result.push(...(await tagsCreatedByUserGet(user.token)));
     }
-    await queries_1.queryToRemoveTags(result.map(tag => tag.tagId)).iterate();
+    await (0, queries_1.queryToRemoveTags)(result.map(tag => tag.tagId)).iterate();
 }
 exports.removeAllTagsCreatedBy = removeAllTagsCreatedBy;
 function getNotShowedQuestionIds(user) {
@@ -222,21 +228,21 @@ function translateAppAuthoredTags(tags, localeSource) {
         }
         return {
             ...tag,
-            category: i18n_tools_1.t(tag.category, localeSource),
-            name: i18n_tools_1.t(tag.name, localeSource),
+            category: (0, i18n_tools_1.t)(tag.category, localeSource),
+            name: (0, i18n_tools_1.t)(tag.name, localeSource),
         };
     });
 }
 function translateAppAuthoredTagsAsQuestions(rawQuestions, ctx) {
     return rawQuestions.map(q => ({
         ...q,
-        text: i18n_tools_1.t(q.text, { ctx }),
-        extraText: q.extraText != null ? i18n_tools_1.t(q.extraText, { ctx }) : null,
+        text: (0, i18n_tools_1.t)(q.text, { ctx }),
+        extraText: q.extraText != null ? (0, i18n_tools_1.t)(q.extraText, { ctx }) : null,
         answers: q.answers.map(a => ({
             ...a,
-            text: i18n_tools_1.t(a.text, { ctx }),
-            category: i18n_tools_1.t(a.category, { ctx }),
-            tagName: a.tagName != null ? i18n_tools_1.t(a.tagName, { ctx }) : null,
+            text: (0, i18n_tools_1.t)(a.text, { ctx }),
+            category: (0, i18n_tools_1.t)(a.category, { ctx }),
+            tagName: a.tagName != null ? (0, i18n_tools_1.t)(a.tagName, { ctx }) : null,
         })),
     }));
 }

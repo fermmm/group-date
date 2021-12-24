@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getEmailFromFacebook = void 0;
 const httpRequest_1 = require("../../../../../common-tools/httpRequest/httpRequest");
 async function getEmailFromFacebook(token, ctx) {
-    const userDataFromFacebook = await httpRequest_1.httpRequest({
+    const userDataFromFacebook = await (0, httpRequest_1.httpRequest)({
         url: `https://graph.facebook.com/me?fields=email&access_token=${token}`,
     });
     if (userDataFromFacebook.success === false) {

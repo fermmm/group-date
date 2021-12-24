@@ -6,7 +6,7 @@ const configurations_1 = require("../../../configurations");
 const string_tools_1 = require("../../../common-tools/string-tools/string-tools");
 function copyGroupCandidate(group, keepSameId = true) {
     return {
-        groupId: keepSameId ? group.groupId : string_tools_1.generateId(),
+        groupId: keepSameId ? group.groupId : (0, string_tools_1.generateId)(),
         users: group.users.map(u => ({ userId: u.userId, matches: [...u.matches] })),
     };
 }
@@ -126,7 +126,7 @@ exports.removeTheUserWithLessConnections = removeTheUserWithLessConnections;
  * does not get over the minimum allowed or the group becomes too small for the slot, then null is returned
  */
 function tryToFixBadQualityGroupIfNeeded(group, slot) {
-    return removeUsersWithLessConnectionsUntil(group, slot, g => group_candidate_analysis_1.groupHasMinimumQuality(g));
+    return removeUsersWithLessConnectionsUntil(group, slot, g => (0, group_candidate_analysis_1.groupHasMinimumQuality)(g));
 }
 exports.tryToFixBadQualityGroupIfNeeded = tryToFixBadQualityGroupIfNeeded;
 /**
@@ -155,10 +155,10 @@ function removeUsersWithLessConnectionsUntil(group, slot, untilCallback) {
     const iterations = result.users.length;
     for (let i = 0; i < iterations; i++) {
         result = removeTheUserWithLessConnections(result, configurations_1.MINIMUM_CONNECTIONS_TO_BE_ON_GROUP);
-        if (group_candidate_analysis_1.groupSizeIsUnderMinimum(result.users.length, slot)) {
+        if ((0, group_candidate_analysis_1.groupSizeIsUnderMinimum)(result.users.length, slot)) {
             return null;
         }
-        const groupAnalysed = group_candidate_analysis_1.analiceGroupCandidate(result);
+        const groupAnalysed = (0, group_candidate_analysis_1.analiceGroupCandidate)(result);
         if (untilCallback(groupAnalysed) === true) {
             return groupAnalysed;
         }
@@ -168,7 +168,7 @@ function removeUsersWithLessConnectionsUntil(group, slot, untilCallback) {
 exports.removeUsersWithLessConnectionsUntil = removeUsersWithLessConnectionsUntil;
 function removeUnavailableUsersFromGroup(group, notAvailableUsersOnGroup, slot) {
     // If the "not available" users amount is too much it can be discarded without trying to fix it
-    if (group_candidate_analysis_1.groupSizeIsUnderMinimum(group.group.users.length - notAvailableUsersOnGroup.length, slot)) {
+    if ((0, group_candidate_analysis_1.groupSizeIsUnderMinimum)(group.group.users.length - notAvailableUsersOnGroup.length, slot)) {
         return null;
     }
     // Create a new group candidate removing unavailable users
@@ -181,10 +181,10 @@ function removeUnavailableUsersFromGroup(group, notAvailableUsersOnGroup, slot) 
      * be "eaten" by small group creations if the remaining users have free slots for
      * small groups
      */
-    if (group_candidate_analysis_1.groupSizeIsUnderMinimum(newGroup.users.length, slot)) {
+    if ((0, group_candidate_analysis_1.groupSizeIsUnderMinimum)(newGroup.users.length, slot)) {
         return null;
     }
-    return group_candidate_analysis_1.analiceGroupCandidate(newGroup);
+    return (0, group_candidate_analysis_1.analiceGroupCandidate)(newGroup);
 }
 exports.removeUnavailableUsersFromGroup = removeUnavailableUsersFromGroup;
 /**

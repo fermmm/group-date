@@ -8,7 +8,7 @@ function versionIsCompatible(current, required) {
 }
 exports.versionIsCompatible = versionIsCompatible;
 function generateId() {
-    return nanoid_1.nanoid();
+    return (0, nanoid_1.nanoid)();
 }
 exports.generateId = generateId;
 /**

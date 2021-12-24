@@ -5,7 +5,7 @@ const dynamic_1 = require("set-interval-async/dynamic");
 const configurations_1 = require("../../configurations");
 const db = new Map();
 async function initializeSecurityTools() {
-    dynamic_1.setIntervalAsync(clearRateLimiterCache, configurations_1.RATE_LIMITER_CACHE_CLEAR_INTERVAL);
+    (0, dynamic_1.setIntervalAsync)(clearRateLimiterCache, configurations_1.RATE_LIMITER_CACHE_CLEAR_INTERVAL);
 }
 exports.initializeSecurityTools = initializeSecurityTools;
 exports.rateLimiterConfig = {
@@ -41,6 +41,7 @@ function removePrivacySensitiveUserProps(user) {
     delete user.banReasonsAmount;
     delete user.banReasons;
     delete user.requiredTasks;
+    delete user.unwantedUser;
     return user;
 }
 exports.removePrivacySensitiveUserProps = removePrivacySensitiveUserProps;

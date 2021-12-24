@@ -16,18 +16,18 @@ function queryToCreateGroup(params) {
     var _a, _b, _c;
     let traversal = database_manager_1.g
         .addV("group")
-        .property(database_manager_1.cardinality.single, "groupId", string_tools_1.generateId())
-        .property(database_manager_1.cardinality.single, "chat", data_conversion_tools_1.serializeIfNeeded({
+        .property(database_manager_1.cardinality.single, "groupId", (0, string_tools_1.generateId)())
+        .property(database_manager_1.cardinality.single, "chat", (0, data_conversion_tools_1.serializeIfNeeded)({
         messages: [],
     }))
         .property(database_manager_1.cardinality.single, "chatMessagesAmount", 0)
         .property(database_manager_1.cardinality.single, "creationDate", moment().unix())
         .property(database_manager_1.cardinality.single, "membersAmount", (_b = (_a = params.initialUsers) === null || _a === void 0 ? void 0 : _a.usersIds.length) !== null && _b !== void 0 ? _b : 0)
-        .property(database_manager_1.cardinality.single, "dayOptions", data_conversion_tools_1.serializeIfNeeded(params.dayOptions))
+        .property(database_manager_1.cardinality.single, "dayOptions", (0, data_conversion_tools_1.serializeIfNeeded)(params.dayOptions))
         .property(database_manager_1.cardinality.single, "initialQuality", (_c = params.initialQuality) !== null && _c !== void 0 ? _c : types_1.GroupQuality.Good)
         .property(database_manager_1.cardinality.single, "reminder1NotificationSent", false)
         .property(database_manager_1.cardinality.single, "reminder2NotificationSent", false)
-        .property(database_manager_1.cardinality.single, "seenBy", data_conversion_tools_1.serializeIfNeeded([]))
+        .property(database_manager_1.cardinality.single, "seenBy", (0, data_conversion_tools_1.serializeIfNeeded)([]))
         .property(database_manager_1.cardinality.single, "isActive", true);
     if (params.initialUsers != null) {
         traversal = queryToAddUsersToGroup(traversal, params.initialUsers);
@@ -108,7 +108,7 @@ function queryToGetGroupById(groupId, filters) {
 }
 exports.queryToGetGroupById = queryToGetGroupById;
 function queryToGetAllGroupsOfUser(userToken) {
-    return queries_1.queryToGetUserByToken(userToken, null, true).out("member");
+    return (0, queries_1.queryToGetUserByToken)(userToken, null, true).out("member");
 }
 exports.queryToGetAllGroupsOfUser = queryToGetAllGroupsOfUser;
 // For admin usage only
@@ -123,9 +123,9 @@ exports.queryToGetAllGroups = queryToGetAllGroups;
 function queryToUpdateGroupProperty(newProps, filters) {
     let traversal = queryToGetGroupById(newProps.groupId, filters);
     for (const key of Object.keys(newProps)) {
-        traversal = traversal.property(database_manager_1.cardinality.single, key, data_conversion_tools_1.serializeIfNeeded(newProps[key]));
+        traversal = traversal.property(database_manager_1.cardinality.single, key, (0, data_conversion_tools_1.serializeIfNeeded)(newProps[key]));
     }
-    return database_manager_1.sendQuery(() => traversal.iterate());
+    return (0, database_manager_1.sendQuery)(() => traversal.iterate());
 }
 exports.queryToUpdateGroupProperty = queryToUpdateGroupProperty;
 /**
@@ -138,7 +138,7 @@ function queryToUpdateMembershipProperty(traversal, userToken, properties, optio
         traversal = traversal.inE("member").where(database_manager_1.__.outV().has("user", "token", userToken));
     }
     for (const key of Object.keys(properties)) {
-        traversal = traversal.property(key, data_conversion_tools_1.serializeIfNeeded(properties[key]));
+        traversal = traversal.property(key, (0, data_conversion_tools_1.serializeIfNeeded)(properties[key]));
     }
     traversal = traversal.inV();
     return traversal;
@@ -243,7 +243,7 @@ async function queryToRemoveGroups(groups) {
         return database_manager_1.g.V().hasLabel("group").drop().iterate();
     }
     const ids = groups.map(u => u.groupId);
-    return await database_manager_1.sendQuery(() => database_manager_1.g
+    return await (0, database_manager_1.sendQuery)(() => database_manager_1.g
         .inject(ids)
         .unfold()
         .map(database_manager_1.__.as("targetGroupId")

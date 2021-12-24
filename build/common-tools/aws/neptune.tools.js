@@ -28,7 +28,7 @@ async function importNeptuneDatabase(params, ctx) {
         region: process.env.AWS_REGION,
         queueRequest: "TRUE",
     };
-    const response = await httpRequest_1.httpRequest({ url: loaderEndpoint, method: "POST", params: requestParams });
+    const response = await (0, httpRequest_1.httpRequest)({ url: loaderEndpoint, method: "POST", params: requestParams });
     return { request: { url: loaderEndpoint, ...requestParams }, response };
 }
 exports.importNeptuneDatabase = importNeptuneDatabase;
@@ -42,23 +42,23 @@ async function exportNeptuneDatabase(ctx) {
         ctx.throw(400, "AWS_REGION is not set in the .env file");
         return;
     }
-    let commandResponse = await process_tools_1.executeSystemCommand("test -e vendor/neptune-export/neptune-export.jar && echo true || echo false");
+    let commandResponse = await (0, process_tools_1.executeSystemCommand)("test -e vendor/neptune-export/neptune-export.jar && echo true || echo false");
     if (commandResponse === "false") {
-        commandResponse = await process_tools_1.executeSystemCommand("wget https://s3.amazonaws.com/aws-neptune-customer-samples/neptune-export/bin/neptune-export.jar -P vendor/neptune-export");
+        commandResponse = await (0, process_tools_1.executeSystemCommand)("wget https://s3.amazonaws.com/aws-neptune-customer-samples/neptune-export/bin/neptune-export.jar -P vendor/neptune-export");
     }
-    commandResponse = await process_tools_1.executeSystemCommand("test -e vendor/neptune-export/neptune-export.jar && echo true || echo false");
+    commandResponse = await (0, process_tools_1.executeSystemCommand)("test -e vendor/neptune-export/neptune-export.jar && echo true || echo false");
     if (commandResponse === "false") {
         ctx.throw(500, "Failed to download Neptune export jar file");
         return;
     }
     const loaderEndpoint = process.env.DATABASE_URL.replace("wss://", "").replace(":8182/gremlin", "");
     var commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d admin-uploads/db ${process.env.AWS_CLONE_CLUSTER_ON_BACKUP === "true" ? "--clone-cluster" : ""}`;
-    commandResponse = await process_tools_1.executeSystemCommand(commandStr);
-    await files_tools_1.createZipFileFromDirectory("admin-uploads/db", "admin-uploads/db.zip");
-    files_tools_1.deleteFolder("admin-uploads/db");
+    commandResponse = await (0, process_tools_1.executeSystemCommand)(commandStr);
+    await (0, files_tools_1.createZipFileFromDirectory)("admin-uploads/db", "admin-uploads/db.zip");
+    (0, files_tools_1.deleteFolder)("admin-uploads/db");
     return {
         commandResponse,
-        folder: `api/admin-uploads/db.zip?hash=${validateAdminCredentials_1.getCredentialsHash()}`,
+        folder: `api/admin-uploads/db.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,
     };
 }
 exports.exportNeptuneDatabase = exportNeptuneDatabase;

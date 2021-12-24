@@ -25,7 +25,7 @@ function getConnectionsCountInequalityLevel(group) {
     const deviation = meanAbsoluteDeviation(connectionsCount);
     const maximumDeviation = meanAbsoluteDeviation(lessEqualCase);
     let result = deviation / maximumDeviation;
-    result = general_1.replaceNaNInfinity(result, 0);
+    result = (0, general_1.replaceNaNInfinity)(result, 0);
     return result;
 }
 exports.getConnectionsCountInequalityLevel = getConnectionsCountInequalityLevel;
@@ -69,7 +69,7 @@ function getConnectionsMetaconnectionsDistance(group) {
          * because 0 is the "healthiest" result, that's the opposite of what we have in this case. So in case
          * of no connections the distance is the whole group size.
          */
-        distance = general_1.replaceNaNInfinity(distance, group.users.length);
+        distance = (0, general_1.replaceNaNInfinity)(distance, group.users.length);
         s += distance;
         return s;
     }, 0);
@@ -100,19 +100,19 @@ function meanAbsoluteDeviation(array) {
  * Returns a list with the amount of connections that has each of the users at distance 1 from a given user.
  */
 function getMetaconnectionsAmountInGroupCandidate(group, targetUser) {
-    return targetUser.matches.map(userDist1Id => group_candidate_editing_1.getUserByIdOnGroupCandidate(group, userDist1Id).matches.length);
+    return targetUser.matches.map(userDist1Id => (0, group_candidate_editing_1.getUserByIdOnGroupCandidate)(group, userDist1Id).matches.length);
 }
 /**
  * In a group candidate removes the exceeding connections of a user when there are more than the
  * maximum specified.
  */
 function removeExceedingConnectionsOnGroupCandidate(group, maxConnectionsAllowed) {
-    const resultGroup = group_candidate_editing_1.copyGroupCandidate(group);
+    const resultGroup = (0, group_candidate_editing_1.copyGroupCandidate)(group);
     resultGroup.users.forEach((user, i) => {
         if (user.matches.length > maxConnectionsAllowed) {
             for (let u = user.matches.length - 1; u >= maxConnectionsAllowed; u--) {
-                const userToDisconnect = group_candidate_editing_1.getUserByIdOnGroupCandidate(resultGroup, user.matches[u]);
-                group_candidate_editing_1.disconnectUsers(user, userToDisconnect);
+                const userToDisconnect = (0, group_candidate_editing_1.getUserByIdOnGroupCandidate)(resultGroup, user.matches[u]);
+                (0, group_candidate_editing_1.disconnectUsers)(user, userToDisconnect);
             }
         }
     });
@@ -127,13 +127,13 @@ exports.removeExceedingConnectionsOnGroupCandidate = removeExceedingConnectionsO
 function analiceGroupCandidate(group) {
     const groupTrimmed = removeExceedingConnectionsOnGroupCandidate(group, configurations_1.MAX_CONNECTIONS_POSSIBLE_IN_REALITY);
     const quality = getConnectionsMetaconnectionsDistance(group);
-    const qualityRounded = general_1.roundDecimals(quality);
+    const qualityRounded = (0, general_1.roundDecimals)(quality);
     const averageConnectionsAmount = getAverageConnectionsAmount(groupTrimmed);
     const averageConnectionsAmountRounded = Math.round(getAverageConnectionsAmount(groupTrimmed));
     return {
         group,
         analysis: { quality, qualityRounded, averageConnectionsAmount, averageConnectionsAmountRounded },
-        analysisId: general_1.generateNumberId(), // Required by BST to not take same analysis numbers as the same object
+        analysisId: (0, general_1.generateNumberId)(), // Required by BST to not take same analysis numbers as the same object
     };
 }
 exports.analiceGroupCandidate = analiceGroupCandidate;
@@ -164,7 +164,7 @@ exports.userIsPresentOnGroup = userIsPresentOnGroup;
  */
 function getDataCorruptionProblemsInGroupCandidate(group, maxUsersAllowed = null) {
     const result = [];
-    const gr = ts_tools_1.checkTypeByMember(group, "group") ? group.group : group;
+    const gr = (0, ts_tools_1.checkTypeByMember)(group, "group") ? group.group : group;
     if (maxUsersAllowed != null && gr.users.length > maxUsersAllowed) {
         result.push(`Group has too many users: Users amount: ${gr.users.length} max users to throw this error: ${maxUsersAllowed} groupId: ${gr.groupId}`);
     }
@@ -196,7 +196,7 @@ function getDataCorruptionProblemsInGroupCandidate(group, maxUsersAllowed = null
                 result.push(`User has a match that is not present on the group: ${m}`);
                 return;
             }
-            if (group_candidate_editing_1.getUserByIdOnGroupCandidate(gr, m).matches.findIndex(um => um === u.userId) === -1) {
+            if ((0, group_candidate_editing_1.getUserByIdOnGroupCandidate)(gr, m).matches.findIndex(um => um === u.userId) === -1) {
                 result.push(`User has unilateral match, the user: ${u.userId} is not in the matches of ${m}`);
             }
         });
@@ -220,11 +220,11 @@ exports.getDataCorruptionProblemsInMultipleGroupCandidates = getDataCorruptionPr
  * same quality it returns the first one.
  */
 function getBestGroup(group1, group2) {
-    if (js_tools_1.objectsContentIsEqual(group1.analysis, group2.analysis)) {
+    if ((0, js_tools_1.objectsContentIsEqual)(group1.analysis, group2.analysis)) {
         return group1;
     }
     const result = [group1, group2];
-    result.sort(models_1.getSortFunction(false));
+    result.sort((0, models_1.getSortFunction)(false));
     return result[0];
 }
 exports.getBestGroup = getBestGroup;

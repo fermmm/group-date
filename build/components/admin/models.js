@@ -39,38 +39,38 @@ const models_3 = require("../groups/models");
  * should be empty, other initializers create content in the database that prevents this to be executed.
  */
 async function initializeAdmin() {
-    files_tools_1.createFolder("admin-uploads");
-    dynamic_1.setIntervalAsync(logUsageReport, configurations_1.LOG_USAGE_REPORT_FREQUENCY);
+    (0, files_tools_1.createFolder)("admin-uploads");
+    (0, dynamic_1.setIntervalAsync)(logUsageReport, configurations_1.LOG_USAGE_REPORT_FREQUENCY);
     // To create a report when server boots and preview database:
     logUsageReport();
     await createDemoAccounts();
 }
 exports.initializeAdmin = initializeAdmin;
 async function validateCredentialsGet(params, ctx) {
-    return await validateAdminCredentials_1.validateAdminCredentials(params);
+    return await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
 }
 exports.validateCredentialsGet = validateCredentialsGet;
 async function adminChatGet(params, ctx) {
-    const callerUser = await models_1.retrieveUser(params.token, false, ctx);
+    const callerUser = await (0, models_1.retrieveUser)(params.token, false, ctx);
     const nonAdminUserId = callerUser.isAdmin ? params.targetUserId : callerUser.userId;
-    const result = await data_conversion_1.fromQueryToChatWithAdmins(queries_2.queryToGetAdminChatMessages(nonAdminUserId, callerUser.isAdmin));
+    const result = await (0, data_conversion_1.fromQueryToChatWithAdmins)((0, queries_2.queryToGetAdminChatMessages)(nonAdminUserId, callerUser.isAdmin));
     return result;
 }
 exports.adminChatGet = adminChatGet;
 async function adminChatPost(params, ctx) {
     var _a;
-    const callerUser = await models_1.retrieveUser(params.token, false, ctx);
+    const callerUser = await (0, models_1.retrieveUser)(params.token, false, ctx);
     const nonAdminUserId = callerUser.isAdmin ? params.targetUserId : callerUser.userId;
-    const currentChat = ((_a = (await data_conversion_1.fromQueryToChatWithAdmins(queries_2.queryToGetAdminChatMessages(nonAdminUserId, false)))) === null || _a === void 0 ? void 0 : _a.messages) || [];
+    const currentChat = ((_a = (await (0, data_conversion_1.fromQueryToChatWithAdmins)((0, queries_2.queryToGetAdminChatMessages)(nonAdminUserId, false)))) === null || _a === void 0 ? void 0 : _a.messages) || [];
     currentChat.push({
         messageText: params.messageText,
-        chatMessageId: string_tools_1.generateId(),
+        chatMessageId: (0, string_tools_1.generateId)(),
         time: moment().unix(),
         authorUserId: callerUser.isAdmin ? "" : callerUser.userId,
     });
-    await queries_2.queryToSaveAdminChatMessage(nonAdminUserId, currentChat, callerUser.isAdmin || false).iterate();
+    await (0, queries_2.queryToSaveAdminChatMessage)(nonAdminUserId, currentChat, callerUser.isAdmin || false).iterate();
     if (callerUser.isAdmin) {
-        await models_1.addNotificationToUser({ userId: params.targetUserId }, {
+        await (0, models_1.addNotificationToUser)({ userId: params.targetUserId }, {
             type: user_1.NotificationType.ContactChat,
             title: "You have a new message from an admin",
             text: "You can respond to the admin",
@@ -79,37 +79,37 @@ async function adminChatPost(params, ctx) {
 }
 exports.adminChatPost = adminChatPost;
 async function allChatsWithAdminsGet(params, ctx) {
-    const callerUser = await models_1.retrieveUser(params.token, false, ctx);
+    const callerUser = await (0, models_1.retrieveUser)(params.token, false, ctx);
     if (!callerUser.isAdmin) {
         return null;
     }
-    return data_conversion_1.fromQueryToChatWithAdminsList(queries_2.queryToGetAllChatsWithAdmins(params.excludeRespondedByAdmin));
+    return (0, data_conversion_1.fromQueryToChatWithAdminsList)((0, queries_2.queryToGetAllChatsWithAdmins)(params.excludeRespondedByAdmin));
 }
 exports.allChatsWithAdminsGet = allChatsWithAdminsGet;
 async function convertToAdminPost(params, ctx) {
-    const userRequesting = await models_1.retrieveUser(params.token, false, ctx);
+    const userRequesting = await (0, models_1.retrieveUser)(params.token, false, ctx);
     if (!userRequesting.isAdmin) {
         return;
     }
-    const targetUser = await models_1.retrieveUser(params.targetUserToken, false, ctx);
+    const targetUser = await (0, models_1.retrieveUser)(params.targetUserToken, false, ctx);
     return convertToAdmin(targetUser.token);
 }
 exports.convertToAdminPost = convertToAdminPost;
 async function convertToAdmin(token) {
-    await queries_1.queryToUpdateUserProps(token, [{ key: "isAdmin", value: true }]);
+    await (0, queries_1.queryToUpdateUserProps)(token, [{ key: "isAdmin", value: true }]);
 }
 exports.convertToAdmin = convertToAdmin;
 async function logUsageReport() {
     const timeStart = perf_hooks_1.performance.now();
-    const amountOfUsers = (await database_manager_1.sendQuery(() => queries_1.queryToGetAllUsers().count().next())).value;
-    const amountOfFullyRegisteredUsers = (await database_manager_1.sendQuery(() => queries_1.queryToGetAllCompleteUsers().count().next()))
+    const amountOfUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().count().next())).value;
+    const amountOfFullyRegisteredUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllCompleteUsers)().count().next()))
         .value;
     const incompleteUsers = amountOfUsers - amountOfFullyRegisteredUsers;
-    const amountOfGroups = (await database_manager_1.sendQuery(() => queries_3.queryToGetAllGroups().count().next())).value;
+    const amountOfGroups = (await (0, database_manager_1.sendQuery)(() => (0, queries_3.queryToGetAllGroups)().count().next())).value;
     let totalOpenGroups = 0;
     const openGroupsBySlot = [];
     for (let i = 0; i < configurations_1.GROUP_SLOTS_CONFIGS.length; i++) {
-        const amount = (await queries_4.queryToGetGroupsReceivingMoreUsers(i, types_1.GroupQuality.Good).toList()).length;
+        const amount = (await (0, queries_4.queryToGetGroupsReceivingMoreUsers)(i, types_1.GroupQuality.Good).toList()).length;
         openGroupsBySlot.push(amount);
         totalOpenGroups += amount;
     }
@@ -126,7 +126,7 @@ async function logUsageReport() {
 }
 exports.logUsageReport = logUsageReport;
 async function logFileListGet(params, ctx) {
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return null;
     }
@@ -140,7 +140,7 @@ async function logFileListGet(params, ctx) {
 exports.logFileListGet = logFileListGet;
 async function logGet(params, ctx) {
     const { fileName } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return null;
     }
@@ -158,30 +158,30 @@ async function logGet(params, ctx) {
 }
 exports.logGet = logGet;
 async function importDatabasePost(params, ctx) {
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
     }
     if (process.env.USING_AWS === "true") {
-        return await neptune_tools_1.importNeptuneDatabase(params, ctx);
+        return await (0, neptune_tools_1.importNeptuneDatabase)(params, ctx);
     }
 }
 exports.importDatabasePost = importDatabasePost;
 async function exportDatabaseGet(params, ctx) {
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
     }
     if (process.env.USING_AWS === "true") {
-        return await neptune_tools_1.exportNeptuneDatabase(ctx);
+        return await (0, neptune_tools_1.exportNeptuneDatabase)(ctx);
     }
 }
 exports.exportDatabaseGet = exportDatabaseGet;
 async function visualizerPost(params, ctx) {
     const { query, nodeLimit } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
@@ -189,16 +189,16 @@ async function visualizerPost(params, ctx) {
         traversalSource: "g",
         mimeType: "application/json",
     });
-    const result = await client.submit(visualizer_proxy_tools_1.makeQuery(query, nodeLimit), {});
-    return visualizer_proxy_tools_1.nodesToJson(result._items);
+    const result = await client.submit((0, visualizer_proxy_tools_1.makeQuery)(query, nodeLimit), {});
+    return (0, visualizer_proxy_tools_1.nodesToJson)(result._items);
 }
 exports.visualizerPost = visualizerPost;
 async function onAdminFileReceived(ctx, next) {
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(ctx.request.query);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(ctx.request.query);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
     }
-    return koa_tools_1.fileSaverForAdminFiles(ctx, next);
+    return (0, koa_tools_1.fileSaverForAdminFiles)(ctx, next);
 }
 exports.onAdminFileReceived = onAdminFileReceived;
 async function onAdminFileSaved(files, ctx) {
@@ -215,7 +215,7 @@ async function onAdminFileSaved(files, ctx) {
         const folderPath = path.dirname(file.path);
         const fileName = path.basename(file.path);
         if (process.env.USING_AWS === "true") {
-            const fileNameInS3 = await s3_tools_1.uploadFileToS3({
+            const fileNameInS3 = await (0, s3_tools_1.uploadFileToS3)({
                 fileName: folderPath + fileName,
                 targetPath: fileName,
             });
@@ -232,36 +232,36 @@ async function onAdminFileSaved(files, ctx) {
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
     const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
-    const users = await data_conversion_2.fromQueryToUserList(queries_2.queryToSelectUsersForNotification(filters), false, false);
+    const users = await (0, data_conversion_2.fromQueryToUserList)((0, queries_2.queryToSelectUsersForNotification)(filters), false, false);
     if (onlyReturnUsersAmount) {
         return `If you send the notification ${users.length} user(s) will receive it.`;
     }
     for (const user of users) {
-        await models_1.addNotificationToUser({ token: user.token }, notificationContent, {
+        await (0, models_1.addNotificationToUser)({ token: user.token }, notificationContent, {
             translateNotification: false,
             sendPushNotification: false,
             sendEmailNotification,
             channelId,
         });
     }
-    const expoPushTickets = await push_notifications_1.sendPushNotifications(users.map(user => ({
+    const expoPushTickets = await (0, push_notifications_1.sendPushNotifications)(users.map(user => ({
         to: user.notificationsToken,
         title: notificationContent.title,
         body: notificationContent.text,
         data: {
             type: notificationContent.type,
             targetId: notificationContent.targetId,
-            notificationId: string_tools_1.generateId(),
+            notificationId: (0, string_tools_1.generateId)(),
         },
         channelId: channelId ? channelId : user_1.NotificationChannelId.Default,
     })));
     // Some time to wait in order for expo to process the notification before the delivery status can be checked
-    await js_tools_1.time(10000);
-    const errors = await push_notifications_1.getNotificationsDeliveryErrors(expoPushTickets);
+    await (0, js_tools_1.time)(10000);
+    const errors = await (0, push_notifications_1.getNotificationsDeliveryErrors)(expoPushTickets);
     let returnMessage = `Notification sent to ${users.length - errors.length} users.`;
     if (errors.length > 0) {
         returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
@@ -273,22 +273,22 @@ exports.adminNotificationSendPost = adminNotificationSendPost;
 // Runs a system command and return output
 async function runCommandPost(params, ctx) {
     const { command } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
-    return await process_tools_1.executeSystemCommand(command);
+    return await (0, process_tools_1.executeSystemCommand)(command);
 }
 exports.runCommandPost = runCommandPost;
 async function banUserPost(params, ctx) {
     var _a;
     const { userId, reason } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
         return;
     }
-    const user = await data_conversion_2.fromQueryToUser(queries_1.queryToGetUserById(userId), false);
+    const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
     if (!user) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(404, "User not found");
         return;
@@ -297,9 +297,9 @@ async function banUserPost(params, ctx) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(400, "User already banned for this reason");
         return;
     }
-    await database_manager_1.sendQuery(() => {
+    await (0, database_manager_1.sendQuery)(() => {
         var _a;
-        return queries_1.queryToGetUserById(userId)
+        return (0, queries_1.queryToGetUserById)(userId)
             .property("banReasons", JSON.stringify([...((_a = user.banReasons) !== null && _a !== void 0 ? _a : []), reason]))
             .property("banReasonsAmount", user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1)
             .iterate();
@@ -309,12 +309,12 @@ async function banUserPost(params, ctx) {
 exports.banUserPost = banUserPost;
 async function removeBanFromUserPost(params, ctx) {
     const { userId, reason } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
         return;
     }
-    const user = await data_conversion_2.fromQueryToUser(queries_1.queryToGetUserById(userId), false);
+    const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
     if (!user) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(404, "User not found");
         return;
@@ -325,7 +325,7 @@ async function removeBanFromUserPost(params, ctx) {
     }
     const newBanReasonsList = user.banReasons.filter(banReason => banReason !== reason);
     const newBanReasonsAmount = newBanReasonsList.length;
-    await database_manager_1.sendQuery(() => queries_1.queryToGetUserById(userId)
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
         .property("banReasons", JSON.stringify(newBanReasonsList))
         .property("banReasonsAmount", newBanReasonsAmount)
         .iterate());
@@ -334,12 +334,12 @@ async function removeBanFromUserPost(params, ctx) {
 exports.removeBanFromUserPost = removeBanFromUserPost;
 async function removeAllBanReasonsFromUser(params, ctx) {
     const { userId } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
         return;
     }
-    const user = await data_conversion_2.fromQueryToUser(queries_1.queryToGetUserById(userId), false);
+    const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
     if (!user) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(404, "User not found");
         return;
@@ -348,7 +348,7 @@ async function removeAllBanReasonsFromUser(params, ctx) {
         ctx === null || ctx === void 0 ? void 0 : ctx.throw(400, "User doesn't have any ban reasons");
         return;
     }
-    await database_manager_1.sendQuery(() => queries_1.queryToGetUserById(userId)
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
         .property("banReasons", JSON.stringify([]))
         .property("banReasonsAmount", 0)
         .iterate());
@@ -357,16 +357,16 @@ async function removeAllBanReasonsFromUser(params, ctx) {
 exports.removeAllBanReasonsFromUser = removeAllBanReasonsFromUser;
 async function sendEmailPost(params, ctx) {
     const { to, subject, text } = params;
-    const passwordValidation = await validateAdminCredentials_1.validateAdminCredentials(params);
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
         return;
     }
     try {
-        return await ses_tools_1.sendEmailUsingSES({ to, subject, text });
+        return await (0, ses_tools_1.sendEmailUsingSES)({ to, subject, text });
     }
     catch (error) {
-        return tryToGetErrorMessage_1.tryToGetErrorMessage(error);
+        return (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error);
     }
 }
 exports.sendEmailPost = sendEmailPost;
@@ -374,12 +374,12 @@ async function createDemoAccounts() {
     const usersCreated = [];
     // Create the users
     for (const demoProps of configurations_1.DEMO_ACCOUNTS) {
-        const user = await data_conversion_2.fromQueryToUser(queries_1.queryToGetUserByEmail(demoProps.email), false);
+        const user = await (0, data_conversion_2.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(demoProps.email), false);
         if (user) {
             return;
         }
-        const token = models_2.createEmailLoginToken({ email: demoProps.email, password: demoProps.password });
-        const demoUser = await users_1.createFakeUser({
+        const token = (0, models_2.createEmailLoginToken)({ email: demoProps.email, password: demoProps.password });
+        const demoUser = await (0, users_1.createFakeUser)({
             ...demoProps,
             token,
             language: "es",
@@ -389,7 +389,7 @@ async function createDemoAccounts() {
     // They should like each other to not bug the group interface
     for (const user of usersCreated) {
         const otherUsers = usersCreated.filter(u => u.userId !== user.userId);
-        await database_manager_1.sendQuery(() => queries_1.queryToSetAttraction({
+        await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToSetAttraction)({
             token: user.token,
             attractions: otherUsers.map(userToConnect => ({
                 userId: userToConnect.userId,
@@ -398,16 +398,16 @@ async function createDemoAccounts() {
         }).iterate());
     }
     // Put them in a demo group
-    await models_3.createGroup({
+    await (0, models_3.createGroup)({
         usersIds: usersCreated.map(u => u.userId),
-        slotToUse: models_3.getSlotIdFromUsersAmount(usersCreated.length),
+        slotToUse: (0, models_3.getSlotIdFromUsersAmount)(usersCreated.length),
     }, null, true);
     /*
      * Set the demoAccount property to true for the users. This should be the last thing executed because setting
      * this disables some functionality that we are using on the lines above.
      */
     for (const demoProps of configurations_1.DEMO_ACCOUNTS) {
-        await database_manager_1.sendQuery(() => queries_1.queryToGetUserByEmail(demoProps.email).property("demoAccount", true).iterate());
+        await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByEmail)(demoProps.email).property("demoAccount", true).iterate());
     }
 }
 //# sourceMappingURL=models.js.map

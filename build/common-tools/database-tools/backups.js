@@ -11,13 +11,13 @@ const common_queries_1 = require("../database-tools/common-queries");
 const fix_graphml_bug_1 = require("./fix-graphml-bug");
 async function initializeDatabaseBackups() {
     if (backupIsEnabled()) {
-        const databaseEmpty = await common_queries_1.databaseIsEmpty();
+        const databaseEmpty = await (0, common_queries_1.databaseIsEmpty)();
         // Load database contents from latest backup if any
         if (process.env.RESTORE_DATABASE_ON_INIT !== "false" &&
             databaseEmpty &&
-            files_tools_1.fileOrFolderExists("database-backups/latest.xml")) {
-            fix_graphml_bug_1.fixGraphMlBug("database-backups/latest.xml");
-            await database_manager_1.loadDatabaseFromDisk("../../database-backups/latest.xml");
+            (0, files_tools_1.fileOrFolderExists)("database-backups/latest.xml")) {
+            (0, fix_graphml_bug_1.fixGraphMlBug)("database-backups/latest.xml");
+            await (0, database_manager_1.loadDatabaseFromDisk)("../../database-backups/latest.xml");
         }
         await initializeBackupDatabaseSchedule();
         backupDatabaseWhenExiting();
@@ -35,7 +35,7 @@ exports.backupIsEnabled = backupIsEnabled;
 async function initializeBackupDatabaseSchedule() {
     const hour = { hour: configurations_1.DATABASE_BACKUP_HOUR };
     // In case there is no backup at all (first time server starts)
-    files_tools_2.createFolder("database-backups");
+    (0, files_tools_2.createFolder)("database-backups");
     if (configurations_1.DATABASE_BACKUP_DAILY) {
         schedule.scheduleJob({ ...hour, dayOfWeek: 0 }, () => backupDatabaseToFile("daily", "monday"));
         schedule.scheduleJob({ ...hour, dayOfWeek: 1 }, () => backupDatabaseToFile("daily", "tuesday"));
@@ -70,16 +70,16 @@ async function backupDatabaseToFile(folderName, fileName) {
     const profiler = logTimeToFile("backups");
     // The ../../ are here because the path is relative to the database program folder (vendor/gremlin-local-server)
     await makeSimpleBackup();
-    files_tools_2.copyFile("database-backups/latest.xml", `database-backups/${folderName}/${fileName}.xml`);
+    (0, files_tools_2.copyFile)("database-backups/latest.xml", `database-backups/${folderName}/${fileName}.xml`);
     profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
 }
 function backupDatabaseWhenExiting() {
-    process_tools_1.executeFunctionBeforeExiting(async () => {
+    (0, process_tools_1.executeFunctionBeforeExiting)(async () => {
         await makeSimpleBackup();
     });
 }
 async function makeSimpleBackup() {
-    await database_manager_1.saveDatabaseToFile("../../database-backups/latest.xml");
+    await (0, database_manager_1.saveDatabaseToFile)("../../database-backups/latest.xml");
     // This should be here but for some reason sometimes it has no effect, so this is being called before loading backup instead.
     // fixGraphMlBug("database-backups/latest.xml");
 }

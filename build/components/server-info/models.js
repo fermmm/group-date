@@ -8,16 +8,16 @@ const getServerUrl_1 = require("../../common-tools/url-tools/getServerUrl");
 function serverInfoGet(params, ctx) {
     var _a, _b, _c, _d, _e, _f;
     return {
-        serverOperating: string_tools_1.strToBool(process.env.SERVER_OPERATING),
+        serverOperating: (0, string_tools_1.strToBool)(process.env.SERVER_OPERATING),
         serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
-        buildVersionIsCompatible: string_tools_1.versionIsCompatible((_a = params.buildVersion) !== null && _a !== void 0 ? _a : "0.0.0", configurations_1.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED),
-        codeVersionIsCompatible: string_tools_1.versionIsCompatible((_b = params.codeVersion) !== null && _b !== void 0 ? _b : "0.0.0", configurations_1.MINIMUM_CLIENT_CODE_VERSION_ALLOWED),
-        locale: i18n_tools_1.getLocaleFromHeader(ctx),
+        buildVersionIsCompatible: (0, string_tools_1.versionIsCompatible)((_a = params.buildVersion) !== null && _a !== void 0 ? _a : "0.0.0", configurations_1.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED),
+        codeVersionIsCompatible: (0, string_tools_1.versionIsCompatible)((_b = params.codeVersion) !== null && _b !== void 0 ? _b : "0.0.0", configurations_1.MINIMUM_CLIENT_CODE_VERSION_ALLOWED),
+        locale: (0, i18n_tools_1.getLocaleFromHeader)(ctx),
         emailLoginEnabled: ((_c = process.env.AWS_ACCESS_KEY_ID) === null || _c === void 0 ? void 0 : _c.length) > 1 &&
             ((_d = process.env.AWS_SECRET_ACCESS_KEY) === null || _d === void 0 ? void 0 : _d.length) > 1 &&
             ((_e = process.env.EMAIL_SENDER) === null || _e === void 0 ? void 0 : _e.length) > 1 &&
             ((_f = process.env.AWS_REGION) === null || _f === void 0 ? void 0 : _f.length) > 1 &&
-            getServerUrl_1.getServerUrl().length > 1,
+            (0, getServerUrl_1.getServerUrl)().length > 1,
         imagesHost: process.env.IMAGES_HOST,
         serverConfigurations: {
             groupSlots: configurations_1.GROUP_SLOTS_CONFIGS,
@@ -33,6 +33,6 @@ function serverInfoGet(params, ctx) {
 }
 exports.serverInfoGet = serverInfoGet;
 function translatePushNotificationChannels(channels, ctx) {
-    return channels.map(channel => ({ ...channel, name: i18n_tools_1.t(channel.name, { ctx }) }));
+    return channels.map(channel => ({ ...channel, name: (0, i18n_tools_1.t)(channel.name, { ctx }) }));
 }
 //# sourceMappingURL=models.js.map

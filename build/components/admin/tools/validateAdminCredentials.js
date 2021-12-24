@@ -6,7 +6,7 @@ const process_tools_1 = require("../../../common-tools/process/process-tools");
 async function validateAdminCredentials(params) {
     var _a, _b;
     const { user, password, hash, onlyInProduction } = params;
-    if (onlyInProduction === true && !process_tools_1.isProductionMode()) {
+    if (onlyInProduction === true && !(0, process_tools_1.isProductionMode)()) {
         return { isValid: true };
     }
     if (((_a = process.env.ADMIN_USER) !== null && _a !== void 0 ? _a : "") === "") {
@@ -35,7 +35,7 @@ async function validateAdminCredentials(params) {
     }
     if (hash != null) {
         try {
-            const valid = await cryptography_tools_1.compareHash(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
+            const valid = await (0, cryptography_tools_1.compareHash)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD, hash);
             if (valid === true) {
                 return { isValid: true };
             }
@@ -57,7 +57,7 @@ async function validateAdminCredentials(params) {
 }
 exports.validateAdminCredentials = validateAdminCredentials;
 function getCredentialsHash() {
-    return cryptography_tools_1.createHash(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
+    return (0, cryptography_tools_1.createHash)(process.env.ADMIN_USER + process.env.ADMIN_PASSWORD);
 }
 exports.getCredentialsHash = getCredentialsHash;
 //# sourceMappingURL=validateAdminCredentials.js.map

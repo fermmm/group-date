@@ -45,26 +45,26 @@ const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
         .use(koaBody({ parsedMethods: ["GET", "POST"] }))
         .use(router.routes())
         .use(router.allowedMethods())
-        .use(routes_7.userMountedFolders())
-        .use(koa_tools_1.serveFolderFiles({
+        .use((0, routes_7.userMountedFolders)())
+        .use((0, koa_tools_1.serveFolderFiles)({
         localFolderPath: "./websites/email-templates/img/",
         urlToServe: "/email-images",
     }))
-        .use(routes_1.adminMountedFolders());
+        .use((0, routes_1.adminMountedFolders)());
     /**
      * To edit any of these 2 websites directly from chrome dev tools set the first parameter to "/" temporarily,
      * if there is another one with "/" as first parameter comment that one so it does not interfere. Then from
      * chrome dev tools go to Sources > Filesystem and open the corresponding website folder, then click "allow".
      * When you finish editing restore all the temporary changes you made in this file.
      */
-    koa_tools_1.serveWebsite("/", "./websites/promo", a, router);
-    koa_tools_1.serveWebsite("/confirm-email", "./websites/email-login/confirm", a, router, { enableCache: false });
-    koa_tools_1.serveWebsite("/password-reset", "./websites/email-login/password-reset", a, router, { enableCache: false });
+    (0, koa_tools_1.serveWebsite)("/", "./websites/promo", a, router);
+    (0, koa_tools_1.serveWebsite)("/confirm-email", "./websites/email-login/confirm", a, router, { enableCache: false });
+    (0, koa_tools_1.serveWebsite)("/password-reset", "./websites/email-login/password-reset", a, router, { enableCache: false });
     // To edit this website run "npm start" in the websites/dashboard folder and remember to run "npm run build" when finishing editing
-    koa_tools_1.serveWebsite("/dashboard", "./websites/dashboard/build", a, router, { websiteHasRouter: true });
+    (0, koa_tools_1.serveWebsite)("/dashboard", "./websites/dashboard/build", a, router, { websiteHasRouter: true });
     const appCallback = app.callback();
     http.createServer(appCallback).listen(process.env.PORT);
-    const httpsPortEnabled = string_tools_1.strToBool(process.env.HTTPS_PORT_ENABLED);
+    const httpsPortEnabled = (0, string_tools_1.strToBool)(process.env.HTTPS_PORT_ENABLED);
     if (httpsPortEnabled) {
         https
             .createServer({
@@ -74,38 +74,38 @@ const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
             .listen(443);
     }
     console.log("");
-    process_tools_1.logEnvironmentMode();
+    (0, process_tools_1.logEnvironmentMode)();
     // Database initialization:
-    await database_manager_1.waitForDatabase();
-    await backups_1.initializeDatabaseBackups();
+    await (0, database_manager_1.waitForDatabase)();
+    await (0, backups_1.initializeDatabaseBackups)();
     /**
      * Initializers that contains scheduled tasks and other initialization stuff.
      * Important: This is not executed on the tests because this file is not executed
      * there, if you need any of this on the tests you must add it to beforeAllTests.ts.
      */
-    await models_6.initializeUsers();
-    await models_4.initializeGroups();
-    await models_2.initializeCardsGame();
-    await models_3.initializeGroupsFinder();
-    await models_5.initializeTags();
-    await models_1.initializeAdmin();
-    await security_tools_1.initializeSecurityTools();
+    await (0, models_6.initializeUsers)();
+    await (0, models_4.initializeGroups)();
+    await (0, models_2.initializeCardsGame)();
+    await (0, models_3.initializeGroupsFinder)();
+    await (0, models_5.initializeTags)();
+    await (0, models_1.initializeAdmin)();
+    await (0, security_tools_1.initializeSecurityTools)();
     // Debugging tools:
-    log_routes_1.routesLogger(router);
+    (0, log_routes_1.routesLogger)(router);
     // Routes:
-    routes_4.serverInfoRoutes(router);
-    routes_8.emailLoginRoutes(router);
-    routes_7.userRoutes(router);
-    routes_2.cardsGameRoutes(router);
-    routes_3.groupsRoutes(router);
-    routes_6.tagsRoutes(router);
-    routes_1.adminRoutes(router);
-    routes_5.testingRoutes(router);
+    (0, routes_4.serverInfoRoutes)(router);
+    (0, routes_8.emailLoginRoutes)(router);
+    (0, routes_7.userRoutes)(router);
+    (0, routes_2.cardsGameRoutes)(router);
+    (0, routes_3.groupsRoutes)(router);
+    (0, routes_6.tagsRoutes)(router);
+    (0, routes_1.adminRoutes)(router);
+    (0, routes_5.testingRoutes)(router);
     // Final console messages
     console.log("✓ Server initialized!");
-    console.log(`✓ Promo website available in ${getServerUrl_1.getServerUrl()}/`);
-    console.log(`✓ Api endpoints available in ${getServerUrl_1.getServerUrl()}${configurations_1.USERS_API_PATH}`);
-    console.log(`✓ Admin dashboard available in ${getServerUrl_1.getServerUrl()}/dashboard`);
+    console.log(`✓ Promo website available in ${(0, getServerUrl_1.getServerUrl)()}/`);
+    console.log(`✓ Api endpoints available in ${(0, getServerUrl_1.getServerUrl)()}${configurations_1.USERS_API_PATH}`);
+    console.log(`✓ Admin dashboard available in ${(0, getServerUrl_1.getServerUrl)()}/dashboard`);
     if (httpsPortEnabled) {
         console.log(`✓ Also https port enabled`);
     }

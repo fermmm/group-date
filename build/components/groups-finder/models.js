@@ -16,7 +16,7 @@ const queries_2 = require("../user/queries");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const queries_3 = require("../groups/queries");
 async function initializeGroupsFinder() {
-    dynamic_1.setIntervalAsync(searchAndCreateNewGroups, configurations_1.SEARCH_GROUPS_FREQUENCY);
+    (0, dynamic_1.setIntervalAsync)(searchAndCreateNewGroups, configurations_1.SEARCH_GROUPS_FREQUENCY);
 }
 exports.initializeGroupsFinder = initializeGroupsFinder;
 /**
@@ -64,22 +64,22 @@ async function createGroupsForSlot(slot, quality, notAvailableUsers) {
      * Call the group finding query
      */
     if (configurations_1.SINGLE_QUERY_GROUP_FINDER) {
-        groupsFromDatabase = await data_conversion_1.fromQueryToGroupCandidates(queries_1.queryToGetGroupCandidates(slot, quality));
+        groupsFromDatabase = await (0, data_conversion_1.fromQueryToGroupCandidates)((0, queries_1.queryToGetGroupCandidates)(slot, quality));
     }
     else {
         // To not exceed the maximum time for a single query send one request to the database per user
-        const usersToSearchIds = (await queries_1.queryToGetUsersAllowedToBeOnGroups(slot, quality)
+        const usersToSearchIds = (await (0, queries_1.queryToGetUsersAllowedToBeOnGroups)(slot, quality)
             .values("userId")
             .toList());
         const databaseRequests = [];
         for (const userId of usersToSearchIds) {
             databaseRequests.push(async () => {
-                groupsFromDatabase.push(...(await data_conversion_1.fromQueryToGroupCandidates(queries_1.queryToGetGroupCandidates(slot, quality, queries_2.queryToGetUserById(userId)))));
+                groupsFromDatabase.push(...(await (0, data_conversion_1.fromQueryToGroupCandidates)((0, queries_1.queryToGetGroupCandidates)(slot, quality, (0, queries_2.queryToGetUserById)(userId)))));
             });
         }
-        await js_tools_1.executePromises(databaseRequests, configurations_1.ENABLE_MULTITHREADING_IN_GROUP_FINDER);
+        await (0, js_tools_1.executePromises)(databaseRequests, configurations_1.ENABLE_MULTITHREADING_IN_GROUP_FINDER);
         // Remove duplicates
-        groupsFromDatabase = group_candidate_analysis_1.dedupGroupCandidates(groupsFromDatabase);
+        groupsFromDatabase = (0, group_candidate_analysis_1.dedupGroupCandidates)(groupsFromDatabase);
     }
     /**
      * Analice, filter and get a BST with group candidates sorted by quality
@@ -104,21 +104,21 @@ async function createGroupsForSlot(slot, quality, notAvailableUsers) {
         if (notAvailableUsersOnGroup.length === 0 && group.group.users.length <= configurations_1.MAX_GROUP_SIZE) {
             const usersIds = group.group.users.map(u => u.userId);
             setUsersAsNotAvailable(usersIds, notAvailableUsers);
-            const groupCreated = await models_1.createGroup({ usersIds, slotToUse: slot }, quality);
+            const groupCreated = await (0, models_1.createGroup)({ usersIds, slotToUse: slot }, quality);
             groupsCreated.push(groupCreated);
         }
         else {
-            group = group_candidate_editing_1.removeUnavailableUsersFromGroup(group, notAvailableUsersOnGroup, slot);
+            group = (0, group_candidate_editing_1.removeUnavailableUsersFromGroup)(group, notAvailableUsersOnGroup, slot);
             if (group == null) {
                 continue;
             }
-            group = group_candidate_editing_1.limitGroupToMaximumSizeIfNeeded(group, slot);
+            group = (0, group_candidate_editing_1.limitGroupToMaximumSizeIfNeeded)(group, slot);
             if (group == null) {
                 continue;
             }
             // Check the quality of the group after all the changes
-            if (!group_candidate_analysis_1.groupHasMinimumQuality(group)) {
-                group = group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded(group, slot);
+            if (!(0, group_candidate_analysis_1.groupHasMinimumQuality)(group)) {
+                group = (0, group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded)(group, slot);
                 if (group == null) {
                     continue;
                 }
@@ -146,20 +146,20 @@ async function addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers)
      * Call the database
      */
     if (configurations_1.SINGLE_QUERY_GROUP_FINDER) {
-        groupsReceivingUsers = await data_conversion_1.fromQueryToGroupsReceivingNewUsers(queries_1.queryToGetUsersToAddInRecentGroups(slotIndex, quality));
+        groupsReceivingUsers = await (0, data_conversion_1.fromQueryToGroupsReceivingNewUsers)((0, queries_1.queryToGetUsersToAddInRecentGroups)(slotIndex, quality));
     }
     else {
         // To not exceed the maximum time for a single query send one request to the database per group
-        const groupsIds = (await queries_1.queryToGetGroupsReceivingMoreUsers(slotIndex, quality)
+        const groupsIds = (await (0, queries_1.queryToGetGroupsReceivingMoreUsers)(slotIndex, quality)
             .values("groupId")
             .toList());
         const databaseRequests = [];
         for (const groupId of groupsIds) {
             databaseRequests.push(async () => {
-                groupsReceivingUsers.push(...(await data_conversion_1.fromQueryToGroupsReceivingNewUsers(queries_1.queryToGetUsersToAddInRecentGroups(slotIndex, quality, queries_3.queryToGetGroupById(groupId)))));
+                groupsReceivingUsers.push(...(await (0, data_conversion_1.fromQueryToGroupsReceivingNewUsers)((0, queries_1.queryToGetUsersToAddInRecentGroups)(slotIndex, quality, (0, queries_3.queryToGetGroupById)(groupId)))));
             });
         }
-        await js_tools_1.executePromises(databaseRequests, configurations_1.ENABLE_MULTITHREADING_IN_GROUP_FINDER);
+        await (0, js_tools_1.executePromises)(databaseRequests, configurations_1.ENABLE_MULTITHREADING_IN_GROUP_FINDER);
     }
     for (const groupReceiving of groupsReceivingUsers) {
         const groupsWithNewUser = new Collections.BSTreeKV(getSortFunction());
@@ -168,13 +168,13 @@ async function addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers)
             if (notAvailableUsers.has(userToAdd.userId)) {
                 continue;
             }
-            const groupWithNewUserAnalyzed = group_candidate_analysis_1.analiceGroupCandidate(group_candidate_editing_2.addUserToGroupCandidate(groupReceiving, userToAdd));
-            if (!group_candidate_analysis_1.groupHasMinimumQuality(groupWithNewUserAnalyzed)) {
+            const groupWithNewUserAnalyzed = (0, group_candidate_analysis_1.analiceGroupCandidate)((0, group_candidate_editing_2.addUserToGroupCandidate)(groupReceiving, userToAdd));
+            if (!(0, group_candidate_analysis_1.groupHasMinimumQuality)(groupWithNewUserAnalyzed)) {
                 continue;
             }
-            const groupAnalyzed = group_candidate_analysis_1.analiceGroupCandidate(groupReceiving);
+            const groupAnalyzed = (0, group_candidate_analysis_1.analiceGroupCandidate)(groupReceiving);
             // If the group quality decreases when adding the new user then ignore the user
-            if (group_candidate_analysis_1.getBestGroup(groupWithNewUserAnalyzed, groupAnalyzed) === groupAnalyzed) {
+            if ((0, group_candidate_analysis_1.getBestGroup)(groupWithNewUserAnalyzed, groupAnalyzed) === groupAnalyzed) {
                 continue;
             }
             // Store the group containing the new user in a BST ordered by group quality
@@ -189,7 +189,7 @@ async function addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsers)
         const bestGroupWithNewUser = groupsWithNewUser.minimum();
         const bestUserToAdd = groupsWithNewUserUser.get(bestGroupWithNewUser);
         if (bestUserToAdd != null) {
-            await models_1.addUsersToGroup(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
+            await (0, models_1.addUsersToGroup)(groupReceiving.groupId, { usersIds: [bestUserToAdd], slotToUse: slotIndex });
             groupsModified.push(groupReceiving.groupId);
             notAvailableUsers.add(bestUserToAdd);
         }
@@ -200,8 +200,8 @@ function analiceFilterAndSortGroupCandidates(groups, slot) {
     // Group candidates are stored using a Binary Search Tree (BST) for better performance because many times we are going to be adding elements that should be ordered by quality
     const result = new Collections.BSTreeKV(getSortFunction());
     groups.forEach(group => {
-        let groupAnalysed = group_candidate_analysis_1.analiceGroupCandidate(group);
-        groupAnalysed = group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded(groupAnalysed, slot);
+        let groupAnalysed = (0, group_candidate_analysis_1.analiceGroupCandidate)(group);
+        groupAnalysed = (0, group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded)(groupAnalysed, slot);
         if (groupAnalysed == null) {
             return;
         }
@@ -221,12 +221,12 @@ function getSortFunction(alsoSortByAnalysisId = true) {
     let result;
     if (configurations_1.CREATE_BIGGER_GROUPS_FIRST) {
         // prettier-ignore
-        result = thenby_1.firstBy(g => g.analysis.averageConnectionsAmountRounded, 'desc')
+        result = (0, thenby_1.firstBy)(g => g.analysis.averageConnectionsAmountRounded, 'desc')
             .thenBy(g => g.analysis.quality, 'asc');
     }
     else {
         // prettier-ignore
-        result = thenby_1.firstBy(g => g.analysis.qualityRounded, 'asc')
+        result = (0, thenby_1.firstBy)(g => g.analysis.qualityRounded, 'asc')
             .thenBy(g => g.analysis.averageConnectionsAmount, 'desc');
     }
     /**
@@ -257,7 +257,7 @@ function setUsersAsNotAvailable(usersIds, notAvailableUsers) {
 function slotsIndexesOrdered() {
     const slotsSorted = [...configurations_1.GROUP_SLOTS_CONFIGS];
     const slotsWithIndex = slotsSorted.map((s, i) => ({ slot: s, index: i }));
-    slotsWithIndex.sort(thenby_1.firstBy(s => { var _a; return (_a = s.slot.minimumSize) !== null && _a !== void 0 ? _a : 0; }, "desc"));
+    slotsWithIndex.sort((0, thenby_1.firstBy)(s => { var _a; return (_a = s.slot.minimumSize) !== null && _a !== void 0 ? _a : 0; }, "desc"));
     return slotsWithIndex.map(s => s.index);
 }
 exports.slotsIndexesOrdered = slotsIndexesOrdered;

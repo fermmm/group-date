@@ -16,7 +16,7 @@ function queryToCreateUser(props) {
         .fold()
         .coalesce(database_manager_1.__.unfold(), database_manager_1.__.addV("user")
         .property(database_manager_1.cardinality.single, "token", token)
-        .property(database_manager_1.cardinality.single, "userId", customUserIdForTesting !== null && customUserIdForTesting !== void 0 ? customUserIdForTesting : string_tools_1.generateId())
+        .property(database_manager_1.cardinality.single, "userId", customUserIdForTesting !== null && customUserIdForTesting !== void 0 ? customUserIdForTesting : (0, string_tools_1.generateId)())
         .property(database_manager_1.cardinality.single, "email", email)
         .property(database_manager_1.cardinality.single, "language", configurations_1.DEFAULT_LANGUAGE)
         .property(database_manager_1.cardinality.single, "profileCompleted", setProfileCompletedForTesting !== null && setProfileCompletedForTesting !== void 0 ? setProfileCompletedForTesting : false)
@@ -25,15 +25,16 @@ function queryToCreateUser(props) {
         .property(database_manager_1.cardinality.single, "lastGroupJoinedDate", moment().unix())
         .property(database_manager_1.cardinality.single, "registrationDate", moment().unix())
         .property(database_manager_1.cardinality.single, "imagesAmount", 0)
-        .property(database_manager_1.cardinality.single, "notifications", `[]`))
+        .property(database_manager_1.cardinality.single, "notifications", `[]`)
+        .property(database_manager_1.cardinality.single, "unwantedUser", false))
         .unfold();
 }
 exports.queryToCreateUser = queryToCreateUser;
 function queryToGetUserByTokenOrId(tokenOrId) {
-    if (ts_tools_1.checkTypeByMember(tokenOrId, "token")) {
+    if ((0, ts_tools_1.checkTypeByMember)(tokenOrId, "token")) {
         return queryToGetUserByToken(tokenOrId.token);
     }
-    else if (ts_tools_1.checkTypeByMember(tokenOrId, "userId")) {
+    else if ((0, ts_tools_1.checkTypeByMember)(tokenOrId, "userId")) {
         return queryToGetUserById(tokenOrId.userId);
     }
     else {
@@ -94,14 +95,14 @@ exports.isNotDemoAccount = isNotDemoAccount;
  * Receives a traversal with a user and updates the token.
  */
 async function queryToUpdateUserToken(traversal, newToken) {
-    await database_manager_1.sendQuery(() => traversal.property(database_manager_1.cardinality.single, "token", newToken).next());
+    await (0, database_manager_1.sendQuery)(() => traversal.property(database_manager_1.cardinality.single, "token", newToken).next());
 }
 exports.queryToUpdateUserToken = queryToUpdateUserToken;
 async function queryToUpdateUserProps(tokenOrTraversal, props) {
-    await database_manager_1.sendQuery(() => {
+    await (0, database_manager_1.sendQuery)(() => {
         let query = typeof tokenOrTraversal === "string" ? queryToGetUserByToken(tokenOrTraversal) : tokenOrTraversal;
         for (const prop of props) {
-            query = query.property(database_manager_1.cardinality.single, prop.key, data_conversion_tools_1.serializeIfNeeded(prop.value));
+            query = query.property(database_manager_1.cardinality.single, prop.key, (0, data_conversion_tools_1.serializeIfNeeded)(prop.value));
         }
         return query.next();
     });
@@ -130,11 +131,11 @@ exports.queryToGetAllDemoUsers = queryToGetAllDemoUsers;
  */
 async function queryToRemoveUsers(users) {
     if (users == null) {
-        await database_manager_1.sendQuery(() => queryToGetAllUsers().drop().iterate());
+        await (0, database_manager_1.sendQuery)(() => queryToGetAllUsers().drop().iterate());
     }
     else {
         const ids = users.map(u => u.userId);
-        await database_manager_1.sendQuery(() => database_manager_1.g
+        await (0, database_manager_1.sendQuery)(() => database_manager_1.g
             .inject(ids)
             .unfold()
             .map(database_manager_1.__.as("targetUserId")
@@ -145,7 +146,7 @@ async function queryToRemoveUsers(users) {
             .iterate());
     }
     // This helps a little to mitigate NegativeArraySizeException Gremlin Server bug
-    await js_tools_1.time(500);
+    await (0, js_tools_1.time)(500);
 }
 exports.queryToRemoveUsers = queryToRemoveUsers;
 /**
@@ -154,19 +155,12 @@ exports.queryToRemoveUsers = queryToRemoveUsers;
  */
 function queryToSetUserProps(traversal, newUserProps) {
     var _a, _b, _c;
-    // Don't save the unicorn hunter as false since we want to know if the user was a unicorn hunter at any time
-    if (newUserProps.isUnicornHunter === false) {
-        delete newUserProps.isUnicornHunter;
-    }
-    // Don't save the unicorn hunter insisting as false since we want to know if the user was a unicorn hunter insisting at any time
-    if (newUserProps.isUnicornHunterInsisting === false) {
-        delete newUserProps.isUnicornHunterInsisting;
-    }
+    // Only props on editableUserPropsList are added into the query
     user_2.editableUserPropsList.forEach(editableUserProp => {
         if (newUserProps[editableUserProp] == null) {
             return;
         }
-        traversal = traversal.property(database_manager_1.cardinality.single, editableUserProp, data_conversion_tools_1.serializeIfNeeded(newUserProps[editableUserProp]));
+        traversal = traversal.property(database_manager_1.cardinality.single, editableUserProp, (0, data_conversion_tools_1.serializeIfNeeded)(newUserProps[editableUserProp]));
     });
     if (newUserProps.images) {
         traversal = traversal.property(database_manager_1.cardinality.single, "imagesAmount", (_a = newUserProps.images.length) !== null && _a !== void 0 ? _a : 0);

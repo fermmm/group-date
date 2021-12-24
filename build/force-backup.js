@@ -9,8 +9,8 @@ const backups_1 = require("./common-tools/database-tools/backups");
  * then finishes the process.
  */
 (async () => {
-    if (backups_1.backupIsEnabled()) {
-        await backups_1.makeSimpleBackup();
+    if ((0, backups_1.backupIsEnabled)()) {
+        await (0, backups_1.makeSimpleBackup)();
         console.log("Database backup done.");
     }
     else {

@@ -49,6 +49,7 @@ const OTHER_USER_PROPS_SCHEMA = {
     language: { type: "string", min: 0, max: 100, optional: true },
     isUnicornHunter: { type: "boolean", optional: true },
     isUnicornHunterInsisting: { type: "boolean", optional: true },
+    unwantedUser: { type: "boolean", optional: true },
 };
 /**
  * The only propuse of this line is to generate a TS error when the props of the schemas are not user props.

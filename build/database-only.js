@@ -12,7 +12,7 @@ const backups_1 = require("./common-tools/database-tools/backups");
  * application logic in another instance.
  */
 (async () => {
-    await database_manager_1.waitForDatabase();
-    await backups_1.initializeDatabaseBackups();
+    await (0, database_manager_1.waitForDatabase)();
+    await (0, backups_1.initializeDatabaseBackups)();
 })();
 //# sourceMappingURL=database-only.js.map

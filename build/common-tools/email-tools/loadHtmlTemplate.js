@@ -17,11 +17,11 @@ function loadHtmlEmailTemplate(props) {
 }
 exports.loadHtmlEmailTemplate = loadHtmlEmailTemplate;
 function getStandardUrls(translationSources) {
-    const emailImagesFolderUrl = getServerUrl_1.getServerUrl() + "/email-images/";
+    const emailImagesFolderUrl = (0, getServerUrl_1.getServerUrl)() + "/email-images/";
     return {
         title: "",
         content: "",
-        footerText: i18n_tools_1.t(configurations_1.APPLICATION_NAME_COMPLETE, translationSources),
+        footerText: (0, i18n_tools_1.t)(configurations_1.APPLICATION_NAME_COMPLETE, translationSources),
         logoUrl: emailImagesFolderUrl + "logo.png",
         googlePlayImageUrl: emailImagesFolderUrl + "buttonGooglePlay.png",
         appStoreImageUrl: emailImagesFolderUrl + "appStoreButton.png",

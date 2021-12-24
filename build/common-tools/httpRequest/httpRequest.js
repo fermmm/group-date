@@ -16,7 +16,7 @@ async function httpRequest(options) {
     });
     if (options.params) {
         if (options.method === "GET") {
-            options.url += "?" + query_string_1.stringify(options.params);
+            options.url += "?" + (0, query_string_1.stringify)(options.params);
         }
         if (options.method === "POST") {
             options.data = options.params;
@@ -32,13 +32,13 @@ async function httpRequest(options) {
             // other than 2xx
             promiseResolve({
                 success: false,
-                error: { message: tryToGetErrorMessage_1.tryToGetErrorMessage(error), code: error.response.status },
+                error: { message: (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error), code: error.response.status },
             });
         }
         else {
             // Something else happened while setting up the request
             // triggered the error
-            promiseResolve({ success: false, error: { message: tryToGetErrorMessage_1.tryToGetErrorMessage(error), code: 0 } });
+            promiseResolve({ success: false, error: { message: (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error), code: 0 } });
         }
     }
     return resultPromise;

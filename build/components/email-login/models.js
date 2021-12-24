@@ -24,29 +24,29 @@ async function createAccountPost(params, ctx) {
         ctx.throw(400, "Invalid credentials");
         return;
     }
-    let user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByEmail(email), false);
+    let user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), false);
     if (user) {
-        ctx.throw(400, i18n_tools_1.t("An account already exists with this email", { ctx }));
+        ctx.throw(400, (0, i18n_tools_1.t)("An account already exists with this email", { ctx }));
         return;
     }
-    const hashToSend = cryptography_tools_1.encode(JSON.stringify({ email, password }));
-    const emailLink = `${getServerUrl_1.getServerUrl()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
+    const hashToSend = (0, cryptography_tools_1.encode)(JSON.stringify({ email, password }));
+    const emailLink = `${(0, getServerUrl_1.getServerUrl)()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
     try {
-        await email_tools_1.sendEmail({
+        await (0, email_tools_1.sendEmail)({
             to: email,
             senderName: `${configurations_1.APPLICATION_NAME} app`,
-            subject: `${i18n_tools_1.t("Verify your email", { ctx })}`,
-            html: loadHtmlTemplate_1.loadHtmlEmailTemplate({
+            subject: `${(0, i18n_tools_1.t)("Verify your email", { ctx })}`,
+            html: (0, loadHtmlTemplate_1.loadHtmlEmailTemplate)({
                 variablesToReplace: {
-                    title: `${i18n_tools_1.t("Welcome to", { ctx })} ${configurations_1.APPLICATION_NAME} =)`,
-                    content: `${i18n_tools_1.t("You need to verify your email, click on this link", {
+                    title: `${(0, i18n_tools_1.t)("Welcome to", { ctx })} ${configurations_1.APPLICATION_NAME} =)`,
+                    content: `${(0, i18n_tools_1.t)("You need to verify your email, click on this link", {
                         ctx,
-                    })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${i18n_tools_1.t("Verify email", {
+                    })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Verify email", {
                         ctx,
-                    })}</a><br/><br/>${i18n_tools_1.t("Or if you prefer copy and paste this into your browser", {
+                    })}</a><br/><br/>${(0, i18n_tools_1.t)("Or if you prefer copy and paste this into your browser", {
                         ctx,
                     })}:<br/><br/>${emailLink}
-               <br/><br/>${i18n_tools_1.t("Good luck!", { ctx })}`,
+               <br/><br/>${(0, i18n_tools_1.t)("Good luck!", { ctx })}`,
                 },
                 translationSources: { ctx },
             }),
@@ -54,7 +54,7 @@ async function createAccountPost(params, ctx) {
         return { success: true };
     }
     catch (error) {
-        ctx.throw(500, `${i18n_tools_1.t("Our email sending service is not working in this moment, please create your account using a different kind of registration", { ctx })}. Error: ${tryToGetErrorMessage_1.tryToGetErrorMessage(error)}`);
+        ctx.throw(500, `${(0, i18n_tools_1.t)("Our email sending service is not working in this moment, please create your account using a different kind of registration", { ctx })}. Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error)}`);
         return;
     }
 }
@@ -68,17 +68,17 @@ exports.createAccountPost = createAccountPost;
  */
 async function confirmEmailPost(params, ctx) {
     const { hash } = params;
-    const { email, password } = JSON.parse(cryptography_tools_1.decode(hash));
+    const { email, password } = JSON.parse((0, cryptography_tools_1.decode)(hash));
     if (!email || !password) {
-        ctx.throw(500, i18n_tools_1.t("Invalid hash format, please register again", { ctx }));
+        ctx.throw(500, (0, i18n_tools_1.t)("Invalid hash format, please register again", { ctx }));
         return;
     }
-    let user = (await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByEmail(email), false));
+    let user = (await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), false));
     if (user) {
         return { success: true };
     }
     const token = createEmailLoginToken({ email, password });
-    user = await models_1.createUser({ token, email, includeFullInfo: false, ctx });
+    user = await (0, models_1.createUser)({ token, email, includeFullInfo: false, ctx });
     if (user == null) {
         ctx.throw(500, "User not created. Please report error.");
         return;
@@ -96,7 +96,7 @@ exports.confirmEmailPost = confirmEmailPost;
 async function loginGet(params, ctx) {
     let { token, email, password } = params;
     if ((!token && !email && !password) || (email && !password) || (password && !email)) {
-        ctx.throw(400, i18n_tools_1.t("Invalid credentials", { ctx }));
+        ctx.throw(400, (0, i18n_tools_1.t)("Invalid credentials", { ctx }));
         return;
     }
     if (email && (typeof email !== "string" || email.length < 1)) {
@@ -114,13 +114,13 @@ async function loginGet(params, ctx) {
     if (token == null) {
         token = createEmailLoginToken({ email, password });
     }
-    const user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByToken(token), false);
+    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByToken)(token), false);
     if (!user) {
         if (email) {
-            ctx.throw(400, i18n_tools_1.t("Invalid email or password", { ctx }));
+            ctx.throw(400, (0, i18n_tools_1.t)("Invalid email or password", { ctx }));
         }
         else {
-            ctx.throw(400, i18n_tools_1.t("Invalid token", { ctx }));
+            ctx.throw(400, (0, i18n_tools_1.t)("Invalid token", { ctx }));
         }
         return;
     }
@@ -140,32 +140,32 @@ async function resetPasswordPost(params, ctx) {
         ctx.throw(400, "Invalid email format");
         return;
     }
-    const user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByEmail(email), false);
+    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(email), false);
     if (!user) {
-        ctx.throw(400, i18n_tools_1.t("We don't have a user registered with that email", { ctx }));
+        ctx.throw(400, (0, i18n_tools_1.t)("We don't have a user registered with that email", { ctx }));
         return;
     }
-    const hashToSend = cryptography_tools_1.encode(JSON.stringify({
+    const hashToSend = (0, cryptography_tools_1.encode)(JSON.stringify({
         userId: user.userId,
-        tokenHashed: cryptography_tools_1.createHash(user.token),
+        tokenHashed: (0, cryptography_tools_1.createHash)(user.token),
     }));
-    const emailLink = `${getServerUrl_1.getServerUrl()}/password-reset/?hash=${hashToSend}&appUrl=${appUrl}`;
+    const emailLink = `${(0, getServerUrl_1.getServerUrl)()}/password-reset/?hash=${hashToSend}&appUrl=${appUrl}`;
     try {
-        await email_tools_1.sendEmail({
+        await (0, email_tools_1.sendEmail)({
             to: email,
             senderName: `${configurations_1.APPLICATION_NAME} app`,
-            subject: `${i18n_tools_1.t("Password reset", { ctx })}`,
-            html: loadHtmlTemplate_1.loadHtmlEmailTemplate({
+            subject: `${(0, i18n_tools_1.t)("Password reset", { ctx })}`,
+            html: (0, loadHtmlTemplate_1.loadHtmlEmailTemplate)({
                 variablesToReplace: {
-                    title: `${i18n_tools_1.t("Password reset", { ctx })} =)`,
-                    content: `<br/>${i18n_tools_1.t("You requested to create a new password", {
+                    title: `${(0, i18n_tools_1.t)("Password reset", { ctx })} =)`,
+                    content: `<br/>${(0, i18n_tools_1.t)("You requested to create a new password", {
                         ctx,
-                    })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${i18n_tools_1.t("Click on this link to create a new password", {
+                    })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Click on this link to create a new password", {
                         ctx,
-                    })}</a><br/><br/>${i18n_tools_1.t("Or if you prefer copy and paste this into your browser", {
+                    })}</a><br/><br/>${(0, i18n_tools_1.t)("Or if you prefer copy and paste this into your browser", {
                         ctx,
                     })}:<br/><br/>${emailLink}
-               <br/><br/>${i18n_tools_1.t("Good luck!", { ctx })}`,
+               <br/><br/>${(0, i18n_tools_1.t)("Good luck!", { ctx })}`,
                 },
                 translationSources: { ctx },
             }),
@@ -173,9 +173,9 @@ async function resetPasswordPost(params, ctx) {
         return { success: true };
     }
     catch (error) {
-        ctx.throw(500, `${i18n_tools_1.t("Our email sending service is not working in this moment, please try again in a while or report us the error", {
+        ctx.throw(500, `${(0, i18n_tools_1.t)("Our email sending service is not working in this moment, please try again in a while or report us the error", {
             ctx,
-        })}. Error: ${tryToGetErrorMessage_1.tryToGetErrorMessage(error)}`);
+        })}. Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error)}`);
         return;
     }
 }
@@ -191,35 +191,35 @@ async function changePasswordPost(params, ctx) {
         ctx.throw(400, "The new password is invalid");
         return;
     }
-    const { userId, tokenHashed } = JSON.parse(cryptography_tools_1.decode(hash));
+    const { userId, tokenHashed } = JSON.parse((0, cryptography_tools_1.decode)(hash));
     if (!userId || !tokenHashed) {
         ctx.throw(400, "Invalid hash format");
         return;
     }
-    const user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserById(userId), false);
+    const user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserById)(userId), false);
     if (!user) {
         ctx.throw(400, "The user does not exist");
         return;
     }
-    if (!cryptography_tools_1.compareHash(user.token, tokenHashed)) {
+    if (!(0, cryptography_tools_1.compareHash)(user.token, tokenHashed)) {
         ctx.throw(400, "Invalid token hashed");
         return;
     }
-    await queries_1.queryToUpdateUserToken(queries_1.queryToGetUserById(userId), createEmailLoginToken({ email: user.email, password: newPassword }));
+    await (0, queries_1.queryToUpdateUserToken)((0, queries_1.queryToGetUserById)(userId), createEmailLoginToken({ email: user.email, password: newPassword }));
     return { success: true };
 }
 exports.changePasswordPost = changePasswordPost;
 function createEmailLoginToken(props) {
     const { email, password } = props;
-    const hash = cryptography_tools_1.createHash(email + password);
-    return tokenStringTools_1.createExtendedInfoToken({
+    const hash = (0, cryptography_tools_1.createHash)(email + password);
+    return (0, tokenStringTools_1.createExtendedInfoToken)({
         originalToken: hash,
         provider: AuthenticationProvider_1.AuthenticationProvider.Email,
     });
 }
 exports.createEmailLoginToken = createEmailLoginToken;
 async function userExistsGet(props, ctx) {
-    let user = await data_conversion_1.fromQueryToUser(queries_1.queryToGetUserByEmail(props.email), false);
+    let user = await (0, data_conversion_1.fromQueryToUser)((0, queries_1.queryToGetUserByEmail)(props.email), false);
     return { userExists: user != null };
 }
 exports.userExistsGet = userExistsGet;
