@@ -59,6 +59,7 @@ export interface QuestionAnswerData {
    tagName?: string;
    tagIsVisible?: boolean;
    extraText?: string;
+   unwantedUserAnswer?: boolean;
 }
 
 export type TagRelationShip = "subscribed" | "blocked";

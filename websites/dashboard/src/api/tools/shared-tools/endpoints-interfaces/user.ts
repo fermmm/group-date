@@ -51,6 +51,7 @@ export interface User {
    isUnicornHunter?: boolean;
    isUnicornHunterInsisting?: boolean;
    requiredTasks?: RequiredTask[];
+   unwantedUser?: boolean;
 }
 
 export type UserPropsValueTypes = ValueOf<User>;

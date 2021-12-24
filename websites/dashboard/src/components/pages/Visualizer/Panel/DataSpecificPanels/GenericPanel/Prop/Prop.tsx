@@ -88,7 +88,7 @@ const Prop: FC<PropsProp> = props => {
                <KeyLabel>
                   {propName} {/*typeof propValue*/}
                </KeyLabel>
-               {propValue && <ValueLabel>{setupValueText(propName, propValue)}</ValueLabel>}
+               {propValue != null && <ValueLabel>{setupValueText(propName, propValue)}</ValueLabel>}
             </NonEditModeContainer>
          )}
          <Row>

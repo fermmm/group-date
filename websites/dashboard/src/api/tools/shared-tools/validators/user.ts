@@ -51,6 +51,7 @@ const OTHER_USER_PROPS_SCHEMA = {
    language: { type: "string", min: 0, max: 100, optional: true } as V,
    isUnicornHunter: { type: "boolean", optional: true } as V,
    isUnicornHunterInsisting: { type: "boolean", optional: true } as V,
+   unwantedUser: { type: "boolean", optional: true } as V,
 };
 
 /**
@@ -75,10 +76,10 @@ export const requiredUserPropsList: RequiredUserPropKey[] = Object.keys(
    REGISTRATION_USER_PROPS_SCHEMA,
 ) as RequiredUserPropKey[];
 
-export const editableUserPropsList: RequiredUserPropKey[] = Object.keys({
+export const editableUserPropsList: EditableUserPropKey[] = Object.keys({
    ...REGISTRATION_USER_PROPS_SCHEMA,
    ...OTHER_USER_PROPS_SCHEMA,
-}) as RequiredUserPropKey[];
+}) as EditableUserPropKey[];
 
 // Function to validate user props
 export const validateUserProps = v.compile({
