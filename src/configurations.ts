@@ -292,6 +292,7 @@ const dateTypeQuestion: TagsAsQuestion = {
          category: "App usage",
          tagName: "Desired date: With someone",
          tagIsVisible: false,
+         unwantedUserAnswer: true,
       },
       {
          text: "A date of 3, without anyone else",
@@ -299,6 +300,7 @@ const dateTypeQuestion: TagsAsQuestion = {
          category: "App usage",
          tagName: "Desired date: Only 3 people",
          tagIsVisible: false,
+         unwantedUserAnswer: true,
       },
       {
          text: "A group date where we like each other",
@@ -327,6 +329,7 @@ const usageIntentionQuestion: TagsAsQuestion = {
          category: "App usage",
          tagName: "Date activity: Sex directly",
          tagIsVisible: false,
+         unwantedUserAnswer: true,
       },
       {
          text: "Have a good time with the activities that come up, sexual or not",
@@ -359,6 +362,7 @@ const feminismQuestion: TagsAsQuestion = {
          tagId: "q00-a01",
          category: "Ideas",
          tagName: "Feminism: I Don't agree",
+         unwantedUserAnswer: true,
       },
    ],
    incompatibilitiesBetweenAnswers: {
@@ -367,7 +371,6 @@ const feminismQuestion: TagsAsQuestion = {
    },
 };
 
-// Spam question may not be required because interest for group sex question includes the physical interaction intentions
 export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
    dateTypeQuestion,
    feminismQuestion,
@@ -398,6 +401,18 @@ const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
 
 // When adding a new question make sure it has a unique questionId number
 export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [isCoupleProfileQuestion];
+
+/**
+ * Unwanted users are users that are not the target audience of the app.
+ * They are not allowed to use some features, like creating new tags.
+ * A user becomes unwanted by answering a question that is set as
+ * unwantedUserAnswer: true, also by having user properties set like
+ * in this object.
+ */
+export const UNWANTED_USERS_PROPS: Partial<User> = {
+   isUnicornHunter: true,
+   isUnicornHunterInsisting: true,
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  NOTIFICATIONS  ////////////////////////////////////////////////
@@ -518,6 +533,8 @@ export const RATE_LIMITER_CACHE_CLEAR_INTERVAL: number = hoursToMilliseconds(5);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  DEBUGGING  ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = false;
 
 /**
  * Log files that can be written and retrieved in the dashboard

@@ -44,7 +44,8 @@ export function queryToCreateUser(props: {
             .property(cardinality.single, "lastGroupJoinedDate", moment().unix())
             .property(cardinality.single, "registrationDate", moment().unix())
             .property(cardinality.single, "imagesAmount", 0)
-            .property(cardinality.single, "notifications", `[]`),
+            .property(cardinality.single, "notifications", `[]`)
+            .property(cardinality.single, "unwantedUser", false),
       )
       .unfold();
 }
@@ -199,16 +200,7 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
  * @param traversal A query with one user vertex
  */
 export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<User>): Traversal {
-   // Don't save the unicorn hunter as false since we want to know if the user was a unicorn hunter at any time
-   if (newUserProps.isUnicornHunter === false) {
-      delete newUserProps.isUnicornHunter;
-   }
-
-   // Don't save the unicorn hunter insisting as false since we want to know if the user was a unicorn hunter insisting at any time
-   if (newUserProps.isUnicornHunterInsisting === false) {
-      delete newUserProps.isUnicornHunterInsisting;
-   }
-
+   // Only props on editableUserPropsList are added into the query
    editableUserPropsList.forEach(editableUserProp => {
       if (newUserProps[editableUserProp] == null) {
          return;

@@ -20,7 +20,7 @@ import {
 } from "../../shared-tools/endpoints-interfaces/tags";
 import { Gender, User } from "../../shared-tools/endpoints-interfaces/user";
 import { validateTagProps } from "../../shared-tools/validators/tags";
-import { retrieveFullyRegisteredUser, retrieveUser } from "../user/models";
+import { isUnwantedUser, retrieveFullyRegisteredUser, retrieveUser, userPost } from "../user/models";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    queryToCreateTags,
@@ -142,8 +142,18 @@ export async function tagsCreatedByUserGet(token: string) {
    return await fromQueryToTagList(queryToGetTagsCreatedByUser(token));
 }
 
-export async function subscribeToTagsPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false));
+export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<Tag[]> {
+   const result = await fromQueryToTagList(
+      queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false),
+   );
+
+   // Check if by subscribing to the tags the user is unwanted
+   const unwantedUser = isUnwantedUser({ tagsIdsToCheck: params.tagIds });
+   if (unwantedUser) {
+      await userPost({ token: params.token, props: { unwantedUser } }, ctx);
+   }
+
+   return result;
 }
 
 export async function blockTagsPost(params: BasicTagParams): Promise<Tag[]> {

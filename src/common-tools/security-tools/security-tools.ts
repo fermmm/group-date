@@ -44,6 +44,7 @@ export function removePrivacySensitiveUserProps<T extends User | Partial<User>>(
    delete user.banReasonsAmount;
    delete user.banReasons;
    delete user.requiredTasks;
+   delete user.unwantedUser;
    return user;
 }
 

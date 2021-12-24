@@ -163,10 +163,13 @@ describe("Tags", () => {
    test("Subscribing and retrieving subscribed tags works", async () => {
       user1Tags = await tagsGet({ token: user1.token }, fakeCtx);
       const tagIds: string[] = [user1Tags[0].tagId, user1Tags[1].tagId];
-      await subscribeToTagsPost({
-         token: user1.token,
-         tagIds,
-      });
+      await subscribeToTagsPost(
+         {
+            token: user1.token,
+            tagIds,
+         },
+         fakeCtx,
+      );
 
       user1 = await retrieveFullyRegisteredUser(user1.token, true, fakeCtx);
       user2 = await retrieveFullyRegisteredUser(user2.token, true, fakeCtx);
@@ -200,14 +203,20 @@ describe("Tags", () => {
          ),
       ).toBe(true);
 
-      await subscribeToTagsPost({
-         token: user1.token,
-         tagIds: [originalSubscriptions[0].tagId],
-      });
-      await subscribeToTagsPost({
-         token: user2.token,
-         tagIds: [originalSubscriptions[0].tagId],
-      });
+      await subscribeToTagsPost(
+         {
+            token: user1.token,
+            tagIds: [originalSubscriptions[0].tagId],
+         },
+         fakeCtx,
+      );
+      await subscribeToTagsPost(
+         {
+            token: user2.token,
+            tagIds: [originalSubscriptions[0].tagId],
+         },
+         fakeCtx,
+      );
 
       user1 = await retrieveFullyRegisteredUser(user1.token, true, fakeCtx);
 
@@ -257,10 +266,13 @@ describe("Tags", () => {
       user1Tags = await tagsCreatedByUserGet(user1.token);
       const tagIds: string[] = [user1Tags[0].tagId, user1Tags[1].tagId];
 
-      await subscribeToTagsPost({
-         token: user2.token,
-         tagIds: [tagIds[0]],
-      });
+      await subscribeToTagsPost(
+         {
+            token: user2.token,
+            tagIds: [tagIds[0]],
+         },
+         fakeCtx,
+      );
 
       await blockTagsPost({
          token: user2.token,
@@ -311,7 +323,7 @@ describe("Tags", () => {
          );
       }
 
-      await subscribeToTagsPost({ token: user.token, tagIds: tags.map(t => t.tagId) });
+      await subscribeToTagsPost({ token: user.token, tagIds: tags.map(t => t.tagId) }, fakeCtx);
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
 
@@ -324,7 +336,7 @@ describe("Tags", () => {
          fakeCtx,
       );
 
-      await subscribeToTagsPost({ token: user.token, tagIds: [finalTag.tagId] });
+      await subscribeToTagsPost({ token: user.token, tagIds: [finalTag.tagId] }, fakeCtx);
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
       expect(user.tagsSubscribed).toHaveLength(MAX_TAG_SUBSCRIPTIONS_ALLOWED);
@@ -336,7 +348,7 @@ describe("Tags", () => {
          fakeCtx,
       );
 
-      await subscribeToTagsPost({ token: user.token, tagIds: [otherCountryTag.tagId] });
+      await subscribeToTagsPost({ token: user.token, tagIds: [otherCountryTag.tagId] }, fakeCtx);
 
       user = await retrieveFullyRegisteredUser(user.token, true, fakeCtx);
       expect(user.tagsSubscribed).toHaveLength(MAX_TAG_SUBSCRIPTIONS_ALLOWED + 1);

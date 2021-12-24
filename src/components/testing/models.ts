@@ -34,9 +34,9 @@ export async function createFakeUsersPost(
    for (let i = 0; i < usersCreated.length; i++) {
       const userCreated = usersCreated[i];
       if (i % 2 == 0) {
-         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[0].tagId] });
+         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[0].tagId] }, ctx);
       } else {
-         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[1].tagId] });
+         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[1].tagId] }, ctx);
       }
    }
 
