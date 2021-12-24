@@ -109,11 +109,11 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
    };
 
    /*
-    * Banned users cannot create tags but since it's a shadow ban we don't return an error, we
+    * Banned or unwanted users cannot create tags but since it's a shadow ban we don't return an error, we
     * return the tag object instead, like if it was created successfully but we are not calling
     * the database query
     */
-   if (user.banReasonsAmount > 0) {
+   if (user.banReasonsAmount > 0 || user.unwantedUser) {
       return tagToCreate;
    }
 
