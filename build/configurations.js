@@ -319,12 +319,14 @@ const feminismQuestion = {
             tagId: "q00-a00",
             category: "Ideas",
             tagName: "Feminism",
+            tagIsVisible: true,
         },
         {
             text: "I Don't agree very much / I do not agree at all",
             tagId: "q00-a01",
             category: "Ideas",
             tagName: "Feminism: I Don't agree",
+            tagIsVisible: false,
             unwantedUserAnswer: true,
         },
     ],
@@ -332,6 +334,8 @@ const feminismQuestion = {
         0: [1],
         1: [0],
     },
+    filterSelectedByDefault: true,
+    filterSelectionInvisible: true,
 };
 exports.APP_AUTHORED_TAGS_AS_QUESTIONS = [
     dateTypeQuestion,
