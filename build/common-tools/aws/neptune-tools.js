@@ -58,20 +58,20 @@ async function exportNeptuneDatabase(ctx) {
      * The exporter creates a folder whose name is a hash: "admin-uploads/db/abc12345678/nodes".
      * We need to get rid of that hash named folder in order to make more simple the next commands.
      *
-     * 1. The /* in the "cd" path goes to the first folder found, this is required because we don't know the name of the folder.
-     * 2. mv * ../ moves all the files one level up
-     * 3. folderName=$(basename "$PWD") saves the folder name, we need to save it for later becase removing the current folder is not possible
-     * 4. cd .. We leave the current folder
-     * 5. rm -r $folderName Removes the empty hash named folder
+     * 1. "cd admin-uploads/db/*" Goes to the first folder found, this is required because we don't know the name of the folder.
+     * 2. "mv * ../" moves all the files one level up
+     * 3. "folderName=$(basename "$PWD")" saves the folder name, we need to save it for later becase removing the current folder is not possible
+     * 4. "cd .." We leave the current folder so we can remove it
+     * 5. "rm -r $folderName" Removes the now empty hash named folder
      * */
-    commandResponse = await (0, process_tools_1.executeSystemCommand)(`cd admin-uploads/db/* && mv * ../ && folderName=$(basename "$PWD") && cd .. && rm -r $folderName`);
+    commandResponse += await (0, process_tools_1.executeSystemCommand)(`cd admin-uploads/db/* && mv * ../ && folderName=$(basename "$PWD") && cd .. && rm -r $folderName`);
     const exportedFolderPath = "admin-uploads/db";
     // Create .gremlin files along with the .csv files. These .gremlin files contains the same data as the .csv files in a query format. Useful to import it in localhost using gremlin-server
     commandResponse += await (0, process_tools_1.executeSystemCommand)(`for file in ${exportedFolderPath}/nodes/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/nodes/$(basename $file .csv).gremlin; done`);
     // Again for the edges.
     commandResponse += await (0, process_tools_1.executeSystemCommand)(`for file in ${exportedFolderPath}/edges/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/edges/$(basename $file .csv).gremlin; done`);
     await (0, files_tools_1.createZipFileFromDirectory)(exportedFolderPath, "admin-uploads/db.zip");
-    // deleteFolder(exportedFolderPath);
+    (0, files_tools_1.deleteFolder)(exportedFolderPath);
     return {
         commandResponse,
         folder: `api/admin-uploads/db.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,
