@@ -62,11 +62,13 @@ Follow these steps when you need it: for example if you are troubleshooting an i
 
 If connection to the database cannot be established there could be a problem related with Amazon security, specifically with: "Virtual Private Cloud (VPC)" and "Security Groups" [see this page](https://docs.aws.amazon.com/neptune/latest/userguide/security-vpc-setup.html)
 
-To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something.
+To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something. 
 
-## Importing a database backup
+## Importing database content
 
-Neptune already has a backup system but it's limited if you don't pay. So there is another alternative backup loading and saving system I did. Using that you can load a database content file in 2 supported formats XML (GraphML) or the official CSV. If you want to load a backup saved in XML format you will need an extra step for converting that into CSV, this project includes [this](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) python script to do that conversion, the version in this repo it's a little improved.
+Neptune already has a backup system but it's limited if you don't pay. You can still save and load the contents of the database for free to do backups, localhost testing or troubleshooting. This tutorial covers importing a database content file with 2 formats you can choose: XML (GraphML) or CSV (The officially supported). If you need to load a XML you need an extra step to convert it to CSV first, that is also covered in this tutorial.
+
+If you want to export the database content scroll to the next section.
 
 ### Setup AWS to enable database import:
 
@@ -85,7 +87,7 @@ Neptune already has a backup system but it's limited if you don't pay. So there 
 
 4. Save the .env file and run `npm run deploy` to send the .env changes to the server.
 
-Now follow the next section to enable your computer to make the migration.
+Now follow the next section to enable your computer.
 
 ### Setup your PC:
 
@@ -98,6 +100,9 @@ You can skip these steps if you will never load a backup in XML format.
 2. Give execution permissions to the python script:
 
    `chmod +x vendor/graphml2csv/graphml2csv.py`
+
+   Note: This script included in the repo is based on this [aws labs python script](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) but has some issues fixed.
+
 
 ### Make the import:
 
@@ -113,11 +118,11 @@ You can skip these steps if you will never load a backup in XML format.
 
    That is all, the backup should be loaded into the database. It's important to know that it will not replace or delete any existing information in the database.
 
-## Exporting a database backup
+## Exporting database content
 
 ### Setup AWS to enable database export:
 
-1. Go to the dasboard and click on the `Export database content` button. The first time may take several minutes becase it has to download a big jat file
+1. Go to the dasboard and click on the `Export database content` button. The first time may take several minutes becase it has to download a big jar file
 
 1.[Borrar]  Go to the [EC2 Mangement Console](https://console.aws.amazon.com/ec2/v2/home) in the left panel click on "Instances", you probably have only one instance, click on the instance name, there you will see the `Subnet ID` remember it or paste it somewhere, you will use it later.
 

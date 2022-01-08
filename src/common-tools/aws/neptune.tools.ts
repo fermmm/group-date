@@ -72,11 +72,19 @@ export async function exportNeptuneDatabase(ctx: BaseContext): Promise<ExportDat
 
    const loaderEndpoint = process.env.DATABASE_URL.replace("wss://", "").replace(":8182/gremlin", "");
 
-   var commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d admin-uploads/db ${
+   const commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d admin-uploads/db ${
       process.env.AWS_CLONE_CLUSTER_ON_BACKUP === "true" ? "--clone-cluster" : ""
    }`;
 
    commandResponse = await executeSystemCommand(commandStr);
+
+   // Create .gremlin files along with the .csv files. These .gremlin files contains the same data as the .csv files in a query format.
+   commandResponse = await executeSystemCommand(
+      "for file in admin-uploads/db/nodes/*.csv; do python3 vendor/csv-gremlin/csv-gremlin.py $file >> admin-uploads/db/nodes/$(basename $file .csv).gremlin; done",
+   );
+   commandResponse = await executeSystemCommand(
+      "for file in admin-uploads/db/edges/*.csv; do python3 vendor/csv-gremlin/csv-gremlin.py $file >> admin-uploads/db/edges/$(basename $file .csv).gremlin; done",
+   );
 
    await createZipFileFromDirectory("admin-uploads/db", "admin-uploads/db.zip");
    deleteFolder("admin-uploads/db");
