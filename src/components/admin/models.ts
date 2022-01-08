@@ -18,6 +18,7 @@ import {
    BanUserPostParams,
    ChatWithAdmins,
    CredentialsValidationResult,
+   DatabaseContentFileFormat,
    ExportDatabaseGetParams,
    ExportDatabaseResponse,
    ImportDatabasePostParams,
@@ -69,7 +70,7 @@ import {
    sendPushNotifications,
 } from "../../common-tools/push-notifications/push-notifications";
 import { time } from "../../common-tools/js-tools/js-tools";
-import { executeSystemCommand } from "../../common-tools/process/process-tools";
+import { executeSystemCommand, isProductionMode } from "../../common-tools/process/process-tools";
 import { exportNeptuneDatabase, importNeptuneDatabase } from "../../common-tools/aws/neptune-tools";
 import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
@@ -221,7 +222,7 @@ export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promi
       if (!err) {
          resolvePromise(data);
       } else {
-         ctx.throw(err);
+         ctx.throw(400, err);
       }
    });
 
@@ -235,8 +236,16 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
       return;
    }
 
-   if (process.env.USING_AWS === "true") {
-      return await importNeptuneDatabase(params, ctx);
+   if (params.format === DatabaseContentFileFormat.NeptuneCsv) {
+      if (process.env.USING_AWS === "true" && isProductionMode()) {
+         return await importNeptuneDatabase(params, ctx);
+      } else {
+         ctx.throw(
+            400,
+            "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true",
+         );
+         return;
+      }
    }
 }
 

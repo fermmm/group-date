@@ -50,9 +50,14 @@ export interface VisualizerQueryParams extends AdminProtectionParams {
 }
 
 export interface ImportDatabasePostParams extends AdminProtectionParams {
-   user: string;
-   password: string;
-   fileName: string;
+   fileNames: string[];
+   format: DatabaseContentFileFormat;
+}
+
+export enum DatabaseContentFileFormat {
+   NeptuneCsv,
+   GraphMl,
+   GremlinQuery,
 }
 
 export interface ExportDatabaseGetParams extends AdminProtectionParams {}

@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import { LazyLog } from "react-lazylog";
 import { useLog, useLogsFileList } from "../../../api/server/logs";
 import ContextMenu from "../../common/UI/ContextMenu/ContextMenu";
-import { RequestsStatus } from "../../common/UI/RequestStatus/RequestStatus";
+import { RequestStatus } from "../../common/UI/RequestStatus/RequestStatus";
 import { ContextMenuContainer, LazyLogStyled, LogFileFeedbackMessage, LogsContainer } from "./styles.Logs";
 import { useFileListToRender } from "./tools/useFileListToRender";
 import { useReadabilityImprovements } from "./tools/useReadabilityImprovements";
@@ -33,7 +33,7 @@ const Logs: FC = () => {
    };
 
    return (
-      <RequestsStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
+      <RequestStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
          <LogsContainer>
             {log ? (
                <LazyLogStyled
@@ -58,7 +58,7 @@ const Logs: FC = () => {
                />
             </ContextMenuContainer>
          </LogsContainer>
-      </RequestsStatus>
+      </RequestStatus>
    );
 };
 

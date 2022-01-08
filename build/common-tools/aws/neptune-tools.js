@@ -7,7 +7,7 @@ const httpRequest_1 = require("../httpRequest/httpRequest");
 const process_tools_1 = require("../process/process-tools");
 async function importNeptuneDatabase(params, ctx) {
     var _a, _b, _c;
-    const { fileName } = params;
+    const { fileNames } = params;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
         ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
         return;
@@ -21,15 +21,20 @@ async function importNeptuneDatabase(params, ctx) {
         return;
     }
     const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader").replace("wss:", "https:");
-    const requestParams = {
-        source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
-        format: "csv",
-        iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
-        region: process.env.AWS_REGION,
-        queueRequest: "TRUE",
-    };
-    const response = await (0, httpRequest_1.httpRequest)({ url: loaderEndpoint, method: "POST", params: requestParams });
-    return { request: { url: loaderEndpoint, ...requestParams }, response };
+    const sentParams = [];
+    const responses = [];
+    for (const fileName of fileNames) {
+        const requestParams = {
+            source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
+            format: "csv",
+            iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
+            region: process.env.AWS_REGION,
+            queueRequest: "TRUE",
+        };
+        sentParams.push(requestParams);
+        responses.push(await (0, httpRequest_1.httpRequest)({ url: loaderEndpoint, method: "POST", params: requestParams }));
+    }
+    return { request: { url: loaderEndpoint, sentParams }, responses };
 }
 exports.importNeptuneDatabase = importNeptuneDatabase;
 async function exportNeptuneDatabase(ctx) {
@@ -66,10 +71,13 @@ async function exportNeptuneDatabase(ctx) {
      * */
     commandResponse += await (0, process_tools_1.executeSystemCommand)(`cd admin-uploads/db/* && mv * ../ && folderName=$(basename "$PWD") && cd .. && rm -r $folderName`);
     const exportedFolderPath = "admin-uploads/db";
+    // Crete the folder where we are going to put the .gremlin format files
+    await (0, process_tools_1.executeSystemCommand)(`mkdir -p ${exportedFolderPath}/nodes/gremlin`);
+    await (0, process_tools_1.executeSystemCommand)(`mkdir -p ${exportedFolderPath}/edges/gremlin`);
     // Create .gremlin files along with the .csv files. These .gremlin files contains the same data as the .csv files in a query format. Useful to import it in localhost using gremlin-server
-    commandResponse += await (0, process_tools_1.executeSystemCommand)(`for file in ${exportedFolderPath}/nodes/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/nodes/$(basename $file .csv).gremlin; done`);
+    commandResponse += await (0, process_tools_1.executeSystemCommand)(`for file in ${exportedFolderPath}/nodes/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/nodes/gremlin/$(basename $file .csv).gremlin; done`);
     // Again for the edges.
-    commandResponse += await (0, process_tools_1.executeSystemCommand)(`for file in ${exportedFolderPath}/edges/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/edges/$(basename $file .csv).gremlin; done`);
+    commandResponse += await (0, process_tools_1.executeSystemCommand)(`for file in ${exportedFolderPath}/edges/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/edges/gremlin/$(basename $file .csv).gremlin; done`);
     await (0, files_tools_1.createZipFileFromDirectory)(exportedFolderPath, "admin-uploads/db.zip");
     (0, files_tools_1.deleteFolder)(exportedFolderPath);
     return {

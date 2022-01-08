@@ -10,4 +10,5 @@ export const RowCentered = styled("div")`
    flex-direction: row;
    justify-content: center;
    align-items: center;
+   gap: 20px;
 `;

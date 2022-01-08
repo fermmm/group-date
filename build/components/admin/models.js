@@ -7,6 +7,7 @@ const dynamic_1 = require("set-interval-async/dynamic");
 const perf_hooks_1 = require("perf_hooks");
 const path = require("path");
 const gremlin = require("gremlin");
+const admin_1 = require("../../shared-tools/endpoints-interfaces/admin");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
 const models_1 = require("../user/models");
 const queries_1 = require("../user/queries");
@@ -151,7 +152,7 @@ async function logGet(params, ctx) {
             resolvePromise(data);
         }
         else {
-            ctx.throw(err);
+            ctx.throw(400, err);
         }
     });
     return promise;
@@ -163,8 +164,14 @@ async function importDatabasePost(params, ctx) {
         ctx.throw(passwordValidation.error);
         return;
     }
-    if (process.env.USING_AWS === "true") {
-        return await (0, neptune_tools_1.importNeptuneDatabase)(params, ctx);
+    if (params.format === admin_1.DatabaseContentFileFormat.NeptuneCsv) {
+        if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+            return await (0, neptune_tools_1.importNeptuneDatabase)(params, ctx);
+        }
+        else {
+            ctx.throw(400, "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true");
+            return;
+        }
     }
 }
 exports.importDatabasePost = importDatabasePost;

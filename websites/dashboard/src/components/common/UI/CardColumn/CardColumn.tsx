@@ -4,7 +4,7 @@ import { CardContentStyled } from "./CardColumn.styles";
 
 const CardColumn: FC = ({ children }) => {
    return (
-      <Card sx={{ minWidth: 275 }}>
+      <Card>
          <CardContentStyled>{children}</CardContentStyled>
       </Card>
    );

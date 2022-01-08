@@ -1,6 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserBanReason = void 0;
+exports.UserBanReason = exports.DatabaseContentFileFormat = void 0;
+var DatabaseContentFileFormat;
+(function (DatabaseContentFileFormat) {
+    DatabaseContentFileFormat[DatabaseContentFileFormat["NeptuneCsv"] = 0] = "NeptuneCsv";
+    DatabaseContentFileFormat[DatabaseContentFileFormat["GraphMl"] = 1] = "GraphMl";
+    DatabaseContentFileFormat[DatabaseContentFileFormat["GremlinQuery"] = 2] = "GremlinQuery";
+})(DatabaseContentFileFormat = exports.DatabaseContentFileFormat || (exports.DatabaseContentFileFormat = {}));
 var UserBanReason;
 (function (UserBanReason) {
     UserBanReason["Spam"] = "User is doing spam";

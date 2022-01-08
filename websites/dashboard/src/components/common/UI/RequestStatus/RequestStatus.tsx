@@ -11,28 +11,28 @@ interface PropsRequestsStatus {
 
 export enum LoadingScaleMode {
    FillViewport,
-   FillContainer
+   FillContainer,
 }
 
-export const RequestsStatus: FC<PropsRequestsStatus> = props => {
-   const { loading, error, children, loadingScaleMode = LoadingScaleMode.FillViewport } = props;
+export const RequestStatus: FC<PropsRequestsStatus> = props => {
+   const { loading, error, children, loadingScaleMode = LoadingScaleMode.FillContainer } = props;
    const isLoading: boolean = Array.isArray(loading) ? loading.includes(true) : loading ?? false;
    const isError = Array.isArray(error) ? error.find(e => e != null) : error ?? null;
    const showChildren = isError == null && !isLoading;
 
+   if (showChildren) {
+      return <>{children}</>;
+   }
+
    return (
-      <>
-         <div style={showChildren ? {} : { display: "none" }}>{children}</div>
-         {!showChildren && (
-            <RequestStatusContainer
-               style={{
-                  height: loadingScaleMode === LoadingScaleMode.FillViewport ? "100vh" : "100%"
-               }}
-            >
-               {isLoading && !isError && <CircularProgress color="secondary" />}
-               {isError && "Error: " + tryToGetErrorMessage(isError)}
-            </RequestStatusContainer>
-         )}
-      </>
+      <RequestStatusContainer
+         style={{
+            height: loadingScaleMode === LoadingScaleMode.FillViewport ? "100vh" : "100%",
+            padding: loadingScaleMode === LoadingScaleMode.FillContainer ? "40px" : "unset",
+         }}
+      >
+         {isLoading && !isError && <CircularProgress color="secondary" />}
+         {isError && "Error: " + tryToGetErrorMessage(isError)}
+      </RequestStatusContainer>
    );
 };
