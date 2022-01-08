@@ -61,7 +61,6 @@ import csv
 import sys
 import argparse
 import datetime
-import dateutil.parser as dparser
 
 class NeptuneCSVReader:
     VERSION = 0.17
@@ -185,20 +184,7 @@ class NeptuneCSVReader:
         """Return an ISO 8601 date appropriately converted and wrapped"""
         if date_string is None:
             return None
-
-        if self.use_java_date:
-            epoch = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
-            date =  dparser.isoparse(date_string)
-            if date.tzinfo is None:
-                if self.assume_utc:
-                    date =  date.replace(tzinfo=datetime.timezone.utc)
-                else:
-                    date =  date.replace(tzinfo=datetime.datetime.now().astimezone().tzinfo)
-            delta = int((date - epoch).total_seconds() * 1000)
-            val = f'new Date({delta})'
-        else:
-            val = f'datetime(\'{date_string}\')'
-        return val
+        return f'datetime(\'{date_string}\')'
 
     # Start processing each row assuming they represent vertices.
     def process_vertices(self,reader):
