@@ -3,6 +3,7 @@ import { Traversal } from "./gremlin-typing-tools";
 import { retryPromise } from "../js-tools/js-tools";
 import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from "../../configurations";
 import { isProductionMode } from "../process/process-tools";
+import { getFileContent } from "../files-tools/files-tools";
 
 export const databaseUrl = isProductionMode() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 
@@ -107,6 +108,21 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
 }
 
 /**
+ * Sends a query that is in a string format, eg: "g.V().toList()"
+ */
+export async function sendQueryAsString<T = any>(query: string): Promise<T> {
+   const client = new gremlin.driver.Client(databaseUrl, {
+      traversalSource: "g",
+      mimeType: "application/json",
+   });
+
+   // AWS Neptune workaround
+   query = query.replace("g.V", "g.inject(0).V");
+
+   return await client.submit(query, {});
+}
+
+/**
  * @param path File extension should be xml so gremlin knows it should save with the GraphML format (the most popular and supported).Example: "graph.xml"
  */
 export async function exportDatabaseContentToFile(path: string) {
@@ -117,5 +133,14 @@ export async function importDatabaseContentFromFile(path: string) {
    await g.io(path).read().iterate();
 }
 
-// TODO: Complete this function
-export async function importDatabaseContentFromQueryFile(fileNames: string[]) {}
+// TODO: test it. Maybe we can remove the database content when the queries are ok and ready
+export async function importDatabaseContentFromQueryFile(filePaths: string[]) {
+   await sendQuery(() => g.V().drop().iterate());
+   for (const filePath of filePaths) {
+      const fileContent = getFileContent(filePath);
+      const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
+      for (const query of queries) {
+         await sendQueryAsString(query);
+      }
+   }
+}

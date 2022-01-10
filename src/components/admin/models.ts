@@ -59,13 +59,14 @@ import {
    databaseUrl,
    importDatabaseContentFromQueryFile,
    sendQuery,
+   sendQueryAsString,
 } from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
 import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
-import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
+import { makeQueryForVisualizer, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
 import { createFolder } from "../../common-tools/files-tools/files-tools";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
@@ -281,11 +282,7 @@ export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseCon
       return passwordValidation.error;
    }
 
-   const client = new gremlin.driver.Client(databaseUrl, {
-      traversalSource: "g",
-      mimeType: "application/json",
-   });
-   const result = await client.submit(makeQuery(query, nodeLimit), {});
+   const result = await sendQueryAsString(makeQueryForVisualizer(query, nodeLimit));
    return nodesToJson(result._items);
 }
 
