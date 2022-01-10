@@ -60,21 +60,6 @@ export const fileSaverForImages = koaBody({
    },
 });
 
-export const fileSaverForAdminFiles = koaBody({
-   multipart: true,
-   formidable: {
-      uploadDir: path.join(appRoot.path, "/admin-uploads/"),
-      onFileBegin: (name, file) => {
-         const dir = path.join(appRoot.path, `/admin-uploads/`);
-         file.path = `${dir}/${file.name}`;
-      },
-      keepExtensions: true,
-   },
-   onError: (error, ctx) => {
-      ctx.throw(400, error);
-   },
-});
-
 export function serveFolderFiles(props: {
    localFolderPath: string;
    urlToServe: string;

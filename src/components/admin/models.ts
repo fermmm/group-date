@@ -2,6 +2,7 @@ import { BaseContext, ParameterizedContext, Next } from "koa";
 import * as moment from "moment";
 import * as fs from "fs";
 import { setIntervalAsync } from "set-interval-async/dynamic";
+import * as appRoot from "app-root-path";
 import { performance } from "perf_hooks";
 import * as path from "path";
 import * as gremlin from "gremlin";
@@ -54,14 +55,17 @@ import {
 } from "./queries";
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
-import { databaseUrl, sendQuery } from "../../common-tools/database-tools/database-manager";
+import {
+   databaseUrl,
+   importDatabaseContentFromQueryFile,
+   sendQuery,
+} from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
 import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQuery, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
-import { fileSaverForAdminFiles } from "../../common-tools/koa-tools/koa-tools";
 import { createFolder } from "../../common-tools/files-tools/files-tools";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
@@ -71,12 +75,13 @@ import {
 } from "../../common-tools/push-notifications/push-notifications";
 import { time } from "../../common-tools/js-tools/js-tools";
 import { executeSystemCommand, isProductionMode } from "../../common-tools/process/process-tools";
-import { exportNeptuneDatabase, importNeptuneDatabase } from "../../common-tools/aws/neptune-tools";
+import { exportDatabaseContent, importDatabaseContentFromCsv } from "../../common-tools/aws/neptune-tools";
 import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
 import { createFakeUser } from "../../tests/tools/users";
 import { createEmailLoginToken } from "../email-login/models";
 import { createGroup, getSlotIdFromUsersAmount } from "../groups/models";
+import koaBody = require("koa-body");
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -238,7 +243,7 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
 
    if (params.format === DatabaseContentFileFormat.NeptuneCsv) {
       if (process.env.USING_AWS === "true" && isProductionMode()) {
-         return await importNeptuneDatabase(params, ctx);
+         return await importDatabaseContentFromCsv(params, ctx);
       } else {
          ctx.throw(
             400,
@@ -246,6 +251,10 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
          );
          return;
       }
+   }
+
+   if (params.format === DatabaseContentFileFormat.GremlinQuery) {
+      return await importDatabaseContentFromQueryFile(params.fileNames);
    }
 }
 
@@ -260,7 +269,7 @@ export async function exportDatabaseGet(
    }
 
    if (process.env.USING_AWS === "true") {
-      return await exportNeptuneDatabase(ctx);
+      return await exportDatabaseContent(ctx);
    }
 }
 
@@ -286,7 +295,25 @@ export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, nex
       ctx.throw(passwordValidation.error);
    }
 
-   return fileSaverForAdminFiles(ctx, next);
+   // In the following code it's configured how the file is saved.
+
+   const uploadDirRelative = `/admin-uploads/${ctx.request.query?.folder ?? ""}`;
+   const uploadDir = path.join(appRoot.path, uploadDirRelative);
+   createFolder(uploadDirRelative);
+
+   return koaBody({
+      multipart: true,
+      formidable: {
+         uploadDir,
+         onFileBegin: (name, file) => {
+            file.path = `${uploadDir}/${file.name}`;
+         },
+         keepExtensions: true,
+      },
+      onError: (error, ctx) => {
+         ctx.throw(400, error);
+      },
+   })(ctx, next);
 }
 
 export async function onAdminFileSaved(
@@ -305,25 +332,26 @@ export async function onAdminFileSaved(
          return;
       }
 
-      const folderPath: string = path.dirname(file.path);
+      const absoluteFolderPath: string = path.dirname(file.path);
+      const folderPath = path.relative(appRoot.path, absoluteFolderPath) + "/";
       const fileName: string = path.basename(file.path);
 
-      if (process.env.USING_AWS === "true") {
+      if (process.env.USING_AWS === "true" && isProductionMode()) {
          const fileNameInS3 = await uploadFileToS3({
             fileName: folderPath + fileName,
             targetPath: fileName,
          });
 
          // Remove the file from the server because it's already on the S3
-         await fs.promises.unlink(folderPath + fileName);
+         await fs.promises.unlink(file.path);
 
          fileNames.push(fileNameInS3);
       } else {
-         fileNames.push(fileName);
+         fileNames.push(folderPath + fileName);
       }
    }
 
-   return { fileNames: fileNames };
+   return { fileNames };
 }
 
 export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {

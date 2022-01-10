@@ -21,7 +21,7 @@ export async function exportDbRequest<Response extends ExportDatabaseResponse>()
    return httpRequest({ url, method: "GET", params: { ...credentials } });
 }
 
-export async function uploadAdminFiles<Params extends Partial<{ files: File[] }>>(
+export async function uploadAdminFiles<Params extends Partial<{ files: File[]; folder: string }>>(
    params: Params,
 ): Promise<{ fileNames: string[] }> {
    const url = "admin/upload-file";
@@ -36,12 +36,17 @@ export async function uploadAdminFiles<Params extends Partial<{ files: File[] }>
     * sending other parameters the file transfer stops working. So the only way to
     * send other data is through the url params.
     */
-   return httpRequest({ url, method: "POST", params: formPayLoad, urlParams: credentials });
+   return httpRequest({
+      url,
+      method: "POST",
+      params: formPayLoad,
+      urlParams: { ...credentials, folder: params.folder ?? "" },
+   });
 }
 
 export async function executeCommandRequest<
    Params extends Partial<AdminCommandPostParams>,
-   Response extends string,
+   Response extends string
 >(params: Params): Promise<Response> {
    const url = "admin/command";
    const credentials = getCredentialsFromStorage();

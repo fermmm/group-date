@@ -40,7 +40,7 @@ const ImportExportForm: FC = props => {
 
          try {
             const format = getFormatFromExtension(plainFiles[0].name.split(".").pop());
-            const filesUploadResponse = await uploadAdminFiles({ files: plainFiles });
+            const filesUploadResponse = await uploadAdminFiles({ files: plainFiles, folder: "import-db" });
             const importResponse = await importDbRequest({ fileNames: filesUploadResponse.fileNames, format });
             setResponse(importResponse);
          } catch (error) {

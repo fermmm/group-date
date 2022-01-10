@@ -1,6 +1,6 @@
 import { fileOrFolderExists } from "./../files-tools/files-tools";
 import * as schedule from "node-schedule";
-import { loadDatabaseFromDisk, saveDatabaseToFile } from "../database-tools/database-manager";
+import { importDatabaseContentFromFile, exportDatabaseContentToFile } from "../database-tools/database-manager";
 import {
    DATABASE_BACKUP_DAILY,
    DATABASE_BACKUP_HOUR,
@@ -23,7 +23,7 @@ export async function initializeDatabaseBackups() {
          fileOrFolderExists("database-backups/latest.xml")
       ) {
          fixGraphMlBug("database-backups/latest.xml");
-         await loadDatabaseFromDisk("../../database-backups/latest.xml");
+         await importDatabaseContentFromFile("../../database-backups/latest.xml");
       }
       await initializeBackupDatabaseSchedule();
       backupDatabaseWhenExiting();
@@ -92,7 +92,7 @@ function backupDatabaseWhenExiting() {
 }
 
 export async function makeSimpleBackup() {
-   await saveDatabaseToFile("../../database-backups/latest.xml");
+   await exportDatabaseContentToFile("../../database-backups/latest.xml");
    // This should be here but for some reason sometimes it has no effect, so this is being called before loading backup instead.
    // fixGraphMlBug("database-backups/latest.xml");
 }

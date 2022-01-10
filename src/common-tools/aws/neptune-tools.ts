@@ -8,7 +8,7 @@ import { createZipFileFromDirectory, deleteFolder } from "../files-tools/files-t
 import { httpRequest } from "../httpRequest/httpRequest";
 import { executeSystemCommand } from "../process/process-tools";
 
-export async function importNeptuneDatabase(params: ImportDatabasePostParams, ctx: BaseContext) {
+export async function importDatabaseContentFromCsv(params: ImportDatabasePostParams, ctx: BaseContext) {
    const { fileNames } = params;
 
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
@@ -46,7 +46,7 @@ export async function importNeptuneDatabase(params: ImportDatabasePostParams, ct
    return { request: { url: loaderEndpoint, sentParams }, responses };
 }
 
-export async function exportNeptuneDatabase(ctx: BaseContext): Promise<ExportDatabaseResponse> {
+export async function exportDatabaseContent(ctx: BaseContext): Promise<ExportDatabaseResponse> {
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
       ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
       return;

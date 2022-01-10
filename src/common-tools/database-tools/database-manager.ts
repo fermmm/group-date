@@ -9,10 +9,10 @@ export const databaseUrl = isProductionMode() ? process.env.DATABASE_URL : proce
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
-export const g = traversal().withRemote(
+export const g = (traversal().withRemote(
    new DriverRemoteConnection(databaseUrl, {}),
-) as unknown as gremlin.process.GraphTraversalSource;
-export const __ = gremlin.process.statics as unknown as Traversal;
+) as unknown) as gremlin.process.GraphTraversalSource;
+export const __ = (gremlin.process.statics as unknown) as Traversal;
 export const withOptions = gremlin.process.withOptions;
 export const TextP = gremlin.process.TextP;
 export const P = gremlin.process.P;
@@ -109,10 +109,13 @@ export async function sendQuery<T>(query: () => Promise<T>, logResult: boolean =
 /**
  * @param path File extension should be xml so gremlin knows it should save with the GraphML format (the most popular and supported).Example: "graph.xml"
  */
-export async function saveDatabaseToFile(path: string) {
+export async function exportDatabaseContentToFile(path: string) {
    await g.io(path).write().iterate();
 }
 
-export async function loadDatabaseFromDisk(path: string) {
+export async function importDatabaseContentFromFile(path: string) {
    await g.io(path).read().iterate();
 }
+
+// TODO: Complete this function
+export async function importDatabaseContentFromQueryFile(fileNames: string[]) {}

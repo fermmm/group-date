@@ -16,5 +16,6 @@
    "trailingComma": "all",
    "useTabs": false,
    "vueIndentScriptAndStyle": false,
-   "parser": "typescript"
+   "parser": "typescript",
+   "legacy-peer-deps": true
  }
