@@ -1,7 +1,12 @@
 import React, { FC, useEffect, useState } from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { useFilePicker } from "use-file-picker";
-import { exportDbRequest, importDbRequest, uploadAdminFiles } from "../../../../api/server/techOps";
+import {
+   deleteDatabaseRequest,
+   exportDbRequest,
+   importDbRequest,
+   uploadAdminFiles,
+} from "../../../../api/server/techOps";
 import { tryToGetErrorMessage } from "../../../../api/tools/tryToGetErrorMessage";
 import ResponseDisplay from "../ResponseDisplay/ResponseDisplay";
 import CardColumn from "../../../common/UI/CardColumn/CardColumn";
@@ -9,6 +14,10 @@ import { RequestStatus } from "../../../common/UI/RequestStatus/RequestStatus";
 import { Row, RowCentered } from "../../../common/UI/Row/Row";
 import { DatabaseContentFileFormat } from "../../../../api/tools/shared-tools/endpoints-interfaces/admin";
 import { ButtonComment } from "./styles.ImportExportForm";
+import { Button } from "@mui/material";
+import ConfirmationDialog, {
+   PropsConfirmationDialog,
+} from "../../../common/UI/ConfirmationDialog/ConfirmationDialog";
 
 const ImportExportForm: FC = props => {
    const [loading, setLoading] = useState<boolean>(false);
@@ -17,6 +26,7 @@ const ImportExportForm: FC = props => {
       accept: [".csv", ".gremlin", ".xml"],
       multiple: true,
    });
+   const [confirmationDialogProps, setConfirmationDialogProps] = useState<PropsConfirmationDialog>(null);
 
    // Effect that uploads the backup file and loads it into the database when the files are selected
    useEffect(() => {
@@ -70,6 +80,24 @@ const ImportExportForm: FC = props => {
       setLoading(false);
    };
 
+   const handleDeleteClick = async () => {
+      setConfirmationDialogProps({
+         open: true,
+         text: "Delete database?",
+         continueButtonText: "Delete all",
+         continueButtonIsRed: true,
+         onContinueClick: async () => {
+            setLoading(true);
+            await deleteDatabaseRequest();
+            setResponse("Database deleted");
+            setLoading(false);
+         },
+         onClose: () => {
+            setConfirmationDialogProps(updatedProps => ({ ...updatedProps, open: false }));
+         },
+      });
+   };
+
    const getFileErrors = (files: File[]) => {
       const errors: string[] = [];
       const firstFileExtension = files[0].name.split(".").pop();
@@ -102,19 +130,26 @@ const ImportExportForm: FC = props => {
             <RequestStatus loading={loading}>
                <ResponseDisplay response={response} />
                <RowCentered>
-                  <LoadingButton loading={loading} variant="outlined" onClick={handleImportClick}>
+                  <Button variant="outlined" onClick={handleImportClick}>
                      Import database content
-                  </LoadingButton>
+                  </Button>
                   <ButtonComment>
                      If you import a format that uses multiple files{" "}
                      <b>remember to import the node files first.</b> Multiple file selection is supported.
                   </ButtonComment>
                </RowCentered>
-               <LoadingButton loading={loading} variant="outlined" onClick={handleExportClick}>
+               <Button variant="outlined" onClick={handleExportClick}>
                   Export database content
-               </LoadingButton>
+               </Button>
+               <RowCentered>
+                  <Button variant="outlined" color="error" onClick={handleDeleteClick}>
+                     Delete database content
+                  </Button>
+                  <ButtonComment>Importing database requires to delete content before you begin</ButtonComment>
+               </RowCentered>
             </RequestStatus>
          </CardColumn>
+         <ConfirmationDialog {...confirmationDialogProps} />
       </>
    );
 };

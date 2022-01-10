@@ -10,10 +10,10 @@ export const databaseUrl = isProductionMode() ? process.env.DATABASE_URL : proce
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
 
-export const g = (traversal().withRemote(
+export const g = traversal().withRemote(
    new DriverRemoteConnection(databaseUrl, {}),
-) as unknown) as gremlin.process.GraphTraversalSource;
-export const __ = (gremlin.process.statics as unknown) as Traversal;
+) as unknown as gremlin.process.GraphTraversalSource;
+export const __ = gremlin.process.statics as unknown as Traversal;
 export const withOptions = gremlin.process.withOptions;
 export const TextP = gremlin.process.TextP;
 export const P = gremlin.process.P;
@@ -133,9 +133,7 @@ export async function importDatabaseContentFromFile(path: string) {
    await g.io(path).read().iterate();
 }
 
-// TODO: test it. Maybe we can remove the database content when the queries are ok and ready
 export async function importDatabaseContentFromQueryFile(filePaths: string[]) {
-   await sendQuery(() => g.V().drop().iterate());
    for (const filePath of filePaths) {
       const fileContent = getFileContent(filePath);
       const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
@@ -143,4 +141,8 @@ export async function importDatabaseContentFromQueryFile(filePaths: string[]) {
          await sendQueryAsString(query);
       }
    }
+}
+
+export async function removeAllDatabaseContent() {
+   await sendQuery(() => g.V().drop().iterate());
 }

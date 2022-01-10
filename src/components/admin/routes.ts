@@ -10,6 +10,7 @@ import {
    allChatsWithAdminsGet,
    banUserPost,
    convertToAdminPost,
+   deleteDbPost,
    exportDatabaseGet,
    importDatabasePost,
    logFileListGet,
@@ -36,6 +37,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/db/import", "POST", importDatabasePost);
    createRoute(r, "/admin/db/export", "GET", exportDatabaseGet);
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
+   createRoute(r, "/admin/db/delete", "POST", deleteDbPost);
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
    createRoute(r, "/admin/command", "POST", runCommandPost);
    createRoute(r, "/admin/email", "POST", sendEmailPost);

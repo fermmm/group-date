@@ -46,7 +46,7 @@ export async function uploadAdminFiles<Params extends Partial<{ files: File[]; f
 
 export async function executeCommandRequest<
    Params extends Partial<AdminCommandPostParams>,
-   Response extends string
+   Response extends string,
 >(params: Params): Promise<Response> {
    const url = "admin/command";
    const credentials = getCredentialsFromStorage();
@@ -59,4 +59,10 @@ export async function sendEmailRequest<Params extends Partial<SendEmailPostParam
    const url = "admin/email";
    const credentials = getCredentialsFromStorage();
    return httpRequest({ url, method: "POST", params: { ...credentials, ...params } });
+}
+
+export async function deleteDatabaseRequest(): Promise<Response> {
+   const url = "admin/db/delete";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest({ url, method: "POST", params: credentials });
 }

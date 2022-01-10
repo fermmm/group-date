@@ -58,6 +58,7 @@ import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    databaseUrl,
    importDatabaseContentFromQueryFile,
+   removeAllDatabaseContent,
    sendQuery,
    sendQueryAsString,
 } from "../../common-tools/database-tools/database-manager";
@@ -284,6 +285,15 @@ export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseCon
 
    const result = await sendQueryAsString(makeQueryForVisualizer(query, nodeLimit));
    return nodesToJson(result._items);
+}
+
+export async function deleteDbPost(params: VisualizerQueryParams, ctx: BaseContext) {
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   await removeAllDatabaseContent();
 }
 
 export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, next: Next): Promise<any> {
