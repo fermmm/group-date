@@ -9,6 +9,7 @@ export interface PropsProp {
    propName: string;
    propValue?: string | number | boolean;
    onEdit?: (key: string, value: string | number | boolean) => void;
+   showType?: boolean;
 }
 
 const unixTimeProps = [
@@ -22,7 +23,7 @@ const unixTimeProps = [
 ];
 
 const Prop: FC<PropsProp> = props => {
-   const { propName, propValue, onEdit } = props;
+   const { propName, propValue, onEdit, showType } = props;
    const [editMode, setEditMode] = useState(false);
    const [newPropValue, setNewPropValue] = useState(propValue);
 
@@ -86,7 +87,7 @@ const Prop: FC<PropsProp> = props => {
          ) : (
             <NonEditModeContainer>
                <KeyLabel>
-                  {propName} {/*typeof propValue*/}
+                  {propName} {showType && ` (type: ${typeof propValue})`}
                </KeyLabel>
                {propValue != null && <ValueLabel>{setupValueText(propName, propValue)}</ValueLabel>}
             </NonEditModeContainer>

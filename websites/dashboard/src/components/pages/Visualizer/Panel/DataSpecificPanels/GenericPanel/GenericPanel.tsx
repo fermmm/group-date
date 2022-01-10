@@ -48,6 +48,7 @@ const GenericPanel: FC<PropsGenericPropertiesTable> = props => {
                   <Prop propName={key} propValue={properties[key]} onEdit={onPropEdit} key={key} />
                ),
          )}
+         <Prop propName={isVertex ? "Vertex ID" : "Edge ID"} propValue={id} showType />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"
