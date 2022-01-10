@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadDatabaseFromDisk = exports.saveDatabaseToFile = exports.sendQuery = exports.waitForDatabase = exports.cardinality = exports.t = exports.scope = exports.id = exports.column = exports.order = exports.P = exports.TextP = exports.withOptions = exports.__ = exports.g = exports.databaseUrl = void 0;
+exports.removeAllDatabaseContent = exports.importDatabaseContentFromQueryFile = exports.importDatabaseContentFromFile = exports.exportDatabaseContentToFile = exports.sendQueryAsString = exports.sendQuery = exports.waitForDatabase = exports.cardinality = exports.t = exports.scope = exports.id = exports.column = exports.order = exports.P = exports.TextP = exports.withOptions = exports.__ = exports.g = exports.databaseUrl = void 0;
 const gremlin = require("gremlin");
+const path = require("path");
 const js_tools_1 = require("../js-tools/js-tools");
 const configurations_1 = require("../../configurations");
 const process_tools_1 = require("../process/process-tools");
+const files_tools_1 = require("../files-tools/files-tools");
+const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 exports.databaseUrl = (0, process_tools_1.isProductionMode)() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
@@ -98,14 +101,65 @@ async function sendQuery(query, logResult = false) {
 }
 exports.sendQuery = sendQuery;
 /**
+ * Sends a query that is in a string format, eg: "g.V().toList()"
+ */
+async function sendQueryAsString(query) {
+    const client = new gremlin.driver.Client(exports.databaseUrl, {
+        traversalSource: "g",
+        mimeType: "application/json",
+    });
+    // AWS Neptune workaround
+    query = query.replace("g.V", "g.inject(0).V");
+    try {
+        return await client.submit(query, {});
+    }
+    catch (error) {
+        console.log("");
+        console.log(`Error sending query as a string, query: ${query}`);
+        throw error;
+    }
+}
+exports.sendQueryAsString = sendQueryAsString;
+/**
  * @param path File extension should be xml so gremlin knows it should save with the GraphML format (the most popular and supported).Example: "graph.xml"
  */
-async function saveDatabaseToFile(path) {
+async function exportDatabaseContentToFile(path) {
     await exports.g.io(path).write().iterate();
 }
-exports.saveDatabaseToFile = saveDatabaseToFile;
-async function loadDatabaseFromDisk(path) {
+exports.exportDatabaseContentToFile = exportDatabaseContentToFile;
+async function importDatabaseContentFromFile(path) {
     await exports.g.io(path).read().iterate();
 }
-exports.loadDatabaseFromDisk = loadDatabaseFromDisk;
+exports.importDatabaseContentFromFile = importDatabaseContentFromFile;
+/**
+ * Loads database content provided in a file that contains queries separated by a line break.
+ */
+async function importDatabaseContentFromQueryFile(filePaths) {
+    let responseText = "Database import in .gremlin format";
+    let successfulQueries = 0;
+    let failedQueries = 0;
+    for (const filePath of filePaths) {
+        const fileContent = (0, files_tools_1.getFileContent)(filePath);
+        const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
+        responseText += `\n\nFile: ${path.basename(filePath)}\n`;
+        for (const query of queries) {
+            try {
+                await sendQueryAsString(query);
+                successfulQueries++;
+            }
+            catch (e) {
+                const error = (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
+                responseText += error + "\n";
+                failedQueries++;
+            }
+        }
+    }
+    responseText += `Finished. Successful queries: ${successfulQueries}. Failed queries: ${failedQueries}`;
+    return responseText;
+}
+exports.importDatabaseContentFromQueryFile = importDatabaseContentFromQueryFile;
+async function removeAllDatabaseContent() {
+    await sendQuery(() => exports.g.V().drop().iterate());
+}
+exports.removeAllDatabaseContent = removeAllDatabaseContent;
 //# sourceMappingURL=database-manager.js.map

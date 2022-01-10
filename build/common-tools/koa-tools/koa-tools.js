@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.serveFolderFiles = exports.fileSaverForAdminFiles = exports.fileSaverForImages = exports.serveWebsite = void 0;
+exports.serveFolderFiles = exports.fileSaverForImages = exports.serveWebsite = void 0;
 const mount = require("koa-mount");
 const serve = require("koa-static");
 const send = require("koa-send");
@@ -37,20 +37,6 @@ exports.fileSaverForImages = koaBody({
         uploadDir: path.join(appRoot.path, "/uploads/"),
         keepExtensions: true,
         maxFileSize: configurations_1.MAX_FILE_SIZE_UPLOAD_ALLOWED,
-    },
-    onError: (error, ctx) => {
-        ctx.throw(400, error);
-    },
-});
-exports.fileSaverForAdminFiles = koaBody({
-    multipart: true,
-    formidable: {
-        uploadDir: path.join(appRoot.path, "/admin-uploads/"),
-        onFileBegin: (name, file) => {
-            const dir = path.join(appRoot.path, `/admin-uploads/`);
-            file.path = `${dir}/${file.name}`;
-        },
-        keepExtensions: true,
     },
     onError: (error, ctx) => {
         ctx.throw(400, error);

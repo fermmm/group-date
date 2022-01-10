@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
+const appRoot = require("app-root-path");
 const perf_hooks_1 = require("perf_hooks");
 const path = require("path");
-const gremlin = require("gremlin");
 const admin_1 = require("../../shared-tools/endpoints-interfaces/admin");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
 const models_1 = require("../user/models");
@@ -21,7 +21,6 @@ const configurations_1 = require("../../configurations");
 const types_1 = require("../groups-finder/tools/types");
 const validateAdminCredentials_1 = require("./tools/validateAdminCredentials");
 const visualizer_proxy_tools_1 = require("../../common-tools/database-tools/visualizer-proxy-tools");
-const koa_tools_1 = require("../../common-tools/koa-tools/koa-tools");
 const files_tools_1 = require("../../common-tools/files-tools/files-tools");
 const s3_tools_1 = require("../../common-tools/aws/s3-tools");
 const data_conversion_2 = require("../user/tools/data-conversion");
@@ -34,6 +33,7 @@ const tryToGetErrorMessage_1 = require("../../common-tools/httpRequest/tools/try
 const users_1 = require("../../tests/tools/users");
 const models_2 = require("../email-login/models");
 const models_3 = require("../groups/models");
+const koaBody = require("koa-body");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -166,12 +166,15 @@ async function importDatabasePost(params, ctx) {
     }
     if (params.format === admin_1.DatabaseContentFileFormat.NeptuneCsv) {
         if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
-            return await (0, neptune_tools_1.importNeptuneDatabase)(params, ctx);
+            return await (0, neptune_tools_1.importDatabaseContentFromCsv)(params, ctx);
         }
         else {
             ctx.throw(400, "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true");
             return;
         }
+    }
+    if (params.format === admin_1.DatabaseContentFileFormat.GremlinQuery) {
+        return await (0, database_manager_1.importDatabaseContentFromQueryFile)(params.fileNames);
     }
 }
 exports.importDatabasePost = importDatabasePost;
@@ -182,7 +185,7 @@ async function exportDatabaseGet(params, ctx) {
         return;
     }
     if (process.env.USING_AWS === "true") {
-        return await (0, neptune_tools_1.exportNeptuneDatabase)(ctx);
+        return await (0, neptune_tools_1.exportDatabaseContent)(ctx);
     }
 }
 exports.exportDatabaseGet = exportDatabaseGet;
@@ -192,20 +195,41 @@ async function visualizerPost(params, ctx) {
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
     }
-    const client = new gremlin.driver.Client(database_manager_1.databaseUrl, {
-        traversalSource: "g",
-        mimeType: "application/json",
-    });
-    const result = await client.submit((0, visualizer_proxy_tools_1.makeQuery)(query, nodeLimit), {});
+    const result = await (0, database_manager_1.sendQueryAsString)((0, visualizer_proxy_tools_1.makeQueryForVisualizer)(query, nodeLimit));
     return (0, visualizer_proxy_tools_1.nodesToJson)(result._items);
 }
 exports.visualizerPost = visualizerPost;
+async function deleteDbPost(params, ctx) {
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        return passwordValidation.error;
+    }
+    await (0, database_manager_1.removeAllDatabaseContent)();
+}
+exports.deleteDbPost = deleteDbPost;
 async function onAdminFileReceived(ctx, next) {
+    var _a, _b;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(ctx.request.query);
     if (!passwordValidation.isValid) {
         ctx.throw(passwordValidation.error);
     }
-    return (0, koa_tools_1.fileSaverForAdminFiles)(ctx, next);
+    // In the following code it's configured how the file is saved.
+    const uploadDirRelative = `/admin-uploads/${(_b = (_a = ctx.request.query) === null || _a === void 0 ? void 0 : _a.folder) !== null && _b !== void 0 ? _b : ""}`;
+    const uploadDir = path.join(appRoot.path, uploadDirRelative);
+    (0, files_tools_1.createFolder)(uploadDirRelative);
+    return koaBody({
+        multipart: true,
+        formidable: {
+            uploadDir,
+            onFileBegin: (name, file) => {
+                file.path = `${uploadDir}/${file.name}`;
+            },
+            keepExtensions: true,
+        },
+        onError: (error, ctx) => {
+            ctx.throw(400, error);
+        },
+    })(ctx, next);
 }
 exports.onAdminFileReceived = onAdminFileReceived;
 async function onAdminFileSaved(files, ctx) {
@@ -219,22 +243,23 @@ async function onAdminFileSaved(files, ctx) {
             ctx.throw(400, "Invalid file provided", { ctx });
             return;
         }
-        const folderPath = path.dirname(file.path);
+        const absoluteFolderPath = path.dirname(file.path);
+        const folderPath = path.relative(appRoot.path, absoluteFolderPath) + "/";
         const fileName = path.basename(file.path);
-        if (process.env.USING_AWS === "true") {
+        if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
             const fileNameInS3 = await (0, s3_tools_1.uploadFileToS3)({
                 fileName: folderPath + fileName,
                 targetPath: fileName,
             });
             // Remove the file from the server because it's already on the S3
-            await fs.promises.unlink(folderPath + fileName);
+            await fs.promises.unlink(file.path);
             fileNames.push(fileNameInS3);
         }
         else {
-            fileNames.push(fileName);
+            fileNames.push(folderPath + fileName);
         }
     }
-    return { fileNames: fileNames };
+    return { fileNames };
 }
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {

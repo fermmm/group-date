@@ -17,7 +17,7 @@ async function initializeDatabaseBackups() {
             databaseEmpty &&
             (0, files_tools_1.fileOrFolderExists)("database-backups/latest.xml")) {
             (0, fix_graphml_bug_1.fixGraphMlBug)("database-backups/latest.xml");
-            await (0, database_manager_1.loadDatabaseFromDisk)("../../database-backups/latest.xml");
+            await (0, database_manager_1.importDatabaseContentFromFile)("../../database-backups/latest.xml");
         }
         await initializeBackupDatabaseSchedule();
         backupDatabaseWhenExiting();
@@ -79,7 +79,7 @@ function backupDatabaseWhenExiting() {
     });
 }
 async function makeSimpleBackup() {
-    await (0, database_manager_1.saveDatabaseToFile)("../../database-backups/latest.xml");
+    await (0, database_manager_1.exportDatabaseContentToFile)("../../database-backups/latest.xml");
     // This should be here but for some reason sometimes it has no effect, so this is being called before loading backup instead.
     // fixGraphMlBug("database-backups/latest.xml");
 }

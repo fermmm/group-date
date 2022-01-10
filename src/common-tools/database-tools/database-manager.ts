@@ -1,9 +1,11 @@
 import * as gremlin from "gremlin";
+import * as path from "path";
 import { Traversal } from "./gremlin-typing-tools";
 import { retryPromise } from "../js-tools/js-tools";
 import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from "../../configurations";
 import { isProductionMode } from "../process/process-tools";
 import { getFileContent } from "../files-tools/files-tools";
+import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
 
 export const databaseUrl = isProductionMode() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 
@@ -119,7 +121,13 @@ export async function sendQueryAsString<T = any>(query: string): Promise<T> {
    // AWS Neptune workaround
    query = query.replace("g.V", "g.inject(0).V");
 
-   return await client.submit(query, {});
+   try {
+      return await client.submit(query, {});
+   } catch (error) {
+      console.log("");
+      console.log(`Error sending query as a string, query: ${query}`);
+      throw error;
+   }
 }
 
 /**
@@ -133,14 +141,33 @@ export async function importDatabaseContentFromFile(path: string) {
    await g.io(path).read().iterate();
 }
 
+/**
+ * Loads database content provided in a file that contains queries separated by a line break.
+ */
 export async function importDatabaseContentFromQueryFile(filePaths: string[]) {
+   let responseText = "Database import in .gremlin format";
+   let successfulQueries = 0;
+   let failedQueries = 0;
+
    for (const filePath of filePaths) {
       const fileContent = getFileContent(filePath);
       const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
+      responseText += `\n\nFile: ${path.basename(filePath)}\n`;
       for (const query of queries) {
-         await sendQueryAsString(query);
+         try {
+            await sendQueryAsString(query);
+            successfulQueries++;
+         } catch (e) {
+            const error = tryToGetErrorMessage(e);
+            responseText += error + "\n";
+            failedQueries++;
+         }
       }
    }
+
+   responseText += `Finished. Successful queries: ${successfulQueries}. Failed queries: ${failedQueries}`;
+
+   return responseText;
 }
 
 export async function removeAllDatabaseContent() {

@@ -1,14 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nodesToJson = exports.makeQuery = void 0;
-function makeQuery(query, nodeLimit) {
+exports.nodesToJson = exports.makeQueryForVisualizer = void 0;
+function makeQueryForVisualizer(query, nodeLimit) {
     const nodeLimitQuery = !isNaN(nodeLimit) && Number(nodeLimit) > 0 ? `.limit(${nodeLimit})` : "";
     query = `${query}${nodeLimitQuery}.dedup().as('node').project('id', 'label', 'properties', 'edges').by(__.id()).by(__.label()).by(__.valueMap().by(__.unfold())).by(__.outE().project('id', 'from', 'to', 'label', 'properties').by(__.id()).by(__.select('node').id()).by(__.inV().id()).by(__.label()).by(__.valueMap().by(__.unfold())).fold())`;
-    // AWS Neptune bug workaround
-    query = query.replace("g.V", "g.inject(0).V");
     return query;
 }
-exports.makeQuery = makeQuery;
+exports.makeQueryForVisualizer = makeQueryForVisualizer;
 function nodesToJson(nodeList) {
     return nodeList.map(node => ({
         id: node.get("id"),

@@ -18,6 +18,7 @@ function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/db/import", "POST", models_1.importDatabasePost);
     (0, route_tools_1.createRoute)(r, "/admin/db/export", "GET", models_1.exportDatabaseGet);
     (0, route_tools_1.createRoute)(r, "/admin/db/visualizer", "POST", models_1.visualizerPost);
+    (0, route_tools_1.createRoute)(r, "/admin/db/delete", "POST", models_1.deleteDbPost);
     (0, route_tools_1.createRoute)(r, "/admin/send-notifications", "POST", models_1.adminNotificationSendPost);
     (0, route_tools_1.createRoute)(r, "/admin/command", "POST", models_1.runCommandPost);
     (0, route_tools_1.createRoute)(r, "/admin/email", "POST", models_1.sendEmailPost);

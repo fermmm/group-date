@@ -20,11 +20,11 @@ export function tryToGetErrorMessage(error: any): string {
    }
 
    if (error.message !== undefined) {
-      return `Error: ${error.message}`;
+      return `${error.message}`;
    }
 
    if (error.msg !== undefined) {
-      return `Error: ${error.msg}`;
+      return `${error.msg}`;
    }
 
    let errorAsJson: string | null = null;
@@ -34,7 +34,7 @@ export function tryToGetErrorMessage(error: any): string {
    } catch {}
 
    if (errorAsJson !== undefined) {
-      return `Error: ${errorAsJson}`;
+      return `${errorAsJson}`;
    }
 
    return `Unknown error`;

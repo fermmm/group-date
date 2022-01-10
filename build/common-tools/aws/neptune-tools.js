@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.exportNeptuneDatabase = exports.importNeptuneDatabase = void 0;
+exports.exportDatabaseContent = exports.importDatabaseContentFromCsv = void 0;
 const validateAdminCredentials_1 = require("../../components/admin/tools/validateAdminCredentials");
 const files_tools_1 = require("../files-tools/files-tools");
 const httpRequest_1 = require("../httpRequest/httpRequest");
 const process_tools_1 = require("../process/process-tools");
-async function importNeptuneDatabase(params, ctx) {
+async function importDatabaseContentFromCsv(params, ctx) {
     var _a, _b, _c;
     const { fileNames } = params;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
@@ -36,8 +36,8 @@ async function importNeptuneDatabase(params, ctx) {
     }
     return { request: { url: loaderEndpoint, sentParams }, responses };
 }
-exports.importNeptuneDatabase = importNeptuneDatabase;
-async function exportNeptuneDatabase(ctx) {
+exports.importDatabaseContentFromCsv = importDatabaseContentFromCsv;
+async function exportDatabaseContent(ctx) {
     var _a, _b;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
         ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
@@ -85,5 +85,5 @@ async function exportNeptuneDatabase(ctx) {
         folder: `api/admin-uploads/db.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,
     };
 }
-exports.exportNeptuneDatabase = exportNeptuneDatabase;
+exports.exportDatabaseContent = exportDatabaseContent;
 //# sourceMappingURL=neptune-tools.js.map
