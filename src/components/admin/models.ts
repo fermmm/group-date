@@ -68,8 +68,8 @@ import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "
 import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQueryForVisualizer, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
-import { createFolder } from "../../common-tools/files-tools/files-tools";
-import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
+import { createFolder, getFileContent } from "../../common-tools/files-tools/files-tools";
+import { readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    getNotificationsDeliveryErrors,
@@ -256,7 +256,19 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
    }
 
    if (params.format === DatabaseContentFileFormat.GremlinQuery) {
-      return await importDatabaseContentFromQueryFile(params.fileNames);
+      let responses = "";
+      for (const filePath of params.filePaths) {
+         let fileContent: string;
+
+         if (process.env.USING_AWS === "true" && isProductionMode()) {
+            fileContent = await readFileContentFromS3({ filePath });
+         } else {
+            fileContent = getFileContent(filePath);
+         }
+
+         responses += await importDatabaseContentFromQueryFile({ fileContent, fileNameForLogs: filePath });
+      }
+      return responses;
    }
 }
 
@@ -326,8 +338,8 @@ export async function onAdminFileReceived(ctx: ParameterizedContext<{}, {}>, nex
 export async function onAdminFileSaved(
    files: Files | undefined,
    ctx: BaseContext,
-): Promise<{ fileNames: string[] }> {
-   const fileNames: string[] = [];
+): Promise<{ filePaths: string[] }> {
+   const filePaths: string[] = [];
    for (const fileKeyName of Object.keys(files)) {
       const file: File = files[fileKeyName] as File;
 
@@ -352,13 +364,13 @@ export async function onAdminFileSaved(
          // Remove the file from the server because it's already on the S3
          await fs.promises.unlink(file.path);
 
-         fileNames.push(fileNameInS3);
+         filePaths.push(fileNameInS3);
       } else {
-         fileNames.push(folderPath + fileName);
+         filePaths.push(folderPath + fileName);
       }
    }
 
-   return { fileNames };
+   return { filePaths };
 }
 
 export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {

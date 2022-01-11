@@ -50,7 +50,7 @@ export interface VisualizerQueryParams extends AdminProtectionParams {
 }
 
 export interface ImportDatabasePostParams extends AdminProtectionParams {
-   fileNames: string[];
+   filePaths: string[];
    format: DatabaseContentFileFormat;
 }
 

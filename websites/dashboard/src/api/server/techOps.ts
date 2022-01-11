@@ -23,7 +23,7 @@ export async function exportDbRequest<Response extends ExportDatabaseResponse>()
 
 export async function uploadAdminFiles<Params extends Partial<{ files: File[]; folder: string }>>(
    params: Params,
-): Promise<{ fileNames: string[] }> {
+): Promise<{ filePaths: string[] }> {
    const url = "admin/upload-file";
    const credentials = getCredentialsFromStorage();
 

@@ -9,7 +9,7 @@ import { httpRequest } from "../httpRequest/httpRequest";
 import { executeSystemCommand } from "../process/process-tools";
 
 export async function importDatabaseContentFromCsv(params: ImportDatabasePostParams, ctx: BaseContext) {
-   const { fileNames } = params;
+   const { filePaths } = params;
 
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
       ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
@@ -30,9 +30,9 @@ export async function importDatabaseContentFromCsv(params: ImportDatabasePostPar
    const sentParams = [];
    const responses = [];
 
-   for (const fileName of fileNames) {
+   for (const filePath of filePaths) {
       const requestParams = {
-         source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
+         source: `s3://${process.env.AWS_BUCKET_NAME}/${filePath}`,
          format: "csv",
          iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
          region: process.env.AWS_REGION,

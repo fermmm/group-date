@@ -45,3 +45,8 @@ export interface UploadToS3Response {
 }
 
 export type S3ContentType = "text/csv" | "image/jpeg" | "application/octet-stream";
+
+// TODO: Terminar. Hay que hacer algo para que solo un admin pueda leer la ruta de los archivos
+export async function readFileContentFromS3(params: { filePath: string }): Promise<string> {
+   return "";
+}

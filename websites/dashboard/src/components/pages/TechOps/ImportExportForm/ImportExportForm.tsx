@@ -51,7 +51,7 @@ const ImportExportForm: FC = props => {
          try {
             const format = getFormatFromExtension(plainFiles[0].name.split(".").pop());
             const filesUploadResponse = await uploadAdminFiles({ files: plainFiles, folder: "import-db" });
-            const importResponse = await importDbRequest({ fileNames: filesUploadResponse.fileNames, format });
+            const importResponse = await importDbRequest({ filePaths: filesUploadResponse.filePaths, format });
             setResponse(importResponse);
          } catch (error) {
             setResponse(tryToGetErrorMessage(error));
