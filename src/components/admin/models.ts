@@ -345,8 +345,8 @@ export async function onAdminFileSaved(
 
       if (process.env.USING_AWS === "true" && isProductionMode()) {
          const fileNameInS3 = await uploadFileToS3({
-            fileName: folderPath + fileName,
-            targetPath: fileName,
+            localFilePath: file.path,
+            s3TargetPath: folderPath + fileName,
          });
 
          // Remove the file from the server because it's already on the S3

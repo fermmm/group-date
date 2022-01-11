@@ -139,6 +139,7 @@ async function importDatabaseContentFromQueryFile(filePaths) {
     let successfulQueries = 0;
     let failedQueries = 0;
     for (const filePath of filePaths) {
+        // TODO: Change this by a function that executes this line or reads from S3 when running on AWS
         const fileContent = (0, files_tools_1.getFileContent)(filePath);
         const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
         responseText += `\n\nFile: ${path.basename(filePath)}\n`;

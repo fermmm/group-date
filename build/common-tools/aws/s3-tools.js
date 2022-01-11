@@ -8,15 +8,15 @@ const s3 = new AWS.S3({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 /**
- * @param fileName File name in the uploads folder
- * @param targetPath Full path of the destination file, including folders and file name. Example 1: "myFile.png" Example 2: "my-sub-folder/my-file.png"
+ * @param localFilePath File name in the server's local file system. Example: "uploads/graph.xml"
+ * @param s3TargetPath Full path of the destination file, including folders and file name. Example 1: "myFile.png" Example 2: "my-sub-folder/my-file.png"
  */
 async function uploadFileToS3(params) {
-    const { fileName, targetPath, contentType, allowPublicRead } = params;
-    const file = await fs.promises.readFile(fileName);
+    const { localFilePath, s3TargetPath, contentType, allowPublicRead } = params;
+    const file = await fs.promises.readFile(localFilePath);
     const s3params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: targetPath,
+        Key: s3TargetPath,
         Body: file,
     };
     if (allowPublicRead) {

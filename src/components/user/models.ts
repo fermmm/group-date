@@ -762,14 +762,14 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
    // If using AWS upload to S3
    if (isProductionMode() && process.env.USING_AWS === "true") {
       const fileNameBigInS3 = await uploadFileToS3({
-         fileName: fullPathBig,
-         targetPath: `images/${fileNameBig}`,
+         localFilePath: fullPathBig,
+         s3TargetPath: `images/${fileNameBig}`,
          allowPublicRead: true,
          contentType: "image/jpeg",
       });
       const fileNameSmallInS3 = await uploadFileToS3({
-         fileName: fullPathSmall,
-         targetPath: `images/${fileNameSmall}`,
+         localFilePath: fullPathSmall,
+         s3TargetPath: `images/${fileNameSmall}`,
          allowPublicRead: true,
          contentType: "image/jpeg",
       });
