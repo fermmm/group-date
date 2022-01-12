@@ -34,6 +34,10 @@ export function isProductionMode() {
    return false;
 }
 
+export function isRunningOnAws(): boolean {
+   return process.env.USING_AWS === "true" && isProductionMode();
+}
+
 export function logEnvironmentMode() {
    if (isProductionMode()) {
       console.log("Running server in production mode.", process.env.NODE_ENV);

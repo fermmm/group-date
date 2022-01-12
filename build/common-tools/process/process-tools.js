@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.executeSystemCommand = exports.logEnvironmentMode = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
+exports.executeSystemCommand = exports.logEnvironmentMode = exports.isRunningOnAws = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
 const shell = require("shelljs");
 const exitSignals = [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`];
 let initialized = false;
@@ -30,6 +30,10 @@ function isProductionMode() {
     return false;
 }
 exports.isProductionMode = isProductionMode;
+function isRunningOnAws() {
+    return process.env.USING_AWS === "true" && isProductionMode();
+}
+exports.isRunningOnAws = isRunningOnAws;
 function logEnvironmentMode() {
     if (isProductionMode()) {
         console.log("Running server in production mode.", process.env.NODE_ENV);

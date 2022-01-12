@@ -52,11 +52,7 @@ const ImportExportForm: FC = props => {
 
          try {
             const format = getFormatFromExtension(plainFiles[0].name.split(".").pop());
-            const filesUploadResponse = await uploadAdminFiles({
-               files: plainFiles,
-               // Here we create a unique folder name to improve security, since anyone could access the files if they know the path name
-               folder: `import-db/${moment().format("YYYY-MM-DD_HH-MM")}_${generateId()}`,
-            });
+            const filesUploadResponse = await uploadAdminFiles({ files: plainFiles, folder: "db-import" });
             const importResponse = await importDbRequest({ filePaths: filesUploadResponse.filePaths, format });
             setResponse(importResponse);
          } catch (error) {

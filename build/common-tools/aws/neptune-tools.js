@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.exportDatabaseContent = exports.importDatabaseContentFromCsv = void 0;
+exports.exportDatabaseContent = exports.importDatabaseContentFromXml = exports.importDatabaseContentFromCsv = void 0;
+const path = require("path");
 const validateAdminCredentials_1 = require("../../components/admin/tools/validateAdminCredentials");
 const files_tools_1 = require("../files-tools/files-tools");
 const httpRequest_1 = require("../httpRequest/httpRequest");
+const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const process_tools_1 = require("../process/process-tools");
+const s3_tools_1 = require("./s3-tools");
 async function importDatabaseContentFromCsv(params, ctx) {
     var _a, _b, _c;
     const { filePaths } = params;
@@ -37,6 +40,34 @@ async function importDatabaseContentFromCsv(params, ctx) {
     return { request: { url: loaderEndpoint, sentParams }, responses };
 }
 exports.importDatabaseContentFromCsv = importDatabaseContentFromCsv;
+async function importDatabaseContentFromXml(filePath, ctx) {
+    let response = "";
+    try {
+        response += `Saving S3 file ${filePath} to disk \n`;
+        await (0, s3_tools_1.saveS3FileToDisk)(filePath, filePath);
+        response += `Converting xml file into csv files \n`;
+        response += await (0, process_tools_1.executeSystemCommand)(`./vendor/graphml2csv/graphml2csv.py -i ${filePath}`);
+        response += `Uploading CSV files to S3 \n`;
+        const nodesFilePath = `${path.dirname(filePath)}/${path.basename(filePath).split(".")[0]}-nodes.csv`;
+        const edgesFilePath = `${path.dirname(filePath)}/${path.basename(filePath).split(".")[0]}-edges.csv`;
+        await (0, s3_tools_1.uploadFileToS3)({ localFilePath: nodesFilePath, s3TargetPath: nodesFilePath });
+        await (0, s3_tools_1.uploadFileToS3)({ localFilePath: edgesFilePath, s3TargetPath: edgesFilePath });
+        response += `Calling CSV importer for nodes file\n`;
+        response +=
+            JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [nodesFilePath] }, ctx)) + "\n";
+        response += `Calling CSV importer for edges file\n`;
+        response +=
+            JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [edgesFilePath] }, ctx)) + "\n";
+        response += "Cleaning files on EC2 \n";
+        (0, files_tools_1.deleteFolder)(path.dirname(filePath));
+        response += "Done. Note: The import process is finished but the changes may take some time. \n";
+        return response;
+    }
+    catch (e) {
+        return `${response} \n Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e)}`;
+    }
+}
+exports.importDatabaseContentFromXml = importDatabaseContentFromXml;
 async function exportDatabaseContent(ctx) {
     var _a, _b;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {

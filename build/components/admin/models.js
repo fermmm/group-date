@@ -158,6 +158,7 @@ async function logGet(params, ctx) {
     return promise;
 }
 exports.logGet = logGet;
+// TODO: Implement a cleanup of the file system similar to the S3 cleanup
 async function importDatabasePost(params, ctx) {
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
@@ -166,7 +167,7 @@ async function importDatabasePost(params, ctx) {
     }
     let responses = "";
     if (params.format === admin_1.DatabaseContentFileFormat.NeptuneCsv) {
-        if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+        if ((0, process_tools_1.isRunningOnAws)()) {
             responses += JSON.stringify(await (0, neptune_tools_1.importDatabaseContentFromCsv)(params, ctx));
         }
         else {
@@ -176,7 +177,7 @@ async function importDatabasePost(params, ctx) {
     if (params.format === admin_1.DatabaseContentFileFormat.GremlinQuery) {
         for (const filePath of params.filePaths) {
             let fileContent;
-            if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+            if ((0, process_tools_1.isRunningOnAws)()) {
                 fileContent = await (0, s3_tools_1.readFileContentFromS3)(filePath);
             }
             else {
@@ -186,9 +187,24 @@ async function importDatabasePost(params, ctx) {
         }
     }
     if (params.format === admin_1.DatabaseContentFileFormat.GraphMl) {
+        if (params.filePaths.length > 1) {
+            ctx.throw(400, "Error: GraphML file format is only 1 file for the whole database. Multiple files were selected.");
+        }
+        const filePath = params.filePaths[0];
+        if ((0, process_tools_1.isRunningOnAws)()) {
+            try {
+                responses += await (0, neptune_tools_1.importDatabaseContentFromXml)(filePath, ctx);
+            }
+            catch (e) {
+                responses += (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
+            }
+        }
+        else {
+            // TODO: Implement xml import in localhost
+        }
     }
     // We don't need the files anymore so we can delete them from the S3
-    if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+    if ((0, process_tools_1.isRunningOnAws)()) {
         for (const filePath of params.filePaths) {
             (0, s3_tools_1.deleteFileFromS3)(filePath);
         }

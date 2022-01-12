@@ -63,6 +63,22 @@ export async function readFileContentFromS3(filePath: string): Promise<string> {
    }
 }
 
+export async function saveS3FileToDisk(s3FilePath: string, diskFilePath: string): Promise<void> {
+   const s3params: AWS.S3.GetObjectRequest = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: s3FilePath,
+   };
+
+   let response: AWS.S3.GetObjectOutput;
+
+   try {
+      response = await s3.getObject(s3params).promise();
+      await fs.promises.writeFile(diskFilePath, response.Body.toString());
+   } catch (error) {
+      throw tryToGetErrorMessage("saveS3FileToDisk: " + error);
+   }
+}
+
 export async function deleteFileFromS3(filePath: string): Promise<string> {
    const s3params: AWS.S3.PutObjectRequest = {
       Bucket: process.env.AWS_BUCKET_NAME,
@@ -82,4 +98,14 @@ export async function deleteFileFromS3(filePath: string): Promise<string> {
    } catch (e) {
       return response.toString();
    }
+}
+
+export async function deleteFilesFromS3(filePaths: string[]): Promise<string> {
+   let response = "";
+
+   for (const filePath of filePaths) {
+      response += (await deleteFileFromS3(filePath)) + "\n";
+   }
+
+   return response;
 }

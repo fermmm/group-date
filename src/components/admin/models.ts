@@ -68,16 +68,30 @@ import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "
 import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQueryForVisualizer, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
-import { createFolder, getFileContent } from "../../common-tools/files-tools/files-tools";
-import { deleteFileFromS3, readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
+import { createFolder, deleteFolder, getFileContent } from "../../common-tools/files-tools/files-tools";
+import {
+   deleteFileFromS3,
+   deleteFilesFromS3,
+   readFileContentFromS3,
+   saveS3FileToDisk,
+   uploadFileToS3,
+} from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    getNotificationsDeliveryErrors,
    sendPushNotifications,
 } from "../../common-tools/push-notifications/push-notifications";
 import { time } from "../../common-tools/js-tools/js-tools";
-import { executeSystemCommand, isProductionMode } from "../../common-tools/process/process-tools";
-import { exportDatabaseContent, importDatabaseContentFromCsv } from "../../common-tools/aws/neptune-tools";
+import {
+   executeSystemCommand,
+   isProductionMode,
+   isRunningOnAws,
+} from "../../common-tools/process/process-tools";
+import {
+   exportDatabaseContent,
+   importDatabaseContentFromCsv,
+   importDatabaseContentFromXml,
+} from "../../common-tools/aws/neptune-tools";
 import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
 import { createFakeUser } from "../../tests/tools/users";
@@ -246,7 +260,7 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
    let responses = "";
 
    if (params.format === DatabaseContentFileFormat.NeptuneCsv) {
-      if (process.env.USING_AWS === "true" && isProductionMode()) {
+      if (isRunningOnAws()) {
          responses += JSON.stringify(await importDatabaseContentFromCsv(params, ctx));
       } else {
          ctx.throw(
@@ -259,8 +273,9 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
    if (params.format === DatabaseContentFileFormat.GremlinQuery) {
       for (const filePath of params.filePaths) {
          let fileContent: string;
-         if (process.env.USING_AWS === "true" && isProductionMode()) {
+         if (isRunningOnAws()) {
             fileContent = await readFileContentFromS3(filePath);
+            deleteFilesFromS3(params.filePaths);
          } else {
             fileContent = getFileContent(filePath);
          }
@@ -270,12 +285,23 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
    }
 
    if (params.format === DatabaseContentFileFormat.GraphMl) {
-   }
+      if (params.filePaths.length > 1) {
+         ctx.throw(
+            400,
+            "Error: GraphML file format is only 1 file for the whole database. Multiple files were selected.",
+         );
+      }
 
-   // We don't need the files anymore so we can delete them from the S3
-   if (process.env.USING_AWS === "true" && isProductionMode()) {
-      for (const filePath of params.filePaths) {
-         deleteFileFromS3(filePath);
+      const filePath = params.filePaths[0];
+      if (isRunningOnAws()) {
+         try {
+            responses += await importDatabaseContentFromXml(filePath, ctx);
+         } catch (e) {
+            responses += tryToGetErrorMessage(e);
+         }
+         deleteFilesFromS3(params.filePaths);
+      } else {
+         // TODO: Implement xml import in localhost
       }
    }
 

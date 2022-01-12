@@ -1,14 +1,14 @@
 import { BaseContext } from "koa";
+import * as path from "path";
 import { getCredentialsHash } from "../../components/admin/tools/validateAdminCredentials";
-import {
-   ExportDatabaseResponse,
-   ImportDatabasePostParams,
-} from "../../shared-tools/endpoints-interfaces/admin";
+import { ExportDatabaseResponse } from "../../shared-tools/endpoints-interfaces/admin";
 import { createZipFileFromDirectory, deleteFolder } from "../files-tools/files-tools";
 import { httpRequest } from "../httpRequest/httpRequest";
+import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
 import { executeSystemCommand } from "../process/process-tools";
+import { saveS3FileToDisk, uploadFileToS3 } from "./s3-tools";
 
-export async function importDatabaseContentFromCsv(params: ImportDatabasePostParams, ctx: BaseContext) {
+export async function importDatabaseContentFromCsv(params: { filePaths: string[] }, ctx: BaseContext) {
    const { filePaths } = params;
 
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
@@ -44,6 +44,38 @@ export async function importDatabaseContentFromCsv(params: ImportDatabasePostPar
    }
 
    return { request: { url: loaderEndpoint, sentParams }, responses };
+}
+
+export async function importDatabaseContentFromXml(filePath: string, ctx: BaseContext) {
+   let response = "";
+   try {
+      response += `Saving S3 file ${filePath} to disk \n`;
+      await saveS3FileToDisk(filePath, filePath);
+
+      response += `Converting xml file into csv files \n`;
+      response += await executeSystemCommand(`./vendor/graphml2csv/graphml2csv.py -i ${filePath}`);
+
+      response += `Uploading CSV files to S3 \n`;
+      const nodesFilePath = `${path.dirname(filePath)}/${path.basename(filePath).split(".")[0]}-nodes.csv`;
+      const edgesFilePath = `${path.dirname(filePath)}/${path.basename(filePath).split(".")[0]}-edges.csv`;
+      await uploadFileToS3({ localFilePath: nodesFilePath, s3TargetPath: nodesFilePath });
+      await uploadFileToS3({ localFilePath: edgesFilePath, s3TargetPath: edgesFilePath });
+
+      response += `Calling CSV importer for nodes file\n`;
+      response +=
+         JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [nodesFilePath] }, ctx)) + "\n";
+      response += `Calling CSV importer for edges file\n`;
+      response +=
+         JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [edgesFilePath] }, ctx)) + "\n";
+
+      response += "Cleaning files on EC2 \n";
+      deleteFolder(path.dirname(filePath));
+
+      response += "Done. Note: The import process is finished but the changes may take some time. \n";
+      return response;
+   } catch (e) {
+      return `${response} \n Error: ${tryToGetErrorMessage(e)}`;
+   }
 }
 
 export async function exportDatabaseContent(ctx: BaseContext): Promise<ExportDatabaseResponse> {

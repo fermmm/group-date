@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFileFromS3 = exports.readFileContentFromS3 = exports.uploadFileToS3 = void 0;
+exports.deleteFileFromS3 = exports.saveS3FileToDisk = exports.readFileContentFromS3 = exports.uploadFileToS3 = void 0;
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
@@ -46,6 +46,21 @@ async function readFileContentFromS3(filePath) {
     }
 }
 exports.readFileContentFromS3 = readFileContentFromS3;
+async function saveS3FileToDisk(s3FilePath, diskFilePath) {
+    const s3params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: s3FilePath,
+    };
+    let response;
+    try {
+        response = await s3.getObject(s3params).promise();
+        await fs.promises.writeFile(diskFilePath, response.Body.toString());
+    }
+    catch (error) {
+        throw (0, tryToGetErrorMessage_1.tryToGetErrorMessage)("saveS3FileToDisk: " + error);
+    }
+}
+exports.saveS3FileToDisk = saveS3FileToDisk;
 async function deleteFileFromS3(filePath) {
     const s3params = {
         Bucket: process.env.AWS_BUCKET_NAME,
