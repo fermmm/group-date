@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadFileToS3 = void 0;
+exports.deleteFileFromS3 = exports.readFileContentFromS3 = exports.uploadFileToS3 = void 0;
 const AWS = require("aws-sdk");
 const fs = require("fs");
+const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -30,4 +31,39 @@ async function uploadFileToS3(params) {
     return s3Response.Key;
 }
 exports.uploadFileToS3 = uploadFileToS3;
+async function readFileContentFromS3(filePath) {
+    const s3params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: filePath,
+    };
+    let response;
+    try {
+        response = await s3.getObject(s3params).promise();
+        return response.Body.toString();
+    }
+    catch (error) {
+        throw (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error);
+    }
+}
+exports.readFileContentFromS3 = readFileContentFromS3;
+async function deleteFileFromS3(filePath) {
+    const s3params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: filePath,
+    };
+    let response;
+    try {
+        response = await s3.deleteObject(s3params).promise();
+    }
+    catch (e) {
+        throw (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
+    }
+    try {
+        return "AWS delete object response:\n" + JSON.stringify(response);
+    }
+    catch (e) {
+        return response.toString();
+    }
+}
+exports.deleteFileFromS3 = deleteFileFromS3;
 //# sourceMappingURL=s3-tools.js.map

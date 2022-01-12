@@ -69,7 +69,7 @@ import { GroupQuality } from "../groups-finder/tools/types";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQueryForVisualizer, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
 import { createFolder, getFileContent } from "../../common-tools/files-tools/files-tools";
-import { readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
+import { deleteFileFromS3, readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    getNotificationsDeliveryErrors,
@@ -243,33 +243,43 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
       return;
    }
 
+   let responses = "";
+
    if (params.format === DatabaseContentFileFormat.NeptuneCsv) {
       if (process.env.USING_AWS === "true" && isProductionMode()) {
-         return await importDatabaseContentFromCsv(params, ctx);
+         responses += JSON.stringify(await importDatabaseContentFromCsv(params, ctx));
       } else {
          ctx.throw(
             400,
             "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true",
          );
-         return;
       }
    }
 
    if (params.format === DatabaseContentFileFormat.GremlinQuery) {
-      let responses = "";
       for (const filePath of params.filePaths) {
          let fileContent: string;
-
          if (process.env.USING_AWS === "true" && isProductionMode()) {
-            fileContent = await readFileContentFromS3({ filePath });
+            fileContent = await readFileContentFromS3(filePath);
          } else {
             fileContent = getFileContent(filePath);
          }
 
          responses += await importDatabaseContentFromQueryFile({ fileContent, fileNameForLogs: filePath });
       }
-      return responses;
    }
+
+   if (params.format === DatabaseContentFileFormat.GraphMl) {
+   }
+
+   // We don't need the files anymore so we can delete them from the S3
+   if (process.env.USING_AWS === "true" && isProductionMode()) {
+      for (const filePath of params.filePaths) {
+         deleteFileFromS3(filePath);
+      }
+   }
+
+   return responses;
 }
 
 export async function exportDatabaseGet(

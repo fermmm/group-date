@@ -7,7 +7,7 @@ const httpRequest_1 = require("../httpRequest/httpRequest");
 const process_tools_1 = require("../process/process-tools");
 async function importDatabaseContentFromCsv(params, ctx) {
     var _a, _b, _c;
-    const { fileNames } = params;
+    const { filePaths } = params;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
         ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
         return;
@@ -23,9 +23,9 @@ async function importDatabaseContentFromCsv(params, ctx) {
     const loaderEndpoint = process.env.DATABASE_URL.replace("gremlin", "loader").replace("wss:", "https:");
     const sentParams = [];
     const responses = [];
-    for (const fileName of fileNames) {
+    for (const filePath of filePaths) {
         const requestParams = {
-            source: `s3://${process.env.AWS_BUCKET_NAME}/${fileName}`,
+            source: `s3://${process.env.AWS_BUCKET_NAME}/${filePath}`,
             format: "csv",
             iamRoleArn: process.env.AWS_CSV_IAM_ROLE_ARN,
             region: process.env.AWS_REGION,

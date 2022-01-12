@@ -9,7 +9,7 @@
    "scripts": {
       "prebuild": "npm run clean",
       "clean": "rimraf ./build",
-      "build": "tsc-transpile-only",
+      "build": "tsc",
       "database-init": "./vendor/gremlin-local-server/bin/gremlin-server.sh start || echo ",
       "database-stop": "./vendor/gremlin-local-server/bin/gremlin-server.sh stop",
       "database-restart": "./vendor/gremlin-local-server/bin/gremlin-server.sh restart",

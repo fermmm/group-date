@@ -164,18 +164,36 @@ async function importDatabasePost(params, ctx) {
         ctx.throw(passwordValidation.error);
         return;
     }
+    let responses = "";
     if (params.format === admin_1.DatabaseContentFileFormat.NeptuneCsv) {
         if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
-            return await (0, neptune_tools_1.importDatabaseContentFromCsv)(params, ctx);
+            responses += JSON.stringify(await (0, neptune_tools_1.importDatabaseContentFromCsv)(params, ctx));
         }
         else {
             ctx.throw(400, "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true");
-            return;
         }
     }
     if (params.format === admin_1.DatabaseContentFileFormat.GremlinQuery) {
-        return await (0, database_manager_1.importDatabaseContentFromQueryFile)(params.fileNames);
+        for (const filePath of params.filePaths) {
+            let fileContent;
+            if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+                fileContent = await (0, s3_tools_1.readFileContentFromS3)(filePath);
+            }
+            else {
+                fileContent = (0, files_tools_1.getFileContent)(filePath);
+            }
+            responses += await (0, database_manager_1.importDatabaseContentFromQueryFile)({ fileContent, fileNameForLogs: filePath });
+        }
     }
+    if (params.format === admin_1.DatabaseContentFileFormat.GraphMl) {
+    }
+    // We don't need the files anymore so we can delete them from the S3
+    if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+        for (const filePath of params.filePaths) {
+            (0, s3_tools_1.deleteFileFromS3)(filePath);
+        }
+    }
+    return responses;
 }
 exports.importDatabasePost = importDatabasePost;
 async function exportDatabaseGet(params, ctx) {
@@ -233,7 +251,7 @@ async function onAdminFileReceived(ctx, next) {
 }
 exports.onAdminFileReceived = onAdminFileReceived;
 async function onAdminFileSaved(files, ctx) {
-    const fileNames = [];
+    const filePaths = [];
     for (const fileKeyName of Object.keys(files)) {
         const file = files[fileKeyName];
         if (file == null || file.size === 0) {
@@ -253,13 +271,13 @@ async function onAdminFileSaved(files, ctx) {
             });
             // Remove the file from the server because it's already on the S3
             await fs.promises.unlink(file.path);
-            fileNames.push(fileNameInS3);
+            filePaths.push(fileNameInS3);
         }
         else {
-            fileNames.push(folderPath + fileName);
+            filePaths.push(folderPath + fileName);
         }
     }
-    return { fileNames };
+    return { filePaths };
 }
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {

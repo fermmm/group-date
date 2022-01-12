@@ -6,7 +6,6 @@ const path = require("path");
 const js_tools_1 = require("../js-tools/js-tools");
 const configurations_1 = require("../../configurations");
 const process_tools_1 = require("../process/process-tools");
-const files_tools_1 = require("../files-tools/files-tools");
 const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 exports.databaseUrl = (0, process_tools_1.isProductionMode)() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
@@ -134,25 +133,24 @@ exports.importDatabaseContentFromFile = importDatabaseContentFromFile;
 /**
  * Loads database content provided in a file that contains queries separated by a line break.
  */
-async function importDatabaseContentFromQueryFile(filePaths) {
-    let responseText = "Database import in .gremlin format";
+async function importDatabaseContentFromQueryFile(props) {
+    const { fileContent, fileNameForLogs } = props;
+    let responseText = "";
     let successfulQueries = 0;
     let failedQueries = 0;
-    for (const filePath of filePaths) {
-        // TODO: Change this by a function that executes this line or reads from S3 when running on AWS
-        const fileContent = (0, files_tools_1.getFileContent)(filePath);
-        const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
-        responseText += `\n\nFile: ${path.basename(filePath)}\n`;
-        for (const query of queries) {
-            try {
-                await sendQueryAsString(query);
-                successfulQueries++;
-            }
-            catch (e) {
-                const error = (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
-                responseText += error + "\n";
-                failedQueries++;
-            }
+    if (fileNameForLogs != null) {
+        responseText += `\n\nFile: ${path.basename(fileNameForLogs)}\n`;
+    }
+    const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
+    for (const query of queries) {
+        try {
+            await sendQueryAsString(query);
+            successfulQueries++;
+        }
+        catch (e) {
+            const error = (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
+            responseText += error + "\n";
+            failedQueries++;
         }
     }
     responseText += `Finished. Successful queries: ${successfulQueries}. Failed queries: ${failedQueries}`;

@@ -1,5 +1,6 @@
 import * as AWS from "aws-sdk";
 import * as fs from "fs";
+import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
 
 const s3 = new AWS.S3({
    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -46,7 +47,39 @@ export interface UploadToS3Response {
 
 export type S3ContentType = "text/csv" | "image/jpeg" | "application/octet-stream";
 
-// TODO: Terminar. Hay que hacer algo para que solo un admin pueda leer la ruta de los archivos
-export async function readFileContentFromS3(params: { filePath: string }): Promise<string> {
-   return "";
+export async function readFileContentFromS3(filePath: string): Promise<string> {
+   const s3params: AWS.S3.PutObjectRequest = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: filePath,
+   };
+
+   let response: AWS.S3.GetObjectOutput;
+
+   try {
+      response = await s3.getObject(s3params).promise();
+      return response.Body.toString();
+   } catch (error) {
+      throw tryToGetErrorMessage(error);
+   }
+}
+
+export async function deleteFileFromS3(filePath: string): Promise<string> {
+   const s3params: AWS.S3.PutObjectRequest = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: filePath,
+   };
+
+   let response: AWS.S3.DeleteObjectOutput;
+
+   try {
+      response = await s3.deleteObject(s3params).promise();
+   } catch (e) {
+      throw tryToGetErrorMessage(e);
+   }
+
+   try {
+      return "AWS delete object response:\n" + JSON.stringify(response);
+   } catch (e) {
+      return response.toString();
+   }
 }
