@@ -219,7 +219,15 @@ async function exportDatabaseGet(params, ctx) {
         return;
     }
     if ((0, process_tools_1.isRunningOnAws)()) {
-        return await (0, neptune_tools_1.exportDatabaseContentFromNeptune)(ctx);
+        try {
+            return await (0, neptune_tools_1.exportDatabaseContentFromNeptune)({
+                targetFilePath: "admin-uploads/db.zip",
+                cloneClusterBeforeBackup: false,
+            });
+        }
+        catch (e) {
+            ctx.throw(400, (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e));
+        }
     }
     else {
         await (0, database_manager_1.exportDatabaseContentToFile)("admin-uploads/temp/db-export/db-exported.xml");

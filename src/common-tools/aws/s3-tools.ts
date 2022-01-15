@@ -63,7 +63,7 @@ export async function readFileContentFromS3(filePath: string): Promise<string> {
    }
 }
 
-export async function saveS3FileToDisk(s3FilePath: string, diskFilePath: string): Promise<void> {
+export async function downloadS3FileToDisk(s3FilePath: string, diskFilePath: string): Promise<void> {
    const s3params: AWS.S3.GetObjectRequest = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: s3FilePath,

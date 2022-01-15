@@ -5,7 +5,6 @@ import { setIntervalAsync } from "set-interval-async/dynamic";
 import * as appRoot from "app-root-path";
 import { performance } from "perf_hooks";
 import * as path from "path";
-import * as gremlin from "gremlin";
 import { Files, File } from "formidable";
 import {
    AdminChatGetAllParams,
@@ -45,7 +44,6 @@ import {
    queryToGetUserById,
    queryToSetAttraction,
    queryToUpdateUserProps,
-   queryToUpdateUserToken,
 } from "../user/queries";
 import {
    queryToGetAdminChatMessages,
@@ -56,7 +54,6 @@ import {
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
-   databaseUrl,
    exportDatabaseContentToFile,
    importDatabaseContentFromFile,
    importDatabaseContentFromQueryFile,
@@ -74,16 +71,9 @@ import {
    createFolder,
    createZipFileFromDirectory,
    deleteFile,
-   deleteFolder,
    getFileContent,
 } from "../../common-tools/files-tools/files-tools";
-import {
-   deleteFileFromS3,
-   deleteFilesFromS3,
-   readFileContentFromS3,
-   saveS3FileToDisk,
-   uploadFileToS3,
-} from "../../common-tools/aws/s3-tools";
+import { deleteFilesFromS3, readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    getNotificationsDeliveryErrors,
@@ -333,7 +323,14 @@ export async function exportDatabaseGet(
    }
 
    if (isRunningOnAws()) {
-      return await exportDatabaseContentFromNeptune(ctx);
+      try {
+         return await exportDatabaseContentFromNeptune({
+            targetFilePath: "admin-uploads/db.zip",
+            cloneClusterBeforeBackup: false,
+         });
+      } catch (e) {
+         ctx.throw(400, tryToGetErrorMessage(e));
+      }
    } else {
       await exportDatabaseContentToFile("admin-uploads/temp/db-export/db-exported.xml");
       await createZipFileFromDirectory(

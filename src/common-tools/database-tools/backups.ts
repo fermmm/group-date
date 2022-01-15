@@ -8,8 +8,10 @@ import {
    DATABASE_BACKUP_WEEKLY,
 } from "../../configurations";
 import { copyFile, fileOrFolderExists, createFolder } from "../files-tools/files-tools";
-import { executeFunctionBeforeExiting } from "../process/process-tools";
+import { executeFunctionBeforeExiting, isRunningOnAws } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
+import { exportDatabaseContentFromNeptune } from "../aws/neptune-tools";
+import { uploadFileToS3 } from "../aws/s3-tools";
 
 export const DB_EXPORT_FOLDER = "database-backups";
 export const DB_EXPORT_LATEST_FILE = "latest";
@@ -74,7 +76,6 @@ async function initializeBackupDatabaseSchedule() {
    }
 }
 
-// TODO: Add support for AWS database
 async function backupDatabase(folderPath: string, fileName: string, settings?: { saveLog?: boolean }) {
    const { saveLog = true } = settings ?? {};
 
@@ -84,16 +85,30 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
       profiler = logTimeToFile("backups");
    }
 
-   await exportDatabaseContentToFile(`${folderPath}/${fileName}.xml`);
-   copyFile(`${folderPath}/${fileName}.xml`, `${DB_EXPORT_FOLDER}/${DB_EXPORT_LATEST_FILE}.xml`);
+   if (isRunningOnAws()) {
+      await exportDatabaseContentFromNeptune({
+         targetFilePath: "admin-uploads/db.zip",
+         cloneClusterBeforeBackup: false,
+      });
+      await uploadFileToS3({
+         localFilePath: "admin-uploads/db.zip",
+         s3TargetPath: `${DB_EXPORT_FOLDER}/${folderPath}/${fileName}.zip`,
+      });
+   } else {
+      await exportDatabaseContentToFile(`${folderPath}/${fileName}.xml`);
+      copyFile(`${folderPath}/${fileName}.xml`, `${DB_EXPORT_FOLDER}/${DB_EXPORT_LATEST_FILE}.xml`);
+   }
 
    if (saveLog) {
       profiler.done({ message: `Database backup done in ${`${folderPath}/${fileName}.xml`}` });
    }
 }
 
-// TODO: Add support for AWS database
 async function restoreDatabase(folderPath: string, fileName: string) {
+   if (isRunningOnAws()) {
+      return;
+   }
+
    if (!fileOrFolderExists(`${folderPath}/${fileName}.xml`)) {
       return;
    }

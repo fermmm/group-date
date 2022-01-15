@@ -6,7 +6,7 @@ import { createZipFileFromDirectory, deleteFolder } from "../files-tools/files-t
 import { httpRequest } from "../httpRequest/httpRequest";
 import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
 import { executeSystemCommand } from "../process/process-tools";
-import { saveS3FileToDisk, uploadFileToS3 } from "./s3-tools";
+import { downloadS3FileToDisk, uploadFileToS3 } from "./s3-tools";
 
 export async function importDatabaseContentCsvToNeptune(params: { filePaths: string[] }, ctx: BaseContext) {
    const { filePaths } = params;
@@ -50,7 +50,7 @@ export async function importDatabaseContentXmlToNeptune(filePath: string, ctx: B
    let response = "";
    try {
       response += `Saving S3 file ${filePath} to disk \n`;
-      await saveS3FileToDisk(filePath, filePath);
+      await downloadS3FileToDisk(filePath, filePath);
 
       response += `Converting xml file into csv files \n`;
       response += await executeSystemCommand(`./vendor/graphml2csv/graphml2csv.py -i ${filePath}`);
@@ -78,15 +78,18 @@ export async function importDatabaseContentXmlToNeptune(filePath: string, ctx: B
    }
 }
 
-export async function exportDatabaseContentFromNeptune(ctx: BaseContext): Promise<ExportDatabaseResponse> {
+export async function exportDatabaseContentFromNeptune(
+   props: ExportDatabaseProps,
+): Promise<ExportDatabaseResponse> {
+   const { targetFilePath, cloneClusterBeforeBackup } = props;
+   const tempFilesFolderPath = "admin-uploads/db";
+
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
-      ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
-      return;
+      return Promise.reject("AWS_BUCKET_NAME is not set in the .env file");
    }
 
    if ((process.env.AWS_REGION ?? "").length < 2) {
-      ctx.throw(400, "AWS_REGION is not set in the .env file");
-      return;
+      return Promise.reject("AWS_REGION is not set in the .env file");
    }
 
    let commandResponse = await executeSystemCommand(
@@ -104,14 +107,13 @@ export async function exportDatabaseContentFromNeptune(ctx: BaseContext): Promis
    );
 
    if (commandResponse === "false") {
-      ctx.throw(500, "Failed to download Neptune export jar file");
-      return;
+      return Promise.reject("Failed to download Neptune export jar file");
    }
 
    const loaderEndpoint = process.env.DATABASE_URL.replace("wss://", "").replace(":8182/gremlin", "");
 
-   const commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d admin-uploads/db ${
-      process.env.AWS_CLONE_CLUSTER_ON_BACKUP === "true" ? "--clone-cluster" : ""
+   const commandStr = `java -jar vendor/neptune-export/neptune-export.jar export-pg -e ${loaderEndpoint} -d ${tempFilesFolderPath} ${
+      cloneClusterBeforeBackup ? "--clone-cluster" : ""
    }`;
 
    commandResponse = await executeSystemCommand(commandStr);
@@ -127,29 +129,43 @@ export async function exportDatabaseContentFromNeptune(ctx: BaseContext): Promis
     * 5. "rm -r $folderName" Removes the now empty hash named folder
     * */
    commandResponse += await executeSystemCommand(
-      `cd admin-uploads/db/* && mv * ../ && folderName=$(basename "$PWD") && cd .. && rm -r $folderName`,
+      `cd ${tempFilesFolderPath}/* && mv * ../ && folderName=$(basename "$PWD") && cd .. && rm -r $folderName`,
    );
 
-   const exportedFolderPath = "admin-uploads/db";
-
    // Crete the folder where we are going to put the .gremlin format files
-   await executeSystemCommand(`mkdir -p ${exportedFolderPath}/nodes/gremlin`);
-   await executeSystemCommand(`mkdir -p ${exportedFolderPath}/edges/gremlin`);
+   await executeSystemCommand(`mkdir -p ${tempFilesFolderPath}/nodes/gremlin`);
+   await executeSystemCommand(`mkdir -p ${tempFilesFolderPath}/edges/gremlin`);
 
    // Create .gremlin files along with the .csv files. These .gremlin files contains the same data as the .csv files in a query format. Useful to import it in localhost using gremlin-server
    commandResponse += await executeSystemCommand(
-      `for file in ${exportedFolderPath}/nodes/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/nodes/gremlin/$(basename $file .csv).gremlin; done`,
+      `for file in ${tempFilesFolderPath}/nodes/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${tempFilesFolderPath}/nodes/gremlin/$(basename $file .csv).gremlin; done`,
    );
    // Again for the edges.
    commandResponse += await executeSystemCommand(
-      `for file in ${exportedFolderPath}/edges/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${exportedFolderPath}/edges/gremlin/$(basename $file .csv).gremlin; done`,
+      `for file in ${tempFilesFolderPath}/edges/*.csv; do python3.8 vendor/csv-gremlin/csv-gremlin.py $file >> ${tempFilesFolderPath}/edges/gremlin/$(basename $file .csv).gremlin; done`,
    );
 
-   await createZipFileFromDirectory(exportedFolderPath, "admin-uploads/db.zip");
-   deleteFolder(exportedFolderPath);
+   await createZipFileFromDirectory(tempFilesFolderPath, targetFilePath);
+   deleteFolder(tempFilesFolderPath);
 
    return {
       commandResponse,
-      folder: `api/admin-uploads/db.zip?hash=${getCredentialsHash()}`,
+      folder: `api/${targetFilePath}?hash=${getCredentialsHash()}`,
    };
+}
+
+export interface ExportDatabaseProps {
+   /**
+    * The target file path. You must include the extension which is .zip
+    */
+   targetFilePath: string;
+   /**
+      If this is set to true, the database will be cloned for data consistency.
+      It's recommended in production.
+      It takes a long time to finish and the export button will look like it's stuck.
+      Also the clone is supposed to be deleted after finish but if the process is
+      interrupted or fails you have to delete it manually in the Neptune dashboard.
+      For productivity when testing it's recommended to be set as false.
+   */
+   cloneClusterBeforeBackup: boolean;
 }

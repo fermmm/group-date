@@ -7,6 +7,8 @@ const configurations_1 = require("../../configurations");
 const files_tools_1 = require("../files-tools/files-tools");
 const process_tools_1 = require("../process/process-tools");
 const common_queries_1 = require("../database-tools/common-queries");
+const neptune_tools_1 = require("../aws/neptune-tools");
+const s3_tools_1 = require("../aws/s3-tools");
 exports.DB_EXPORT_FOLDER = "database-backups";
 exports.DB_EXPORT_LATEST_FILE = "latest";
 async function initializeDatabaseBackups() {
@@ -63,21 +65,34 @@ async function initializeBackupDatabaseSchedule() {
         schedule.scheduleJob({ ...hour, date: 0, month: 11 }, () => backupDatabase("monthly", "december"));
     }
 }
-// TODO: Add support for AWS database
 async function backupDatabase(folderPath, fileName, settings) {
     const { saveLog = true } = settings !== null && settings !== void 0 ? settings : {};
     let profiler;
     if (saveLog) {
         profiler = logTimeToFile("backups");
     }
-    await (0, database_manager_1.exportDatabaseContentToFile)(`${folderPath}/${fileName}.xml`);
-    (0, files_tools_1.copyFile)(`${folderPath}/${fileName}.xml`, `${exports.DB_EXPORT_FOLDER}/${exports.DB_EXPORT_LATEST_FILE}.xml`);
+    if ((0, process_tools_1.isRunningOnAws)()) {
+        await (0, neptune_tools_1.exportDatabaseContentFromNeptune)({
+            targetFilePath: "admin-uploads/db.zip",
+            cloneClusterBeforeBackup: false,
+        });
+        await (0, s3_tools_1.uploadFileToS3)({
+            localFilePath: "admin-uploads/db.zip",
+            s3TargetPath: `${exports.DB_EXPORT_FOLDER}/${folderPath}/${fileName}.zip`,
+        });
+    }
+    else {
+        await (0, database_manager_1.exportDatabaseContentToFile)(`${folderPath}/${fileName}.xml`);
+        (0, files_tools_1.copyFile)(`${folderPath}/${fileName}.xml`, `${exports.DB_EXPORT_FOLDER}/${exports.DB_EXPORT_LATEST_FILE}.xml`);
+    }
     if (saveLog) {
         profiler.done({ message: `Database backup done in ${`${folderPath}/${fileName}.xml`}` });
     }
 }
-// TODO: Add support for AWS database
 async function restoreDatabase(folderPath, fileName) {
+    if ((0, process_tools_1.isRunningOnAws)()) {
+        return;
+    }
     if (!(0, files_tools_1.fileOrFolderExists)(`${folderPath}/${fileName}.xml`)) {
         return;
     }
