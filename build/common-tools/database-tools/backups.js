@@ -1,22 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupIsEnabled = exports.initializeDatabaseBackups = exports.CURRENT_DB_EXPORT_PATH = void 0;
-const files_tools_1 = require("./../files-tools/files-tools");
+exports.backupIsEnabled = exports.initializeDatabaseBackups = exports.DB_EXPORT_LATEST_FILE = exports.DB_EXPORT_FOLDER = void 0;
 const schedule = require("node-schedule");
 const database_manager_1 = require("../database-tools/database-manager");
 const configurations_1 = require("../../configurations");
-const files_tools_2 = require("../files-tools/files-tools");
+const files_tools_1 = require("../files-tools/files-tools");
 const process_tools_1 = require("../process/process-tools");
 const common_queries_1 = require("../database-tools/common-queries");
-exports.CURRENT_DB_EXPORT_PATH = "database-backups/latest.xml";
+exports.DB_EXPORT_FOLDER = "database-backups";
+exports.DB_EXPORT_LATEST_FILE = "latest";
 async function initializeDatabaseBackups() {
     if (backupIsEnabled()) {
         const databaseEmpty = await (0, common_queries_1.databaseIsEmpty)();
         // Load database contents from latest backup if any
-        if (process.env.RESTORE_DATABASE_ON_INIT !== "false" &&
-            databaseEmpty &&
-            (0, files_tools_1.fileOrFolderExists)(exports.CURRENT_DB_EXPORT_PATH)) {
-            await (0, database_manager_1.importDatabaseContentFromFile)(exports.CURRENT_DB_EXPORT_PATH);
+        if (process.env.RESTORE_DATABASE_ON_INIT !== "false" && databaseEmpty) {
+            await restoreDatabase(exports.DB_EXPORT_FOLDER, exports.DB_EXPORT_LATEST_FILE);
         }
         await initializeBackupDatabaseSchedule();
         backupDatabaseWhenExiting();
@@ -34,50 +32,60 @@ exports.backupIsEnabled = backupIsEnabled;
 async function initializeBackupDatabaseSchedule() {
     const hour = { hour: configurations_1.DATABASE_BACKUP_HOUR };
     // In case there is no backup at all (first time server starts)
-    (0, files_tools_2.createFolder)("database-backups");
+    (0, files_tools_1.createFolder)("database-backups");
     if (configurations_1.DATABASE_BACKUP_DAILY) {
-        schedule.scheduleJob({ ...hour, dayOfWeek: 0 }, () => backupDatabaseToFile("daily", "monday"));
-        schedule.scheduleJob({ ...hour, dayOfWeek: 1 }, () => backupDatabaseToFile("daily", "tuesday"));
-        schedule.scheduleJob({ ...hour, dayOfWeek: 2 }, () => backupDatabaseToFile("daily", "wednesday"));
-        schedule.scheduleJob({ ...hour, dayOfWeek: 3 }, () => backupDatabaseToFile("daily", "thursday"));
-        schedule.scheduleJob({ ...hour, dayOfWeek: 4 }, () => backupDatabaseToFile("daily", "friday"));
-        schedule.scheduleJob({ ...hour, dayOfWeek: 5 }, () => backupDatabaseToFile("daily", "saturday"));
-        schedule.scheduleJob({ ...hour, dayOfWeek: 6 }, () => backupDatabaseToFile("daily", "sunday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 0 }, () => backupDatabase("daily", "monday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 1 }, () => backupDatabase("daily", "tuesday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 2 }, () => backupDatabase("daily", "wednesday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 3 }, () => backupDatabase("daily", "thursday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 4 }, () => backupDatabase("daily", "friday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 5 }, () => backupDatabase("daily", "saturday"));
+        schedule.scheduleJob({ ...hour, dayOfWeek: 6 }, () => backupDatabase("daily", "sunday"));
     }
     if (configurations_1.DATABASE_BACKUP_WEEKLY) {
-        schedule.scheduleJob({ ...hour, date: 7 }, () => backupDatabaseToFile("weekly", "week1"));
-        schedule.scheduleJob({ ...hour, date: 14 }, () => backupDatabaseToFile("weekly", "week2"));
-        schedule.scheduleJob({ ...hour, date: 21 }, () => backupDatabaseToFile("weekly", "week3"));
-        schedule.scheduleJob({ ...hour, date: 28 }, () => backupDatabaseToFile("weekly", "week4"));
+        schedule.scheduleJob({ ...hour, date: 7 }, () => backupDatabase("weekly", "week1"));
+        schedule.scheduleJob({ ...hour, date: 14 }, () => backupDatabase("weekly", "week2"));
+        schedule.scheduleJob({ ...hour, date: 21 }, () => backupDatabase("weekly", "week3"));
+        schedule.scheduleJob({ ...hour, date: 28 }, () => backupDatabase("weekly", "week4"));
     }
     if (configurations_1.DATABASE_BACKUP_MONTHLY) {
-        schedule.scheduleJob({ ...hour, date: 0, month: 0 }, () => backupDatabaseToFile("monthly", "january"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 1 }, () => backupDatabaseToFile("monthly", "february"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 2 }, () => backupDatabaseToFile("monthly", "march"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 3 }, () => backupDatabaseToFile("monthly", "april"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 4 }, () => backupDatabaseToFile("monthly", "may"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 5 }, () => backupDatabaseToFile("monthly", "june"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 6 }, () => backupDatabaseToFile("monthly", "july"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 7 }, () => backupDatabaseToFile("monthly", "august"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 8 }, () => backupDatabaseToFile("monthly", "september"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 9 }, () => backupDatabaseToFile("monthly", "october"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 10 }, () => backupDatabaseToFile("monthly", "november"));
-        schedule.scheduleJob({ ...hour, date: 0, month: 11 }, () => backupDatabaseToFile("monthly", "december"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 0 }, () => backupDatabase("monthly", "january"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 1 }, () => backupDatabase("monthly", "february"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 2 }, () => backupDatabase("monthly", "march"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 3 }, () => backupDatabase("monthly", "april"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 4 }, () => backupDatabase("monthly", "may"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 5 }, () => backupDatabase("monthly", "june"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 6 }, () => backupDatabase("monthly", "july"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 7 }, () => backupDatabase("monthly", "august"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 8 }, () => backupDatabase("monthly", "september"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 9 }, () => backupDatabase("monthly", "october"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 10 }, () => backupDatabase("monthly", "november"));
+        schedule.scheduleJob({ ...hour, date: 0, month: 11 }, () => backupDatabase("monthly", "december"));
     }
 }
-async function backupDatabaseToFile(folderName, fileName, settings) {
-    const { sendLog = true } = settings !== null && settings !== void 0 ? settings : {};
-    const profiler = logTimeToFile("backups");
-    // The ../../ are here because the path is relative to the database program folder (vendor/gremlin-local-server)
-    await (0, database_manager_1.exportDatabaseContentToFile)(exports.CURRENT_DB_EXPORT_PATH);
-    (0, files_tools_2.copyFile)(exports.CURRENT_DB_EXPORT_PATH, `database-backups/${folderName}/${fileName}.xml`);
-    if (sendLog) {
-        profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
+// TODO: Add support for AWS database
+async function backupDatabase(folderPath, fileName, settings) {
+    const { saveLog = true } = settings !== null && settings !== void 0 ? settings : {};
+    let profiler;
+    if (saveLog) {
+        profiler = logTimeToFile("backups");
     }
+    await (0, database_manager_1.exportDatabaseContentToFile)(`${folderPath}/${fileName}.xml`);
+    (0, files_tools_1.copyFile)(`${folderPath}/${fileName}.xml`, `${exports.DB_EXPORT_FOLDER}/${exports.DB_EXPORT_LATEST_FILE}.xml`);
+    if (saveLog) {
+        profiler.done({ message: `Database backup done in ${`${folderPath}/${fileName}.xml`}` });
+    }
+}
+// TODO: Add support for AWS database
+async function restoreDatabase(folderPath, fileName) {
+    if (!(0, files_tools_1.fileOrFolderExists)(`${folderPath}/${fileName}.xml`)) {
+        return;
+    }
+    await (0, database_manager_1.importDatabaseContentFromFile)(`${folderPath}/${fileName}.xml`);
 }
 function backupDatabaseWhenExiting() {
     (0, process_tools_1.executeFunctionBeforeExiting)(async () => {
-        await (0, database_manager_1.exportDatabaseContentToFile)(exports.CURRENT_DB_EXPORT_PATH);
+        await backupDatabase(exports.DB_EXPORT_FOLDER, exports.DB_EXPORT_LATEST_FILE, { saveLog: false });
     });
 }
 //# sourceMappingURL=backups.js.map

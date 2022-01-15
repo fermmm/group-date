@@ -202,7 +202,8 @@ async function importDatabasePost(params, ctx) {
             (0, s3_tools_1.deleteFilesFromS3)(params.filePaths);
         }
         else {
-            responses += await (0, database_manager_1.importDatabaseContentFromFile)(filePath);
+            await (0, database_manager_1.importDatabaseContentFromFile)(filePath);
+            responses += "Done";
         }
     }
     for (const filePath of params.filePaths) {
