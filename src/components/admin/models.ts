@@ -310,7 +310,8 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
          }
          deleteFilesFromS3(params.filePaths);
       } else {
-         responses += await importDatabaseContentFromFile(filePath);
+         await importDatabaseContentFromFile(filePath);
+         responses += "Done";
       }
    }
 
