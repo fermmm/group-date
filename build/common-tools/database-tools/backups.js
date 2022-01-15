@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeSimpleBackup = exports.backupIsEnabled = exports.initializeDatabaseBackups = void 0;
+exports.backupIsEnabled = exports.initializeDatabaseBackups = exports.CURRENT_DB_EXPORT_PATH = void 0;
 const files_tools_1 = require("./../files-tools/files-tools");
 const schedule = require("node-schedule");
 const database_manager_1 = require("../database-tools/database-manager");
@@ -8,16 +8,15 @@ const configurations_1 = require("../../configurations");
 const files_tools_2 = require("../files-tools/files-tools");
 const process_tools_1 = require("../process/process-tools");
 const common_queries_1 = require("../database-tools/common-queries");
-const fix_graphml_bug_1 = require("./fix-graphml-bug");
+exports.CURRENT_DB_EXPORT_PATH = "database-backups/latest.xml";
 async function initializeDatabaseBackups() {
     if (backupIsEnabled()) {
         const databaseEmpty = await (0, common_queries_1.databaseIsEmpty)();
         // Load database contents from latest backup if any
         if (process.env.RESTORE_DATABASE_ON_INIT !== "false" &&
             databaseEmpty &&
-            (0, files_tools_1.fileOrFolderExists)("database-backups/latest.xml")) {
-            (0, fix_graphml_bug_1.fixGraphMlBug)("database-backups/latest.xml");
-            await (0, database_manager_1.importDatabaseContentFromFile)("../../database-backups/latest.xml");
+            (0, files_tools_1.fileOrFolderExists)(exports.CURRENT_DB_EXPORT_PATH)) {
+            await (0, database_manager_1.importDatabaseContentFromFile)(exports.CURRENT_DB_EXPORT_PATH);
         }
         await initializeBackupDatabaseSchedule();
         backupDatabaseWhenExiting();
@@ -66,22 +65,19 @@ async function initializeBackupDatabaseSchedule() {
         schedule.scheduleJob({ ...hour, date: 0, month: 11 }, () => backupDatabaseToFile("monthly", "december"));
     }
 }
-async function backupDatabaseToFile(folderName, fileName) {
+async function backupDatabaseToFile(folderName, fileName, settings) {
+    const { sendLog = true } = settings !== null && settings !== void 0 ? settings : {};
     const profiler = logTimeToFile("backups");
     // The ../../ are here because the path is relative to the database program folder (vendor/gremlin-local-server)
-    await makeSimpleBackup();
-    (0, files_tools_2.copyFile)("database-backups/latest.xml", `database-backups/${folderName}/${fileName}.xml`);
-    profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
+    await (0, database_manager_1.exportDatabaseContentToFile)(exports.CURRENT_DB_EXPORT_PATH);
+    (0, files_tools_2.copyFile)(exports.CURRENT_DB_EXPORT_PATH, `database-backups/${folderName}/${fileName}.xml`);
+    if (sendLog) {
+        profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
+    }
 }
 function backupDatabaseWhenExiting() {
     (0, process_tools_1.executeFunctionBeforeExiting)(async () => {
-        await makeSimpleBackup();
+        await (0, database_manager_1.exportDatabaseContentToFile)(exports.CURRENT_DB_EXPORT_PATH);
     });
 }
-async function makeSimpleBackup() {
-    await (0, database_manager_1.exportDatabaseContentToFile)("../../database-backups/latest.xml");
-    // This should be here but for some reason sometimes it has no effect, so this is being called before loading backup instead.
-    // fixGraphMlBug("database-backups/latest.xml");
-}
-exports.makeSimpleBackup = makeSimpleBackup;
 //# sourceMappingURL=backups.js.map

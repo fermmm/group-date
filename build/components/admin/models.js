@@ -158,7 +158,6 @@ async function logGet(params, ctx) {
     return promise;
 }
 exports.logGet = logGet;
-// TODO: Implement a cleanup of the file system similar to the S3 cleanup
 async function importDatabasePost(params, ctx) {
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
@@ -168,7 +167,8 @@ async function importDatabasePost(params, ctx) {
     let responses = "";
     if (params.format === admin_1.DatabaseContentFileFormat.NeptuneCsv) {
         if ((0, process_tools_1.isRunningOnAws)()) {
-            responses += JSON.stringify(await (0, neptune_tools_1.importDatabaseContentFromCsv)(params, ctx));
+            responses += JSON.stringify(await (0, neptune_tools_1.importDatabaseContentCsvToNeptune)(params, ctx));
+            // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
         }
         else {
             ctx.throw(400, "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true");
@@ -179,6 +179,7 @@ async function importDatabasePost(params, ctx) {
             let fileContent;
             if ((0, process_tools_1.isRunningOnAws)()) {
                 fileContent = await (0, s3_tools_1.readFileContentFromS3)(filePath);
+                // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
             }
             else {
                 fileContent = (0, files_tools_1.getFileContent)(filePath);
@@ -193,21 +194,19 @@ async function importDatabasePost(params, ctx) {
         const filePath = params.filePaths[0];
         if ((0, process_tools_1.isRunningOnAws)()) {
             try {
-                responses += await (0, neptune_tools_1.importDatabaseContentFromXml)(filePath, ctx);
+                responses += await (0, neptune_tools_1.importDatabaseContentXmlToNeptune)(filePath, ctx);
             }
             catch (e) {
                 responses += (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
             }
+            (0, s3_tools_1.deleteFilesFromS3)(params.filePaths);
         }
         else {
-            // TODO: Implement xml import in localhost
+            responses += await (0, database_manager_1.importDatabaseContentFromFile)(filePath);
         }
     }
-    // We don't need the files anymore so we can delete them from the S3
-    if ((0, process_tools_1.isRunningOnAws)()) {
-        for (const filePath of params.filePaths) {
-            (0, s3_tools_1.deleteFileFromS3)(filePath);
-        }
+    for (const filePath of params.filePaths) {
+        (0, files_tools_1.deleteFile)(filePath);
     }
     return responses;
 }
@@ -218,8 +217,17 @@ async function exportDatabaseGet(params, ctx) {
         ctx.throw(passwordValidation.error);
         return;
     }
-    if (process.env.USING_AWS === "true") {
-        return await (0, neptune_tools_1.exportDatabaseContent)(ctx);
+    if ((0, process_tools_1.isRunningOnAws)()) {
+        return await (0, neptune_tools_1.exportDatabaseContentFromNeptune)(ctx);
+    }
+    else {
+        await (0, database_manager_1.exportDatabaseContentToFile)("admin-uploads/temp/db-export/db-exported.xml");
+        await (0, files_tools_1.createZipFileFromDirectory)("admin-uploads/temp/db-export", "admin-uploads/db-export/db-exported.zip");
+        (0, files_tools_1.deleteFolder)("admin-uploads/temp");
+        return {
+            commandResponse: "Done",
+            folder: `api/admin-uploads/db-export/db-exported.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,
+        };
     }
 }
 exports.exportDatabaseGet = exportDatabaseGet;

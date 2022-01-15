@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createZipFileFromDirectory = exports.writeFile = exports.getFileContent = exports.fileOrFolderExists = exports.copyFile = exports.deleteFolder = exports.createFolder = void 0;
+exports.removeFilePartInPath = exports.createZipFileFromDirectory = exports.writeFile = exports.getFileContent = exports.fileOrFolderExists = exports.copyFile = exports.deleteFile = exports.deleteFolder = exports.createFolder = void 0;
 const appRoot = require("app-root-path");
 const fs = require("fs");
 const path = require("path");
@@ -8,21 +8,28 @@ const archiver = require("archiver");
 /**
  * Creates a folder. The path is relative to the root of the project. If the folder already exists does nothing.
  * If the folder is nested inside other folders that also doesn't exist it creates all of them.
+ * If the path contains a part with a file at the end it ignores the file part, so it can be used to make sure
+ * a file is ready to be created because all folders are in place.
  */
-function createFolder(folderName) {
-    if (fileOrFolderExists(folderName)) {
+function createFolder(path) {
+    path = removeFilePartInPath(path);
+    if (fileOrFolderExists(path)) {
         return;
     }
-    fs.mkdirSync(appRoot.path + `/${folderName}`, { recursive: true });
+    fs.mkdirSync(appRoot.path + `/${path}`, { recursive: true });
 }
 exports.createFolder = createFolder;
-function deleteFolder(folderName) {
-    if (!fileOrFolderExists(folderName)) {
+function deleteFolder(folderPath) {
+    if (!fileOrFolderExists(folderPath)) {
         return;
     }
-    fs.rmSync(appRoot.path + `/${folderName}`, { recursive: true, force: true });
+    fs.rmSync(appRoot.path + `/${folderPath}`, { recursive: true, force: true });
 }
 exports.deleteFolder = deleteFolder;
+async function deleteFile(filePath) {
+    await fs.promises.unlink(filePath);
+}
+exports.deleteFile = deleteFile;
 /**
  * Copies a file. The destination file will be created or overwritten.
  * The path is relative to the root of the project.
@@ -63,4 +70,16 @@ async function createZipFileFromDirectory(source, out) {
     });
 }
 exports.createZipFileFromDirectory = createZipFileFromDirectory;
+/**
+ * Removes the file part of the path string
+ */
+function removeFilePartInPath(filePath) {
+    if (!filePath.includes(".")) {
+        return filePath;
+    }
+    const pathAsArray = filePath.substring(0, filePath.lastIndexOf(".")).split("/");
+    pathAsArray.pop();
+    return pathAsArray.join("/");
+}
+exports.removeFilePartInPath = removeFilePartInPath;
 //# sourceMappingURL=files-tools.js.map

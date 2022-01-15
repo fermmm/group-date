@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.exportDatabaseContent = exports.importDatabaseContentFromXml = exports.importDatabaseContentFromCsv = void 0;
+exports.exportDatabaseContentFromNeptune = exports.importDatabaseContentXmlToNeptune = exports.importDatabaseContentCsvToNeptune = void 0;
 const path = require("path");
 const validateAdminCredentials_1 = require("../../components/admin/tools/validateAdminCredentials");
 const files_tools_1 = require("../files-tools/files-tools");
@@ -8,7 +8,7 @@ const httpRequest_1 = require("../httpRequest/httpRequest");
 const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const process_tools_1 = require("../process/process-tools");
 const s3_tools_1 = require("./s3-tools");
-async function importDatabaseContentFromCsv(params, ctx) {
+async function importDatabaseContentCsvToNeptune(params, ctx) {
     var _a, _b, _c;
     const { filePaths } = params;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
@@ -39,8 +39,8 @@ async function importDatabaseContentFromCsv(params, ctx) {
     }
     return { request: { url: loaderEndpoint, sentParams }, responses };
 }
-exports.importDatabaseContentFromCsv = importDatabaseContentFromCsv;
-async function importDatabaseContentFromXml(filePath, ctx) {
+exports.importDatabaseContentCsvToNeptune = importDatabaseContentCsvToNeptune;
+async function importDatabaseContentXmlToNeptune(filePath, ctx) {
     let response = "";
     try {
         response += `Saving S3 file ${filePath} to disk \n`;
@@ -54,10 +54,10 @@ async function importDatabaseContentFromXml(filePath, ctx) {
         await (0, s3_tools_1.uploadFileToS3)({ localFilePath: edgesFilePath, s3TargetPath: edgesFilePath });
         response += `Calling CSV importer for nodes file\n`;
         response +=
-            JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [nodesFilePath] }, ctx)) + "\n";
+            JSON.stringify(await importDatabaseContentCsvToNeptune({ filePaths: [nodesFilePath] }, ctx)) + "\n";
         response += `Calling CSV importer for edges file\n`;
         response +=
-            JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [edgesFilePath] }, ctx)) + "\n";
+            JSON.stringify(await importDatabaseContentCsvToNeptune({ filePaths: [edgesFilePath] }, ctx)) + "\n";
         response += "Cleaning files on EC2 \n";
         (0, files_tools_1.deleteFolder)(path.dirname(filePath));
         response += "Done. Note: The import process is finished but the changes may take some time. \n";
@@ -67,8 +67,8 @@ async function importDatabaseContentFromXml(filePath, ctx) {
         return `${response} \n Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e)}`;
     }
 }
-exports.importDatabaseContentFromXml = importDatabaseContentFromXml;
-async function exportDatabaseContent(ctx) {
+exports.importDatabaseContentXmlToNeptune = importDatabaseContentXmlToNeptune;
+async function exportDatabaseContentFromNeptune(ctx) {
     var _a, _b;
     if (((_a = process.env.AWS_BUCKET_NAME) !== null && _a !== void 0 ? _a : "").length < 2) {
         ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
@@ -116,5 +116,5 @@ async function exportDatabaseContent(ctx) {
         folder: `api/admin-uploads/db.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,
     };
 }
-exports.exportDatabaseContent = exportDatabaseContent;
+exports.exportDatabaseContentFromNeptune = exportDatabaseContentFromNeptune;
 //# sourceMappingURL=neptune-tools.js.map

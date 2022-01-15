@@ -10,7 +10,8 @@ import {
 import { copyFile, createFolder } from "../files-tools/files-tools";
 import { executeFunctionBeforeExiting } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
-import { fixGraphMlBug } from "./fix-graphml-bug";
+
+export const CURRENT_DB_EXPORT_PATH = "database-backups/latest.xml";
 
 export async function initializeDatabaseBackups() {
    if (backupIsEnabled()) {
@@ -20,10 +21,9 @@ export async function initializeDatabaseBackups() {
       if (
          process.env.RESTORE_DATABASE_ON_INIT !== "false" &&
          databaseEmpty &&
-         fileOrFolderExists("database-backups/latest.xml")
+         fileOrFolderExists(CURRENT_DB_EXPORT_PATH)
       ) {
-         fixGraphMlBug("database-backups/latest.xml");
-         await importDatabaseContentFromFile("../../database-backups/latest.xml");
+         await importDatabaseContentFromFile(CURRENT_DB_EXPORT_PATH);
       }
       await initializeBackupDatabaseSchedule();
       backupDatabaseWhenExiting();
@@ -77,22 +77,21 @@ async function initializeBackupDatabaseSchedule() {
    }
 }
 
-async function backupDatabaseToFile(folderName: string, fileName: string) {
+async function backupDatabaseToFile(folderName: string, fileName: string, settings?: { sendLog?: boolean }) {
+   const { sendLog = true } = settings ?? {};
+
    const profiler = logTimeToFile("backups");
    // The ../../ are here because the path is relative to the database program folder (vendor/gremlin-local-server)
-   await makeSimpleBackup();
-   copyFile("database-backups/latest.xml", `database-backups/${folderName}/${fileName}.xml`);
-   profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
+   await exportDatabaseContentToFile(CURRENT_DB_EXPORT_PATH);
+   copyFile(CURRENT_DB_EXPORT_PATH, `database-backups/${folderName}/${fileName}.xml`);
+
+   if (sendLog) {
+      profiler.done({ message: `Database backup done in ${folderName}/${fileName}.xml` });
+   }
 }
 
 function backupDatabaseWhenExiting() {
    executeFunctionBeforeExiting(async () => {
-      await makeSimpleBackup();
+      await exportDatabaseContentToFile(CURRENT_DB_EXPORT_PATH);
    });
-}
-
-export async function makeSimpleBackup() {
-   await exportDatabaseContentToFile("../../database-backups/latest.xml");
-   // This should be here but for some reason sometimes it has no effect, so this is being called before loading backup instead.
-   // fixGraphMlBug("database-backups/latest.xml");
 }

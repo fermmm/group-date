@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFileFromS3 = exports.saveS3FileToDisk = exports.readFileContentFromS3 = exports.uploadFileToS3 = void 0;
+exports.deleteFilesFromS3 = exports.deleteFileFromS3 = exports.saveS3FileToDisk = exports.readFileContentFromS3 = exports.uploadFileToS3 = void 0;
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
@@ -81,4 +81,12 @@ async function deleteFileFromS3(filePath) {
     }
 }
 exports.deleteFileFromS3 = deleteFileFromS3;
+async function deleteFilesFromS3(filePaths) {
+    let response = "";
+    for (const filePath of filePaths) {
+        response += (await deleteFileFromS3(filePath)) + "\n";
+    }
+    return response;
+}
+exports.deleteFilesFromS3 = deleteFilesFromS3;
 //# sourceMappingURL=s3-tools.js.map

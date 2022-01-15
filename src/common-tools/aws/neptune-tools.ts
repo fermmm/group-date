@@ -8,7 +8,7 @@ import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage"
 import { executeSystemCommand } from "../process/process-tools";
 import { saveS3FileToDisk, uploadFileToS3 } from "./s3-tools";
 
-export async function importDatabaseContentFromCsv(params: { filePaths: string[] }, ctx: BaseContext) {
+export async function importDatabaseContentCsvToNeptune(params: { filePaths: string[] }, ctx: BaseContext) {
    const { filePaths } = params;
 
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
@@ -46,7 +46,7 @@ export async function importDatabaseContentFromCsv(params: { filePaths: string[]
    return { request: { url: loaderEndpoint, sentParams }, responses };
 }
 
-export async function importDatabaseContentFromXml(filePath: string, ctx: BaseContext) {
+export async function importDatabaseContentXmlToNeptune(filePath: string, ctx: BaseContext) {
    let response = "";
    try {
       response += `Saving S3 file ${filePath} to disk \n`;
@@ -63,10 +63,10 @@ export async function importDatabaseContentFromXml(filePath: string, ctx: BaseCo
 
       response += `Calling CSV importer for nodes file\n`;
       response +=
-         JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [nodesFilePath] }, ctx)) + "\n";
+         JSON.stringify(await importDatabaseContentCsvToNeptune({ filePaths: [nodesFilePath] }, ctx)) + "\n";
       response += `Calling CSV importer for edges file\n`;
       response +=
-         JSON.stringify(await importDatabaseContentFromCsv({ filePaths: [edgesFilePath] }, ctx)) + "\n";
+         JSON.stringify(await importDatabaseContentCsvToNeptune({ filePaths: [edgesFilePath] }, ctx)) + "\n";
 
       response += "Cleaning files on EC2 \n";
       deleteFolder(path.dirname(filePath));
@@ -78,7 +78,7 @@ export async function importDatabaseContentFromXml(filePath: string, ctx: BaseCo
    }
 }
 
-export async function exportDatabaseContent(ctx: BaseContext): Promise<ExportDatabaseResponse> {
+export async function exportDatabaseContentFromNeptune(ctx: BaseContext): Promise<ExportDatabaseResponse> {
    if ((process.env.AWS_BUCKET_NAME ?? "").length < 2) {
       ctx.throw(400, "AWS_BUCKET_NAME is not set in the .env file");
       return;

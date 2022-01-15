@@ -18,8 +18,6 @@ import { Button } from "@mui/material";
 import ConfirmationDialog, {
    PropsConfirmationDialog,
 } from "../../../common/UI/ConfirmationDialog/ConfirmationDialog";
-import { generateId } from "../../../../common-tools/strings/generateId";
-import moment from "moment";
 
 const ImportExportForm: FC = props => {
    const [loading, setLoading] = useState<boolean>(false);

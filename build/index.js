@@ -73,7 +73,6 @@ const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
         }, appCallback)
             .listen(443);
     }
-    console.log("");
     (0, process_tools_1.logEnvironmentMode)();
     // Database initialization:
     await (0, database_manager_1.waitForDatabase)();

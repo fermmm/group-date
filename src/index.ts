@@ -83,7 +83,6 @@ import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
          .listen(443);
    }
 
-   console.log("");
    logEnvironmentMode();
 
    // Database initialization:

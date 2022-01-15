@@ -39,11 +39,13 @@ export function isRunningOnAws(): boolean {
 }
 
 export function logEnvironmentMode() {
+   console.log("");
    if (isProductionMode()) {
       console.log("Running server in production mode.", process.env.NODE_ENV);
    } else {
       console.log("Running server in development mode.", process.env.NODE_ENV);
    }
+   console.log("");
 }
 
 export async function executeSystemCommand(command: string): Promise<string> {

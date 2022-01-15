@@ -6,21 +6,29 @@ import * as archiver from "archiver";
 /**
  * Creates a folder. The path is relative to the root of the project. If the folder already exists does nothing.
  * If the folder is nested inside other folders that also doesn't exist it creates all of them.
+ * If the path contains a part with a file at the end it ignores the file part, so it can be used to make sure
+ * a file is ready to be created because all folders are in place.
  */
-export function createFolder(folderName: string) {
-   if (fileOrFolderExists(folderName)) {
+export function createFolder(path: string) {
+   path = removeFilePartInPath(path);
+
+   if (fileOrFolderExists(path)) {
       return;
    }
 
-   fs.mkdirSync(appRoot.path + `/${folderName}`, { recursive: true });
+   fs.mkdirSync(appRoot.path + `/${path}`, { recursive: true });
 }
 
-export function deleteFolder(folderName: string) {
-   if (!fileOrFolderExists(folderName)) {
+export function deleteFolder(folderPath: string) {
+   if (!fileOrFolderExists(folderPath)) {
       return;
    }
 
-   fs.rmSync(appRoot.path + `/${folderName}`, { recursive: true, force: true });
+   fs.rmSync(appRoot.path + `/${folderPath}`, { recursive: true, force: true });
+}
+
+export async function deleteFile(filePath: string) {
+   await fs.promises.unlink(filePath);
 }
 
 /**
@@ -62,4 +70,17 @@ export async function createZipFileFromDirectory(source: string, out: string) {
       stream.on("close", () => resolve());
       archive.finalize();
    });
+}
+
+/**
+ * Removes the file part of the path string
+ */
+export function removeFilePartInPath(filePath: string) {
+   if (!filePath.includes(".")) {
+      return filePath;
+   }
+
+   const pathAsArray = filePath.substring(0, filePath.lastIndexOf(".")).split("/");
+   pathAsArray.pop();
+   return pathAsArray.join("/");
 }

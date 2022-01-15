@@ -6,7 +6,9 @@ const path = require("path");
 const js_tools_1 = require("../js-tools/js-tools");
 const configurations_1 = require("../../configurations");
 const process_tools_1 = require("../process/process-tools");
+const files_tools_1 = require("../files-tools/files-tools");
 const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
+const fix_graphml_bug_1 = require("./fix-graphml-bug");
 exports.databaseUrl = (0, process_tools_1.isProductionMode)() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
 const DriverRemoteConnection = gremlin.driver.DriverRemoteConnection;
@@ -123,11 +125,15 @@ exports.sendQueryAsString = sendQueryAsString;
  * @param path File extension should be xml so gremlin knows it should save with the GraphML format (the most popular and supported).Example: "graph.xml"
  */
 async function exportDatabaseContentToFile(path) {
-    await exports.g.io(path).write().iterate();
+    (0, files_tools_1.createFolder)(path);
+    await exports.g.io(`../../${path}`).write().iterate();
+    // This should be only here, not also in the import function but for some reason sometimes it has no effect, so this is also being called before loading backup.
+    (0, fix_graphml_bug_1.fixGraphMlBug)(path);
 }
 exports.exportDatabaseContentToFile = exportDatabaseContentToFile;
 async function importDatabaseContentFromFile(path) {
-    await exports.g.io(path).read().iterate();
+    (0, fix_graphml_bug_1.fixGraphMlBug)(path);
+    await exports.g.io(`../../${path}`).read().iterate();
 }
 exports.importDatabaseContentFromFile = importDatabaseContentFromFile;
 /**

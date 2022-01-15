@@ -57,6 +57,8 @@ import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tool
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    databaseUrl,
+   exportDatabaseContentToFile,
+   importDatabaseContentFromFile,
    importDatabaseContentFromQueryFile,
    removeAllDatabaseContent,
    sendQuery,
@@ -66,9 +68,15 @@ import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
 import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
-import { validateAdminCredentials } from "./tools/validateAdminCredentials";
+import { getCredentialsHash, validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQueryForVisualizer, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
-import { createFolder, deleteFolder, getFileContent } from "../../common-tools/files-tools/files-tools";
+import {
+   createFolder,
+   createZipFileFromDirectory,
+   deleteFile,
+   deleteFolder,
+   getFileContent,
+} from "../../common-tools/files-tools/files-tools";
 import {
    deleteFileFromS3,
    deleteFilesFromS3,
@@ -88,9 +96,9 @@ import {
    isRunningOnAws,
 } from "../../common-tools/process/process-tools";
 import {
-   exportDatabaseContent,
-   importDatabaseContentFromCsv,
-   importDatabaseContentFromXml,
+   exportDatabaseContentFromNeptune,
+   importDatabaseContentCsvToNeptune,
+   importDatabaseContentXmlToNeptune,
 } from "../../common-tools/aws/neptune-tools";
 import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
@@ -261,7 +269,8 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
 
    if (params.format === DatabaseContentFileFormat.NeptuneCsv) {
       if (isRunningOnAws()) {
-         responses += JSON.stringify(await importDatabaseContentFromCsv(params, ctx));
+         responses += JSON.stringify(await importDatabaseContentCsvToNeptune(params, ctx));
+         // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
       } else {
          ctx.throw(
             400,
@@ -275,7 +284,7 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
          let fileContent: string;
          if (isRunningOnAws()) {
             fileContent = await readFileContentFromS3(filePath);
-            deleteFilesFromS3(params.filePaths);
+            // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
          } else {
             fileContent = getFileContent(filePath);
          }
@@ -295,14 +304,18 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
       const filePath = params.filePaths[0];
       if (isRunningOnAws()) {
          try {
-            responses += await importDatabaseContentFromXml(filePath, ctx);
+            responses += await importDatabaseContentXmlToNeptune(filePath, ctx);
          } catch (e) {
             responses += tryToGetErrorMessage(e);
          }
          deleteFilesFromS3(params.filePaths);
       } else {
-         // TODO: Implement xml import in localhost
+         responses += await importDatabaseContentFromFile(filePath);
       }
+   }
+
+   for (const filePath of params.filePaths) {
+      deleteFile(filePath);
    }
 
    return responses;
@@ -318,8 +331,19 @@ export async function exportDatabaseGet(
       return;
    }
 
-   if (process.env.USING_AWS === "true") {
-      return await exportDatabaseContent(ctx);
+   if (isRunningOnAws()) {
+      return await exportDatabaseContentFromNeptune(ctx);
+   } else {
+      await exportDatabaseContentToFile("admin-uploads/temp/db-export/db-exported.xml");
+      await createZipFileFromDirectory(
+         "admin-uploads/temp/db-export",
+         "admin-uploads/db-export/db-exported.zip",
+      );
+      deleteFolder("admin-uploads/temp");
+      return {
+         commandResponse: "Done",
+         folder: `api/admin-uploads/db-export/db-exported.zip?hash=${getCredentialsHash()}`,
+      };
    }
 }
 

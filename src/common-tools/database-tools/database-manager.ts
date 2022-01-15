@@ -4,8 +4,9 @@ import { Traversal } from "./gremlin-typing-tools";
 import { retryPromise } from "../js-tools/js-tools";
 import { MAX_TIME_TO_WAIT_ON_DATABASE_RETRY, REPORT_DATABASE_RETRYING } from "../../configurations";
 import { isProductionMode } from "../process/process-tools";
-import { getFileContent } from "../files-tools/files-tools";
+import { createFolder, getFileContent } from "../files-tools/files-tools";
 import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
+import { fixGraphMlBug } from "./fix-graphml-bug";
 
 export const databaseUrl = isProductionMode() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 
@@ -134,11 +135,15 @@ export async function sendQueryAsString<T = any>(query: string): Promise<T> {
  * @param path File extension should be xml so gremlin knows it should save with the GraphML format (the most popular and supported).Example: "graph.xml"
  */
 export async function exportDatabaseContentToFile(path: string) {
-   await g.io(path).write().iterate();
+   createFolder(path);
+   await g.io(`../../${path}`).write().iterate();
+   // This should be only here, not also in the import function but for some reason sometimes it has no effect, so this is also being called before loading backup.
+   fixGraphMlBug(path);
 }
 
 export async function importDatabaseContentFromFile(path: string) {
-   await g.io(path).read().iterate();
+   fixGraphMlBug(path);
+   await g.io(`../../${path}`).read().iterate();
 }
 
 /**
