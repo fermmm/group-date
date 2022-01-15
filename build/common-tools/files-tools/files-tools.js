@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeFilePartInPath = exports.createZipFileFromDirectory = exports.writeFile = exports.getFileContent = exports.fileOrFolderExists = exports.copyFile = exports.deleteFile = exports.deleteFolder = exports.createFolder = void 0;
 const appRoot = require("app-root-path");
 const fs = require("fs");
-const path = require("path");
 const archiver = require("archiver");
 /**
  * Creates a folder. The path is relative to the root of the project. If the folder already exists does nothing.
@@ -35,7 +34,7 @@ exports.deleteFile = deleteFile;
  * The path is relative to the root of the project.
  */
 function copyFile(source, destination) {
-    createFolder(path.dirname(destination));
+    createFolder(destination);
     fs.copyFile(appRoot.path + `/${source}`, appRoot.path + `/${destination}`, err => {
         if (err)
             throw err;
@@ -54,10 +53,12 @@ function getFileContent(path, encoding = "utf8") {
 }
 exports.getFileContent = getFileContent;
 function writeFile(path, data, encoding = "utf8") {
+    createFolder(path);
     return fs.writeFileSync(appRoot.path + `/${path}`, data, { encoding });
 }
 exports.writeFile = writeFile;
 async function createZipFileFromDirectory(source, out) {
+    createFolder(out);
     const archive = archiver("zip", { zlib: { level: 9 } });
     const stream = fs.createWriteStream(out);
     return new Promise((resolve, reject) => {

@@ -223,7 +223,7 @@ async function exportDatabaseGet(params, ctx) {
     else {
         await (0, database_manager_1.exportDatabaseContentToFile)("admin-uploads/temp/db-export/db-exported.xml");
         await (0, files_tools_1.createZipFileFromDirectory)("admin-uploads/temp/db-export", "admin-uploads/db-export/db-exported.zip");
-        (0, files_tools_1.deleteFolder)("admin-uploads/temp");
+        // deleteFolder("admin-uploads/temp");
         return {
             commandResponse: "Done",
             folder: `api/admin-uploads/db-export/db-exported.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,

@@ -36,7 +36,7 @@ export async function deleteFile(filePath: string) {
  * The path is relative to the root of the project.
  */
 export function copyFile(source: string, destination: string) {
-   createFolder(path.dirname(destination));
+   createFolder(destination);
    fs.copyFile(appRoot.path + `/${source}`, appRoot.path + `/${destination}`, err => {
       if (err) throw err;
    });
@@ -54,10 +54,12 @@ export function getFileContent(path: string, encoding: BufferEncoding = "utf8") 
 }
 
 export function writeFile(path: string, data: string, encoding: BufferEncoding = "utf8") {
+   createFolder(path);
    return fs.writeFileSync(appRoot.path + `/${path}`, data, { encoding });
 }
 
 export async function createZipFileFromDirectory(source: string, out: string) {
+   createFolder(out);
    const archive = archiver("zip", { zlib: { level: 9 } });
    const stream = fs.createWriteStream(out);
 

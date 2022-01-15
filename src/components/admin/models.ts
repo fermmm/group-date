@@ -339,7 +339,7 @@ export async function exportDatabaseGet(
          "admin-uploads/temp/db-export",
          "admin-uploads/db-export/db-exported.zip",
       );
-      deleteFolder("admin-uploads/temp");
+      // deleteFolder("admin-uploads/temp");
       return {
          commandResponse: "Done",
          folder: `api/admin-uploads/db-export/db-exported.zip?hash=${getCredentialsHash()}`,
