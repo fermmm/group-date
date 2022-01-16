@@ -19,7 +19,6 @@ You can also run everything in the same machine using any provider like Digital 
 -  [Running the project and the different modes and commands](readme/running.md)
    -  [Development mode](readme/running.md#development-mode)
    -  [Running tests](readme/running.md#running-tests)
-   -  [Database visualizer](readme/running.md#database-visualizer-application)
    -  [Formatting the code with Prettier](readme/running.md#formatting-the-code-with-prettier)
    -  [Production mode: All in one](readme/running.md#production-mode-all-in-one)
    -  [Production mode: Logic only](readme/running.md#production-mode-logic-only-no-database)
