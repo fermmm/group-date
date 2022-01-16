@@ -17,11 +17,7 @@
 
 4. Duplicate the file `.env.example` and rename it: `.env`. In Unix you can use this command: `cp .env.example .env`. Also do it on the **/websites/dashboard** folder.
 
-5. **Optional**: To enable the dashboard (an admin page of the server) open the .env file and complete the following variables:
-
-   **ADMIN_USER**: Here you have to create a user name that will be used to login in the dashboard, can be anything.
-
-   **ADMIN_PASSWORD**: Here you have to create a password that will be used to login in the dashboard, with a minimum of 6 characters.
+5. **Optional**: To enable the dashboard (an admin page of the server) follow the [dashboard setup steps](./dashboard.md).
 
 6. Run: `npm install` and `npm install pm2@latest -g`
 
