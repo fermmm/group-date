@@ -10,7 +10,7 @@
 
 4. Open the [S3 Management Console](https://s3.console.aws.amazon.com/s3/home) and copy the name of the bucket, something that looks like: **elasticbeanstalk-us-east-1-123456789**, then go to the .env file and paste it as the value of **AWS_BUCKET_NAME** and also **IMAGES_HOST**, for **IMAGES_HOST** add **https://** at the beginning and **.s3.amazonaws.com/images** at the end, it should look like this: **`https://elasticbeanstalk-us-east-1-123456789.s3.amazonaws.com/images`**
 
-5. In the .env file set **USING_AWS** to **true**
+5. In the .env file set **USING_AWS** to **true** and set **AWS_REGION** with the region you are using, something that looks like this: **us-east-1**
 
 6. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work).
 
@@ -64,74 +64,71 @@ If connection to the database cannot be established there could be a problem rel
 
 To check if the database connection is working between EC2 (Beanstalk) and Neptune connect using SSH and then follow [these instructions](https://docs.amazonaws.cn/en_us/neptune/latest/userguide/access-graph-gremlin-rest.html). The curl command should return something. 
 
-## Importing database content
+## Importing and exporting database content
 
-Neptune already has a backup system but it's limited if you don't pay. You can still save and load the contents of the database for free to do backups, localhost testing or troubleshooting. This tutorial covers importing a database content file with 2 formats you can choose: XML (GraphML) or CSV (The officially supported). If you need to load a XML you need an extra step to convert it to CSV first, that is also covered in this tutorial.
+Neptune already has a backup system but it's limited if you don't pay. You can still save and load the contents of the database for free to do backups, localhost testing or troubleshooting. This tutorial covers the initial setup to be able to use this feature.
 
-If you want to export the database content scroll to the next section.
+Also when you setup this an automatic backup system starts working, every day you should see scheduled backups in a folder in the S3.
 
-### Setup AWS to enable database import:
 
-1. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later (it's required by AWS to store the files there before loading them).
+### Setup AWS to enable database import and export:
+
+1. You need to setup the admin dashboard if you didn't already, follow the [dashboard setup steps](./dashboard.md) on this documentation.
+
+2. Login to AWS with the root user and follow [these steps](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-tutorial-IAM.html) to allow Neptune to access the S3 Bucket where the CSV files will be located later (it's required by AWS to store the files there before loading them).
    There is a missing detail in these steps: Under the title **"Creating the Amazon S3 VPC Endpoint"** there is a step that says: **"Choose the Service Name com.amazonaws.region.s3"**, when you search for that you may find 2 services with that name, select the one of type **"Gateway"**.
 
-2. Open the [IAM Roles list](https://console.aws.amazon.com/iamv2/home#/roles) and click the IAM role you created in the previous step, then copy the role ARN, looks like this: **"arn:aws:iam::123456789012:role/NeptuneLoadFromS3"**, open the .env file and paste as the value of **AWS_CSV_IAM_ROLE_ARN**.
-
-3. In the .env file there are some values to set:
-
-   **AWS_REGION**: You must complete that value with the region you are using, something that looks like: us-east-1
-
-   **ADMIN_USER**: Here you have to create a user name that will be used later, can be anything. If you already have this value set there is no need to change it.
-
-   **ADMIN_PASSWORD**: Here you have to create a password, with a minimum of 6 characters. If you already have this value set there is no need to change it.
+3. Open the [IAM Roles list](https://console.aws.amazon.com/iamv2/home#/roles) and click the IAM role you created in the previous step, then copy the role ARN, looks like this: **"arn:aws:iam::123456789012:role/NeptuneLoadFromS3"**, open the .env file and paste as the value of **AWS_CSV_IAM_ROLE_ARN**.
 
 4. Save the .env file and run `npm run deploy` to send the .env changes to the server.
 
-Now follow the next section to enable your computer.
+### Importing database content
 
-### Setup your PC:
+1. Enter on the dashboard and go to the **Tech Operations** section, click on the `Load Database Backup` button, if you are loading a database content format that has multiple files you can do a multiple selection but you need to select all the nodes files first and then press the `Load Database Backup` again and select all the edges files.
 
-You can skip these steps if you will never load a backup in XML format.
+   That is all, the backup should be loaded into the database. It's important to know that it will not replace or delete any existing information so you may need to delete all the database information before starting this import process.
 
-1. You need Python 2 or Python 3 installed in your system, to check if it's installed run the command:
-
-   `python --version`
-
-2. Give execution permissions to the python script:
-
-   `chmod +x vendor/graphml2csv/graphml2csv.py`
-
-   Note: This script included in the repo is based on this [aws labs python script](https://github.com/awslabs/amazon-neptune-tools/tree/master/graphml2csv) but has some issues fixed.
-
-
-### Make the import:
-
-1. You can skip this step if your backup file is already CSV format. To convert XML to CSV located for example at **database-backups/latest.xml** run this command:
-
-   `./vendor/graphml2csv/graphml2csv.py -i database-backups/latest.xml`
-
-   This will generate 2 CSV files in the same folder, one containing the vertices and one containing the edges (this is how CSV backup works, with 2 files).
-
-2. Open the Dashboard of the server **[public_url]/dashboard** for the public url see the last step of the [Setup AWS](#setup-aws) in this same readme file. Login with whatever you wrote on the **ADMIN_USER** and **ADMIN_PASSWORD** in the .env file.
-
-3. Go to the Tech Operations sections and click on the `Load Database Backup` button, then select both CSV files holding shift.
-
-   That is all, the backup should be loaded into the database. It's important to know that it will not replace or delete any existing information in the database.
-
-## Exporting database content
-
-### Setup AWS to enable database export:
+### Exporting database content
 
 1. Go to the dasboard and click on the `Export database content` button. The first time may take several minutes becase it has to download a big jar file
 
-1.[Borrar]  Go to the [EC2 Mangement Console](https://console.aws.amazon.com/ec2/v2/home) in the left panel click on "Instances", you probably have only one instance, click on the instance name, there you will see the `Subnet ID` remember it or paste it somewhere, you will use it later.
+### Exported data formats
 
-2. [Borrar] Open [these instructions](https://docs.aws.amazon.com/neptune/latest/userguide/machine-learning-data-export-service.html), follow the instructions but on step 3 fill the form with the following:
-   
-   **Subnet1 and Subnet2**: Use the Subnet ID you copied from the previous step. 
-   
-   **EnableIAM**: I recommend to set it to `false` for now since adds more tasks to do and it's not supported in this instructions. 
-   
-   After the steps with numbers you see a title **Enable access to Neptune from Neptune-Export** that is not required to follow, if you completed the steps with numbers that is all.
+The database importing and exporting experience includes files in 3 different data formats:
 
-In Stack failure options select Preserve successfully provisioned resources
+**XML**
+
+   Also called GraphML. This is the format exported when you run localhost (gremlin-server) and click the export button.
+
+   Support:
+
+   - **Import in localhost**: Yes
+   - **Export in localhost**: Yes
+   - **Import in Neptune**: Yes
+   - **Export in Neptune**: No
+
+**GREMLIN**
+
+   This is 1 of the 2 formats contained in a .zip file that is downloaded when you click on the export button when running on AWS.
+   
+   This is a format that consists of files with a series of gremlin queries to load all the data into the database. These files are created using a converter tool from CSV format.
+
+   Support:
+
+   - **Import in localhost**: Yes
+   - **Export in localhost**: No
+   - **Import in Neptune**: Yes
+   - **Export in Neptune**: Yes
+
+**CSV**
+
+   This is 1 of the 2 formats contained in a .zip file that is downloaded when you click on the export button when running on AWS.
+
+   This is the format that Neptune officially uses to import and export the database.
+
+   Support:
+
+   - **Import in localhost**: No
+   - **Export in localhost**: No
+   - **Import in Neptune**: Yes
+   - **Export in Neptune**: Yes

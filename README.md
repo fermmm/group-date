@@ -25,6 +25,7 @@ You can also run everything in the same machine using any provider like Digital 
    -  [Production mode: Logic only](readme/running.md#production-mode-logic-only-no-database)
    -  [Production mode: Database only](readme/running.md#production-mode-database-only-no-logic)
    -  [About PM2](readme/running.md#about-pm2)
+-  [Dashboard](readme/dashboard.md)
 -  [Deploying to AWS](readme/deploying-aws.md)
 -  [Deploying to Azure](readme/deploying-azure.md)
 -  [Deploying to Digital Ocean or similar](readme/deploying-do.md)
