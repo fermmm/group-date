@@ -100,12 +100,13 @@ The database importing and exporting experience includes files in 3 different da
 
    Also called GraphML. This is the format exported when you run localhost (gremlin-server) and click the export button.
 
-   Support:
+   Support and features:
 
    - **Import in localhost**: Yes
    - **Export in localhost**: Yes
    - **Import in Neptune**: Yes
    - **Export in Neptune**: No
+   - **Amount of files:** One file
 
 **GREMLIN**
 
@@ -113,12 +114,13 @@ The database importing and exporting experience includes files in 3 different da
    
    This is a format that consists of files with a series of gremlin queries to load all the data into the database. These files are created using a converter tool from CSV format.
 
-   Support:
+   Support and features:
 
    - **Import in localhost**: Yes
    - **Export in localhost**: No
    - **Import in Neptune**: Yes
    - **Export in Neptune**: Yes
+   - **Amount of files:** Many files
 
 **CSV**
 
@@ -126,9 +128,10 @@ The database importing and exporting experience includes files in 3 different da
 
    This is the format that Neptune officially uses to import and export the database.
 
-   Support:
+   Support and features:
 
    - **Import in localhost**: No
    - **Export in localhost**: No
    - **Import in Neptune**: Yes
    - **Export in Neptune**: Yes
+   - **Amount of files:** Many files

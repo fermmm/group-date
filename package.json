@@ -18,7 +18,7 @@
       "start": "NODE_ENV=production pm2 start build/index.js --name poly --update-env && npm run database-init",
       "database-only": "pm2 start build/database-only.js --name poly-database --update-env && npm run database-init",
       "no-database-prod": "NODE_ENV=production NO_DATABASE=true pm2 start build/index.js --name poly --update-env",
-      "stop": "npm run backup && pm2 stop poly",
+      "stop": "pm2 stop poly",
       "test:run-jest": "npm run build && jest --verbose --runInBand --forceExit",
       "test": "npm run database-restart; npm run test:run-jest",
       "test:prod": "NODE_ENV=production NO_DATABASE=true npm run test:run-jest",

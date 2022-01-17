@@ -85,7 +85,7 @@ import { queryToCreateVerticesFromObjects } from "../../common-tools/database-to
 import { fileSaverForImages } from "../../common-tools/koa-tools/koa-tools";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
 import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
-import { isProductionMode } from "../../common-tools/process/process-tools";
+import { isProductionMode, isRunningOnAws } from "../../common-tools/process/process-tools";
 import { sendEmail } from "../../common-tools/email-tools/email-tools";
 import { loadHtmlEmailTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
 import { Tag } from "../../shared-tools/endpoints-interfaces/tags";
@@ -760,7 +760,7 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
    fs.promises.unlink(file.path);
 
    // If using AWS upload to S3
-   if (isProductionMode() && process.env.USING_AWS === "true") {
+   if (isRunningOnAws()) {
       const fileNameBigInS3 = await uploadFileToS3({
          localFilePath: fullPathBig,
          s3TargetPath: `images/${fileNameBig}`,
