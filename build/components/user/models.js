@@ -560,7 +560,7 @@ async function onImageFileSaved(file, ctx) {
     // Remove the original image file to save disk space:
     fs.promises.unlink(file.path);
     // If using AWS upload to S3
-    if ((0, process_tools_1.isProductionMode)() && process.env.USING_AWS === "true") {
+    if ((0, process_tools_1.isRunningOnAws)()) {
         const fileNameBigInS3 = await (0, s3_tools_1.uploadFileToS3)({
             localFilePath: fullPathBig,
             s3TargetPath: `images/${fileNameBig}`,

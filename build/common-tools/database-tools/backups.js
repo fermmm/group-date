@@ -9,6 +9,7 @@ const process_tools_1 = require("../process/process-tools");
 const common_queries_1 = require("../database-tools/common-queries");
 const neptune_tools_1 = require("../aws/neptune-tools");
 const s3_tools_1 = require("../aws/s3-tools");
+const string_tools_1 = require("../string-tools/string-tools");
 exports.DB_EXPORT_FOLDER = "database-backups";
 exports.DB_EXPORT_LATEST_FILE = "latest";
 async function initializeDatabaseBackups() {
@@ -24,7 +25,7 @@ async function initializeDatabaseBackups() {
 }
 exports.initializeDatabaseBackups = initializeDatabaseBackups;
 function backupIsEnabled() {
-    return process.env.PERFORM_DATABASE_BACKUPS === "true" && process.env.NO_DATABASE !== "true";
+    return (0, string_tools_1.strToBool)(process.env.PERFORM_DATABASE_BACKUPS) && !(0, string_tools_1.strToBool)(process.env.NO_DATABASE);
 }
 exports.backupIsEnabled = backupIsEnabled;
 /**

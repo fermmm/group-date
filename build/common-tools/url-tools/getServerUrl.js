@@ -9,7 +9,7 @@ function getServerUrl() {
         withPort += ":" + process.env.PORT;
     }
     let withProtocol = withPort;
-    if ((0, process_tools_1.isProductionMode)() && process.env.HTTPS_PORT_ENABLED) {
+    if ((0, process_tools_1.isProductionMode)() && process.env.HTTPS_PORT_ENABLED === "true") {
         withProtocol = "https://" + withProtocol;
     }
     else {
