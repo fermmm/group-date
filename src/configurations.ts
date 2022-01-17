@@ -30,7 +30,7 @@ export const APP_STORE_URL = GOOGLE_PLAY_URL;
 /*
  * Versions of the client allowed to connect to the server
  */
-export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.2.1";
+export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.2.2";
 export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.1.6";
 
 /**
