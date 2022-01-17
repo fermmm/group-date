@@ -1,4 +1,5 @@
 import { isProductionMode } from "../process/process-tools";
+import { strToBool } from "../string-tools/string-tools";
 
 export function getServerUrl(): string {
    const hostName = isProductionMode() ? process.env.SERVER_URL : process.env.SERVER_URL_DEVELOPMENT;
@@ -11,7 +12,7 @@ export function getServerUrl(): string {
 
    let withProtocol = withPort;
 
-   if (isProductionMode() && process.env.HTTPS_PORT_ENABLED) {
+   if (isProductionMode() && process.env.HTTPS_PORT_ENABLED === "true") {
       withProtocol = "https://" + withProtocol;
    } else {
       withProtocol = "http://" + withProtocol;

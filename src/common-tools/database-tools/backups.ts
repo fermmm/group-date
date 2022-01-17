@@ -12,6 +12,7 @@ import { executeFunctionBeforeExiting, isRunningOnAws } from "../process/process
 import { databaseIsEmpty } from "../database-tools/common-queries";
 import { exportDatabaseContentFromNeptune } from "../aws/neptune-tools";
 import { uploadFileToS3 } from "../aws/s3-tools";
+import { strToBool } from "../string-tools/string-tools";
 
 export const DB_EXPORT_FOLDER = "database-backups";
 export const DB_EXPORT_LATEST_FILE = "latest";
@@ -30,7 +31,7 @@ export async function initializeDatabaseBackups() {
 }
 
 export function backupIsEnabled(): boolean {
-   return process.env.PERFORM_DATABASE_BACKUPS === "true" && process.env.NO_DATABASE !== "true";
+   return strToBool(process.env.PERFORM_DATABASE_BACKUPS) && !strToBool(process.env.NO_DATABASE);
 }
 
 /**
