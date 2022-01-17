@@ -285,7 +285,7 @@ async function sendNewGroupNotification(userId, group) {
       ${group.members
         .map(groupMember => {
         var _a, _b;
-        return `<img src="${((_a = groupMember.images) === null || _a === void 0 ? void 0 : _a[0]) ? (0, getUserImagesUrl_1.getUserImagesUrl)() + ((_b = groupMember.images) === null || _b === void 0 ? void 0 : _b[0]) : ""}" style="height: 150px;"/>`;
+        return `<img src="${((_a = groupMember.images) === null || _a === void 0 ? void 0 : _a[0]) ? (0, getUserImagesUrl_1.getImagesHostUrl)() + ((_b = groupMember.images) === null || _b === void 0 ? void 0 : _b[0]) : ""}" style="height: 150px;"/>`;
     })
         .join(" ")}
    `;

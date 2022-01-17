@@ -5,6 +5,7 @@ const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const configurations_1 = require("../../configurations");
 const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
 const getServerUrl_1 = require("../../common-tools/url-tools/getServerUrl");
+const getUserImagesUrl_1 = require("../../common-tools/url-tools/getUserImagesUrl");
 function serverInfoGet(params, ctx) {
     var _a, _b, _c, _d, _e, _f;
     return {
@@ -18,7 +19,7 @@ function serverInfoGet(params, ctx) {
             ((_e = process.env.EMAIL_SENDER) === null || _e === void 0 ? void 0 : _e.length) > 1 &&
             ((_f = process.env.AWS_REGION) === null || _f === void 0 ? void 0 : _f.length) > 1 &&
             (0, getServerUrl_1.getServerUrl)().length > 1,
-        imagesHost: process.env.IMAGES_HOST,
+        imagesHost: (0, getUserImagesUrl_1.getImagesHostUrl)(),
         serverConfigurations: {
             groupSlots: configurations_1.GROUP_SLOTS_CONFIGS,
             minGroupSize: configurations_1.MIN_GROUP_SIZE,

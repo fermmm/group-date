@@ -1,1 +1,1 @@
-{"version":3,"file":"getUserImagesUrl.js","sourceRoot":"","sources":["../../../src/common-tools/url-tools/getUserImagesUrl.ts"],"names":[],"mappings":";;;AAAA,SAAgB,gBAAgB;IAC7B,OAAO,OAAO,CAAC,GAAG,CAAC,WAAW,CAAC;AAClC,CAAC;AAFD,4CAEC"}
+{"version":3,"file":"getUserImagesUrl.js","sourceRoot":"","sources":["../../../src/common-tools/url-tools/getUserImagesUrl.ts"],"names":[],"mappings":";;;AAAA,4DAA4D;AAE5D,SAAgB,gBAAgB;IAC7B,IAAI,IAAA,gCAAgB,GAAE,EAAE;QACrB,OAAO,OAAO,CAAC,GAAG,CAAC,WAAW,CAAC;KACjC;SAAM;QACJ,OAAO,OAAO,CAAC,GAAG,CAAC,uBAAuB,CAAC;KAC7C;AACJ,CAAC;AAND,4CAMC"}

@@ -16,6 +16,7 @@ import { ServerInfoParams, ServerInfoResponse } from "../../shared-tools/endpoin
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
 import { NotificationChannelInfo } from "../../shared-tools/endpoints-interfaces/user";
 import { getServerUrl } from "../../common-tools/url-tools/getServerUrl";
+import { getImagesHostUrl } from "../../common-tools/url-tools/getUserImagesUrl";
 
 export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): ServerInfoResponse {
    return {
@@ -36,7 +37,7 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
          process.env.EMAIL_SENDER?.length > 1 &&
          process.env.AWS_REGION?.length > 1 &&
          getServerUrl().length > 1,
-      imagesHost: process.env.IMAGES_HOST,
+      imagesHost: getImagesHostUrl(),
       serverConfigurations: {
          groupSlots: GROUP_SLOTS_CONFIGS,
          minGroupSize: MIN_GROUP_SIZE,

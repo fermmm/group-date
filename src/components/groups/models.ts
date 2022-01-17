@@ -58,7 +58,7 @@ import {
    fromQueryToSpecificProps,
    fromQueryToSpecificPropValue,
 } from "../../common-tools/database-tools/data-conversion-tools";
-import { getUserImagesUrl } from "../../common-tools/url-tools/getUserImagesUrl";
+import { getImagesHostUrl } from "../../common-tools/url-tools/getUserImagesUrl";
 import { queryToGetUserByTokenOrId } from "../user/queries";
 import { fromQueryToUser } from "../user/tools/data-conversion";
 
@@ -416,7 +416,7 @@ export async function sendNewGroupNotification(userId: string, group: Group) {
          .map(
             groupMember =>
                `<img src="${
-                  groupMember.images?.[0] ? getUserImagesUrl() + groupMember.images?.[0] : ""
+                  groupMember.images?.[0] ? getImagesHostUrl() + groupMember.images?.[0] : ""
                }" style="height: 150px;"/>`,
          )
          .join(" ")}

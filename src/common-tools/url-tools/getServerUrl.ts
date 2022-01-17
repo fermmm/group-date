@@ -1,5 +1,4 @@
 import { isProductionMode } from "../process/process-tools";
-import { strToBool } from "../string-tools/string-tools";
 
 export function getServerUrl(): string {
    const hostName = isProductionMode() ? process.env.SERVER_URL : process.env.SERVER_URL_DEVELOPMENT;
