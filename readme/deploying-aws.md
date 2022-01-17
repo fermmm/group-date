@@ -88,6 +88,10 @@ Also when you setup this an automatic backup system starts working, every day yo
 
    That is all, the backup should be loaded into the database. It's important to know that it will not replace or delete any existing information so you may need to delete all the database information before starting this import process.
 
+   **Possible errors:**
+
+      - **Error 413 Request Entity Too Large:** Increase the maximum file upload size in the value of `client_max_body_size` in the file: `.platform/nginx/conf.d/proxy.conf` (the file is in this repo), then run `npm run deploy`
+
 ### Exporting database content
 
 1. Go to the dasboard and click on the `Export database content` button. The first time may take several minutes becase it has to download a big jar file
