@@ -21,3 +21,6 @@ vendor/neptune-export
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# MacOS nonsense garbage
+.DS_Store
