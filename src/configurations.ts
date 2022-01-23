@@ -356,7 +356,7 @@ const feminismQuestion: TagsAsQuestion = {
          tagId: "q00-a00",
          category: "Ideas",
          tagName: "Feminism",
-         tagIsVisible: true,
+         tagIsVisible: false,
       },
       {
          text: "I Don't agree very much / I do not agree at all",
@@ -380,7 +380,11 @@ export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
    feminismQuestion,
    usageIntentionQuestion,
 ];
-export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [politicsLeftTag, politicsRightTag];
+
+// For the moment app authored tags are not required
+export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
+   /*politicsLeftTag, politicsRightTag*/
+];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
