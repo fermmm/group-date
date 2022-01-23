@@ -4,7 +4,7 @@
 
 1. First complete all the steps on [Installing the project on your computer or server](./installing.md). Then register on AWS with a normal root user (not IAM roles, it's more complicated and you can do that later) then open a Elastic Beanstalk service and then an AWS Neptune service, all in the same AWS Region.
 
-2. Install `eb` (Elastic Beanstalk client), you can use the [official instructions](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html). After finishing you should have the `eb` command in your console.
+2. Install `eb` (Elastic Beanstalk client), you can use the [official instructions](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html). After finishing you should have the `eb` command in your console. Note: In MacOS the "manual installation" is easier since it uses homebrew.
 
 3. Get the access keys required to make automatic changes. To do that follow [this guide](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys). Add the keys in the .env file in the corresponding variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
@@ -12,7 +12,7 @@
 
 5. In the .env file set **USING_AWS** to **true** and set **AWS_REGION** with the region you are using, something that looks like this: **us-east-1**
 
-6. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work).
+6. Initialize the configuration of `eb` following [this guide](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html). When you see the prompt `Do you want to continue with CodeCommit` answer `Yes`, follow the required steps, you can use the default values and when asks for a user and password use the ones you were using for AWS website (you must type the password, pasting seems to not work, or it requests the user and password 3 times, I'm not sure what happens with it).
 
 7. Execute this command: `eb codesource local`
 
@@ -41,8 +41,9 @@
 
 Following the previous steps also configures the computer to upload the changes, these steps are required to configure a second computer.
 
-1. Follow steps 2 and 6 of the previous guide.
-2. Copy the .env file from the computer you already configured into the new one.
+1. Copy the .env file from the computer you already configured into the new one.
+2. Follow steps 2, 6 and 7 of the previous guide. Some data that will be requested you can find it easier in the .env file
+
 
 ## Upload changes to AWS
 
