@@ -1,5 +1,5 @@
 {
-	"Poly - Group Dating": "Poly - Group Dating",
+	"GroupDate - Non-monogamy group dating": "GroupDate - Non-monogamy group dating",
 	"Sorry you created too many tags": "Sorry you created many tags in a short period of time, you will be allowed to create more tags in %s. Although you can send us a message and we can evaluate adding your tags",
 	"Only admin users can create global tags": "Only admin users can create global tags",
 	"Only admin users can set the tag country": "Only admin users can set the tag country",
@@ -63,7 +63,7 @@
 	"No, other goal. For example: Get followers, promote something, etc.": "No, other goal. For example: Get followers, promote something, etc.",
 	"Get followers, promote, etc.": "Get followers, promote, etc.",
 	"Meet new people": "Meet new people",
-	"Welcome to Poly!": "Welcome to Poly!",
+	"Welcome to GroupDate!": "Welcome to GroupDate!",
 	"Press this notification if you are someone curious": "Press this notification if you are someone curious",
 	"General non frequent notifications": "General non frequent notifications",
 	"New group chat messages": "New group chat messages",
@@ -89,7 +89,6 @@
 	"Pangender": "Pangender",
 	"What kind of date would you like?": "What kind of date would you like?",
 	"A group date where we like each other": "A group date where we like each other",
-	"Group polyamory": "Group polyamory",
 	"A date of 3, without anyone else": "A date of 3, without anyone else",
 	"With someone I like, both of us": "With someone I like, both of us",
 	"Desired date: Only 3 people": "Desired date: Only 3 people",

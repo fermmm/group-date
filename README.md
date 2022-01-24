@@ -1,4 +1,4 @@
-# Poly server
+# GroupDate server
 
 > This project uses: **Node.js + Koa.js + TypeScript + "Tinkerpop3 Gremlin" for the database.**
 >

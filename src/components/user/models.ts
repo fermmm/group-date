@@ -651,7 +651,7 @@ export async function sendWelcomeNotification(user: Partial<User>, ctx: BaseCont
    }
 
    const notificationContent: Notification = {
-      title: t("Welcome to Poly!", { ctx }),
+      title: t("Welcome to GroupDate!", { ctx }),
       text: t("Press this notification if you are someone curious", { ctx }),
       type: NotificationType.About,
       notificationId: generateId(),
