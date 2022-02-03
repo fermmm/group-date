@@ -469,7 +469,7 @@ async function sendWelcomeNotification(user, ctx) {
         return;
     }
     const notificationContent = {
-        title: (0, i18n_tools_1.t)("Welcome to Poly!", { ctx }),
+        title: (0, i18n_tools_1.t)("Welcome to GroupDate!", { ctx }),
         text: (0, i18n_tools_1.t)("Press this notification if you are someone curious", { ctx }),
         type: user_2.NotificationType.About,
         notificationId: (0, string_tools_1.generateId)(),

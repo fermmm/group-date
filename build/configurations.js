@@ -13,8 +13,8 @@ const user_1 = require("./shared-tools/endpoints-interfaces/user");
 //////////////////////////////////////////////////  BASICS  //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // The name of the application to show to the users.
-exports.APPLICATION_NAME = "Poly";
-exports.APPLICATION_NAME_COMPLETE = "Poly - Group Dating"; // Translated on usage
+exports.APPLICATION_NAME = "GroupDate";
+exports.APPLICATION_NAME_COMPLETE = "GroupDate - Non-monogamy group dating"; // Translated on usage
 exports.GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.poly.dates";
 exports.APP_STORE_URL = exports.GOOGLE_PLAY_URL;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
