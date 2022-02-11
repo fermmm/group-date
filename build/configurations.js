@@ -493,6 +493,7 @@ exports.LOG_FILES = {
     serverStatus: (0, winstonCreateLogger_1.createLog)("server_status.log"),
     backups: (0, winstonCreateLogger_1.createLog)("backups.log"),
     usersReported: (0, winstonCreateLogger_1.createLog)("users_reported.log"),
+    testNotificationsResult: (0, winstonCreateLogger_1.createLog)("test_notifications_result.log"),
 };
 exports.LOG_USAGE_REPORT_FREQUENCY = (0, general_1.hoursToMilliseconds)(12);
 /**

@@ -20,6 +20,7 @@ function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/db/visualizer", "POST", models_1.visualizerPost);
     (0, route_tools_1.createRoute)(r, "/admin/db/delete", "POST", models_1.deleteDbPost);
     (0, route_tools_1.createRoute)(r, "/admin/send-notifications", "POST", models_1.adminNotificationSendPost);
+    (0, route_tools_1.createRoute)(r, "/admin/notification-status", "GET", models_1.notificationStatusGet);
     (0, route_tools_1.createRoute)(r, "/admin/command", "POST", models_1.runCommandPost);
     (0, route_tools_1.createRoute)(r, "/admin/email", "POST", models_1.sendEmailPost);
     (0, route_tools_1.createRoute)(r, "/admin/user/ban", "POST", models_1.banUserPost);

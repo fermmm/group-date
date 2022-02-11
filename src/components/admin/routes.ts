@@ -15,6 +15,7 @@ import {
    importDatabasePost,
    logFileListGet,
    logGet,
+   notificationStatusGet,
    onAdminFileReceived,
    onAdminFileSaved,
    removeAllBanReasonsFromUser,
@@ -39,6 +40,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
    createRoute(r, "/admin/db/delete", "POST", deleteDbPost);
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
+   createRoute(r, "/admin/notification-status", "GET", notificationStatusGet);
    createRoute(r, "/admin/command", "POST", runCommandPost);
    createRoute(r, "/admin/email", "POST", sendEmailPost);
    createRoute(r, "/admin/user/ban", "POST", banUserPost);

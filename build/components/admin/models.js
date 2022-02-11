@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -314,7 +314,7 @@ async function onAdminFileSaved(files, ctx) {
 }
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
-    const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification } = params;
+    const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification, logResult } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
@@ -329,6 +329,7 @@ async function adminNotificationSendPost(params, ctx) {
             sendPushNotification: false,
             sendEmailNotification,
             channelId,
+            logResult,
         });
     }
     const expoPushTickets = await (0, push_notifications_1.sendPushNotifications)(users.map(user => ({
@@ -353,6 +354,20 @@ async function adminNotificationSendPost(params, ctx) {
     return returnMessage;
 }
 exports.adminNotificationSendPost = adminNotificationSendPost;
+async function notificationStatusGet(params, ctx) {
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        ctx === null || ctx === void 0 ? void 0 : ctx.throw(passwordValidation.error);
+        return;
+    }
+    const errors = await (0, push_notifications_1.getNotificationsDeliveryErrors)([{ id: params.ticketId, status: "ok" }]);
+    let returnMessage = `Errors amount: ${errors.length} \n`;
+    if (errors.length > 0) {
+        errors.forEach(error => (returnMessage += `\n${error}`));
+    }
+    return returnMessage;
+}
+exports.notificationStatusGet = notificationStatusGet;
 // Runs a system command and return output
 async function runCommandPost(params, ctx) {
     const { command } = params;

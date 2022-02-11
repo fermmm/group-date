@@ -556,6 +556,7 @@ export const LOG_FILES = {
    serverStatus: createLog("server_status.log"),
    backups: createLog("backups.log"),
    usersReported: createLog("users_reported.log"),
+   testNotificationsResult: createLog("test_notifications_result.log"),
 };
 
 export const LOG_USAGE_REPORT_FREQUENCY = hoursToMilliseconds(12);

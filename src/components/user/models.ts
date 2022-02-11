@@ -334,6 +334,7 @@ export async function addNotificationToUser(
       /* The email text is the notification text but here you can append extra content */
       emailTextExtraContent?: string;
       channelId?: NotificationChannelId;
+      logResult?: boolean;
    },
 ) {
    let user: Partial<User>;
@@ -405,6 +406,18 @@ export async function addNotificationToUser(
                   errors.forEach(error => console.log(error));
                }
             }, hoursToMilliseconds(1));
+         }
+
+         if (settings?.logResult) {
+            logToFile(
+               JSON.stringify({
+                  to: user.notificationsToken,
+                  title: notification.title,
+                  body: notification.text,
+                  result: expoPushTickets,
+               }),
+               "testNotificationsResult",
+            );
          }
       });
    }

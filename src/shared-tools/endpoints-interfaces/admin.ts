@@ -72,11 +72,16 @@ export interface CredentialsValidationResult {
 }
 
 export interface AdminNotificationPostParams extends AdminProtectionParams {
+   filters: AdminNotificationFilter;
    onlyReturnUsersAmount?: boolean;
    notificationContent?: NotificationContent;
    sendEmailNotification?: boolean;
    channelId?: NotificationChannelId;
-   filters: AdminNotificationFilter;
+   logResult?: boolean;
+}
+
+export interface AdminNotificationStatusGet extends AdminProtectionParams {
+   ticketId: string;
 }
 
 export interface AdminNotificationFilter {

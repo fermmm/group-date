@@ -14,6 +14,7 @@ import {
    AdminConvertPostParams,
    AdminLogGetParams,
    AdminNotificationPostParams,
+   AdminNotificationStatusGet,
    AdminProtectionParams,
    BanUserPostParams,
    ChatWithAdmins,
@@ -432,7 +433,8 @@ export async function onAdminFileSaved(
 }
 
 export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {
-   const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification } = params;
+   const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification, logResult } =
+      params;
 
    const passwordValidation = await validateAdminCredentials(params);
    if (!passwordValidation.isValid) {
@@ -451,6 +453,7 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
          sendPushNotification: false,
          sendEmailNotification,
          channelId,
+         logResult,
       });
    }
 
@@ -476,6 +479,23 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
    let returnMessage = `Notification sent to ${users.length - errors.length} users.`;
    if (errors.length > 0) {
       returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
+      errors.forEach(error => (returnMessage += `\n${error}`));
+   }
+
+   return returnMessage;
+}
+
+export async function notificationStatusGet(params: AdminNotificationStatusGet, ctx: BaseContext) {
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      ctx?.throw(passwordValidation.error);
+      return;
+   }
+
+   const errors = await getNotificationsDeliveryErrors([{ id: params.ticketId, status: "ok" }]);
+
+   let returnMessage = `Errors amount: ${errors.length} \n`;
+   if (errors.length > 0) {
       errors.forEach(error => (returnMessage += `\n${error}`));
    }
 
