@@ -2,6 +2,7 @@ import { getCredentialsFromStorage } from "../../common-tools/authentication/aut
 import { httpRequest } from "../tools/httpRequest";
 import {
    AdminCommandPostParams,
+   AdminNotificationStatusGet,
    ExportDatabaseResponse,
    ImportDatabasePostParams,
    SendEmailPostParams,
@@ -65,4 +66,13 @@ export async function deleteDatabaseRequest(): Promise<Response> {
    const url = "admin/db/delete";
    const credentials = getCredentialsFromStorage();
    return httpRequest({ url, method: "POST", params: credentials });
+}
+
+export async function notificationStatusRequest<
+   Params extends Partial<AdminNotificationStatusGet>,
+   Response extends string,
+>(params: Params): Promise<Response> {
+   const url = "admin/notification-status";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest({ url, method: "GET", params: { ...params, ...credentials } });
 }

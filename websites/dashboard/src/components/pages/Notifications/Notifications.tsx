@@ -14,6 +14,7 @@ import { tryToGetErrorMessage } from "../../../api/tools/tryToGetErrorMessage";
 import DashboardPageContainer from "../../common/DashboardPageContainer/DashboardPageContainer";
 import CardColumn from "../../common/UI/CardColumn/CardColumn";
 import ConfirmationDialog from "../../common/UI/ConfirmationDialog/ConfirmationDialog";
+import FormDebugTools, { NotificationDebugOptions } from "./FormDebugTools/FormDebugTools";
 import FormEmailSelector from "./FormEmailSelector/FormEmailSelector";
 import FormNotificationContent, {
    NotificationSendingOptions,
@@ -23,6 +24,7 @@ import { ContinueButtonContainer } from "./styles.Notifications";
 const Notifications: FC = () => {
    const [notificationContent, setNotificationContent] = useState<NotificationContent>();
    const [notificationOptions, setNotificationOptions] = useState<NotificationSendingOptions>();
+   const [notificationDebugOptions, setNotificationDebugOptions] = useState<NotificationDebugOptions>();
    const [emailFilter, setEmailFilter] = useState<string[]>();
    const [loading, setLoading] = useState<boolean>(false);
    const [response, setResponse] = useState<string>();
@@ -56,6 +58,7 @@ const Notifications: FC = () => {
             notificationContent?.type === NotificationType.NearbyPartyOrEvent
                ? NotificationChannelId.Events
                : NotificationChannelId.Default,
+         logResult: notificationDebugOptions?.logResult,
       };
 
       if (
@@ -90,6 +93,8 @@ const Notifications: FC = () => {
       setLoading(false);
    };
 
+   console.log(notificationDebugOptions);
+
    return (
       <DashboardPageContainer>
          <h1>Send Notification</h1>
@@ -98,6 +103,8 @@ const Notifications: FC = () => {
             <FormNotificationContent onChange={handleNotificationContentChange} />
             <h3>Select target users</h3>
             <FormEmailSelector onChange={setEmailFilter} />
+            <h3>Testing options</h3>
+            <FormDebugTools onChange={setNotificationDebugOptions} />
             {error && (
                <div>
                   <h3>Error</h3>

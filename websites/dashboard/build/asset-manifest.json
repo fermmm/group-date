@@ -1,26 +1,16 @@
 {
   "files": {
-    "main.css": "/dashboard/static/css/main.e7081bc8.chunk.css",
-    "main.js": "/dashboard/static/js/main.aa0afba0.chunk.js",
-    "main.js.map": "/dashboard/static/js/main.aa0afba0.chunk.js.map",
-    "runtime-main.js": "/dashboard/static/js/runtime-main.f517bbd0.js",
-    "runtime-main.js.map": "/dashboard/static/js/runtime-main.f517bbd0.js.map",
-    "static/css/2.6b560088.chunk.css": "/dashboard/static/css/2.6b560088.chunk.css",
-    "static/js/2.d569e245.chunk.js": "/dashboard/static/js/2.d569e245.chunk.js",
-    "static/js/2.d569e245.chunk.js.map": "/dashboard/static/js/2.d569e245.chunk.js.map",
-    "static/js/3.0e19bbf9.chunk.js": "/dashboard/static/js/3.0e19bbf9.chunk.js",
-    "static/js/3.0e19bbf9.chunk.js.map": "/dashboard/static/js/3.0e19bbf9.chunk.js.map",
+    "main.css": "/dashboard/static/css/main.ddd39acb.css",
+    "main.js": "/dashboard/static/js/main.5f69f992.js",
+    "static/js/787.5e8ce2bc.chunk.js": "/dashboard/static/js/787.5e8ce2bc.chunk.js",
+    "static/media/logo.png": "/dashboard/static/media/logo.03f17db367a17647f95e.png",
     "index.html": "/dashboard/index.html",
-    "static/css/2.6b560088.chunk.css.map": "/dashboard/static/css/2.6b560088.chunk.css.map",
-    "static/css/main.e7081bc8.chunk.css.map": "/dashboard/static/css/main.e7081bc8.chunk.css.map",
-    "static/js/2.d569e245.chunk.js.LICENSE.txt": "/dashboard/static/js/2.d569e245.chunk.js.LICENSE.txt",
-    "static/media/logo.03f17db3.png": "/dashboard/static/media/logo.03f17db3.png"
+    "main.ddd39acb.css.map": "/dashboard/static/css/main.ddd39acb.css.map",
+    "main.5f69f992.js.map": "/dashboard/static/js/main.5f69f992.js.map",
+    "787.5e8ce2bc.chunk.js.map": "/dashboard/static/js/787.5e8ce2bc.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.f517bbd0.js",
-    "static/css/2.6b560088.chunk.css",
-    "static/js/2.d569e245.chunk.js",
-    "static/css/main.e7081bc8.chunk.css",
-    "static/js/main.aa0afba0.chunk.js"
+    "static/css/main.ddd39acb.css",
+    "static/js/main.5f69f992.js"
   ]
 }
