@@ -2,16 +2,16 @@ import React, { FC, useEffect, useState } from "react";
 import { Chip } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TagListContainer } from "./styles.ListAppTagsSubscribed";
-import { databaseQueryRequest } from "../../../../../../../api/server/techOps";
+import { tagsGetRequest } from "../../../../../../../api/server/tags";
+import { userGetRequest } from "../../../../../../../api/server/user";
 
 interface PropsListAppTagsSubscribed {
-   userId: string;
+   token: string;
 }
 
-const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ userId }) => {
+const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ token }) => {
    const [isLoading, setIsLoading] = useState(false);
    const [tagList, setTagList] = useState<string[]>(null);
-   const query = `g.V().has("userId", "${userId}").both("subscribed").hasLabel("tag").has("global", true).values("name")`;
 
    useEffect(() => {
       (async () => {
@@ -20,15 +20,21 @@ const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ userId }) => {
          }
 
          setIsLoading(true);
-         const response = await databaseQueryRequest<string>({ query });
-         setTagList(response?._items ?? []);
+         const tags = await tagsGetRequest({ token });
+         const globalTagsIds = tags?.filter(tag => tag.global).map(tag => tag.tagId) ?? [];
+
+         const user = await userGetRequest({ token });
+         const globalTagNames = user?.tagsSubscribed
+            ?.filter(tag => globalTagsIds.includes(tag.tagId))
+            .map(tag => tag.name);
+         setTagList(globalTagNames ?? []);
          setIsLoading(false);
       })();
-   }, [isLoading, tagList, query]);
+   }, [isLoading, tagList, token]);
 
    useEffect(() => {
       setTagList(null);
-   }, [query]);
+   }, [token]);
 
    if (isLoading || !tagList) {
       return <CircularProgress color="secondary" />;

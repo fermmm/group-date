@@ -6,7 +6,7 @@ import { Group, GroupChat } from "../../../../../../api/tools/shared-tools/endpo
 import { useTheme } from "styled-components";
 import ChatBubble from "./ChatBubble/ChatBubble";
 import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
-import { databaseQueryRequest } from "../../../../../../api/server/techOps";
+import { adminGroupGetRequest } from "../../../../../../api/server/groups";
 
 const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    const group = props.properties as unknown as Partial<Group>;
@@ -19,15 +19,8 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
     */
    useEffect(() => {
       (async () => {
-         const query = `g.V().has("group", "groupId", "${group.groupId}").both("member").map(values("name", "userId").fold())`;
-         const result = (await databaseQueryRequest<[userId: string, name: string]>({ query }))._items;
-
-         setMembers(
-            result?.map(([userId, name]) => ({
-               userId,
-               name,
-            })) ?? undefined,
-         );
+         const groupInfo = await adminGroupGetRequest({ groupId: group.groupId });
+         setMembers(groupInfo?.members ?? []);
       })();
    }, []);
 
@@ -52,7 +45,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    return (
       <>
          <Label>{group.name}</Label>
-         {queryButtons.map(buttonData => (
+         {queryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"
                color="secondary"
@@ -64,6 +57,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
                      openQueryInNewTab(buttonData.query);
                   }
                }}
+               key={i}
             >
                {buttonData.name}
             </Button>
@@ -78,6 +72,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
                }
                text={message.messageText}
                color={getColorForUser(message.authorUserId)}
+               key={message.chatMessageId}
             />
          ))}
          <GenericPanel {...props} hideProps={["chat"]} />

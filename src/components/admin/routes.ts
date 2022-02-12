@@ -12,6 +12,7 @@ import {
    convertToAdminPost,
    deleteDbPost,
    exportDatabaseGet,
+   getGroup,
    importDatabasePost,
    logFileListGet,
    logGet,
@@ -45,6 +46,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/notification-status", "GET", notificationStatusGet);
    createRoute(r, "/admin/command", "POST", runCommandPost);
    createRoute(r, "/admin/email", "POST", sendEmailPost);
+   createRoute(r, "/admin/group", "GET", getGroup);
    createRoute(r, "/admin/user/ban", "POST", banUserPost);
    createRoute(r, "/admin/user/remove-ban", "POST", removeBanFromUserPost);
    createRoute(r, "/admin/user/remove-all-bans", "POST", removeAllBanReasonsFromUser);

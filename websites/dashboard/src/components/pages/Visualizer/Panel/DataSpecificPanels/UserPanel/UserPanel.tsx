@@ -101,7 +101,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          </Row>
          {user.profileDescription && <Label>{user.profileDescription}</Label>}
          <Label>Idea: {user.dateIdea}</Label>
-         <ListAppTagsSubscribed userId={user.userId} />
+         <ListAppTagsSubscribed token={user.token} />
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>
                {(JSON.parse(user.images as unknown as string) as string[])?.map(image => (

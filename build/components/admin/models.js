@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -397,6 +397,21 @@ async function runCommandPost(params, ctx) {
     return await (0, process_tools_1.executeSystemCommand)(command);
 }
 exports.runCommandPost = runCommandPost;
+/**
+ * Endpoints to get a specific group. The normal group endpoint requires a token. Here the admin can see a group without token.
+ */
+async function getGroup(params, ctx) {
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        return passwordValidation.error;
+    }
+    const group = await (0, models_3.getGroupById)(params.groupId, {
+        includeFullDetails: true,
+        ctx,
+    });
+    return group;
+}
+exports.getGroup = getGroup;
 async function banUserPost(params, ctx) {
     var _a;
     const { userId, reason } = params;

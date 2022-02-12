@@ -12,6 +12,7 @@ import {
    AdminChatPostParams,
    AdminCommandPostParams,
    AdminConvertPostParams,
+   AdminGroupGetParams,
    AdminLogGetParams,
    AdminNotificationPostParams,
    AdminNotificationStatusGet,
@@ -97,8 +98,9 @@ import { sendEmailUsingSES } from "../../common-tools/aws/ses-tools";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
 import { createFakeUser } from "../../tests/tools/users";
 import { createEmailLoginToken } from "../email-login/models";
-import { createGroup, getSlotIdFromUsersAmount } from "../groups/models";
+import { createGroup, getGroupById, getSlotIdFromUsersAmount } from "../groups/models";
 import koaBody = require("koa-body");
+import { Group } from "../../shared-tools/endpoints-interfaces/groups";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -541,6 +543,22 @@ export async function runCommandPost(params: AdminCommandPostParams, ctx: BaseCo
    }
 
    return await executeSystemCommand(command);
+}
+
+/**
+ * Endpoints to get a specific group. The normal group endpoint requires a token. Here the admin can see a group without token.
+ */
+export async function getGroup(params: AdminGroupGetParams, ctx: BaseContext): Promise<Group | string> {
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   const group: Group = await getGroupById(params.groupId, {
+      includeFullDetails: true,
+      ctx,
+   });
+   return group;
 }
 
 export async function banUserPost(params: BanUserPostParams, ctx?: BaseContext) {

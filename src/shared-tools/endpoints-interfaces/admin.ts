@@ -35,6 +35,10 @@ export interface AdminLogGetParams extends AdminProtectionParams {
    fileName: string;
 }
 
+export interface AdminGroupGetParams extends AdminProtectionParams {
+   groupId: string;
+}
+
 export interface UsageReport {
    amountOfUsers: number;
    incompleteUsers: number;
