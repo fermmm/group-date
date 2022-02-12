@@ -407,18 +407,6 @@ export async function addNotificationToUser(
                }
             }, hoursToMilliseconds(1));
          }
-
-         if (settings?.logResult) {
-            logToFile(
-               JSON.stringify({
-                  to: user.notificationsToken,
-                  title: notification.title,
-                  body: notification.text,
-                  result: expoPushTickets,
-               }),
-               "testNotificationsResult",
-            );
-         }
       });
    }
 

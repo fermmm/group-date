@@ -314,6 +314,7 @@ async function onAdminFileSaved(files, ctx) {
 }
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
+    var _a;
     const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification, logResult } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
@@ -343,6 +344,14 @@ async function adminNotificationSendPost(params, ctx) {
         },
         channelId: channelId ? channelId : user_1.NotificationChannelId.Default,
     })));
+    if (logResult) {
+        logToFile(JSON.stringify({
+            to: (_a = users === null || users === void 0 ? void 0 : users.map(user => user.notificationsToken)) !== null && _a !== void 0 ? _a : [],
+            title: notificationContent.title,
+            body: notificationContent.text,
+            result: expoPushTickets,
+        }), "testNotificationsResult");
+    }
     // Some time to wait in order for expo to process the notification before the delivery status can be checked
     await (0, js_tools_1.time)(10000);
     const errors = await (0, push_notifications_1.getNotificationsDeliveryErrors)(expoPushTickets);

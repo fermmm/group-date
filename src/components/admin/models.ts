@@ -471,6 +471,18 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
       })),
    );
 
+   if (logResult) {
+      logToFile(
+         JSON.stringify({
+            to: users?.map(user => user.notificationsToken) ?? [],
+            title: notificationContent.title,
+            body: notificationContent.text,
+            result: expoPushTickets,
+         }),
+         "testNotificationsResult",
+      );
+   }
+
    // Some time to wait in order for expo to process the notification before the delivery status can be checked
    await time(10000);
 

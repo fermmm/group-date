@@ -279,14 +279,6 @@ async function addNotificationToUser(tokenIdOrUser, notification, settings) {
                     }
                 }, (0, general_1.hoursToMilliseconds)(1));
             }
-            if (settings === null || settings === void 0 ? void 0 : settings.logResult) {
-                logToFile(JSON.stringify({
-                    to: user.notificationsToken,
-                    title: notification.title,
-                    body: notification.text,
-                    result: expoPushTickets,
-                }), "testNotificationsResult");
-            }
         });
     }
     if (settings === null || settings === void 0 ? void 0 : settings.sendEmailNotification) {
