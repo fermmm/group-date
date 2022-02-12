@@ -39,41 +39,39 @@ const ContextMenu: FC<SimpleDialogProps> = props => {
 
    const renderButton = (button: DialogButton) => {
       return (
-         <MenuItem
-            onClick={() => handleListItemClick(button.label, button.value)}
-            key={button.value}
-         >
+         <MenuItem onClick={() => handleListItemClick(button.label, button.value)} key={button.value}>
             {button.icon && button.icon()}
             {button.label}
          </MenuItem>
       );
    };
 
+   console.log("OPEN", open);
+
    return (
       <>
          {buttonToOpen(handleOpenerClick)}
-         {anchorEl ? (
-            <MenuStyled
-               onClose={handleClose}
-               open={open}
-               anchorEl={anchorEl}
-               keepMounted
-               transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left"
-               }}
-            >
-               {buttons.map(button => renderButton(button))}
-            </MenuStyled>
-         ) : (
-            open && (
+         {open &&
+            (anchorEl ? (
+               <MenuStyled
+                  onClose={handleClose}
+                  open={open}
+                  anchorEl={anchorEl}
+                  keepMounted
+                  transformOrigin={{
+                     vertical: "top",
+                     horizontal: "left",
+                  }}
+               >
+                  {buttons.map(button => renderButton(button))}
+               </MenuStyled>
+            ) : (
                <UnanchoredContainer>
                   <Paper elevation={6}>
                      <MenuList>{buttons.map(button => renderButton(button))}</MenuList>
                   </Paper>
                </UnanchoredContainer>
-            )
-         )}
+            ))}
       </>
    );
 };

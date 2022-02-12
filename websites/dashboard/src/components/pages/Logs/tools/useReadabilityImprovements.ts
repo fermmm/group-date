@@ -1,11 +1,15 @@
 import { humanizeUnixTimeStamp } from "../../../../common-tools/strings/humanizeUnixTime";
 
 export function useReadabilityImprovements(log: string): string {
-   if (!log || typeof log !== "string") {
+   if (!log) {
       return log;
    }
 
    try {
+      if (typeof log !== "string") {
+         log = JSON.stringify(log);
+      }
+
       let logLines = log.split("\n");
       console.log(logLines.length);
 

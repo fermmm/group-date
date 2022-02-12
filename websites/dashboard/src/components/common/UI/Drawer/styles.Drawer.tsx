@@ -10,6 +10,7 @@ export const DrawerContainer = styled("div")`
    flex-direction: row;
    width: 100%;
    height: 100vh;
+   overflow: hidden;
 `;
 
 export const ChildrenContainer = styled("div").withConfig({

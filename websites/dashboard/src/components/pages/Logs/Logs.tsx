@@ -1,12 +1,11 @@
 import React, { FC, useState } from "react";
 import Button from "@mui/material/Button";
-import { LazyLog } from "react-lazylog";
 import { useLog, useLogsFileList } from "../../../api/server/logs";
 import ContextMenu from "../../common/UI/ContextMenu/ContextMenu";
 import { RequestStatus } from "../../common/UI/RequestStatus/RequestStatus";
-import { ContextMenuContainer, LazyLogStyled, LogFileFeedbackMessage, LogsContainer } from "./styles.Logs";
+import { ContextMenuContainer, LogFileFeedbackMessage } from "./styles.Logs";
 import { useFileListToRender } from "./tools/useFileListToRender";
-import { useReadabilityImprovements } from "./tools/useReadabilityImprovements";
+import LogRenderer from "./LogRenderer/LogRenderer";
 
 const Logs: FC = () => {
    const [selectedLogFile, setSelectedLogFile] = useState<string | null>(null);
@@ -21,7 +20,6 @@ const Logs: FC = () => {
       options: { enabled: selectedLogFile != null },
    });
    const fileListToRender = useFileListToRender(fileList);
-   const improvedLog = useReadabilityImprovements(log);
 
    const handleLogFileChange = (logSelectedName: string | null, logSelectedValue: string | null) => {
       if (logSelectedValue == null) {
@@ -33,32 +31,27 @@ const Logs: FC = () => {
    };
 
    return (
-      <RequestStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
-         <LogsContainer>
+      <>
+         <ContextMenuContainer>
+            <ContextMenu
+               startOpened
+               onClose={handleLogFileChange}
+               buttons={fileListToRender}
+               buttonToOpen={onClick => (
+                  <Button onClick={onClick}>
+                     {selectedLogFile ? "File: " + selectedLogFileName : "Select log file"}
+                  </Button>
+               )}
+            />
+         </ContextMenuContainer>
+         <RequestStatus loading={[fileListLoading, logLoading]} error={[fileListError, logError]}>
             {log ? (
-               <LazyLogStyled
-                  enableSearch
-                  text={improvedLog}
-                  caseInsensitive
-                  containerStyle={{ color: "#48b951" }}
-               />
+               <LogRenderer log={log} />
             ) : (
                <LogFileFeedbackMessage>Log file is empty</LogFileFeedbackMessage>
             )}
-            <ContextMenuContainer>
-               <ContextMenu
-                  startOpened
-                  onClose={handleLogFileChange}
-                  buttons={fileListToRender}
-                  buttonToOpen={onClick => (
-                     <Button onClick={onClick}>
-                        {selectedLogFile ? "File: " + selectedLogFileName : "Select log file"}
-                     </Button>
-                  )}
-               />
-            </ContextMenuContainer>
-         </LogsContainer>
-      </RequestStatus>
+         </RequestStatus>
+      </>
    );
 };
 
