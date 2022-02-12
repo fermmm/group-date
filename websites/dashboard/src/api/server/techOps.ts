@@ -3,6 +3,8 @@ import { httpRequest } from "../tools/httpRequest";
 import {
    AdminCommandPostParams,
    AdminNotificationStatusGet,
+   AdminQueryParams,
+   AdminQueryResponse,
    ExportDatabaseResponse,
    ImportDatabasePostParams,
    SendEmailPostParams,
@@ -75,4 +77,14 @@ export async function notificationStatusRequest<
    const url = "admin/notification-status";
    const credentials = getCredentialsFromStorage();
    return httpRequest({ url, method: "GET", params: { ...params, ...credentials } });
+}
+
+export async function databaseQueryRequest<
+   QueryResult = any,
+   Params extends Partial<AdminQueryParams> = Partial<AdminQueryParams>,
+   Response extends AdminQueryResponse<QueryResult> = AdminQueryResponse<QueryResult>,
+>(params: Params) {
+   const url = "admin/db/query";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest<Response>({ url, method: "POST", params: { ...params, ...credentials } });
 }

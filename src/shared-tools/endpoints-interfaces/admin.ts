@@ -49,6 +49,16 @@ export interface VisualizerQueryParams extends AdminProtectionParams {
    nodeLimit: number;
 }
 
+export interface AdminQueryParams extends AdminProtectionParams {
+   query: string;
+}
+
+export interface AdminQueryResponse<QueryResult = any, Attributes = {}> {
+   _items: QueryResult[];
+   attributes: Attributes;
+   length: number;
+}
+
 export interface ImportDatabasePostParams extends AdminProtectionParams {
    filePaths: string[];
    format: DatabaseContentFileFormat;

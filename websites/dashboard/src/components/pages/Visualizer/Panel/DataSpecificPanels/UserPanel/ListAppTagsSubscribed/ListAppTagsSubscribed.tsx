@@ -1,9 +1,8 @@
 import React, { FC, useEffect, useState } from "react";
 import { Chip } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import { visualizerGet } from "../../../../../../../api/server/visualizer";
-import Prop from "../../GenericPanel/Prop/Prop";
 import { TagListContainer } from "./styles.ListAppTagsSubscribed";
+import { databaseQueryRequest } from "../../../../../../../api/server/techOps";
 
 interface PropsListAppTagsSubscribed {
    userId: string;
@@ -12,7 +11,7 @@ interface PropsListAppTagsSubscribed {
 const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ userId }) => {
    const [isLoading, setIsLoading] = useState(false);
    const [tagList, setTagList] = useState<string[]>(null);
-   const query = `g.V().has("userId", "${userId}").both("subscribed").hasLabel("tag").has("global", true)`;
+   const query = `g.V().has("userId", "${userId}").both("subscribed").hasLabel("tag").has("global", true).values("name")`;
 
    useEffect(() => {
       (async () => {
@@ -21,8 +20,8 @@ const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ userId }) => {
          }
 
          setIsLoading(true);
-         const response = await visualizerGet({ query });
-         setTagList(response?.map(({ properties }) => properties.name as string) ?? []);
+         const response = await databaseQueryRequest<string>({ query });
+         setTagList(response?._items ?? []);
          setIsLoading(false);
       })();
    }, [isLoading, tagList, query]);
@@ -37,7 +36,6 @@ const ListAppTagsSubscribed: FC<PropsListAppTagsSubscribed> = ({ userId }) => {
 
    return (
       <>
-         <Prop propName={"App tags subscribed"} />
          <TagListContainer>
             {tagList.map((tagName, i) => (
                <Chip label={tagName} color="primary" variant="outlined" key={i} />

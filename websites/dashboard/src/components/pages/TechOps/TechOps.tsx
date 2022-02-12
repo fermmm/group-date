@@ -5,6 +5,7 @@ import DashboardPageContainer from "../../common/DashboardPageContainer/Dashboar
 import RunCommandForm from "./RunCommandForm/RunCommandForm";
 import SendEmailForm from "./SendEmailForm/SendEmailForm";
 import NotificationStatusForm from "./NotificationStatusForm/NotificationStatusForm";
+import SendQueryForm from "./SendQueryForm/SendQueryForm";
 
 const TechOps: FC = () => {
    return (
@@ -12,6 +13,7 @@ const TechOps: FC = () => {
          <h1>Tech operations</h1>
          <ButtonsContainer>
             <ImportExportForm />
+            <SendQueryForm />
             <RunCommandForm />
             <SendEmailForm />
             <NotificationStatusForm />

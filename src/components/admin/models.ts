@@ -16,6 +16,8 @@ import {
    AdminNotificationPostParams,
    AdminNotificationStatusGet,
    AdminProtectionParams,
+   AdminQueryParams,
+   AdminQueryResponse,
    BanUserPostParams,
    ChatWithAdmins,
    CredentialsValidationResult,
@@ -356,6 +358,21 @@ export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseCon
 
    const result = await sendQueryAsString(makeQueryForVisualizer(query, nodeLimit));
    return nodesToJson(result._items);
+}
+
+export async function queryPost(
+   params: AdminQueryParams,
+   ctx: BaseContext,
+): Promise<AdminQueryResponse | string> {
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   const { query } = params;
+
+   const result = await sendQueryAsString(query);
+   return result;
 }
 
 export async function deleteDbPost(params: VisualizerQueryParams, ctx: BaseContext) {

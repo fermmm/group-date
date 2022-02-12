@@ -5,10 +5,8 @@ import { Label } from "../GenericPanel/styles.GenericPanel";
 import { Group, GroupChat } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/groups";
 import { useTheme } from "styled-components";
 import ChatBubble from "./ChatBubble/ChatBubble";
-import { visualizerGet } from "../../../../../../api/server/visualizer";
-import { GremlinElement } from "../../../tools/visualizerUtils";
-import { User } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
 import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
+import { databaseQueryRequest } from "../../../../../../api/server/techOps";
 
 const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    const group = props.properties as unknown as Partial<Group>;
@@ -21,14 +19,13 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
     */
    useEffect(() => {
       (async () => {
-         const result: Array<GremlinElement<Partial<User>>> = await visualizerGet({
-            query: `g.V().has("group", "groupId", "${group.groupId}").both("member")`,
-         });
+         const query = `g.V().has("group", "groupId", "${group.groupId}").both("member").map(values("name", "userId").fold())`;
+         const result = (await databaseQueryRequest<[userId: string, name: string]>({ query }))._items;
 
          setMembers(
-            result?.map(memberVertex => ({
-               userId: memberVertex?.properties?.userId,
-               name: memberVertex?.properties?.name,
+            result?.map(([userId, name]) => ({
+               userId,
+               name,
             })) ?? undefined,
          );
       })();
@@ -76,7 +73,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
                name={
                   !members
                      ? message.authorUserId
-                     : members.find(member => member.userId === message.authorUserId).name ??
+                     : members?.find(member => member.userId === message.authorUserId)?.name ??
                        message.authorUserId
                }
                text={message.messageText}

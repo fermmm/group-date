@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -250,6 +250,16 @@ async function visualizerPost(params, ctx) {
     return (0, visualizer_proxy_tools_1.nodesToJson)(result._items);
 }
 exports.visualizerPost = visualizerPost;
+async function queryPost(params, ctx) {
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        return passwordValidation.error;
+    }
+    const { query } = params;
+    const result = await (0, database_manager_1.sendQueryAsString)(query);
+    return result;
+}
+exports.queryPost = queryPost;
 async function deleteDbPost(params, ctx) {
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
