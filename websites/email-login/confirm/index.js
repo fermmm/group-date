@@ -85,25 +85,35 @@ function tryToGetErrorMessage(error) {
       return "";
    }
 
-   if (error.response?.data?.error?.message) {
-      return error.response.data.error.message;
-   }
+   try {
+      if (error.response.data.error.message) {
+         return error.response.data.error.message;
+      }
+   } catch (e) {}
 
-   if (error.response?.data?.[0]?.message != null) {
-      return error.response.data[0].message;
-   }
+   try {
+      if (error.response.data[0].message != null) {
+         return error.response.data[0].message;
+      }
+   } catch (e) {}
 
-   if (error.response?.data != null) {
-      return error.response.data;
-   }
+   try {
+      if (error.response.data != null) {
+         return error.response.data;
+      }
+   } catch (e) {}
 
-   if (error.response != null) {
-      return error.response;
-   }
+   try {
+      if (error.response != null) {
+         return error.response;
+      }
+   } catch (e) {}
 
-   if (error.message != null) {
-      return error.message;
-   }
+   try {
+      if (error.message != null) {
+         return error.message;
+      }
+   } catch (e) {}
 
    return "No information found";
 }
