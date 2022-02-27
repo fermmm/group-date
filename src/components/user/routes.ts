@@ -17,6 +17,8 @@ import {
    deleteAccountPost,
    setSeenPost,
    taskCompletedPost,
+   blockUserPost,
+   unblockUserPost,
 } from "./models";
 import { imagesLogger } from "../../common-tools/log-tools/log-routes";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
@@ -32,6 +34,8 @@ export function userRoutes(r: Router): void {
    createRoute(r, "/user/set-attraction", "POST", setAttractionPost);
    createRoute(r, "/user/set-seen", "POST", setSeenPost);
    createRoute(r, "/user/report", "POST", reportUserPost);
+   createRoute(r, "/user/block", "POST", blockUserPost);
+   createRoute(r, "/user/unblock", "POST", unblockUserPost);
    createRoute(r, "/user/tasks/completed", "POST", taskCompletedPost);
    createRoute(r, "/user/delete", "POST", deleteAccountPost);
 

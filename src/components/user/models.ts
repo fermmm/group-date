@@ -11,6 +11,7 @@ import {
    TaskCompletedResponse,
    RequiredTask,
    SetSeenAction,
+   BlockOrUnblockUserParams,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import {
    isValidNotificationsToken,
@@ -486,6 +487,41 @@ export async function reportUserPost(params: ReportUserPostParams, ctx: BaseCont
    };
 
    logToFile(JSON.stringify(objectToLog), "usersReported");
+}
+
+export async function blockUserPost(params: BlockOrUnblockUserParams, ctx: BaseContext) {
+   const user: Partial<User> = await retrieveUser(params.token, false, ctx);
+
+   if (user == null) {
+      return;
+   }
+
+   const targetUser: Partial<User> = await fromQueryToUser(
+      queryToGetUserByTokenOrId({ userId: params.targetUserId }),
+      false,
+   );
+
+   if (targetUser.demoAccount || user.demoAccount) {
+      ctx.throw(400, "Demo accounts cannot block users or be blocked");
+      return;
+   }
+
+   //TODO: Complete this
+}
+
+export async function unblockUserPost(params: BlockOrUnblockUserParams, ctx: BaseContext) {
+   const user: Partial<User> = await retrieveUser(params.token as string, false, ctx);
+
+   if (user == null) {
+      return;
+   }
+
+   const targetUser: Partial<User> = await fromQueryToUser(
+      queryToGetUserByTokenOrId({ userId: params.targetUserId }),
+      false,
+   );
+
+   //TODO: Complete this
 }
 
 /**

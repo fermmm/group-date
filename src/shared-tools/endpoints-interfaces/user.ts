@@ -193,6 +193,10 @@ export interface ReportUserPostParams extends TokenParameter {
    notes?: string;
 }
 
+export interface BlockOrUnblockUserParams extends TokenParameter {
+   targetUserId: string;
+}
+
 export interface DeleteAccountPostParams extends TokenParameter {}
 
 export interface DeleteAccountResponse {
