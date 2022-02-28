@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToRemoveSeen = exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
+exports.queryToUnblockUser = exports.queryToBlockUser = exports.queryToRemoveSeen = exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
@@ -300,4 +300,20 @@ function queryToRemoveSeen(props) {
     return traversal;
 }
 exports.queryToRemoveSeen = queryToRemoveSeen;
+function queryToBlockUser(props) {
+    const { requesterUserId, targetUserId } = props;
+    let traversal = queryToGetUserById(targetUserId).as("targetUser");
+    traversal = queryToGetUserById(requesterUserId, traversal);
+    traversal = traversal.coalesce(database_manager_1.__.outE("blockedUser"), database_manager_1.__.addE("blockedUser").to("targetUser"));
+    return traversal;
+}
+exports.queryToBlockUser = queryToBlockUser;
+function queryToUnblockUser(props) {
+    const { requesterUserId, targetUserId } = props;
+    let traversal = queryToGetUserById(targetUserId).as("targetUser");
+    traversal = queryToGetUserById(requesterUserId, traversal);
+    traversal = traversal.outE("blockedUser").where(database_manager_1.__.inV().as("targetUser")).drop();
+    return traversal;
+}
+exports.queryToUnblockUser = queryToUnblockUser;
 //# sourceMappingURL=queries.js.map

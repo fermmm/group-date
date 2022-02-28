@@ -139,6 +139,18 @@ describe("Cards game", () => {
     test("Incompatible recommendations tests were done correctly", () => {
         (0, reusable_tests_1.createdUsersMatchesFakeData)(fakeUsers, allUsersData, true);
     });
+    test("Blocked users are not recommended", async () => {
+        recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
+        // Check amount
+        const originalAmount = recommendations.length;
+        const targetUserId = recommendations[0].userId;
+        await (0, models_2.blockUserPost)({ token: searcherUser.token, targetUserId }, replacements_1.fakeCtx);
+        recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
+        expect(recommendations).toHaveLength(originalAmount - 1);
+        await (0, models_2.unblockUserPost)({ token: searcherUser.token, targetUserId }, replacements_1.fakeCtx);
+        recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
+        expect(recommendations).toHaveLength(originalAmount);
+    });
     test("Recommendations returns correct users in correct order", async () => {
         // Check amount
         expect(recommendations).toHaveLength(2);

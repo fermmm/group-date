@@ -396,3 +396,25 @@ export function queryToRemoveSeen(props: { requesterUserId: string; targetUserId
 
    return traversal;
 }
+
+export function queryToBlockUser(props: { requesterUserId: string; targetUserId: string }): Traversal {
+   const { requesterUserId, targetUserId } = props;
+
+   let traversal = queryToGetUserById(targetUserId).as("targetUser");
+   traversal = queryToGetUserById(requesterUserId, traversal);
+
+   traversal = traversal.coalesce(__.outE("blockedUser"), __.addE("blockedUser").to("targetUser"));
+
+   return traversal;
+}
+
+export function queryToUnblockUser(props: { requesterUserId: string; targetUserId: string }): Traversal {
+   const { requesterUserId, targetUserId } = props;
+
+   let traversal = queryToGetUserById(targetUserId).as("targetUser");
+   traversal = queryToGetUserById(requesterUserId, traversal);
+
+   traversal = traversal.outE("blockedUser").where(__.inV().as("targetUser")).drop();
+
+   return traversal;
+}

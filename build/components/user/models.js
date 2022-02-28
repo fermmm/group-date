@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UNWANTED_USER_TAG_IDS = exports.onImageFileSaved = exports.onImageFileReceived = exports.isUnwantedUser = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.sendEmailNotification = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
+exports.UNWANTED_USER_TAG_IDS = exports.onImageFileSaved = exports.onImageFileReceived = exports.isUnwantedUser = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.unblockUserPost = exports.blockUserPost = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.sendEmailNotification = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
 const user_1 = require("./../../shared-tools/endpoints-interfaces/user");
 const push_notifications_1 = require("./../../common-tools/push-notifications/push-notifications");
 const security_tools_1 = require("./../../common-tools/security-tools/security-tools");
@@ -346,6 +346,36 @@ async function reportUserPost(params, ctx) {
     logToFile(JSON.stringify(objectToLog), "usersReported");
 }
 exports.reportUserPost = reportUserPost;
+async function blockUserPost(params, ctx) {
+    const user = await retrieveUser(params.token, false, ctx);
+    if (user == null) {
+        return { success: false };
+    }
+    const targetUser = await (0, data_conversion_1.fromQueryToUser)((0, queries_2.queryToGetUserByTokenOrId)({ userId: params.targetUserId }), false);
+    if (targetUser == null) {
+        return { success: false };
+    }
+    if (targetUser.demoAccount || user.demoAccount) {
+        ctx.throw(400, "Demo accounts cannot block users or be blocked");
+        return;
+    }
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToBlockUser)({ requesterUserId: user.userId, targetUserId: targetUser.userId }).iterate());
+    return { success: true };
+}
+exports.blockUserPost = blockUserPost;
+async function unblockUserPost(params, ctx) {
+    const user = await retrieveUser(params.token, false, ctx);
+    if (user == null) {
+        return { success: false };
+    }
+    const targetUser = await (0, data_conversion_1.fromQueryToUser)((0, queries_2.queryToGetUserByTokenOrId)({ userId: params.targetUserId }), false);
+    if (targetUser == null) {
+        return { success: false };
+    }
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToUnblockUser)({ requesterUserId: user.userId, targetUserId: targetUser.userId }).iterate());
+    return { success: true };
+}
+exports.unblockUserPost = unblockUserPost;
 /**
  * This function is not exposed to the server API. It's only for tests.
  */

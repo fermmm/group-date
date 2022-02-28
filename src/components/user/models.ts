@@ -46,6 +46,7 @@ import {
    validateUserProps,
 } from "../../shared-tools/validators/user";
 import {
+   queryToBlockUser,
    queryToCreateUser,
    queryToGetAttractionsReceived,
    queryToGetAttractionsSent,
@@ -56,6 +57,7 @@ import {
    queryToRemoveSeen,
    queryToSetAttraction,
    queryToSetUserProps,
+   queryToUnblockUser,
    queryToUpdateUserProps,
    queryToUpdateUserToken,
 } from "./queries";
@@ -493,27 +495,35 @@ export async function blockUserPost(params: BlockOrUnblockUserParams, ctx: BaseC
    const user: Partial<User> = await retrieveUser(params.token, false, ctx);
 
    if (user == null) {
-      return;
+      return { success: false };
    }
 
    const targetUser: Partial<User> = await fromQueryToUser(
       queryToGetUserByTokenOrId({ userId: params.targetUserId }),
       false,
    );
+
+   if (targetUser == null) {
+      return { success: false };
+   }
 
    if (targetUser.demoAccount || user.demoAccount) {
       ctx.throw(400, "Demo accounts cannot block users or be blocked");
       return;
    }
 
-   //TODO: Complete this
+   await sendQuery(() =>
+      queryToBlockUser({ requesterUserId: user.userId, targetUserId: targetUser.userId }).iterate(),
+   );
+
+   return { success: true };
 }
 
 export async function unblockUserPost(params: BlockOrUnblockUserParams, ctx: BaseContext) {
    const user: Partial<User> = await retrieveUser(params.token as string, false, ctx);
 
    if (user == null) {
-      return;
+      return { success: false };
    }
 
    const targetUser: Partial<User> = await fromQueryToUser(
@@ -521,7 +531,15 @@ export async function unblockUserPost(params: BlockOrUnblockUserParams, ctx: Bas
       false,
    );
 
-   //TODO: Complete this
+   if (targetUser == null) {
+      return { success: false };
+   }
+
+   await sendQuery(() =>
+      queryToUnblockUser({ requesterUserId: user.userId, targetUserId: targetUser.userId }).iterate(),
+   );
+
+   return { success: true };
 }
 
 /**

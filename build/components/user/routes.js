@@ -17,6 +17,8 @@ function userRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/user/set-attraction", "POST", models_1.setAttractionPost);
     (0, route_tools_1.createRoute)(r, "/user/set-seen", "POST", models_1.setSeenPost);
     (0, route_tools_1.createRoute)(r, "/user/report", "POST", models_1.reportUserPost);
+    (0, route_tools_1.createRoute)(r, "/user/block", "POST", models_1.blockUserPost);
+    (0, route_tools_1.createRoute)(r, "/user/unblock", "POST", models_1.unblockUserPost);
     (0, route_tools_1.createRoute)(r, "/user/tasks/completed", "POST", models_1.taskCompletedPost);
     (0, route_tools_1.createRoute)(r, "/user/delete", "POST", models_1.deleteAccountPost);
     r.post(`${configurations_1.USERS_API_PATH}/user/upload-image`, models_1.onImageFileReceived, async (ctx) => (ctx.body = await (0, models_1.onImageFileSaved)(ctx.request.files.image, ctx)));

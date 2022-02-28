@@ -5,7 +5,13 @@ import {
    notifyAllUsersAboutNewCards,
    recommendationsGet,
 } from "../components/cards-game/models";
-import { setAttractionPost, userGet, userPost } from "../components/user/models";
+import {
+   blockUserPost,
+   setAttractionPost,
+   unblockUserPost,
+   userGet,
+   userPost,
+} from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
 import { AttractionType, Gender, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
@@ -173,6 +179,24 @@ describe("Cards game", () => {
 
    test("Incompatible recommendations tests were done correctly", () => {
       createdUsersMatchesFakeData(fakeUsers, allUsersData, true);
+   });
+
+   test("Blocked users are not recommended", async () => {
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+
+      // Check amount
+      const originalAmount = recommendations.length;
+      const targetUserId = recommendations[0].userId;
+
+      await blockUserPost({ token: searcherUser.token, targetUserId }, fakeCtx);
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+
+      expect(recommendations).toHaveLength(originalAmount - 1);
+
+      await unblockUserPost({ token: searcherUser.token, targetUserId }, fakeCtx);
+      recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
+
+      expect(recommendations).toHaveLength(originalAmount);
    });
 
    test("Recommendations returns correct users in correct order", async () => {

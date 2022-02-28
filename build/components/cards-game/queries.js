@@ -64,6 +64,10 @@ function queryToGetCardsRecommendations(searcherUser, settings) {
      */
     traversal = traversal.not(database_manager_1.__.where(database_manager_1.__.out("blocked").where(database_manager_1.P.within("subscribedTags"))));
     /**
+     * Is not blocked by the searcher user
+     */
+    traversal = traversal.not(database_manager_1.__.inE("blockedUser").outV().as("searcherUser"));
+    /**
      * It's another user (not self)
      */
     traversal = traversal.not(database_manager_1.__.has("userId", searcherUser.userId));

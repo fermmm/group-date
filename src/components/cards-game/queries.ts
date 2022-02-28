@@ -117,6 +117,11 @@ export function queryToGetCardsRecommendations(
    traversal = traversal.not(__.where(__.out("blocked").where(P.within("subscribedTags"))));
 
    /**
+    * Is not blocked by the searcher user
+    */
+   traversal = traversal.not(__.inE("blockedUser").outV().as("searcherUser"));
+
+   /**
     * It's another user (not self)
     */
    traversal = traversal.not(__.has("userId", searcherUser.userId));
