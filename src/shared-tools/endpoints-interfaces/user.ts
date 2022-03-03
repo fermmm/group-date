@@ -204,8 +204,13 @@ export interface DeleteAccountResponse {
 }
 
 export enum ReportUserType {
-   NonEthical = "non-ethical",
-   MissingPicture = "missing-picture",
+   MissingBadPicture = "MissingBadPicture",
+   AggressiveHarassment = "AggressiveHarassment",
+   SexualHarassment = "SexualHarassment",
+   SpammerScammerFake = "SpammerScammerFake",
+   Minor = "Minor",
+   Offsite = "Offsite",
+   Other = "Other",
 }
 
 export interface SetSeenPostParams extends TokenParameter {
