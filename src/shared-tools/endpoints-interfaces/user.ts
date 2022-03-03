@@ -204,12 +204,12 @@ export interface DeleteAccountResponse {
 }
 
 export enum ReportUserType {
-   MissingBadPicture = "MissingBadPicture",
-   AggressiveHarassment = "AggressiveHarassment",
-   SexualHarassment = "SexualHarassment",
-   SpammerScammerFake = "SpammerScammerFake",
-   Minor = "Minor",
-   Offsite = "Offsite",
+   MissingBadPicture = "Bad Photo",
+   AggressiveHarassment = "Aggressive/Harassment",
+   SexualHarassment = "Sexual Harassment",
+   SpammerScammerFake = "Spammer/Scammer/Fake",
+   Minor = "Minor (under 18 years old)",
+   Offsite = "Offsite behavior: assault / abuse / violence / weapon in a photo",
    Other = "Other",
 }
 
