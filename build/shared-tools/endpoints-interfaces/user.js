@@ -58,8 +58,13 @@ var NotificationChannelId;
 })(NotificationChannelId = exports.NotificationChannelId || (exports.NotificationChannelId = {}));
 var ReportUserType;
 (function (ReportUserType) {
-    ReportUserType["NonEthical"] = "non-ethical";
-    ReportUserType["MissingPicture"] = "missing-picture";
+    ReportUserType["MissingBadPicture"] = "Bad Photo";
+    ReportUserType["AggressiveHarassment"] = "Aggressive/Harassment";
+    ReportUserType["SexualHarassment"] = "Sexual Harassment";
+    ReportUserType["SpammerScammerFake"] = "Spammer/Scammer/Fake";
+    ReportUserType["Minor"] = "Minor (under 18 years old)";
+    ReportUserType["Offsite"] = "Offsite behavior: assault / abuse / violence / weapon in a photo";
+    ReportUserType["Other"] = "Other";
 })(ReportUserType = exports.ReportUserType || (exports.ReportUserType = {}));
 var SetSeenAction;
 (function (SetSeenAction) {
