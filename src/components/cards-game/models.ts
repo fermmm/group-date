@@ -1,10 +1,10 @@
 import { BaseContext } from "koa";
-import { setIntervalAsync } from "set-interval-async/dynamic";
 import {
    SEARCHER_LIKING_CHUNK,
    NON_SEARCHER_LIKING_CHUNK,
-   NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY,
    SHUFFLE_LIKING_NON_LIKING_RESULTS,
+   CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING,
+   CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS,
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { BasicSingleTagParams } from "../../shared-tools/endpoints-interfaces/tags";
@@ -14,19 +14,17 @@ import { queryToUpdateUserProps } from "../user/queries";
 import { fromQueryToUserList } from "../user/tools/data-conversion";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
-   queryToGetAllUsersWantingNewCardsNotification,
+   queryToGetUsersWantingNewCardsNotification,
    queryToGetCardsRecommendations,
    queryToGetDemoCardsRecommendations,
    queryToGetDislikedUsers,
 } from "./queries";
 import { queryToGetUsersSubscribedToTags } from "../tags/queries";
 import { CardsGameResult, fromQueryToCardsResult } from "./tools/data-conversion";
-import { divideArrayCallback, shuffleArray } from "../../common-tools/js-tools/js-tools";
+import { divideArrayCallback, limitArray, shuffleArray } from "../../common-tools/js-tools/js-tools";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
 
-export async function initializeCardsGame(): Promise<void> {
-   setIntervalAsync(notifyAllUsersAboutNewCards, NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY);
-}
+export async function initializeCardsGame(): Promise<void> {}
 
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
@@ -37,7 +35,24 @@ export async function recommendationsGet(params: TokenParameter, ctx: BaseContex
 
    const recommendationsQuery: Traversal = queryToGetCardsRecommendations(user);
    const result: CardsGameResult = await fromQueryToCardsResult(recommendationsQuery);
-   return mergeResults(result);
+
+   // Send a notification to the users about new cards when needed
+   notifyUsersAboutNewCards({
+      userIds: [...result.liking.map(u => u.userId), ...result.others.map(u => u.userId)],
+   });
+
+   /*
+    * This ensures that the amount of users sent to the client is limited, the query may
+    * return more users than the limit so it needs to be limited here before sending.
+    * The query returning more users than the limit is useful for notifications but it
+    * should not send all the results to the client.
+    */
+   limitArray(result.liking, CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING);
+   limitArray(result.others, CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS);
+
+   const finalResult = mergeResults(result);
+
+   return finalResult;
 }
 
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
@@ -62,30 +77,38 @@ export async function recommendationsFromTagGet(
 }
 
 /**
- * TODO: This is too expensive. An optimization is possible: There is no point on notifying of new users that disliked you or
- * new users that did't see you yet. So the only remaining case where it's useful to notify is when you get a
- * like, so you can see the user and like it back, that's a lot less users to navigate and it's based on an
- * event instead of a repeating whole database search.
+ * Sends a notification about new cards to the list of users provided, first it checks if there are new
+ * cards, the users that has no new cards will not be notified. If no list of users is provided then all
+ * the users of the app will be checked, it's recommended to use this function with the list of users because
+ * checking for cards for all users of the app it's an operation that may take too much time.
  *
  * This is the workflow:
  *    When there are no more cards on the cards game the client sets sendNewUsersNotification to a number.
- *    This number is the amount of new users that needs to appear on the application to notify the user.
+ *    This number is the amount of new users that needs to appear on the application to send the notification.
  *
- * This function:
+ * Implementation steps:
  *    1. Finds all users with sendNewUsersNotification > 0
  *    2. Searches recommendations for that user
  *    3. If the recommendations amount is equal or more than sendNewUsersNotification sends the notification.
  *    4. After sending the notification sets sendNewUsersNotification to -1, this value means that the functionality
  *       is disabled because the cycle is complete and not because the user disabled it.
- *    5. When the user swipe cards and there are no more the client sets  sendNewUsersNotification again to repeat the cycle
+ *    5. When the user swipe cards and there are no more the client sets sendNewUsersNotification again to repeat the cycle
  */
-export async function notifyAllUsersAboutNewCards(): Promise<void> {
-   const porfiler = logTimeToFile("notifyUsersAboutNewCardsTask");
+export async function notifyUsersAboutNewCards(params?: { userIds?: string[] }): Promise<void> {
+   const { userIds } = params ?? {};
 
-   const users: User[] = await fromQueryToUserList(queryToGetAllUsersWantingNewCardsNotification(), false);
+   // TODO: This should log only when the time it takes is too much
+   const logger = logTimeToFile("notifyUsersAboutNewCardsTask");
+
+   const users: User[] = await fromQueryToUserList(queryToGetUsersWantingNewCardsNotification(userIds), false);
+
    for (const user of users) {
       const recommendations: number = (
-         await queryToGetCardsRecommendations(user, { singleListResults: true, unordered: true }).toList()
+         await queryToGetCardsRecommendations(user, {
+            singleListResults: true,
+            unordered: true,
+            limit: user.sendNewUsersNotification,
+         }).toList()
       ).length;
 
       if (recommendations >= user.sendNewUsersNotification) {
@@ -100,7 +123,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
             {
                type: NotificationType.CardsGame,
                title: t(`There is new people in the app!`, { user }),
-               text: t("There are %s new users", { user }, String(recommendations)),
+               text: t("There are %s or more new users", { user }, String(recommendations)),
                idForReplacement: "newUsers",
             },
             { sendPushNotification: true, channelId: NotificationChannelId.NewUsers },
@@ -108,7 +131,7 @@ export async function notifyAllUsersAboutNewCards(): Promise<void> {
       }
    }
 
-   porfiler.done("Notifying users about new cards finished");
+   logger.done("Notifying users about new cards finished");
 }
 
 /**

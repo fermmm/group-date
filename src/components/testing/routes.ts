@@ -3,7 +3,7 @@ import { BaseContext } from "koa";
 import { Console } from "winston/lib/winston/transports";
 import { g, sendQuery, __ } from "../../common-tools/database-tools/database-manager";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
-import { notifyAllUsersAboutNewCards } from "../cards-game/models";
+import { notifyUsersAboutNewCards } from "../cards-game/models";
 import { sendNewGroupNotification } from "../groups/models";
 import { queryToGetAllGroups, queryToGetAllGroupsOfUser } from "../groups/queries";
 import { fromQueryToGroupList } from "../groups/tools/data-conversion";

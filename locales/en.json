@@ -19,7 +19,7 @@
 	"Yes": "Yes",
 	"No": "No",
 	"There is new people in the app!": "There is new people in the app!",
-	"There are %s new users": "There are %s new users",
+	"There are %s or more new users": "There are %s or more new users",
 	"You have a new message from an admin": "You have a new message from an admin",
 	"You can respond to the admin": "You can respond to the admin",
 	"You are in a group!": "You are in a group!",

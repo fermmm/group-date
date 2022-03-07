@@ -23,6 +23,7 @@ import {
    queryToGetUserById,
    queryToIncludeFullInfoInUserQuery,
    queryToGetAllDemoUsers,
+   queryToGetUsersFromIdList,
 } from "../user/queries";
 
 export function queryToGetCardsRecommendations(
@@ -32,6 +33,7 @@ export function queryToGetCardsRecommendations(
       showAlreadyReviewed?: boolean;
       singleListResults?: boolean;
       unordered?: boolean;
+      limit?: number;
    },
 ): Traversal {
    let traversal: Traversal = settings?.traversal ?? queryToGetAllCompleteUsers();
@@ -184,9 +186,9 @@ export function queryToGetCardsRecommendations(
     * Create an output with 2 users list, the ones that likes the user and the others
     */
    if (!settings?.singleListResults) {
-      traversal = queryToDivideLikingUsers(traversal, searcherUser);
+      traversal = queryToDivideLikingUsers(traversal, searcherUser, settings?.limit);
    } else {
-      traversal = traversal.limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS);
+      traversal = traversal.limit(settings?.limit ?? CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS);
    }
 
    return traversal;
@@ -286,7 +288,7 @@ export function queryToOrderResults(traversal: Traversal, searcherUser: User): T
    );
 }
 
-export function queryToDivideLikingUsers(traversal: Traversal, searcherUser: User): Traversal {
+export function queryToDivideLikingUsers(traversal: Traversal, searcherUser: User, limit?: number): Traversal {
    return traversal
       .group()
       .by(
@@ -299,12 +301,12 @@ export function queryToDivideLikingUsers(traversal: Traversal, searcherUser: Use
       .project("liking", "others")
       .by(
          queryToIncludeFullInfoInUserQuery(__.select("liking").unfold())
-            .limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING)
+            .limit(limit ?? CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING)
             .fold(),
       )
       .by(
          queryToIncludeFullInfoInUserQuery(__.select("others").unfold())
-            .limit(CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS)
+            .limit(limit ?? CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS)
             .fold(),
       );
 }
@@ -332,8 +334,18 @@ export function queryToGetDislikedUsers(props: {
    return traversal;
 }
 
-export function queryToGetAllUsersWantingNewCardsNotification(): Traversal {
-   return queryToGetAllCompleteUsers().has("sendNewUsersNotification", P.gt(0));
+export function queryToGetUsersWantingNewCardsNotification(userIds?: string[]): Traversal {
+   let traversal: Traversal;
+
+   if (userIds) {
+      traversal = queryToGetUsersFromIdList(userIds);
+   } else {
+      traversal = queryToGetAllCompleteUsers();
+   }
+
+   traversal = traversal.has("sendNewUsersNotification", P.gt(0));
+
+   return traversal;
 }
 
 /**

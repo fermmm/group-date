@@ -2,7 +2,7 @@ import { fromAgeToBirthDate } from "./../common-tools/math-tools/date-tools";
 import "jest";
 import {
    dislikedUsersGet,
-   notifyAllUsersAboutNewCards,
+   notifyUsersAboutNewCards,
    recommendationsGet,
 } from "../components/cards-game/models";
 import {
@@ -236,7 +236,7 @@ describe("Cards game", () => {
       expect(mainUser.notifications.length).toBe(0);
 
       // If the user does not request for notifications should be not notified
-      await notifyAllUsersAboutNewCards();
+      await notifyUsersAboutNewCards({ userIds: [mainUser.userId] });
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
       expect(mainUser.notifications.length).toBe(0);
 
@@ -244,12 +244,12 @@ describe("Cards game", () => {
       await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, fakeCtx);
 
       // Now it should be notified
-      await notifyAllUsersAboutNewCards();
+      await notifyUsersAboutNewCards({ userIds: [mainUser.userId] });
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
       expect(mainUser.notifications.length).toBe(1);
 
       // Repetition should not add more notifications
-      await notifyAllUsersAboutNewCards();
+      await notifyUsersAboutNewCards({ userIds: [mainUser.userId] });
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
       expect(mainUser.notifications.length).toBe(1);
 

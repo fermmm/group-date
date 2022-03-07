@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._consoleLog = exports.shuffleArray = exports.retryPromise = exports.executePromises = exports.divideArrayCallback = exports.numberChunksCallback = exports.objectsContentIsEqual = exports.time = void 0;
+exports.limitArray = exports._consoleLog = exports.shuffleArray = exports.retryPromise = exports.executePromises = exports.divideArrayCallback = exports.numberChunksCallback = exports.objectsContentIsEqual = exports.time = void 0;
 const util = require("util");
 /**
  * Wraps a setTimeout into this async function to be used with "async await" syntax.
@@ -156,4 +156,18 @@ function _consoleLog(obj) {
     console.log(util.inspect(obj, false, null, true));
 }
 exports._consoleLog = _consoleLog;
+/**
+ * This function mutates the array limiting the amount of items to the specified amount
+ * removing the remaining elements from the array.
+ *
+ * @param limit Amount of items the array should have.
+ */
+function limitArray(array, limit) {
+    if (array.length <= limit) {
+        return;
+    }
+    // Setting the array length to a number smaller than current length removed the remaining elements.
+    array.length = limit;
+}
+exports.limitArray = limitArray;
 //# sourceMappingURL=js-tools.js.map

@@ -178,17 +178,17 @@ describe("Cards game", () => {
         // The welcome notification is not working on tests so we should have 0 notifications
         expect(mainUser.notifications.length).toBe(0);
         // If the user does not request for notifications should be not notified
-        await (0, models_1.notifyAllUsersAboutNewCards)();
+        await (0, models_1.notifyUsersAboutNewCards)({ userIds: [mainUser.userId] });
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
         expect(mainUser.notifications.length).toBe(0);
         // Here user requests for notifications
         await (0, models_2.userPost)({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, replacements_1.fakeCtx);
         // Now it should be notified
-        await (0, models_1.notifyAllUsersAboutNewCards)();
+        await (0, models_1.notifyUsersAboutNewCards)({ userIds: [mainUser.userId] });
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
         expect(mainUser.notifications.length).toBe(1);
         // Repetition should not add more notifications
-        await (0, models_1.notifyAllUsersAboutNewCards)();
+        await (0, models_1.notifyUsersAboutNewCards)({ userIds: [mainUser.userId] });
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
         expect(mainUser.notifications.length).toBe(1);
         await (0, queries_1.queryToRemoveUsers)([mainUser]);

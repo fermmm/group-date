@@ -38,7 +38,7 @@ async function createAccountPost(params, ctx) {
             subject: `${(0, i18n_tools_1.t)("Verify your email", { ctx })}`,
             html: (0, loadHtmlTemplate_1.loadHtmlEmailTemplate)({
                 variablesToReplace: {
-                    title: `${(0, i18n_tools_1.t)("Welcome to", { ctx })} ${configurations_1.APPLICATION_NAME} =)`,
+                    title: `${(0, i18n_tools_1.t)("Welcome to", { ctx })} ${configurations_1.APPLICATION_NAME}`,
                     content: `${(0, i18n_tools_1.t)("You need to verify your email, click on this link", {
                         ctx,
                     })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Verify email", {
@@ -157,7 +157,7 @@ async function resetPasswordPost(params, ctx) {
             subject: `${(0, i18n_tools_1.t)("Password reset", { ctx })}`,
             html: (0, loadHtmlTemplate_1.loadHtmlEmailTemplate)({
                 variablesToReplace: {
-                    title: `${(0, i18n_tools_1.t)("Password reset", { ctx })} =)`,
+                    title: `${(0, i18n_tools_1.t)("Password reset", { ctx })}`,
                     content: `<br/>${(0, i18n_tools_1.t)("You requested to create a new password", {
                         ctx,
                     })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${(0, i18n_tools_1.t)("Click on this link to create a new password", {

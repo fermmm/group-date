@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToGetDemoCardsRecommendations = exports.queryToGetAllUsersWantingNewCardsNotification = exports.queryToGetDislikedUsers = exports.queryToDivideLikingUsers = exports.queryToOrderResults = exports.queryToFilterUsersNotLikingSearcherGenders = exports.queryToFilterByLikedGender = exports.queryToGetCardsRecommendations = void 0;
+exports.queryToGetDemoCardsRecommendations = exports.queryToGetUsersWantingNewCardsNotification = exports.queryToGetDislikedUsers = exports.queryToDivideLikingUsers = exports.queryToOrderResults = exports.queryToFilterUsersNotLikingSearcherGenders = exports.queryToFilterByLikedGender = exports.queryToGetCardsRecommendations = void 0;
 const date_tools_1 = require("./../../common-tools/math-tools/date-tools");
 const moment = require("moment");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
@@ -9,7 +9,7 @@ const configurations_1 = require("../../configurations");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
 const queries_1 = require("../user/queries");
 function queryToGetCardsRecommendations(searcherUser, settings) {
-    var _a;
+    var _a, _b;
     let traversal = (_a = settings === null || settings === void 0 ? void 0 : settings.traversal) !== null && _a !== void 0 ? _a : (0, queries_1.queryToGetAllCompleteUsers)();
     /**
      * Is inside the distance range the user wants
@@ -114,10 +114,10 @@ function queryToGetCardsRecommendations(searcherUser, settings) {
      * Create an output with 2 users list, the ones that likes the user and the others
      */
     if (!(settings === null || settings === void 0 ? void 0 : settings.singleListResults)) {
-        traversal = queryToDivideLikingUsers(traversal, searcherUser);
+        traversal = queryToDivideLikingUsers(traversal, searcherUser, settings === null || settings === void 0 ? void 0 : settings.limit);
     }
     else {
-        traversal = traversal.limit(configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS);
+        traversal = traversal.limit((_b = settings === null || settings === void 0 ? void 0 : settings.limit) !== null && _b !== void 0 ? _b : configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS);
     }
     return traversal;
 }
@@ -194,16 +194,16 @@ function queryToOrderResults(traversal, searcherUser) {
         .by(database_manager_1.__.out("blocked").where(database_manager_1.P.within("blockedTags")).count(), database_manager_1.order.desc));
 }
 exports.queryToOrderResults = queryToOrderResults;
-function queryToDivideLikingUsers(traversal, searcherUser) {
+function queryToDivideLikingUsers(traversal, searcherUser, limit) {
     return traversal
         .group()
         .by(database_manager_1.__.choose(database_manager_1.__.out(user_1.AttractionType.Like).has("userId", searcherUser.userId), database_manager_1.__.constant("liking"), database_manager_1.__.constant("others")))
         .project("liking", "others")
         .by((0, queries_1.queryToIncludeFullInfoInUserQuery)(database_manager_1.__.select("liking").unfold())
-        .limit(configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING)
+        .limit(limit !== null && limit !== void 0 ? limit : configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING)
         .fold())
         .by((0, queries_1.queryToIncludeFullInfoInUserQuery)(database_manager_1.__.select("others").unfold())
-        .limit(configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS)
+        .limit(limit !== null && limit !== void 0 ? limit : configurations_1.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS)
         .fold());
 }
 exports.queryToDivideLikingUsers = queryToDivideLikingUsers;
@@ -223,10 +223,18 @@ function queryToGetDislikedUsers(props) {
     return traversal;
 }
 exports.queryToGetDislikedUsers = queryToGetDislikedUsers;
-function queryToGetAllUsersWantingNewCardsNotification() {
-    return (0, queries_1.queryToGetAllCompleteUsers)().has("sendNewUsersNotification", database_manager_1.P.gt(0));
+function queryToGetUsersWantingNewCardsNotification(userIds) {
+    let traversal;
+    if (userIds) {
+        traversal = (0, queries_1.queryToGetUsersFromIdList)(userIds);
+    }
+    else {
+        traversal = (0, queries_1.queryToGetAllCompleteUsers)();
+    }
+    traversal = traversal.has("sendNewUsersNotification", database_manager_1.P.gt(0));
+    return traversal;
 }
-exports.queryToGetAllUsersWantingNewCardsNotification = queryToGetAllUsersWantingNewCardsNotification;
+exports.queryToGetUsersWantingNewCardsNotification = queryToGetUsersWantingNewCardsNotification;
 /**
  * This function could return the demo accounts and that is all but this is useful to test filters.
  */

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryToUnblockUser = exports.queryToBlockUser = exports.queryToRemoveSeen = exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
+exports.queryToUnblockUser = exports.queryToBlockUser = exports.queryToRemoveSeen = exports.queryToSetLikingGender = exports.queryToSetUserGender = exports.queryToIncludeFullInfoInUserQuery = exports.queryToGetAttractionsReceived = exports.queryToGetAttractionsSent = exports.queryToGetMatches = exports.queryToSetAttraction = exports.queryToSetUserProps = exports.queryToRemoveUsers = exports.queryToGetUsersFromIdList = exports.queryToGetAllDemoUsers = exports.queryToGetAllCompleteUsers = exports.queryToGetAllUsers = exports.queryToUpdateUserProps = exports.queryToUpdateUserToken = exports.isNotDemoAccount = exports.hasProfileCompleted = exports.queryToGetUsersListFromIds = exports.queryToGetUserById = exports.queryToGetUserByEmail = exports.queryToGetUserByToken = exports.queryToGetUserByTokenOrId = exports.queryToCreateUser = void 0;
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
@@ -125,6 +125,16 @@ function queryToGetAllDemoUsers() {
     return database_manager_1.g.V().has("user", "demoAccount", true);
 }
 exports.queryToGetAllDemoUsers = queryToGetAllDemoUsers;
+function queryToGetUsersFromIdList(userIds) {
+    return database_manager_1.g
+        .inject(userIds)
+        .unfold()
+        .map(database_manager_1.__.as("targetUserId")
+        .V()
+        .hasLabel("user")
+        .has("userId", database_manager_1.__.where(database_manager_1.P.eq("targetUserId"))));
+}
+exports.queryToGetUsersFromIdList = queryToGetUsersFromIdList;
 /**
  * Only used in tests.
  * If no user list is provided all users on the database are removed.

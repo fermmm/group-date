@@ -167,6 +167,18 @@ export function queryToGetAllDemoUsers(): Traversal {
    return g.V().has("user", "demoAccount", true);
 }
 
+export function queryToGetUsersFromIdList(userIds: string[]): Traversal {
+   return g
+      .inject(userIds)
+      .unfold()
+      .map(
+         __.as("targetUserId")
+            .V()
+            .hasLabel("user")
+            .has("userId", __.where(P.eq("targetUserId"))),
+      );
+}
+
 /**
  * Only used in tests.
  * If no user list is provided all users on the database are removed.

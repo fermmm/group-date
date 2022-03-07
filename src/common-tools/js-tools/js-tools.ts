@@ -178,3 +178,18 @@ export function shuffleArray<T>(array: T[]): void {
 export function _consoleLog<T>(obj: T): void {
    console.log(util.inspect(obj, false, null, true));
 }
+
+/**
+ * This function mutates the array limiting the amount of items to the specified amount
+ * removing the remaining elements from the array.
+ *
+ * @param limit Amount of items the array should have.
+ */
+export function limitArray<T>(array: T[], limit: number): void {
+   if (array.length <= limit) {
+      return;
+   }
+
+   // Setting the array length to a number smaller than current length removed the remaining elements.
+   array.length = limit;
+}

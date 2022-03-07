@@ -485,7 +485,6 @@ i18n.configure({
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const SEARCH_GROUPS_FREQUENCY = minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(4)
-export const NEW_CARDS_NOTIFICATION_CHECK_FREQUENCY = minutesToMilliseconds(5); // In the final version this should be: hoursToMilliseconds(24)
 export const FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = hoursToMilliseconds(24);
 export const FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = hoursToMilliseconds(24);
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
