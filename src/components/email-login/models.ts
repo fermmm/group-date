@@ -72,7 +72,7 @@ export async function createAccountPost(
          subject: `${t("Verify your email", { ctx })}`,
          html: loadHtmlEmailTemplate({
             variablesToReplace: {
-               title: `${t("Welcome to", { ctx })} ${APPLICATION_NAME} =)`,
+               title: `${t("Welcome to", { ctx })} ${APPLICATION_NAME}`,
                content: `${t("You need to verify your email, click on this link", {
                   ctx,
                })}:<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t("Verify email", {
@@ -224,7 +224,7 @@ export async function resetPasswordPost(
          subject: `${t("Password reset", { ctx })}`,
          html: loadHtmlEmailTemplate({
             variablesToReplace: {
-               title: `${t("Password reset", { ctx })} =)`,
+               title: `${t("Password reset", { ctx })}`,
                content: `<br/>${t("You requested to create a new password", {
                   ctx,
                })}<br/><a ses:no-track href="${emailLink}" style="font-size: 22px;">${t(
