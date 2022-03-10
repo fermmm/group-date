@@ -74,6 +74,7 @@ exports.recommendationsFromTagGet = recommendationsFromTagGet;
  */
 async function notifyUsersAboutNewCards(params) {
     const { userIds } = params !== null && params !== void 0 ? params : {};
+    // TODO: This should log only when the time it takes is too much
     const logger = logTimeToFile("notifyUsersAboutNewCardsTask");
     const users = await (0, data_conversion_1.fromQueryToUserList)((0, queries_2.queryToGetUsersWantingNewCardsNotification)(userIds), false);
     for (const user of users) {
