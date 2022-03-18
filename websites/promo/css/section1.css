@@ -1,89 +1,58 @@
 .section1-mainContainer {
    display: flex;
+   flex-direction: column;
+   align-items: center;
    position: relative;
    width: 100vw;
-   min-height: 100vh;
-   animation: background-image-move-animation 45s ease-in-out 1s infinite reverse;
-   animation-direction: alternate;
-   animation-play-state: running;
-}
-
-@media only screen and (min-width: 600px) {
-   .section1-mainContainer {
-      background-image: url("../img/background1.jpeg");
-      background-attachment: fixed;
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      align-items: center;
-   }
-}
-
-@keyframes background-image-move-animation {
-   from {
-      background-position: 0% 100%;
-   }
-   to {
-      background-position: 100% 0%;
-   }
+   height: 600px;
+   max-height: 85vh;
+   background: linear-gradient(180deg, #9b63f8 0%, #809ffc 100%);
 }
 
 .section1-content-container {
    display: flex;
-   position: absolute;
-   width: 400px;
-   height: 540px;
-   transform-origin: center center;
-   left: 100px;
-   border-radius: 23px;
-   background: linear-gradient(180deg, #9b63f8 0%, #809ffc 100%);
-   flex-direction: column;
+   flex-direction: row;
    align-items: center;
-   justify-content: space-evenly;
-   padding: 21px 35px;
-   padding-bottom: 0px;
+   justify-content: center;
+   width: 100vw;
+   height: 100%;
+   align-items: center;
+   padding: 35px 35px;
+   padding-bottom: 35px;
+   overflow: hidden;
 }
 
-@media only screen and (max-width: 600px) {
-   .section1-content-container {
-      width: 100vw;
-      min-height: 100vh;
-      left: 0;
-      border-radius: 0;
-      padding: 20px 27px;
-   }
+.section1-text-and-buttons {
+   max-width: 680px;
+   margin-left: 120px;
 }
 
-.section1-logo {
-   height: 119px;
-}
-
-@media only screen and (max-width: 600px) {
-   .section1-logo {
-      height: 20vh;
-   }
+.section1-illustration {
+   max-height: 150px;
 }
 
 .section1-text {
-   font-weight: 200;
+   font-weight: 300;
    font-size: 23px;
    line-height: 30px;
    text-align: center;
+   margin-top: 25px;
 }
 
 .section1-text b {
-   font-weight: 400;
+   font-weight: 600;
 }
 
 .section1-store-buttons-container {
    display: flex;
    width: 100%;
    height: 47px;
-   justify-content: space-between;
+   justify-content: center;
    flex-direction: row;
+   margin-top: 35px;
 }
 
-.section1-button-store {
+.section1-button-store, .section1-button-google {
    transition: all 200ms ease-in-out 0s;
    height: 100%;
    cursor: pointer;
@@ -91,32 +60,20 @@
    justify-content: center;
 }
 
-.section1-button-store:hover {
+.section1-button-store:hover, .section1-button-google:hover {
    transform: scale(1.1);
 }
 
-.section1-button-store img {
+.section1-button-store img, .section1-button-google img {
    height: 100%;
 }
 
-@media only screen and (max-width: 600px) {
-   .section1-store-buttons-container {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: fit-content;
-      row-gap: 14px;
-   }
+.section1-button-google {
+   margin: 0 5px;
+}
 
-   .section1-button-store {
-      width: 100%;
-      max-width: 166px;
-      height: auto;
-   }
-
-   .section1-button-store img {
-      width: 100%;
-   }
+.section1-button-store {
+   margin: 0 5px;
 }
 
 .section1-legal-buttons-container {
@@ -142,4 +99,41 @@
 
 .section1-legal-buttons-container a:hover {
    color: #e9e9e9;
+}
+
+/* Mobile version */
+@media only screen and (max-width: 860px) {
+   .section1-content-container {
+      flex-direction: column;
+      justify-content: space-evenly;
+      padding: 20px 27px;
+      max-width: 500px;
+   }
+
+   .section1-text-and-buttons {
+      max-width: unset;
+      margin-left: unset;
+   }
+
+   .section1-illustration {
+      height: 19vh;
+   }
+
+   .section1-store-buttons-container {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: fit-content;
+      row-gap: 14px;
+   }
+
+   .section1-button-store, .section1-button-google {
+      width: 100%;
+      max-width: 166px;
+      height: auto;
+   }
+
+   .section1-button-store img, .section1-button-google img {
+      width: 100%;
+   }
 }
