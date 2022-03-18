@@ -67,6 +67,7 @@
    }
 
    .section3-illustration {
-      height: 400px;
+      width: 100%;
+      height: unset;
    }
 }
