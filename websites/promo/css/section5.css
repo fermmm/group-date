@@ -76,10 +76,13 @@
    }
 
    .section5-title {
+      font-size: 26px;
       font-weight: 600;
    }
    
    .section5-text {
+      font-size: 19px;
+      line-height: 25px;
       font-weight: 500;
    }
 }

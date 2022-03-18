@@ -66,6 +66,15 @@
       margin-top: 30px;
    }
 
+   .section2-title {
+      font-size: 26px;
+   }
+   
+   .section2-text {
+      font-size: 19px;
+      line-height: 25px;
+   }
+
    .section2-illustration {
       height: unset;
       width: 100%;

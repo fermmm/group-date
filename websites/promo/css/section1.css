@@ -136,4 +136,9 @@
    .section1-button-store img, .section1-button-google img {
       width: 100%;
    }
+
+   .section1-text {
+      font-size: 20px;
+      line-height: 27px;
+   }
 }
