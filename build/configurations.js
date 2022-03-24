@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ENABLE_MULTITHREADING_IN_GROUP_FINDER = exports.SINGLE_QUERY_GROUP_FINDER = exports.SMALL_IMAGE_SIZE = exports.BIG_IMAGE_SIZE = exports.MAX_FILE_SIZE_UPLOAD_ALLOWED = exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = exports.SEARCH_GROUPS_FREQUENCY = exports.DEFAULT_LANGUAGE = exports.PUSH_NOTIFICATION_CHANNELS = exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = exports.SECOND_DATE_REMINDER_TIME = exports.FIRST_DATE_REMINDER_TIME = exports.UNWANTED_USERS_PROPS = exports.USER_PROPS_AS_QUESTIONS = exports.APP_AUTHORED_TAGS = exports.APP_AUTHORED_TAGS_AS_QUESTIONS = exports.MAX_TAG_SUBSCRIPTIONS_ALLOWED = exports.TAG_CREATION_TIME_FRAME = exports.TAGS_PER_TIME_FRAME = exports.SHUFFLE_LIKING_NON_LIKING_RESULTS = exports.NON_SEARCHER_LIKING_CHUNK = exports.SEARCHER_LIKING_CHUNK = exports.MAXIMUM_INACTIVITY_FOR_CARDS = exports.MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = exports.EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = exports.MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = exports.MAX_WEEKEND_DAYS_VOTE_OPTIONS = exports.MAX_CONNECTIONS_POSSIBLE_IN_REALITY = exports.ALLOW_SMALL_GROUPS_BECOME_BIG = exports.ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS = exports.CREATE_BIGGER_GROUPS_FIRST = exports.GROUP_ACTIVE_TIME = exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = exports.FORM_BAD_QUALITY_GROUPS_TIME = exports.SEARCH_BAD_QUALITY_GROUPS = exports.GROUP_SLOTS_CONFIGS = exports.MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = exports.MAX_GROUP_SIZE = exports.MIN_GROUP_SIZE = exports.USERS_API_PATH = exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = exports.APP_STORE_URL = exports.GOOGLE_PLAY_URL = exports.APPLICATION_NAME_COMPLETE = exports.APPLICATION_NAME = void 0;
-exports.DEMO_ACCOUNTS = exports.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT = exports.LOG_IMAGE_ACCESS = exports.LOG_ROUTE_ACCESS = exports.REPORT_DATABASE_RETRYING = exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = exports.LOG_USAGE_REPORT_FREQUENCY = exports.LOG_FILES = exports.ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = exports.DATABASE_BACKUP_HOUR = exports.DATABASE_BACKUP_MONTHLY = exports.DATABASE_BACKUP_WEEKLY = exports.DATABASE_BACKUP_DAILY = void 0;
+exports.DEMO_ACCOUNTS = exports.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT = exports.LOG_IMAGE_ACCESS = exports.LOG_ROUTE_ACCESS = exports.REPORT_DATABASE_RETRYING = exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = exports.LOG_USAGE_REPORT_FREQUENCY = exports.BACKUP_LOGS_TO_FILE_FREQUENCY = exports.LOG_FILES = exports.ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = exports.DATABASE_BACKUP_HOUR = exports.DATABASE_BACKUP_MONTHLY = exports.DATABASE_BACKUP_WEEKLY = exports.DATABASE_BACKUP_DAILY = void 0;
 const appRoot = require("app-root-path");
 const i18n = require("i18n");
 const path = require("path");
@@ -494,10 +494,17 @@ exports.LOG_FILES = {
     usersReported: (0, winstonCreateLogger_1.createLog)("users_reported.log"),
     testNotificationsResult: (0, winstonCreateLogger_1.createLog)("test_notifications_result.log"),
 };
+/**
+ * Logs are saved into memory so when the server is restarted the logs are lost, to fix this there is an interval that saves the logs in memory to files.
+ */
+exports.BACKUP_LOGS_TO_FILE_FREQUENCY = (0, general_1.minutesToMilliseconds)(10);
+/**
+ * How often the server adds a log entry with information related to how many users are using the app and more.
+ */
 exports.LOG_USAGE_REPORT_FREQUENCY = (0, general_1.hoursToMilliseconds)(12);
 /**
- * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
- * trust that the query and multithreading is working correctly.
+ * This is useful to debug group finder query which is a complex one. The disadvantage of this check is that sucks processing power, to improve performance
+ * set this to false but only when you trust that the query and multithreading is working correctly.
  */
 exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = true;
 /**

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logsConfig = void 0;
+exports.LOGS_DIR_NAME = exports.ENTRY_SEPARATOR_STRING = exports.logsConfig = void 0;
 const constants_1 = require("../math-tools/constants");
 const types_1 = require("./types");
 exports.logsConfig = [
@@ -27,6 +27,7 @@ exports.logsConfig = [
         category: types_1.LogCategory.Problems,
         description: "Logs about problems with the group finder, this log should be empty",
         maxEntries: 400,
+        backupAfterEntryAdded: true,
     },
     {
         id: types_1.LogId.AmountOfUsers,
@@ -37,14 +38,16 @@ exports.logsConfig = [
     {
         id: types_1.LogId.ServerStatus,
         category: types_1.LogCategory.Maintenance,
-        description: "Logs the server status like when the serer restarted",
+        description: "Logs the server status like when the serer starts",
         maxEntries: 40,
+        backupAfterEntryAdded: true,
     },
     {
         id: types_1.LogId.Backups,
         category: types_1.LogCategory.Maintenance,
         description: "Logs when a database backup is done and how much time it took",
         maxEntries: 20,
+        backupAfterEntryAdded: true,
     },
     {
         id: types_1.LogId.UsersReported,
@@ -58,4 +61,6 @@ exports.logsConfig = [
         maxEntries: 40,
     },
 ];
+exports.ENTRY_SEPARATOR_STRING = "____end\n";
+exports.LOGS_DIR_NAME = "logs2";
 //# sourceMappingURL=config.js.map

@@ -33,6 +33,8 @@ const koa_tools_1 = require("./common-tools/koa-tools/koa-tools");
 const configurations_1 = require("./configurations");
 const routes_8 = require("./components/email-login/routes");
 const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
+const log_1 = require("./common-tools/log-tool/log");
+const types_1 = require("./common-tools/log-tool/types");
 (async () => {
     // Koa initialization:
     const app = new Koa();
@@ -108,6 +110,6 @@ const getServerUrl_1 = require("./common-tools/url-tools/getServerUrl");
     if (httpsPortEnabled) {
         console.log(`✓ Also https port enabled`);
     }
-    logToFile("Server started", "serverStatus");
+    (0, log_1.log)({ serverStatus: "Server started" }, types_1.LogId.ServerStatus);
 })();
 //# sourceMappingURL=index.js.map

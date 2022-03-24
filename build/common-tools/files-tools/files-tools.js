@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeFilePartInPath = exports.createZipFileFromDirectory = exports.writeFile = exports.getFileContent = exports.fileOrFolderExists = exports.copyFile = exports.deleteFile = exports.deleteFolder = exports.createFolder = void 0;
+exports.readFolder = exports.removeFilePartInPath = exports.createZipFileFromDirectory = exports.writeFile = exports.getFileContent = exports.fileOrFolderExists = exports.copyFile = exports.deleteFile = exports.deleteFolder = exports.createFolder = void 0;
 const appRoot = require("app-root-path");
 const fs = require("fs");
 const archiver = require("archiver");
@@ -83,4 +83,14 @@ function removeFilePartInPath(filePath) {
     return pathAsArray.join("/");
 }
 exports.removeFilePartInPath = removeFilePartInPath;
+/**
+ * Returns the list of file names in the given directory.
+ */
+function readFolder(folderPath) {
+    if (!fileOrFolderExists(folderPath)) {
+        return [];
+    }
+    return fs.readdirSync(appRoot.path + `/${folderPath}`);
+}
+exports.readFolder = readFolder;
 //# sourceMappingURL=files-tools.js.map

@@ -34,6 +34,7 @@ const users_1 = require("../../tests/tools/users");
 const models_2 = require("../email-login/models");
 const models_3 = require("../groups/models");
 const koaBody = require("koa-body");
+const log_storage_1 = require("../../common-tools/log-tool/storage/log-storage");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -41,6 +42,8 @@ const koaBody = require("koa-body");
  */
 async function initializeAdmin() {
     (0, files_tools_1.createFolder)("admin-uploads");
+    await (0, log_storage_1.restoreLogs)();
+    (0, dynamic_1.setIntervalAsync)(log_storage_1.backupLogs, configurations_1.BACKUP_LOGS_TO_FILE_FREQUENCY);
     (0, dynamic_1.setIntervalAsync)(logUsageReport, configurations_1.LOG_USAGE_REPORT_FREQUENCY);
     // To create a report when server boots and preview database:
     logUsageReport();
