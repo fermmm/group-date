@@ -31,6 +31,10 @@ import { serveFolderFiles, serveWebsite } from "./common-tools/koa-tools/koa-too
 import { USERS_API_PATH } from "./configurations";
 import { emailLoginRoutes } from "./components/email-login/routes";
 import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
+import { log } from "./common-tools/log-tool/log";
+import { LogId } from "./common-tools/log-tool/types";
+import { getAllInMemoryLogs, getInMemoryLog } from "./common-tools/log-tool/storage/log-storage-memory";
+import { fromDiskToMemoryLogs, fromMemoryLogsToDisk } from "./common-tools/log-tool/storage/log-storage-disk";
 
 (async () => {
    // Koa initialization:
@@ -124,5 +128,11 @@ import { getServerUrl } from "./common-tools/url-tools/getServerUrl";
       console.log(`✓ Also https port enabled`);
    }
 
-   logToFile("Server started", "serverStatus");
+   log({ serverStatus: "Server started" }, LogId.ServerStatus);
+   log({ serverStatus: "que tal" }, LogId.ServerStatus);
+   log({ test: "holi" }, LogId.UsersReported);
+   fromMemoryLogsToDisk();
+   log({ test: "todo bien??" }, LogId.UsersReported);
+   fromMemoryLogsToDisk();
+   fromDiskToMemoryLogs();
 })();

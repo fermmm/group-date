@@ -5,8 +5,16 @@ export function versionIsCompatible(current: string, required: string): boolean 
    return semver.gte(current, required);
 }
 
-export function generateId(): string {
-   return nanoid();
+/**
+ * Generate secure URL-friendly unique ID.
+ *
+ * By default, the ID will have 21 symbols to have a collision probability similar to UUID v4.
+ *
+ * @param size Size of the ID. The default size is 21.
+ * @returns A random string
+ */
+export function generateId(size: number = 21): string {
+   return nanoid(size);
 }
 
 /**

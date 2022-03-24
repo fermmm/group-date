@@ -2,7 +2,12 @@ import * as appRoot from "app-root-path";
 import * as i18n from "i18n";
 import * as path from "path";
 import { createLog } from "./common-tools/log-tools/winstonCreateLogger";
-import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
+import {
+   DAY_IN_SECONDS,
+   ONE_MONTH_IN_SECONDS,
+   WEEK_IN_SECONDS,
+   YEAR_IN_SECONDS,
+} from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
@@ -558,11 +563,19 @@ export const LOG_FILES = {
    testNotificationsResult: createLog("test_notifications_result.log"),
 };
 
+/**
+ * Logs are saved into memory so when the server is restarted the logs are lost, to fix this there is an interval that saves the logs in memory to files.
+ */
+export const BACKUP_LOGS_TO_FILE_FREQUENCY = minutesToMilliseconds(10);
+
+/**
+ * How often the server adds a log entry with information related to how many users are using the app and more.
+ */
 export const LOG_USAGE_REPORT_FREQUENCY = hoursToMilliseconds(12);
 
 /**
- * This is useful to debug group finder query which is a complex one but sucks processing power, disable if you
- * trust that the query and multithreading is working correctly.
+ * This is useful to debug group finder query which is a complex one. The disadvantage of this check is that sucks processing power, to improve performance
+ * set this to false but only when you trust that the query and multithreading is working correctly.
  */
 export const REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER: boolean = true;
 
@@ -596,12 +609,12 @@ export const DEMO_ACCOUNTS: Array<Partial<User> & { email: string; password: str
       images: ["demo_image2"],
    },
    {
-      email: "demo3@demo2.com",
+      email: "demo3@demo3.com",
       password: "demo",
       images: ["demo_image3"],
    },
    {
-      email: "demo4@demo2.com",
+      email: "demo4@demo4.com",
       password: "demo",
       images: ["demo_image4"],
    },

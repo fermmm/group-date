@@ -527,12 +527,12 @@ exports.DEMO_ACCOUNTS = [
         images: ["demo_image2"],
     },
     {
-        email: "demo3@demo2.com",
+        email: "demo3@demo3.com",
         password: "demo",
         images: ["demo_image3"],
     },
     {
-        email: "demo4@demo2.com",
+        email: "demo4@demo4.com",
         password: "demo",
         images: ["demo_image4"],
     },

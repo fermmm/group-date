@@ -67,7 +67,12 @@ import {
 } from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
-import { DEMO_ACCOUNTS, GROUP_SLOTS_CONFIGS, LOG_USAGE_REPORT_FREQUENCY } from "../../configurations";
+import {
+   BACKUP_LOGS_TO_FILE_FREQUENCY,
+   DEMO_ACCOUNTS,
+   GROUP_SLOTS_CONFIGS,
+   LOG_USAGE_REPORT_FREQUENCY,
+} from "../../configurations";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { getCredentialsHash, validateAdminCredentials } from "./tools/validateAdminCredentials";
 import { makeQueryForVisualizer, nodesToJson } from "../../common-tools/database-tools/visualizer-proxy-tools";
@@ -101,6 +106,7 @@ import { createEmailLoginToken } from "../email-login/models";
 import { createGroup, getGroupById, getSlotIdFromUsersAmount } from "../groups/models";
 import koaBody = require("koa-body");
 import { Group } from "../../shared-tools/endpoints-interfaces/groups";
+import { backupLogs, restoreLogs } from "../../common-tools/log-tool/storage/log-storage";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -109,6 +115,8 @@ import { Group } from "../../shared-tools/endpoints-interfaces/groups";
  */
 export async function initializeAdmin(): Promise<void> {
    createFolder("admin-uploads");
+   await restoreLogs();
+   setIntervalAsync(backupLogs, BACKUP_LOGS_TO_FILE_FREQUENCY);
    setIntervalAsync(logUsageReport, LOG_USAGE_REPORT_FREQUENCY);
    // To create a report when server boots and preview database:
    logUsageReport();
