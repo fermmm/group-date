@@ -6,6 +6,7 @@ import RunCommandForm from "./RunCommandForm/RunCommandForm";
 import SendEmailForm from "./SendEmailForm/SendEmailForm";
 import NotificationStatusForm from "./NotificationStatusForm/NotificationStatusForm";
 import SendQueryForm from "./SendQueryForm/SendQueryForm";
+import RunCodeForm from "./RunCodeForm/RunCodeForm";
 
 const TechOps: FC = () => {
    return (
@@ -15,6 +16,7 @@ const TechOps: FC = () => {
             <ImportExportForm />
             <SendQueryForm />
             <RunCommandForm />
+            <RunCodeForm />
             <SendEmailForm />
             <NotificationStatusForm />
          </ButtonsContainer>

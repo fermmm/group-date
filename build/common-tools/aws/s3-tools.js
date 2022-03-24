@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFilesFromS3 = exports.deleteFileFromS3 = exports.downloadS3FileToDisk = exports.readFileContentFromS3 = exports.uploadFileToS3 = void 0;
 const AWS = require("aws-sdk");
 const fs = require("fs");
+const files_tools_1 = require("../files-tools/files-tools");
 const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -54,6 +55,7 @@ async function downloadS3FileToDisk(s3FilePath, diskFilePath) {
     let response;
     try {
         response = await s3.getObject(s3params).promise();
+        (0, files_tools_1.createFolder)(diskFilePath);
         await fs.promises.writeFile(diskFilePath, response.Body.toString());
     }
     catch (error) {

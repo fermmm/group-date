@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -35,6 +35,7 @@ const models_2 = require("../email-login/models");
 const models_3 = require("../groups/models");
 const koaBody = require("koa-body");
 const log_storage_1 = require("../../common-tools/log-tool/storage/log-storage");
+const runCodeFromString_1 = require("../../common-tools/runCodeFromString/runCodeFromString");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -400,6 +401,16 @@ async function runCommandPost(params, ctx) {
     return await (0, process_tools_1.executeSystemCommand)(command);
 }
 exports.runCommandPost = runCommandPost;
+// Runs javascript code and returns output
+async function runCodePost(params, ctx) {
+    const { code } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        return passwordValidation.error;
+    }
+    return { response: await (0, runCodeFromString_1.runCodeFromString)(code) };
+}
+exports.runCodePost = runCodePost;
 /**
  * Endpoints to get a specific group. The normal group endpoint requires a token. Here the admin can see a group without token.
  */

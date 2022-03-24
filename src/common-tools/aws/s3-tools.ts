@@ -1,5 +1,6 @@
 import * as AWS from "aws-sdk";
 import * as fs from "fs";
+import { createFolder } from "../files-tools/files-tools";
 import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
 
 const s3 = new AWS.S3({
@@ -73,6 +74,7 @@ export async function downloadS3FileToDisk(s3FilePath: string, diskFilePath: str
 
    try {
       response = await s3.getObject(s3params).promise();
+      createFolder(diskFilePath);
       await fs.promises.writeFile(diskFilePath, response.Body.toString());
    } catch (error) {
       throw tryToGetErrorMessage("saveS3FileToDisk: " + error);

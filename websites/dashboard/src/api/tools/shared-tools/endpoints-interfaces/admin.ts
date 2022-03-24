@@ -106,6 +106,10 @@ export interface AdminCommandPostParams extends AdminProtectionParams {
    command: string;
 }
 
+export interface AdminCodePostParams extends AdminProtectionParams {
+   code: string;
+}
+
 export interface SendEmailPostParams extends AdminProtectionParams {
    to: string;
    subject: string;

@@ -193,6 +193,10 @@ export interface ReportUserPostParams extends TokenParameter {
    notes?: string;
 }
 
+export interface BlockOrUnblockUserParams extends TokenParameter {
+   targetUserId: string;
+}
+
 export interface DeleteAccountPostParams extends TokenParameter {}
 
 export interface DeleteAccountResponse {
@@ -200,8 +204,13 @@ export interface DeleteAccountResponse {
 }
 
 export enum ReportUserType {
-   NonEthical = "non-ethical",
-   MissingPicture = "missing-picture",
+   MissingBadPicture = "Bad Photo",
+   AggressiveHarassment = "Aggressive/Harassment",
+   SexualHarassment = "Sexual Harassment",
+   SpammerScammerFake = "Spammer/Scammer/Fake",
+   Minor = "Minor (under 18 years old)",
+   Offsite = "Offsite behavior: assault / abuse / violence / weapon in a photo",
+   Other = "Other",
 }
 
 export interface SetSeenPostParams extends TokenParameter {

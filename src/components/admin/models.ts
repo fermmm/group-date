@@ -10,6 +10,7 @@ import {
    AdminChatGetAllParams,
    AdminChatGetParams,
    AdminChatPostParams,
+   AdminCodePostParams,
    AdminCommandPostParams,
    AdminConvertPostParams,
    AdminGroupGetParams,
@@ -107,6 +108,7 @@ import { createGroup, getGroupById, getSlotIdFromUsersAmount } from "../groups/m
 import koaBody = require("koa-body");
 import { Group } from "../../shared-tools/endpoints-interfaces/groups";
 import { backupLogs, restoreLogs } from "../../common-tools/log-tool/storage/log-storage";
+import { runCodeFromString } from "../../common-tools/runCodeFromString/runCodeFromString";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -551,6 +553,21 @@ export async function runCommandPost(params: AdminCommandPostParams, ctx: BaseCo
    }
 
    return await executeSystemCommand(command);
+}
+
+// Runs javascript code and returns output
+export async function runCodePost(
+   params: AdminCodePostParams,
+   ctx: BaseContext,
+): Promise<{ response: any } | string> {
+   const { code } = params;
+
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      return passwordValidation.error;
+   }
+
+   return { response: await runCodeFromString(code) };
 }
 
 /**

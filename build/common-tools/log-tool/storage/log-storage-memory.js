@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearLogsPendingToSave = exports.getLogsPendingToSave = exports.getAllInMemoryLogs = exports.deleteInMemoryLogEntry = exports.setInMemoryLog = exports.getInMemoryLog = void 0;
 const config_1 = require("../config");
-// TODO: Esto esta todo testeado y funcionando, ahora hay que programar lo de AWS y estamos
 let logsInMemory = {};
 const logsPendingToSave = new Set();
 function getInMemoryLog(logId) {

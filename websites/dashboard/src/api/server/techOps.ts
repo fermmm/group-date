@@ -1,6 +1,7 @@
 import { getCredentialsFromStorage } from "../../common-tools/authentication/authentication";
 import { httpRequest } from "../tools/httpRequest";
 import {
+   AdminCodePostParams,
    AdminCommandPostParams,
    AdminNotificationStatusGet,
    AdminQueryParams,
@@ -52,6 +53,15 @@ export async function executeCommandRequest<
    Response extends string,
 >(params: Params): Promise<Response> {
    const url = "admin/command";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest({ url, method: "POST", params: { ...credentials, ...params } });
+}
+
+export async function runCodeRequest<
+   Params extends Partial<AdminCodePostParams>,
+   Response extends { response: any },
+>(params: Params): Promise<Response> {
+   const url = "admin/run-code";
    const credentials = getCredentialsFromStorage();
    return httpRequest({ url, method: "POST", params: { ...credentials, ...params } });
 }

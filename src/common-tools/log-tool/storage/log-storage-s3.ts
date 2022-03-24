@@ -1,5 +1,6 @@
 import { downloadS3FileToDisk, uploadFileToS3 } from "../../aws/s3-tools";
 import { readFolder } from "../../files-tools/files-tools";
+import { tryToGetErrorMessage } from "../../httpRequest/tools/tryToGetErrorMessage";
 import { logsConfig, LOGS_DIR_NAME } from "../config";
 
 export async function fromDiskToS3(specificLogs?: string[]) {
@@ -24,7 +25,11 @@ export async function fromS3ToDisk() {
       try {
          await downloadS3FileToDisk(filePath, filePath);
       } catch (err) {
-         // Ignore
+         console.warn(
+            `Warning: Log file could not be downloaded from S3: ${filePath} error: ${tryToGetErrorMessage(
+               err,
+            )}`,
+         );
       }
    }
 }

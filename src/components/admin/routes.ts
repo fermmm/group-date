@@ -22,6 +22,7 @@ import {
    queryPost,
    removeAllBanReasonsFromUser,
    removeBanFromUserPost,
+   runCodePost,
    runCommandPost,
    sendEmailPost,
    validateCredentialsGet,
@@ -45,6 +46,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/send-notifications", "POST", adminNotificationSendPost);
    createRoute(r, "/admin/notification-status", "GET", notificationStatusGet);
    createRoute(r, "/admin/command", "POST", runCommandPost);
+   createRoute(r, "/admin/run-code", "POST", runCodePost);
    createRoute(r, "/admin/email", "POST", sendEmailPost);
    createRoute(r, "/admin/group", "GET", getGroup);
    createRoute(r, "/admin/user/ban", "POST", banUserPost);

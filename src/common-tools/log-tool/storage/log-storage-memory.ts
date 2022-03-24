@@ -1,8 +1,6 @@
 import { getFileContent, readFolder, writeFile } from "../../files-tools/files-tools";
 import { ENTRY_SEPARATOR_STRING, LOGS_DIR_NAME } from "../config";
 
-// TODO: Esto esta todo testeado y funcionando, ahora hay que programar lo de AWS y estamos
-
 let logsInMemory: Partial<Record<string, string>> = {};
 const logsPendingToSave = new Set<string>();
 

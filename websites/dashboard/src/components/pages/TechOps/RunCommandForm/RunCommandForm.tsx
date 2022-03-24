@@ -3,6 +3,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import React, { FC, useState } from "react";
 import { executeCommandRequest } from "../../../../api/server/techOps";
 import CardColumn from "../../../common/UI/CardColumn/CardColumn";
+import { RowCentered } from "../../../common/UI/Row/Row";
 import ResponseDisplay from "../ResponseDisplay/ResponseDisplay";
 
 const RunCommandForm: FC = props => {
@@ -21,31 +22,33 @@ const RunCommandForm: FC = props => {
    return (
       <CardColumn>
          <ResponseDisplay response={response} />
-         <Autocomplete
-            fullWidth
-            freeSolo
-            options={commandPresets}
-            value={command}
-            onInputChange={(event: any, value: string) => {
-               setCommand(value);
-            }}
-            renderInput={params => (
-               <TextField
-                  {...params}
-                  label="System command"
-                  variant="outlined"
-                  fullWidth
-                  onKeyDown={event => {
-                     if (event.key === "Enter") {
-                        handleClick();
-                     }
-                  }}
-               />
-            )}
-         />
-         <LoadingButton loading={loading} variant="outlined" onClick={handleClick}>
-            Run
-         </LoadingButton>
+         <RowCentered>
+            <Autocomplete
+               fullWidth
+               freeSolo
+               options={commandPresets}
+               value={command}
+               onInputChange={(event: any, value: string) => {
+                  setCommand(value);
+               }}
+               renderInput={params => (
+                  <TextField
+                     {...params}
+                     label="System command"
+                     variant="outlined"
+                     fullWidth
+                     onKeyDown={event => {
+                        if (event.key === "Enter") {
+                           handleClick();
+                        }
+                     }}
+                  />
+               )}
+            />
+            <LoadingButton loading={loading} variant="outlined" onClick={handleClick}>
+               Run
+            </LoadingButton>
+         </RowCentered>
       </CardColumn>
    );
 };

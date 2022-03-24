@@ -6,6 +6,7 @@ import CardColumn from "../../../common/UI/CardColumn/CardColumn";
 import ResponseDisplay from "../ResponseDisplay/ResponseDisplay";
 import { tryToGetErrorMessage } from "../../../../api/tools/tryToGetErrorMessage";
 import { AdminQueryResponse } from "../../../../api/tools/shared-tools/endpoints-interfaces/admin";
+import { RowCentered } from "../../../common/UI/Row/Row";
 
 const SendQueryForm: FC = props => {
    const [query, setQuery] = useState<string>("g.V().limit(3)");
@@ -27,17 +28,19 @@ const SendQueryForm: FC = props => {
    return (
       <CardColumn>
          <ResponseDisplay response={response?._items ?? error} />
-         <TextField
-            label="Gremlin Query"
-            variant="outlined"
-            multiline
-            fullWidth
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-         />
-         <LoadingButton loading={loading} variant="outlined" onClick={handleClick}>
-            Send query
-         </LoadingButton>
+         <RowCentered>
+            <TextField
+               label="Gremlin Query"
+               variant="outlined"
+               multiline
+               fullWidth
+               value={query}
+               onChange={e => setQuery(e.target.value)}
+            />
+            <LoadingButton loading={loading} variant="outlined" onClick={handleClick}>
+               Send query
+            </LoadingButton>
+         </RowCentered>
       </CardColumn>
    );
 };

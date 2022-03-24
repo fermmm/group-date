@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.fromS3ToDisk = exports.fromDiskToS3 = void 0;
 const s3_tools_1 = require("../../aws/s3-tools");
 const files_tools_1 = require("../../files-tools/files-tools");
+const tryToGetErrorMessage_1 = require("../../httpRequest/tools/tryToGetErrorMessage");
 const config_1 = require("../config");
 async function fromDiskToS3(specificLogs) {
     const fileNames = (0, files_tools_1.readFolder)(config_1.LOGS_DIR_NAME);
@@ -25,7 +26,7 @@ async function fromS3ToDisk() {
             await (0, s3_tools_1.downloadS3FileToDisk)(filePath, filePath);
         }
         catch (err) {
-            // Ignore
+            console.warn(`Warning: Log file could not be downloaded from S3: ${filePath} error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(err)}`);
         }
     }
 }
