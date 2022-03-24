@@ -109,6 +109,8 @@ import koaBody = require("koa-body");
 import { Group } from "../../shared-tools/endpoints-interfaces/groups";
 import { backupLogs, restoreLogs } from "../../common-tools/log-tool/storage/log-storage";
 import { runCodeFromString } from "../../common-tools/runCodeFromString/runCodeFromString";
+import { log } from "../../common-tools/log-tool/log";
+import { LogId } from "../../common-tools/log-tool/types";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -198,6 +200,9 @@ export async function logUsageReport(): Promise<void> {
    const timeStart = performance.now();
 
    const amountOfUsers = (await sendQuery(() => queryToGetAllUsers().count().next())).value;
+   const amountOfWantedUsers = (
+      await sendQuery(() => queryToGetAllUsers().has("unwantedUser", false).count().next())
+   ).value;
    const amountOfFullyRegisteredUsers = (await sendQuery(() => queryToGetAllCompleteUsers().count().next()))
       .value;
    const incompleteUsers = amountOfUsers - amountOfFullyRegisteredUsers;
@@ -215,6 +220,7 @@ export async function logUsageReport(): Promise<void> {
 
    const report: UsageReport = {
       amountOfUsers: amountOfFullyRegisteredUsers,
+      wantedUsers: amountOfWantedUsers,
       incompleteUsers,
       amountOfGroups,
       totalOpenGroups,
@@ -222,7 +228,7 @@ export async function logUsageReport(): Promise<void> {
       timeSpentOnReportMs,
    };
 
-   logToFile(JSON.stringify(report), "usageReports");
+   log(report, LogId.UsersAndGroupsAmount);
 }
 
 export async function logFileListGet(params: AdminProtectionParams, ctx: BaseContext): Promise<string[]> {
@@ -501,14 +507,14 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
    );
 
    if (logResult) {
-      logToFile(
-         JSON.stringify({
+      log(
+         {
             to: users?.map(user => user.notificationsToken) ?? [],
             title: notificationContent.title,
             body: notificationContent.text,
             result: expoPushTickets,
-         }),
-         "testNotificationsResult",
+         },
+         LogId.TestNotificationsResult,
       );
    }
 

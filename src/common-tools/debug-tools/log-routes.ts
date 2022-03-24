@@ -1,4 +1,4 @@
-import { LOG_IMAGE_ACCESS, LOG_ROUTE_ACCESS } from "./../../configurations";
+import { LOG_IMAGE_ACCESS, LOG_ROUTE_ACCESS } from "../../configurations";
 import * as Router from "@koa/router";
 
 export function routesLogger(router: Router) {

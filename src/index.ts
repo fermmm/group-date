@@ -9,7 +9,7 @@ import * as Koa from "koa";
 import * as koaBody from "koa-body";
 import * as cors from "@koa/cors";
 import { waitForDatabase } from "./common-tools/database-tools/database-manager";
-import { routesLogger } from "./common-tools/log-tools/log-routes";
+import { routesLogger } from "./common-tools/debug-tools/log-routes";
 import { initializeSecurityTools, rateLimiterConfig } from "./common-tools/security-tools/security-tools";
 import { initializeAdmin } from "./components/admin/models";
 import { adminMountedFolders, adminRoutes } from "./components/admin/routes";

@@ -1,5 +1,4 @@
 import * as schedule from "node-schedule";
-import * as winston from "winston";
 import { importDatabaseContentFromFile, exportDatabaseContentToFile } from "../database-tools/database-manager";
 import {
    DATABASE_BACKUP_DAILY,
@@ -13,6 +12,9 @@ import { databaseIsEmpty } from "../database-tools/common-queries";
 import { exportDatabaseContentFromNeptune } from "../aws/neptune-tools";
 import { uploadFileToS3 } from "../aws/s3-tools";
 import { strToBool } from "../string-tools/string-tools";
+import { finishMeasureTime, measureTime } from "../js-tools/measureTime";
+import { log } from "../log-tool/log";
+import { LogId } from "../log-tool/types";
 
 export const DB_EXPORT_FOLDER = "database-backups";
 export const DB_EXPORT_LATEST_FILE = "latest";
@@ -80,10 +82,8 @@ async function initializeBackupDatabaseSchedule() {
 async function backupDatabase(folderPath: string, fileName: string, settings?: { saveLog?: boolean }) {
    const { saveLog = true } = settings ?? {};
 
-   let profiler: winston.Profiler | { done: (info?: any) => boolean };
-
    if (saveLog) {
-      profiler = logTimeToFile("backups");
+      measureTime({ measurementId: "backup-database" });
    }
 
    if (isRunningOnAws()) {
@@ -101,7 +101,13 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
    }
 
    if (saveLog) {
-      profiler.done({ message: `Database backup done in ${`${folderPath}/${fileName}.xml`}` });
+      log(
+         {
+            message: `Database backup done in ${`${folderPath}/${fileName}.xml`}`,
+            timeConsumedToMakeBackup: finishMeasureTime("backup-database"),
+         },
+         LogId.Backups,
+      );
    }
 }
 

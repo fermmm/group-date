@@ -29,9 +29,9 @@ export const logsConfig: LogsConfig[] = [
       backupAfterEntryAdded: true,
    },
    {
-      id: LogId.AmountOfUsers,
+      id: LogId.UsersAndGroupsAmount,
       category: LogCategory.Users,
-      description: "Logs how many users are registered on the app",
+      description: "Logs how many users are registered on the app and how many groups were created",
       maxEntryAge: YEAR_IN_SECONDS,
    },
    {

@@ -23,6 +23,7 @@ import { queryToGetUsersSubscribedToTags } from "../tags/queries";
 import { CardsGameResult, fromQueryToCardsResult } from "./tools/data-conversion";
 import { divideArrayCallback, limitArray, shuffleArray } from "../../common-tools/js-tools/js-tools";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
+import { measureTime } from "../../common-tools/js-tools/measureTime";
 
 export async function initializeCardsGame(): Promise<void> {}
 
@@ -98,7 +99,7 @@ export async function notifyUsersAboutNewCards(params?: { userIds?: string[] }):
    const { userIds } = params ?? {};
 
    // TODO: This should log only when the time it takes is too much
-   const logger = logTimeToFile("notifyUsersAboutNewCardsTask");
+   const logger = measureTime({ measurementId: "notifyUsersAboutNewCardsTask" });
 
    const users: User[] = await fromQueryToUserList(queryToGetUsersWantingNewCardsNotification(userIds), false);
 

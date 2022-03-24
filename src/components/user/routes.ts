@@ -20,7 +20,7 @@ import {
    blockUserPost,
    unblockUserPost,
 } from "./models";
-import { imagesLogger } from "../../common-tools/log-tools/log-routes";
+import { imagesLogger } from "../../common-tools/debug-tools/log-routes";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
 
 export function userRoutes(r: Router): void {

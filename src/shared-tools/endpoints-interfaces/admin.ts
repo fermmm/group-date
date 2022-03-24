@@ -41,6 +41,7 @@ export interface AdminGroupGetParams extends AdminProtectionParams {
 
 export interface UsageReport {
    amountOfUsers: number;
+   wantedUsers: number;
    incompleteUsers: number;
    amountOfGroups: number;
    totalOpenGroups: number;

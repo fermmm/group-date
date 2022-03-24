@@ -1,7 +1,6 @@
 import * as appRoot from "app-root-path";
 import * as i18n from "i18n";
 import * as path from "path";
-import { createLog } from "./common-tools/log-tools/winstonCreateLogger";
 import {
    DAY_IN_SECONDS,
    ONE_MONTH_IN_SECONDS,
@@ -547,21 +546,6 @@ export const RATE_LIMITER_CACHE_CLEAR_INTERVAL: number = hoursToMilliseconds(5);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = false;
-
-/**
- * Log files that can be written and retrieved in the dashboard
- */
-export const LOG_FILES = {
-   groupFinderTask: createLog("group_finder_tasks.log"),
-   groupsTasks: createLog("groups_tasks.log"),
-   notifyUsersAboutNewCardsTask: createLog("notify_users_about_new_cards_task.log"),
-   groupFinderProblems: createLog("group_finder_problems.log"),
-   usageReports: createLog("usage_reports.log"),
-   serverStatus: createLog("server_status.log"),
-   backups: createLog("backups.log"),
-   usersReported: createLog("users_reported.log"),
-   testNotificationsResult: createLog("test_notifications_result.log"),
-};
 
 /**
  * Logs are saved into memory so when the server is restarted the logs are lost, to fix this there is an interval that saves the logs in memory to files.

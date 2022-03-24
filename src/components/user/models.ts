@@ -92,6 +92,8 @@ import { isProductionMode, isRunningOnAws } from "../../common-tools/process/pro
 import { sendEmail } from "../../common-tools/email-tools/email-tools";
 import { loadHtmlEmailTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
 import { Tag } from "../../shared-tools/endpoints-interfaces/tags";
+import { log } from "../../common-tools/log-tool/log";
+import { LogId } from "../../common-tools/log-tool/types";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -488,7 +490,7 @@ export async function reportUserPost(params: ReportUserPostParams, ctx: BaseCont
       reportedBy: user.userId,
    };
 
-   logToFile(JSON.stringify(objectToLog), "usersReported");
+   log(objectToLog, LogId.UsersReported);
 }
 
 export async function blockUserPost(params: BlockOrUnblockUserParams, ctx: BaseContext) {

@@ -6,6 +6,10 @@ import { getInMemoryLog, setInMemoryLog } from "./storage/log-storage-memory";
 import { LogId } from "./types";
 
 export function log(content: Record<string, any>, logId: LogId) {
+   if (process.env.GENERATE_LOGS !== "true") {
+      return;
+   }
+
    const config = logsConfig?.find(c => c.id === logId);
 
    if (config == null) {

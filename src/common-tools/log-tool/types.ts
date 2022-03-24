@@ -24,7 +24,7 @@ export enum LogId {
    GroupsTasks = "groups_tasks",
    NotifyUsersAboutNewCards = "notify_users_about_new_cards",
    GroupFinderProblems = "group_finder_problems",
-   AmountOfUsers = "amount_of_users",
+   UsersAndGroupsAmount = "users_and_groups_amount",
    ServerStatus = "server_status",
    Backups = "backups",
    UsersReported = "users_reported",

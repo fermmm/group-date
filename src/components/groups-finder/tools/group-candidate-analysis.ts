@@ -12,6 +12,8 @@ import { getUserByIdOnGroupCandidate, disconnectUsers, copyGroupCandidate } from
 import { GroupCandidate, GroupCandidateAnalyzed } from "./types";
 import { checkTypeByMember } from "../../../common-tools/ts-tools/ts-tools";
 import { UserWithMatches } from "../../../shared-tools/endpoints-interfaces/groups";
+import { log } from "../../../common-tools/log-tool/log";
+import { LogId } from "../../../common-tools/log-tool/types";
 
 /**
  * This function calculates the connections count inequality level with the following logic:
@@ -289,9 +291,12 @@ export function reportPossibleDataCorruption(groups: GroupCandidate[] | GroupsAn
          const problems = getDataCorruptionProblemsInMultipleGroupCandidates(groups);
          consoleLog("Database problem! Returned corrupted data in group candidates:");
          consoleLog(problems);
-         logToFile(
-            "Database problem! Returned corrupted data in group candidates: " + JSON.stringify(problems),
-            "groupFinderProblems",
+         log(
+            {
+               problem:
+                  "Database problem! Returned corrupted data in group candidates: " + JSON.stringify(problems),
+            },
+            LogId.GroupFinderProblems,
          );
       }
    }

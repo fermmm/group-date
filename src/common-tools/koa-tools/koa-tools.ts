@@ -8,7 +8,7 @@ import * as appRoot from "app-root-path";
 import * as path from "path";
 import { MAX_FILE_SIZE_UPLOAD_ALLOWED } from "../../configurations";
 import { hoursToMilliseconds } from "../math-tools/general";
-import { imagesLogger } from "../log-tools/log-routes";
+import { imagesLogger } from "../debug-tools/log-routes";
 
 /**
  * This function is garbage. The problem is Koa.js, it's very limited with not much community supporting it.
