@@ -91,5 +91,8 @@ export function removeFilePartInPath(filePath: string) {
  * Returns the list of file names in the given directory.
  */
 export function readFolder(folderPath: string): string[] {
+   if (!fileOrFolderExists(folderPath)) {
+      return [];
+   }
    return fs.readdirSync(appRoot.path + `/${folderPath}`);
 }

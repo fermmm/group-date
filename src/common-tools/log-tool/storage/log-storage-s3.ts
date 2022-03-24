@@ -21,6 +21,10 @@ export async function fromDiskToS3(specificLogs?: string[]) {
 export async function fromS3ToDisk() {
    for (const logConfig of logsConfig) {
       const filePath = `${LOGS_DIR_NAME}/${logConfig.id}.log`;
-      await downloadS3FileToDisk(filePath, filePath);
+      try {
+         await downloadS3FileToDisk(filePath, filePath);
+      } catch (err) {
+         // Ignore
+      }
    }
 }
