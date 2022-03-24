@@ -29,6 +29,7 @@ export enum LogId {
    Backups = "backups",
    UsersReported = "users_reported",
    TestNotificationsResult = "test_notifications_result",
+   DebugGeneral = "debug_general",
 }
 
 export enum LogCategory {

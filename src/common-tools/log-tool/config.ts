@@ -60,6 +60,12 @@ export const logsConfig: LogsConfig[] = [
          "This log contains a report of what happened with a notification sent by the admin panel, useful for debugging",
       maxEntries: 40,
    },
+   {
+      id: LogId.DebugGeneral,
+      category: LogCategory.Debug,
+      description: "This log can contain any debug information",
+      maxEntries: 100,
+   },
 ];
 
 export const ENTRY_SEPARATOR_STRING = "____end\n";

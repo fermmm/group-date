@@ -17,7 +17,11 @@ const RunCodeForm: FC = props => {
       setLoading(false);
    };
 
-   const commandPresets = [`"hello world"`, `await myFunc()`];
+   const commandPresets = [
+      `"hello world"`,
+      `await myFunc()`,
+      `log({ fromDashboard: "hello test" }, LogId.DebugGeneral);`,
+   ];
 
    return (
       <CardColumn>
