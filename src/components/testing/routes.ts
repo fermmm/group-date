@@ -1,6 +1,5 @@
 import * as Router from "@koa/router";
 import { BaseContext } from "koa";
-import { Console } from "winston/lib/winston/transports";
 import { g, sendQuery, __ } from "../../common-tools/database-tools/database-manager";
 import { createRoute } from "../../common-tools/route-tools/route-tools";
 import { notifyUsersAboutNewCards } from "../cards-game/models";

@@ -1,6 +1,6 @@
 import { humanizeUnixTimeStamp } from "../../../../common-tools/strings/humanizeUnixTime";
 
-export function useReadabilityImprovements(log: string): string {
+export function useReadabilityImprovements(log: string, separator: string): string {
    if (!log) {
       return log;
    }
@@ -10,8 +10,7 @@ export function useReadabilityImprovements(log: string): string {
          log = JSON.stringify(log);
       }
 
-      let logLines = log.split("\n");
-      console.log(logLines.length);
+      let logLines = log.split(separator);
 
       logLines = logLines.map(logLine => {
          if (logLine.length === 0) {
@@ -21,25 +20,16 @@ export function useReadabilityImprovements(log: string): string {
          const scapedLine = logLine.replace(/\\"/g, "'");
          let parsedLine = JSON.parse(scapedLine);
 
-         delete parsedLine.level;
-
-         if (parsedLine.message) {
-            parsedLine.message = parsedLine.message.replaceAll("'", '"');
-            try {
-               parsedLine.message = JSON.parse(parsedLine.message);
-            } catch (e) {}
+         if (!parsedLine.timestamp || !parsedLine.content) {
+            return scapedLine;
          }
 
-         if (parsedLine.timestamp) {
-            parsedLine.timestamp = humanizeUnixTimeStamp(Number(parsedLine.timestamp));
-            // Move timestamp prop to the beginning of the object
-            parsedLine = { timestamp: parsedLine.timestamp, ...parsedLine };
-         }
-
-         return JSON.stringify(parsedLine);
+         return `${humanizeUnixTimeStamp(Number(parsedLine.timestamp))}   ${JSON.stringify(
+            parsedLine.content,
+         )}`;
       });
 
-      return logLines.join("\n");
+      return logLines.join(separator);
    } catch (error) {
       return log;
    }

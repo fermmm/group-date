@@ -10,11 +10,12 @@ var LogId;
     LogId["GroupsTasks"] = "groups_tasks";
     LogId["NotifyUsersAboutNewCards"] = "notify_users_about_new_cards";
     LogId["GroupFinderProblems"] = "group_finder_problems";
-    LogId["AmountOfUsers"] = "amount_of_users";
+    LogId["UsersAndGroupsAmount"] = "users_and_groups_amount";
     LogId["ServerStatus"] = "server_status";
     LogId["Backups"] = "backups";
     LogId["UsersReported"] = "users_reported";
     LogId["TestNotificationsResult"] = "test_notifications_result";
+    LogId["DebugGeneral"] = "debug_general";
 })(LogId = exports.LogId || (exports.LogId = {}));
 var LogCategory;
 (function (LogCategory) {

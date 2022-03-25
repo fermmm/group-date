@@ -13,6 +13,7 @@ import {
    AdminCodePostParams,
    AdminCommandPostParams,
    AdminConvertPostParams,
+   AdminDeleteLogEntryParams,
    AdminGroupGetParams,
    AdminLogGetParams,
    AdminNotificationPostParams,
@@ -27,6 +28,8 @@ import {
    ExportDatabaseGetParams,
    ExportDatabaseResponse,
    ImportDatabasePostParams,
+   LogFileListResponse,
+   LogResponse,
    RemoveAllBanReasonsFromUserPostParams,
    RemoveBanFromUserPostParams,
    SendEmailPostParams,
@@ -82,6 +85,7 @@ import {
    createZipFileFromDirectory,
    deleteFile,
    getFileContent,
+   readFolder,
 } from "../../common-tools/files-tools/files-tools";
 import { deleteFilesFromS3, readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
@@ -111,6 +115,11 @@ import { backupLogs, restoreLogs } from "../../common-tools/log-tool/storage/log
 import { runCodeFromString } from "../../common-tools/runCodeFromString/runCodeFromString";
 import { log } from "../../common-tools/log-tool/log";
 import { LogId } from "../../common-tools/log-tool/types";
+import {
+   deleteInMemoryLogEntry,
+   getAllInMemoryLogs,
+} from "../../common-tools/log-tool/storage/log-storage-memory";
+import { ENTRY_SEPARATOR_STRING, logsConfig } from "../../common-tools/log-tool/config";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -231,42 +240,74 @@ export async function logUsageReport(): Promise<void> {
    log(report, LogId.UsersAndGroupsAmount);
 }
 
-export async function logFileListGet(params: AdminProtectionParams, ctx: BaseContext): Promise<string[]> {
+export async function logFileListGet(
+   params: AdminProtectionParams,
+   ctx: BaseContext,
+): Promise<LogFileListResponse[]> {
    const passwordValidation = await validateAdminCredentials(params);
    if (!passwordValidation.isValid) {
       return null;
    }
 
-   let resolvePromise: (value: string[] | PromiseLike<string[]>) => void;
-   const promise = new Promise<string[]>(resolve => (resolvePromise = resolve));
+   const result = [];
+   const logs = getAllInMemoryLogs();
 
-   fs.readdir("./logs/", (err, files) => {
-      resolvePromise(files.map(file => file));
+   Object.keys(logs).forEach(logId => {
+      const logConfig = logsConfig.find(config => config.id === logId);
+      result.push({ logId, category: logConfig.category, description: logConfig.description });
    });
 
-   return promise;
+   return result;
 }
 
-export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promise<string> {
-   const { fileName } = params;
+export async function logGet(params: AdminLogGetParams, ctx: BaseContext): Promise<LogResponse> {
+   const { logId } = params;
 
    const passwordValidation = await validateAdminCredentials(params);
    if (!passwordValidation.isValid) {
       return null;
    }
 
-   let resolvePromise: (value: string | PromiseLike<string>) => void;
-   const promise = new Promise<string>(resolve => (resolvePromise = resolve));
+   const log = getAllInMemoryLogs()[logId];
 
-   fs.readFile("./logs/" + fileName, { encoding: "utf-8" }, function (err, data) {
-      if (!err) {
-         resolvePromise(data);
-      } else {
-         ctx.throw(400, err);
-      }
-   });
+   if (!log) {
+      ctx.throw(400, "Log not found");
+      return;
+   }
 
-   return promise;
+   const logConfig = logsConfig.find(config => config.id === logId);
+
+   return {
+      id: logId,
+      category: logConfig.category,
+      description: logConfig.description,
+      separator: ENTRY_SEPARATOR_STRING,
+      log,
+   };
+}
+
+export async function logDeleteEntryPost(
+   params: AdminDeleteLogEntryParams,
+   ctx: BaseContext,
+): Promise<{ success: boolean }> {
+   const { logId, entryId } = params;
+
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      return null;
+   }
+
+   const log = getAllInMemoryLogs()[logId];
+
+   if (!log) {
+      ctx.throw(400, "Log not found");
+      return;
+   }
+
+   deleteInMemoryLogEntry(logId, entryId);
+   backupLogs([logId]);
+
+   return { success: true };
 }
 
 export async function importDatabasePost(params: ImportDatabasePostParams, ctx: BaseContext) {

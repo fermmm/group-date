@@ -14,6 +14,7 @@ function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/chat/all", "GET", models_1.allChatsWithAdminsGet);
     (0, route_tools_1.createRoute)(r, "/admin/logs/files", "GET", models_1.logFileListGet);
     (0, route_tools_1.createRoute)(r, "/admin/log", "GET", models_1.logGet);
+    (0, route_tools_1.createRoute)(r, "/admin/log/entry/delete", "POST", models_1.logDeleteEntryPost);
     (0, route_tools_1.createRoute)(r, "/admin/convert", "POST", models_1.convertToAdminPost);
     (0, route_tools_1.createRoute)(r, "/admin/db/import", "POST", models_1.importDatabasePost);
     (0, route_tools_1.createRoute)(r, "/admin/db/export", "GET", models_1.exportDatabaseGet);

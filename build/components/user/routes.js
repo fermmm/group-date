@@ -6,7 +6,7 @@ const serve = require("koa-static");
 const route_tools_1 = require("../../common-tools/route-tools/route-tools");
 const configurations_1 = require("../../configurations");
 const models_1 = require("./models");
-const log_routes_1 = require("../../common-tools/log-tools/log-routes");
+const log_routes_1 = require("../../common-tools/debug-tools/log-routes");
 const general_1 = require("../../common-tools/math-tools/general");
 function userRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/user", "GET", models_1.userGet);

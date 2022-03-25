@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logDeleteEntryPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -36,6 +36,10 @@ const models_3 = require("../groups/models");
 const koaBody = require("koa-body");
 const log_storage_1 = require("../../common-tools/log-tool/storage/log-storage");
 const runCodeFromString_1 = require("../../common-tools/runCodeFromString/runCodeFromString");
+const log_1 = require("../../common-tools/log-tool/log");
+const types_2 = require("../../common-tools/log-tool/types");
+const log_storage_memory_1 = require("../../common-tools/log-tool/storage/log-storage-memory");
+const config_1 = require("../../common-tools/log-tool/config");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -107,6 +111,7 @@ exports.convertToAdmin = convertToAdmin;
 async function logUsageReport() {
     const timeStart = perf_hooks_1.performance.now();
     const amountOfUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().count().next())).value;
+    const amountOfWantedUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().has("unwantedUser", false).count().next())).value;
     const amountOfFullyRegisteredUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllCompleteUsers)().count().next()))
         .value;
     const incompleteUsers = amountOfUsers - amountOfFullyRegisteredUsers;
@@ -121,13 +126,14 @@ async function logUsageReport() {
     const timeSpentOnReportMs = Math.round(perf_hooks_1.performance.now() - timeStart);
     const report = {
         amountOfUsers: amountOfFullyRegisteredUsers,
+        wantedUsers: amountOfWantedUsers,
         incompleteUsers,
         amountOfGroups,
         totalOpenGroups,
         openGroupsBySlot,
         timeSpentOnReportMs,
     };
-    logToFile(JSON.stringify(report), "usageReports");
+    (0, log_1.log)(report, types_2.LogId.UsersAndGroupsAmount);
 }
 exports.logUsageReport = logUsageReport;
 async function logFileListGet(params, ctx) {
@@ -135,33 +141,52 @@ async function logFileListGet(params, ctx) {
     if (!passwordValidation.isValid) {
         return null;
     }
-    let resolvePromise;
-    const promise = new Promise(resolve => (resolvePromise = resolve));
-    fs.readdir("./logs/", (err, files) => {
-        resolvePromise(files.map(file => file));
+    const result = [];
+    const logs = (0, log_storage_memory_1.getAllInMemoryLogs)();
+    Object.keys(logs).forEach(logId => {
+        const logConfig = config_1.logsConfig.find(config => config.id === logId);
+        result.push({ logId, category: logConfig.category, description: logConfig.description });
     });
-    return promise;
+    return result;
 }
 exports.logFileListGet = logFileListGet;
 async function logGet(params, ctx) {
-    const { fileName } = params;
+    const { logId } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return null;
     }
-    let resolvePromise;
-    const promise = new Promise(resolve => (resolvePromise = resolve));
-    fs.readFile("./logs/" + fileName, { encoding: "utf-8" }, function (err, data) {
-        if (!err) {
-            resolvePromise(data);
-        }
-        else {
-            ctx.throw(400, err);
-        }
-    });
-    return promise;
+    const log = (0, log_storage_memory_1.getAllInMemoryLogs)()[logId];
+    if (!log) {
+        ctx.throw(400, "Log not found");
+        return;
+    }
+    const logConfig = config_1.logsConfig.find(config => config.id === logId);
+    return {
+        id: logId,
+        category: logConfig.category,
+        description: logConfig.description,
+        separator: config_1.ENTRY_SEPARATOR_STRING,
+        log,
+    };
 }
 exports.logGet = logGet;
+async function logDeleteEntryPost(params, ctx) {
+    const { logId, entryId } = params;
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        return null;
+    }
+    const log = (0, log_storage_memory_1.getAllInMemoryLogs)()[logId];
+    if (!log) {
+        ctx.throw(400, "Log not found");
+        return;
+    }
+    (0, log_storage_memory_1.deleteInMemoryLogEntry)(logId, entryId);
+    (0, log_storage_1.backupLogs)([logId]);
+    return { success: true };
+}
+exports.logDeleteEntryPost = logDeleteEntryPost;
 async function importDatabasePost(params, ctx) {
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
@@ -359,12 +384,12 @@ async function adminNotificationSendPost(params, ctx) {
         channelId: channelId ? channelId : user_1.NotificationChannelId.Default,
     })));
     if (logResult) {
-        logToFile(JSON.stringify({
+        (0, log_1.log)({
             to: (_a = users === null || users === void 0 ? void 0 : users.map(user => user.notificationsToken)) !== null && _a !== void 0 ? _a : [],
             title: notificationContent.title,
             body: notificationContent.text,
             result: expoPushTickets,
-        }), "testNotificationsResult");
+        }, types_2.LogId.TestNotificationsResult);
     }
     // Some time to wait in order for expo to process the notification before the delivery status can be checked
     await (0, js_tools_1.time)(10000);

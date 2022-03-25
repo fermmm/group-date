@@ -14,6 +14,7 @@ import {
    exportDatabaseGet,
    getGroup,
    importDatabasePost,
+   logDeleteEntryPost,
    logFileListGet,
    logGet,
    notificationStatusGet,
@@ -37,6 +38,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/chat/all", "GET", allChatsWithAdminsGet);
    createRoute(r, "/admin/logs/files", "GET", logFileListGet);
    createRoute(r, "/admin/log", "GET", logGet);
+   createRoute(r, "/admin/log/entry/delete", "POST", logDeleteEntryPost);
    createRoute(r, "/admin/convert", "POST", convertToAdminPost);
    createRoute(r, "/admin/db/import", "POST", importDatabasePost);
    createRoute(r, "/admin/db/export", "GET", exportDatabaseGet);

@@ -16,6 +16,9 @@ const data_conversion_tools_1 = require("../../common-tools/database-tools/data-
 const getUserImagesUrl_1 = require("../../common-tools/url-tools/getUserImagesUrl");
 const queries_3 = require("../user/queries");
 const data_conversion_2 = require("../user/tools/data-conversion");
+const measureTime_1 = require("../../common-tools/js-tools/measureTime");
+const log_1 = require("../../common-tools/log-tool/log");
+const types_1 = require("../../common-tools/log-tool/types");
 async function initializeGroups() {
     (0, dynamic_1.setIntervalAsync)(findSlotsToRelease, configurations_1.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
     (0, dynamic_1.setIntervalAsync)(sendDateReminderNotifications, configurations_1.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
@@ -234,9 +237,9 @@ async function chatPost(params, ctx) {
 }
 exports.chatPost = chatPost;
 async function findSlotsToRelease() {
-    const porfiler = logTimeToFile("groupsTasks");
+    (0, measureTime_1.measureTime)("groupsTasks");
     await (0, queries_1.queryToFindSlotsToRelease)().iterate();
-    porfiler.done("Find slots to release finished");
+    (0, log_1.log)({ message: "Find slots to release finished", timeItTookMs: (0, measureTime_1.finishMeasureTime)("groupsTasks") }, types_1.LogId.GroupsTasks);
 }
 exports.findSlotsToRelease = findSlotsToRelease;
 async function sendDateReminderNotifications() {

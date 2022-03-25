@@ -2,11 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.log = void 0;
 const moment = require("moment");
+const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const string_tools_1 = require("../string-tools/string-tools");
 const config_1 = require("./config");
 const log_storage_1 = require("./storage/log-storage");
 const log_storage_memory_1 = require("./storage/log-storage-memory");
 function log(content, logId) {
+    if (process.env.GENERATE_LOGS !== "true") {
+        return;
+    }
     const config = config_1.logsConfig === null || config_1.logsConfig === void 0 ? void 0 : config_1.logsConfig.find(c => c.id === logId);
     if (config == null) {
         throw new Error(`LogId ${logId} not found`);
@@ -24,7 +28,22 @@ function log(content, logId) {
             }
             // If the log config requires to remove dated entries wo do it here
             if (config.maxEntryAge != null) {
-                logsAsArr = logsAsArr.filter(log => JSON.parse(log).timestamp > moment().unix() - config.maxEntryAge);
+                logsAsArr = logsAsArr.filter(log => {
+                    if (log.length === 0) {
+                        return false;
+                    }
+                    let timestamp;
+                    try {
+                        timestamp = Number(JSON.parse(log).timestamp);
+                    }
+                    catch (e) {
+                        console.error(`${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e)} ${log}`);
+                    }
+                    if (!timestamp) {
+                        return true;
+                    }
+                    return timestamp > moment().unix() - config.maxEntryAge;
+                });
             }
             currentLogInMem = logsAsArr.join(config_1.ENTRY_SEPARATOR_STRING);
         }

@@ -7,6 +7,8 @@ const configurations_1 = require("../../../configurations");
 const models_1 = require("../models");
 const group_candidate_editing_1 = require("./group-candidate-editing");
 const ts_tools_1 = require("../../../common-tools/ts-tools/ts-tools");
+const log_1 = require("../../../common-tools/log-tool/log");
+const types_1 = require("../../../common-tools/log-tool/types");
 /**
  * This function calculates the connections count inequality level with the following logic:
  *
@@ -235,7 +237,9 @@ function reportPossibleDataCorruption(groups) {
             const problems = getDataCorruptionProblemsInMultipleGroupCandidates(groups);
             consoleLog("Database problem! Returned corrupted data in group candidates:");
             consoleLog(problems);
-            logToFile("Database problem! Returned corrupted data in group candidates: " + JSON.stringify(problems), "groupFinderProblems");
+            (0, log_1.log)({
+                problem: "Database problem! Returned corrupted data in group candidates: " + JSON.stringify(problems),
+            }, types_1.LogId.GroupFinderProblems);
         }
     }
 }

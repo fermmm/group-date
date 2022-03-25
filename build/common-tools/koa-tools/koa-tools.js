@@ -9,7 +9,7 @@ const appRoot = require("app-root-path");
 const path = require("path");
 const configurations_1 = require("../../configurations");
 const general_1 = require("../math-tools/general");
-const log_routes_1 = require("../log-tools/log-routes");
+const log_routes_1 = require("../debug-tools/log-routes");
 /**
  * This function is garbage. The problem is Koa.js, it's very limited with not much community supporting it.
  * Porting all Koa.js code to Express is something that should be done in this repo.

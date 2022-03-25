@@ -11,6 +11,9 @@ const queries_3 = require("../tags/queries");
 const data_conversion_2 = require("./tools/data-conversion");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const i18n_tools_1 = require("../../common-tools/i18n-tools/i18n-tools");
+const measureTime_1 = require("../../common-tools/js-tools/measureTime");
+const log_1 = require("../../common-tools/log-tool/log");
+const types_1 = require("../../common-tools/log-tool/types");
 async function initializeCardsGame() { }
 exports.initializeCardsGame = initializeCardsGame;
 async function recommendationsGet(params, ctx) {
@@ -74,8 +77,7 @@ exports.recommendationsFromTagGet = recommendationsFromTagGet;
  */
 async function notifyUsersAboutNewCards(params) {
     const { userIds } = params !== null && params !== void 0 ? params : {};
-    // TODO: This should log only when the time it takes is too much
-    const logger = logTimeToFile("notifyUsersAboutNewCardsTask");
+    (0, measureTime_1.measureTime)("new_cards_time");
     const users = await (0, data_conversion_1.fromQueryToUserList)((0, queries_2.queryToGetUsersWantingNewCardsNotification)(userIds), false);
     for (const user of users) {
         const recommendations = (await (0, queries_2.queryToGetCardsRecommendations)(user, {
@@ -98,7 +100,14 @@ async function notifyUsersAboutNewCards(params) {
             }, { sendPushNotification: true, channelId: user_1.NotificationChannelId.NewUsers });
         }
     }
-    logger.done("Notifying users about new cards finished");
+    const timeItTookMs = (0, measureTime_1.finishMeasureTime)("new_cards_time");
+    if (timeItTookMs > 1000) {
+        (0, log_1.log)({
+            problem: "Notifying about new cards took more than 1000 ms",
+            timeItTookMs,
+            amountOfUsersNotified: users.length,
+        }, types_1.LogId.NotifyUsersAboutNewCards);
+    }
 }
 exports.notifyUsersAboutNewCards = notifyUsersAboutNewCards;
 /**

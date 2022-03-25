@@ -5,5 +5,7 @@ export function humanizeSecondsAmount(time: number): string {
 }
 
 export function humanizeUnixTimeStamp(time: number): string {
-   return `${humanizeSecondsAmount(moment().unix() - time)} - ${moment.unix(time).format("MMM DD YYYY")}`;
+   return `${humanizeSecondsAmount(moment().unix() - time)} ago - ${moment
+      .unix(time)
+      .format("MMM DD YYYY - HH:mm:ss")}`;
 }

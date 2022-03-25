@@ -10,6 +10,9 @@ const common_queries_1 = require("../database-tools/common-queries");
 const neptune_tools_1 = require("../aws/neptune-tools");
 const s3_tools_1 = require("../aws/s3-tools");
 const string_tools_1 = require("../string-tools/string-tools");
+const measureTime_1 = require("../js-tools/measureTime");
+const log_1 = require("../log-tool/log");
+const types_1 = require("../log-tool/types");
 exports.DB_EXPORT_FOLDER = "database-backups";
 exports.DB_EXPORT_LATEST_FILE = "latest";
 async function initializeDatabaseBackups() {
@@ -68,9 +71,8 @@ async function initializeBackupDatabaseSchedule() {
 }
 async function backupDatabase(folderPath, fileName, settings) {
     const { saveLog = true } = settings !== null && settings !== void 0 ? settings : {};
-    let profiler;
     if (saveLog) {
-        profiler = logTimeToFile("backups");
+        (0, measureTime_1.measureTime)("backup-database");
     }
     if ((0, process_tools_1.isRunningOnAws)()) {
         await (0, neptune_tools_1.exportDatabaseContentFromNeptune)({
@@ -87,7 +89,10 @@ async function backupDatabase(folderPath, fileName, settings) {
         (0, files_tools_1.copyFile)(`${folderPath}/${fileName}.xml`, `${exports.DB_EXPORT_FOLDER}/${exports.DB_EXPORT_LATEST_FILE}.xml`);
     }
     if (saveLog) {
-        profiler.done({ message: `Database backup done in ${`${folderPath}/${fileName}.xml`}` });
+        (0, log_1.log)({
+            message: `Database backup done in ${`${folderPath}/${fileName}.xml`}`,
+            timeConsumedToMakeBackupMs: (0, measureTime_1.finishMeasureTime)("backup-database"),
+        }, types_1.LogId.Backups);
     }
 }
 async function restoreDatabase(folderPath, fileName) {

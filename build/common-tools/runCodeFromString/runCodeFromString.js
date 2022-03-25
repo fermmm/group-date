@@ -5,10 +5,8 @@ const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessag
 async function runCodeFromString(code) {
     let result;
     // Add here as require imports all the function you want available
-    const { fromS3ToDisk } = require("../log-tool/storage/log-storage-s3");
     const { log } = require("../log-tool/log");
     const { LogId } = require("../log-tool/types");
-    const { getAllInMemoryLogs } = require("../log-tool/storage/log-storage-memory");
     try {
         const func = eval(`async () => {return ${code}}`);
         result = await func();

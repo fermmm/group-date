@@ -30,6 +30,8 @@ const s3_tools_1 = require("../../common-tools/aws/s3-tools");
 const process_tools_1 = require("../../common-tools/process/process-tools");
 const email_tools_1 = require("../../common-tools/email-tools/email-tools");
 const loadHtmlTemplate_1 = require("../../common-tools/email-tools/loadHtmlTemplate");
+const log_1 = require("../../common-tools/log-tool/log");
+const types_1 = require("../../common-tools/log-tool/types");
 async function initializeUsers() {
     (0, files_tools_1.createFolder)("uploads");
     createGenders();
@@ -343,7 +345,7 @@ async function reportUserPost(params, ctx) {
         ...params,
         reportedBy: user.userId,
     };
-    logToFile(JSON.stringify(objectToLog), "usersReported");
+    (0, log_1.log)(objectToLog, types_1.LogId.UsersReported);
 }
 exports.reportUserPost = reportUserPost;
 async function blockUserPost(params, ctx) {

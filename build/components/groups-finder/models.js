@@ -15,6 +15,9 @@ const group_candidate_editing_2 = require("./tools/group-candidate-editing");
 const queries_2 = require("../user/queries");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 const queries_3 = require("../groups/queries");
+const measureTime_1 = require("../../common-tools/js-tools/measureTime");
+const log_1 = require("../../common-tools/log-tool/log");
+const types_2 = require("../../common-tools/log-tool/types");
 async function initializeGroupsFinder() {
     (0, dynamic_1.setIntervalAsync)(searchAndCreateNewGroups, configurations_1.SEARCH_GROUPS_FREQUENCY);
 }
@@ -24,7 +27,6 @@ exports.initializeGroupsFinder = initializeGroupsFinder;
  * Also searches for users available to be added to recently created groups that are still open for more users.
  */
 async function searchAndCreateNewGroups() {
-    const profiler = logTimeToFile("groupFinderTask");
     let groupsCreated = [];
     let groupsModified = [];
     /**
@@ -39,6 +41,7 @@ async function searchAndCreateNewGroups() {
     if (configurations_1.SEARCH_BAD_QUALITY_GROUPS) {
         qualitiesToSearch.push(types_1.GroupQuality.Bad);
     }
+    (0, measureTime_1.measureTime)("groupFinderTask");
     // For each quality and slot search for users that can form a group and create the groups
     for (const quality of qualitiesToSearch) {
         for (const slotIndex of slotsIndexesOrdered()) {
@@ -51,9 +54,10 @@ async function searchAndCreateNewGroups() {
             groupsModified.push(...(await addMoreUsersToRecentGroups(slotIndex, quality, notAvailableUsersBySlot[slotIndex])));
         }
     }
-    profiler.done({
+    (0, log_1.log)({
         message: `Group finder finished, created ${groupsCreated.length} groups. Modified ${groupsModified.length} groups`,
-    });
+        timeItTookMs: (0, measureTime_1.finishMeasureTime)("groupFinderTask"),
+    }, types_2.LogId.GroupFinderTasks);
     return groupsCreated;
 }
 exports.searchAndCreateNewGroups = searchAndCreateNewGroups;

@@ -1,4 +1,5 @@
 import * as moment from "moment";
+import { tryToGetErrorMessage } from "../httpRequest/tools/tryToGetErrorMessage";
 import { generateId } from "../string-tools/string-tools";
 import { logsConfig, ENTRY_SEPARATOR_STRING } from "./config";
 import { backupLogs } from "./storage/log-storage";
@@ -32,9 +33,24 @@ export function log(content: Record<string, any>, logId: LogId) {
 
          // If the log config requires to remove dated entries wo do it here
          if (config.maxEntryAge != null) {
-            logsAsArr = logsAsArr.filter(
-               log => JSON.parse(log).timestamp > moment().unix() - config.maxEntryAge,
-            );
+            logsAsArr = logsAsArr.filter(log => {
+               if (log.length === 0) {
+                  return false;
+               }
+
+               let timestamp: number;
+               try {
+                  timestamp = Number(JSON.parse(log).timestamp);
+               } catch (e) {
+                  console.error(`${tryToGetErrorMessage(e)} ${log}`);
+               }
+
+               if (!timestamp) {
+                  return true;
+               }
+
+               return timestamp > moment().unix() - config.maxEntryAge;
+            });
          }
 
          currentLogInMem = logsAsArr.join(ENTRY_SEPARATOR_STRING);
