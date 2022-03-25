@@ -23,7 +23,9 @@ import { queryToGetUsersSubscribedToTags } from "../tags/queries";
 import { CardsGameResult, fromQueryToCardsResult } from "./tools/data-conversion";
 import { divideArrayCallback, limitArray, shuffleArray } from "../../common-tools/js-tools/js-tools";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
-import { measureTime } from "../../common-tools/js-tools/measureTime";
+import { finishMeasureTime, measureTime } from "../../common-tools/js-tools/measureTime";
+import { log } from "../../common-tools/log-tool/log";
+import { LogId } from "../../common-tools/log-tool/types";
 
 export async function initializeCardsGame(): Promise<void> {}
 
@@ -98,8 +100,7 @@ export async function recommendationsFromTagGet(
 export async function notifyUsersAboutNewCards(params?: { userIds?: string[] }): Promise<void> {
    const { userIds } = params ?? {};
 
-   // TODO: This should log only when the time it takes is too much
-   const logger = measureTime({ measurementId: "notifyUsersAboutNewCardsTask" });
+   measureTime("new_cards_time");
 
    const users: User[] = await fromQueryToUserList(queryToGetUsersWantingNewCardsNotification(userIds), false);
 
@@ -132,7 +133,18 @@ export async function notifyUsersAboutNewCards(params?: { userIds?: string[] }):
       }
    }
 
-   logger.done("Notifying users about new cards finished");
+   const timeItTookMs = finishMeasureTime("new_cards_time");
+
+   if (timeItTookMs > 1000) {
+      log(
+         {
+            problem: "Notifying about new cards took more than 1000 ms",
+            timeItTookMs,
+            amountOfUsersNotified: users.length,
+         },
+         LogId.NotifyUsersAboutNewCards,
+      );
+   }
 }
 
 /**

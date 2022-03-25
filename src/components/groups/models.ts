@@ -61,6 +61,10 @@ import {
 import { getImagesHostUrl } from "../../common-tools/url-tools/getUserImagesUrl";
 import { queryToGetUserByTokenOrId } from "../user/queries";
 import { fromQueryToUser } from "../user/tools/data-conversion";
+import { finishMeasureTime, measureTime } from "../../common-tools/js-tools/measureTime";
+import { log } from "../../common-tools/log-tool/log";
+import { loginGet } from "../email-login/models";
+import { LogId } from "../../common-tools/log-tool/types";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
@@ -345,9 +349,12 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
 }
 
 export async function findSlotsToRelease(): Promise<void> {
-   const porfiler = logTimeToFile("groupsTasks");
+   measureTime("groupsTasks");
    await queryToFindSlotsToRelease().iterate();
-   porfiler.done("Find slots to release finished");
+   log(
+      { message: "Find slots to release finished", timeItTookMs: finishMeasureTime("groupsTasks") },
+      LogId.GroupsTasks,
+   );
 }
 
 export async function sendDateReminderNotifications(): Promise<void> {

@@ -83,7 +83,7 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
    const { saveLog = true } = settings ?? {};
 
    if (saveLog) {
-      measureTime({ measurementId: "backup-database" });
+      measureTime("backup-database");
    }
 
    if (isRunningOnAws()) {
@@ -104,7 +104,7 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
       log(
          {
             message: `Database backup done in ${`${folderPath}/${fileName}.xml`}`,
-            timeConsumedToMakeBackup: finishMeasureTime("backup-database"),
+            timeConsumedToMakeBackupMs: finishMeasureTime("backup-database"),
          },
          LogId.Backups,
       );

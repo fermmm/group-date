@@ -9,7 +9,7 @@ const measures: Record<string, Measure & { measurementId: string }> = {};
  * @param measurementId Create a unique id to be used later to finish the time measurement
  * @param settings More options to configure the measurement
  */
-export function measureTime(measurementId: string, settings: MeasureTimeSettings) {
+export function measureTime(measurementId: string, settings?: MeasureTimeSettings) {
    const currentMeasurement = measures[measurementId];
 
    if (currentMeasurement?.finished === false) {
@@ -17,7 +17,7 @@ export function measureTime(measurementId: string, settings: MeasureTimeSettings
    }
 
    if (
-      currentMeasurement?.props?.executeMeasurementOnlyOnce === true &&
+      currentMeasurement?.settings?.executeMeasurementOnlyOnce === true &&
       currentMeasurement?.lastMeasurement != null
    ) {
       return;
@@ -65,7 +65,7 @@ export function finishMeasureTime(measurementId: string) {
       lastMeasurement: timeElapsed,
    };
 
-   currentMeasurement.props?.onFinishMeasurement?.(timeElapsed, measurementId);
+   currentMeasurement.settings?.onFinishMeasurement?.(timeElapsed, measurementId);
 
    return timeElapsed;
 }
@@ -80,7 +80,7 @@ export interface MeasureTimeSettings {
 }
 
 interface Measure {
-   props: MeasureTimeSettings;
+   settings: MeasureTimeSettings;
    finished: boolean;
    startTime: number;
    lastMeasurement?: number;

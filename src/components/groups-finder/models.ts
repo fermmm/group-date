@@ -35,6 +35,9 @@ import { Group, UserWithMatches } from "../../shared-tools/endpoints-interfaces/
 import { queryToGetUserById } from "../user/queries";
 import { executePromises } from "../../common-tools/js-tools/js-tools";
 import { queryToGetGroupById } from "../groups/queries";
+import { finishMeasureTime, measureTime } from "../../common-tools/js-tools/measureTime";
+import { log } from "../../common-tools/log-tool/log";
+import { LogId } from "../../common-tools/log-tool/types";
 
 export async function initializeGroupsFinder(): Promise<void> {
    setIntervalAsync(searchAndCreateNewGroups, SEARCH_GROUPS_FREQUENCY);
@@ -45,7 +48,6 @@ export async function initializeGroupsFinder(): Promise<void> {
  * Also searches for users available to be added to recently created groups that are still open for more users.
  */
 export async function searchAndCreateNewGroups(): Promise<Group[]> {
-   const profiler = logTimeToFile("groupFinderTask");
    let groupsCreated: Group[] = [];
    let groupsModified: string[] = [];
 
@@ -62,6 +64,8 @@ export async function searchAndCreateNewGroups(): Promise<Group[]> {
    if (SEARCH_BAD_QUALITY_GROUPS) {
       qualitiesToSearch.push(GroupQuality.Bad);
    }
+
+   measureTime("groupFinderTask");
 
    // For each quality and slot search for users that can form a group and create the groups
    for (const quality of qualitiesToSearch) {
@@ -81,9 +85,14 @@ export async function searchAndCreateNewGroups(): Promise<Group[]> {
       }
    }
 
-   profiler.done({
-      message: `Group finder finished, created ${groupsCreated.length} groups. Modified ${groupsModified.length} groups`,
-   });
+   log(
+      {
+         message: `Group finder finished, created ${groupsCreated.length} groups. Modified ${groupsModified.length} groups`,
+         timeItTookMs: finishMeasureTime("groupFinderTask"),
+      },
+      LogId.GroupFinderTasks,
+   );
+
    return groupsCreated;
 }
 
