@@ -7,11 +7,13 @@ export const logsConfig: LogsConfig[] = [
       category: LogCategory.Users,
       description: "Logs how many users are registered on the app and how many groups were created",
       maxEntryAge: YEAR_IN_SECONDS,
+      backupAfterEntryAdded: true,
    },
    {
       id: LogId.UsersReported,
       category: LogCategory.Users,
       description: "This log contains the users reported in the app",
+      backupAfterEntryAdded: true,
    },
    {
       id: LogId.GroupFinderTasks,

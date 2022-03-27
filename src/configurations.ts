@@ -550,7 +550,7 @@ export const ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = false;
 /**
  * Logs are saved into memory so when the server is restarted the logs are lost, to fix this there is an interval that saves the logs in memory to files.
  */
-export const BACKUP_LOGS_TO_FILE_FREQUENCY = minutesToMilliseconds(10);
+export const BACKUP_LOGS_TO_FILE_FREQUENCY = hoursToMilliseconds(24);
 
 /**
  * How often the server adds a log entry with information related to how many users are using the app and more.
