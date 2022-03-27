@@ -9,11 +9,13 @@ exports.logsConfig = [
         category: types_1.LogCategory.Users,
         description: "Logs how many users are registered on the app and how many groups were created",
         maxEntryAge: constants_1.YEAR_IN_SECONDS,
+        backupAfterEntryAdded: true,
     },
     {
         id: types_1.LogId.UsersReported,
         category: types_1.LogCategory.Users,
         description: "This log contains the users reported in the app",
+        backupAfterEntryAdded: true,
     },
     {
         id: types_1.LogId.GroupFinderTasks,
