@@ -10,7 +10,7 @@ const v = new Validator();
 const EDITABLE_TAG_PROPS_SCHEMA = {
     name: { type: "string", min: 2, max: 35, optional: false },
     category: { type: "string", min: 2, max: 35, optional: false },
-    country: { type: "string", optional: true },
+    language: { type: "string", optional: true },
     global: { type: "boolean", optional: true },
 };
 // Export the same object casted with more type information

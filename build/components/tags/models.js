@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppAuthoredQuestionsIdsAsSet = exports.getNotShowedQuestionIds = exports.removeAllTagsCreatedBy = exports.creteAppAuthoredTags = exports.removeTagsPost = exports.removeBlockToTagsPost = exports.removeSubscriptionToTagsPost = exports.blockTagsPost = exports.subscribeToTagsPost = exports.tagsCreatedByUserGet = exports.appAuthoredTagsAsQuestionsGet = exports.tagsGet = exports.createTagPost = exports.initializeTags = void 0;
+exports.getAppAuthoredQuestionsIdsAsSet = exports.getNotShowedQuestionIds = exports.removeAllTagsCreatedBy = exports.createAppAuthoredTags = exports.removeTagsPost = exports.removeBlockToTagsPost = exports.removeSubscriptionToTagsPost = exports.blockTagsPost = exports.subscribeToTagsPost = exports.tagsCreatedByUserGet = exports.appAuthoredTagsAsQuestionsGet = exports.tagsGet = exports.createTagPost = exports.initializeTags = void 0;
 const moment = require("moment");
 const configurations_1 = require("../../configurations");
 const data_conversion_1 = require("./tools/data-conversion");
@@ -11,18 +11,18 @@ const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const queries_1 = require("./queries");
 const common_queries_1 = require("../../common-tools/database-tools/common-queries");
 async function initializeTags() {
-    await creteAppAuthoredTags();
+    await createAppAuthoredTags();
 }
 exports.initializeTags = initializeTags;
 async function createTagPost(params, ctx) {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d, _e, _f;
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, false, ctx);
     if (!user.isAdmin && params.global) {
         ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can create global tags", { user }));
         return;
     }
-    if (!user.isAdmin && params.country) {
-        ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can set the tag country", { user }));
+    if (!user.isAdmin && params.language) {
+        ctx.throw(400, (0, i18n_tools_1.t)("Only admin users can set the tag language", { user }));
         return;
     }
     if (user.demoAccount) {
@@ -52,23 +52,23 @@ async function createTagPost(params, ctx) {
         ctx.throw(400, (0, i18n_tools_1.t)("Sorry you created too many tags", { user }, remaining));
         return;
     }
-    const userTagsTraversal = (0, queries_1.queryToGetTags)({ countryFilter: (_a = params.country) !== null && _a !== void 0 ? _a : user.country });
+    const userTagsTraversal = (0, queries_1.queryToGetTags)({ languageFilter: (0, i18n_tools_1.findLocaleIn)({ user, ctx }) });
     const userTags = await (0, data_conversion_1.fromQueryToTagList)(userTagsTraversal);
     const matchingTag = userTags.find(tag => tag.name.toLowerCase() === params.name.toLowerCase());
     if (matchingTag != null) {
-        ctx.throw(400, (0, i18n_tools_1.t)("A tag with the same name already exists in your country", { user }));
+        ctx.throw(400, (0, i18n_tools_1.t)("A tag with the same name already exists", { user }));
         return;
     }
     const tagToCreate = {
         tagId: (0, string_tools_1.generateId)(),
         name: params.name,
         category: params.category.toLowerCase(),
-        country: (_b = params.country) !== null && _b !== void 0 ? _b : user.country,
-        creationDate: (_c = params.creationDate) !== null && _c !== void 0 ? _c : moment().unix(),
-        lastInteractionDate: (_d = params.lastInteractionDate) !== null && _d !== void 0 ? _d : moment().unix(),
-        global: (_e = params.global) !== null && _e !== void 0 ? _e : false,
-        subscribersAmount: (_f = params.fakeSubscribersAmount) !== null && _f !== void 0 ? _f : 0,
-        blockersAmount: (_g = params.fakeBlockersAmount) !== null && _g !== void 0 ? _g : 0,
+        language: (_a = params.language) !== null && _a !== void 0 ? _a : (0, i18n_tools_1.findLocaleIn)({ user, ctx }),
+        creationDate: (_b = params.creationDate) !== null && _b !== void 0 ? _b : moment().unix(),
+        lastInteractionDate: (_c = params.lastInteractionDate) !== null && _c !== void 0 ? _c : moment().unix(),
+        global: (_d = params.global) !== null && _d !== void 0 ? _d : false,
+        subscribersAmount: (_e = params.fakeSubscribersAmount) !== null && _e !== void 0 ? _e : 0,
+        blockersAmount: (_f = params.fakeBlockersAmount) !== null && _f !== void 0 ? _f : 0,
     };
     /*
      * Banned or unwanted users cannot create tags but since it's a shadow ban we don't return an error, we
@@ -83,12 +83,13 @@ async function createTagPost(params, ctx) {
 exports.createTagPost = createTagPost;
 async function tagsGet(params, ctx) {
     const user = await (0, models_1.retrieveUser)(params.token, false, ctx);
-    if (!user.country) {
-        ctx.throw(400, "Reading tags without country selected, please report this error", { user });
+    const language = (0, i18n_tools_1.findLocaleIn)({ user, ctx });
+    if (!language) {
+        ctx.throw(400, "Reading tags and language not found, please report this error", { user });
         return;
     }
     let result;
-    result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToGetTags)({ countryFilter: user.country }));
+    result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToGetTags)({ languageFilter: (0, i18n_tools_1.findLocaleIn)({ user, ctx }) }));
     result = translateAppAuthoredTags(result, { user });
     return result;
 }
@@ -142,11 +143,11 @@ async function removeTagsPost(params, ctx) {
     await (0, queries_1.queryToRemoveTags)(params.tagIds).iterate();
 }
 exports.removeTagsPost = removeTagsPost;
-async function creteAppAuthoredTags() {
+async function createAppAuthoredTags() {
     // Create raw app authored tags
     const tagsToCreate = configurations_1.APP_AUTHORED_TAGS.map(tag => ({
         ...tag,
-        country: "all",
+        language: "all",
         creationDate: moment().unix(),
         lastInteractionDate: moment().unix(),
         global: true,
@@ -160,7 +161,7 @@ async function creteAppAuthoredTags() {
             category: answer.category,
             name: answer.tagName,
             visible: (_a = answer.tagIsVisible) !== null && _a !== void 0 ? _a : true,
-            country: "all",
+            language: "all",
             creationDate: moment().unix(),
             lastInteractionDate: moment().unix(),
             global: true,
@@ -172,7 +173,7 @@ async function creteAppAuthoredTags() {
         duplicationAvoidanceProperty: "tagId",
     }));
 }
-exports.creteAppAuthoredTags = creteAppAuthoredTags;
+exports.createAppAuthoredTags = createAppAuthoredTags;
 /**
  * This is currently being used to clean tests only
  */
@@ -218,7 +219,7 @@ function getRemainingTimeToCreateNewTag(tags) {
     return secondsLeft;
 }
 /**
- * App authored tags are global, this means any country will see the tags, so translation is needed.
+ * App authored tags are global, this means any language will see the tags, so translation is needed.
  */
 function translateAppAuthoredTags(tags, localeSource) {
     const appAuthoredIds = getAppAuthoredQuestionsIdsAsSet();

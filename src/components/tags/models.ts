@@ -10,7 +10,7 @@ import {
 import { fromQueryToTag, fromQueryToTagList } from "./tools/data-conversion";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { __ } from "../../common-tools/database-tools/database-manager";
-import { t, LocaleConfigurationSources } from "../../common-tools/i18n-tools/i18n-tools";
+import { t, LocaleConfigurationSources, findLocaleIn } from "../../common-tools/i18n-tools/i18n-tools";
 import {
    Tag,
    TagCreateParams,
@@ -18,7 +18,7 @@ import {
    BasicTagParams,
    TagsAsQuestion,
 } from "../../shared-tools/endpoints-interfaces/tags";
-import { Gender, User } from "../../shared-tools/endpoints-interfaces/user";
+import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { validateTagProps } from "../../shared-tools/validators/tags";
 import { isUnwantedUser, retrieveFullyRegisteredUser, retrieveUser, userPost } from "../user/models";
 import { generateId } from "../../common-tools/string-tools/string-tools";
@@ -32,7 +32,7 @@ import {
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
 
 export async function initializeTags(): Promise<void> {
-   await creteAppAuthoredTags();
+   await createAppAuthoredTags();
 }
 
 export async function createTagPost(params: TagCreateParams, ctx: BaseContext): Promise<Tag> {
@@ -43,8 +43,8 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       return;
    }
 
-   if (!user.isAdmin && params.country) {
-      ctx.throw(400, t("Only admin users can set the tag country", { user }));
+   if (!user.isAdmin && params.language) {
+      ctx.throw(400, t("Only admin users can set the tag language", { user }));
       return;
    }
 
@@ -87,12 +87,12 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       return;
    }
 
-   const userTagsTraversal: Traversal = queryToGetTags({ countryFilter: params.country ?? user.country });
+   const userTagsTraversal: Traversal = queryToGetTags({ languageFilter: findLocaleIn({ user, ctx }) });
    const userTags: Tag[] = await fromQueryToTagList(userTagsTraversal);
    const matchingTag: Tag = userTags.find(tag => tag.name.toLowerCase() === params.name.toLowerCase());
 
    if (matchingTag != null) {
-      ctx.throw(400, t("A tag with the same name already exists in your country", { user }));
+      ctx.throw(400, t("A tag with the same name already exists", { user }));
       return;
    }
 
@@ -100,7 +100,7 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       tagId: generateId(),
       name: params.name,
       category: params.category.toLowerCase(),
-      country: params.country ?? user.country,
+      language: params.language ?? findLocaleIn({ user, ctx }),
       creationDate: params.creationDate ?? moment().unix(),
       lastInteractionDate: params.lastInteractionDate ?? moment().unix(),
       global: params.global ?? false,
@@ -122,14 +122,15 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
 
 export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<Tag[]> {
    const user: Partial<User> = await retrieveUser(params.token, false, ctx);
+   const language = findLocaleIn({ user, ctx });
 
-   if (!user.country) {
-      ctx.throw(400, "Reading tags without country selected, please report this error", { user });
+   if (!language) {
+      ctx.throw(400, "Reading tags and language not found, please report this error", { user });
       return;
    }
 
    let result: Tag[];
-   result = await fromQueryToTagList(queryToGetTags({ countryFilter: user.country }));
+   result = await fromQueryToTagList(queryToGetTags({ languageFilter: findLocaleIn({ user, ctx }) }));
    result = translateAppAuthoredTags(result, { user });
    return result;
 }
@@ -197,11 +198,11 @@ export async function removeTagsPost(params: BasicTagParams, ctx: BaseContext): 
    await queryToRemoveTags(params.tagIds).iterate();
 }
 
-export async function creteAppAuthoredTags() {
+export async function createAppAuthoredTags() {
    // Create raw app authored tags
    const tagsToCreate: Array<Partial<Tag>> = APP_AUTHORED_TAGS.map(tag => ({
       ...tag,
-      country: "all",
+      language: "all",
       creationDate: moment().unix(),
       lastInteractionDate: moment().unix(),
       global: true,
@@ -216,7 +217,7 @@ export async function creteAppAuthoredTags() {
             category: answer.category,
             name: answer.tagName,
             visible: answer.tagIsVisible ?? true,
-            country: "all",
+            language: "all",
             creationDate: moment().unix(),
             lastInteractionDate: moment().unix(),
             global: true,
@@ -284,7 +285,7 @@ function getRemainingTimeToCreateNewTag(tags: Tag[]): number {
 }
 
 /**
- * App authored tags are global, this means any country will see the tags, so translation is needed.
+ * App authored tags are global, this means any language will see the tags, so translation is needed.
  */
 function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfigurationSources): Tag[] {
    const appAuthoredIds: Set<string> = getAppAuthoredQuestionsIdsAsSet();

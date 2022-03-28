@@ -27,15 +27,15 @@ function queryToCreateTags(userId, tagsToCreate) {
 }
 exports.queryToCreateTags = queryToCreateTags;
 /**
- * Set countryFilter as "all" to return tags from all countries, useful for admins.
+ * Set languageFilter as "all" to return tags from all languages, useful for admins.
  */
 function queryToGetTags(filters) {
     const filtersAsTraversal = [database_manager_1.__.has("global", true)];
-    if ((filters === null || filters === void 0 ? void 0 : filters.countryFilter) != "all") {
-        filtersAsTraversal.push(database_manager_1.__.has("country", filters.countryFilter));
+    if ((filters === null || filters === void 0 ? void 0 : filters.languageFilter) != "all") {
+        filtersAsTraversal.push(database_manager_1.__.has("language", filters.languageFilter));
     }
     else {
-        filtersAsTraversal.push(database_manager_1.__.has("country")); // This includes all countries into the query
+        filtersAsTraversal.push(database_manager_1.__.has("language")); // This includes all languages into the query
     }
     return database_manager_1.g
         .V()
@@ -51,8 +51,8 @@ function queryToGetTagsCreatedByUser(token, timeFilter) {
         .as("user")
         .out("createdTag")
         .where(database_manager_1.P.eq("user"))
-        .by("country")
-        .by("country");
+        .by("language")
+        .by("language");
     if (timeFilter != null) {
         traversal = traversal.where(database_manager_1.__.values("creationDate").is(database_manager_1.P.gte(moment().unix() - timeFilter)));
     }
@@ -61,7 +61,7 @@ function queryToGetTagsCreatedByUser(token, timeFilter) {
 exports.queryToGetTagsCreatedByUser = queryToGetTagsCreatedByUser;
 /**
  * To play with the query:
- * https://gremlify.com/xeqxrbq7uv8
+ * https://gremlify.com/vjy2kp7jp2
  *
  * @param relation The relation to add or remove
  * @param remove true = adds the relation. false = removes the relation
@@ -73,13 +73,13 @@ function queryToRelateUserWithTag(token, tagsIds, relation, remove) {
     }
     else {
         relationTraversal = database_manager_1.__.coalesce(database_manager_1.__.in_(relation).where(database_manager_1.P.eq("user")), database_manager_1.__.addE(relation).from_("user"));
-        // For subscribing there is a maximum of tags a user can subscribe per country
+        // For subscribing there is a maximum of tags a user can subscribe per language
         if (relation === "subscribed") {
             relationTraversal = database_manager_1.__.coalesce(database_manager_1.__.select("user")
                 .out("subscribed")
                 .where(database_manager_1.P.eq("tag"))
-                .by("country")
-                .by("country")
+                .by("language")
+                .by("language")
                 .count()
                 .is(database_manager_1.P.gte(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED)), relationTraversal);
         }

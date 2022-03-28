@@ -12,7 +12,7 @@ type V = ValidationRule;
 const EDITABLE_TAG_PROPS_SCHEMA = {
    name: { type: "string", min: 2, max: 35, optional: false } as V,
    category: { type: "string", min: 2, max: 35, optional: false } as V,
-   country: { type: "string", optional: true } as V,
+   language: { type: "string", optional: true } as V,
    global: { type: "boolean", optional: true } as V,
 };
 

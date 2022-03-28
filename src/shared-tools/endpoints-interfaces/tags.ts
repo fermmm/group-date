@@ -6,7 +6,7 @@ export interface TagBasicInfo {
 
 export interface Tag extends TagBasicInfo {
    category: string;
-   country: string;
+   language: string;
    creationDate: number;
    lastInteractionDate: number;
    global: boolean;
@@ -18,7 +18,7 @@ export interface TagCreateParams {
    token: string;
    name: string;
    category: string;
-   country?: string;
+   language?: string;
    global?: boolean;
    visible?: boolean;
    fakeSubscribersAmount?: number;
@@ -29,7 +29,7 @@ export interface TagCreateParams {
 
 export interface TagGetParams {
    token: string;
-   countryFilter?: string | "all";
+   languageFilter?: string | "all";
 }
 
 export interface BasicTagParams {

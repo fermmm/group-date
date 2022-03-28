@@ -32,15 +32,15 @@ export function queryToCreateTags(userId: string, tagsToCreate: Array<Partial<Ta
 }
 
 /**
- * Set countryFilter as "all" to return tags from all countries, useful for admins.
+ * Set languageFilter as "all" to return tags from all languages, useful for admins.
  */
-export function queryToGetTags(filters?: { countryFilter?: string }): Traversal {
+export function queryToGetTags(filters?: { languageFilter?: string }): Traversal {
    const filtersAsTraversal: Traversal[] = [__.has("global", true)];
 
-   if (filters?.countryFilter != "all") {
-      filtersAsTraversal.push(__.has("country", filters.countryFilter));
+   if (filters?.languageFilter != "all") {
+      filtersAsTraversal.push(__.has("language", filters.languageFilter));
    } else {
-      filtersAsTraversal.push(__.has("country")); // This includes all countries into the query
+      filtersAsTraversal.push(__.has("language")); // This includes all languages into the query
    }
 
    return g
@@ -57,8 +57,8 @@ export function queryToGetTagsCreatedByUser(token: string, timeFilter?: number):
       .as("user")
       .out("createdTag")
       .where(P.eq("user"))
-      .by("country")
-      .by("country");
+      .by("language")
+      .by("language");
 
    if (timeFilter != null) {
       traversal = traversal.where(__.values("creationDate").is(P.gte(moment().unix() - timeFilter)));
@@ -69,7 +69,7 @@ export function queryToGetTagsCreatedByUser(token: string, timeFilter?: number):
 
 /**
  * To play with the query:
- * https://gremlify.com/xeqxrbq7uv8
+ * https://gremlify.com/vjy2kp7jp2
  *
  * @param relation The relation to add or remove
  * @param remove true = adds the relation. false = removes the relation
@@ -87,14 +87,14 @@ export function queryToRelateUserWithTag(
    } else {
       relationTraversal = __.coalesce(__.in_(relation).where(P.eq("user")), __.addE(relation).from_("user"));
 
-      // For subscribing there is a maximum of tags a user can subscribe per country
+      // For subscribing there is a maximum of tags a user can subscribe per language
       if (relation === "subscribed") {
          relationTraversal = __.coalesce(
             __.select("user")
                .out("subscribed")
                .where(P.eq("tag"))
-               .by("country")
-               .by("country")
+               .by("language")
+               .by("language")
                .count()
                .is(P.gte(MAX_TAG_SUBSCRIPTIONS_ALLOWED)),
             relationTraversal,

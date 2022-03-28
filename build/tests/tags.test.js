@@ -17,11 +17,11 @@ describe("Tags", () => {
     let user1Tags;
     let user2Tags;
     beforeAll(async () => {
-        user1 = await (0, users_1.createFakeUser)({ country: "ar" });
-        user2 = await (0, users_1.createFakeUser)({ country: "ar" });
-        userUnrelated = await (0, users_1.createFakeUser)({ country: "us" });
+        user1 = await (0, users_1.createFakeUser)({ language: "es" });
+        user2 = await (0, users_1.createFakeUser)({ language: "es" });
+        userUnrelated = await (0, users_1.createFakeUser)({ language: "en" });
     });
-    test("Tags can be created up to the maximum allowed and correctly retrieved by country", async () => {
+    test("Tags can be created up to the maximum allowed and correctly retrieved by language", async () => {
         for (let i = 0; i < configurations_1.TAGS_PER_TIME_FRAME; i++) {
             await (0, models_1.createTagPost)({
                 token: userUnrelated.token,
@@ -76,9 +76,9 @@ describe("Tags", () => {
         expect(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME + 1);
         JestDateMock.clear();
     });
-    test("Should not be possible to create 2 tags with the same name in the same country", async () => {
-        const user = await (0, users_1.createFakeUser)({ country: "ar" });
-        const userOutside = await (0, users_1.createFakeUser)({ country: "ch" });
+    test("Should not be possible to create 2 tags with the same name in the same language", async () => {
+        const user = await (0, users_1.createFakeUser)({ language: "es" });
+        const userOutside = await (0, users_1.createFakeUser)({ language: "ru" });
         await (0, models_1.createTagPost)({
             token: user.token,
             name: `duplicated test`,
@@ -90,7 +90,7 @@ describe("Tags", () => {
             name: `duplicated test`,
             category: "test category",
         }, replacements_1.fakeCtxMuted);
-        // This user is from another country so the tag should be created in this case
+        // This user is from another language so the tag should be created in this case
         await (0, models_1.createTagPost)({
             token: userOutside.token,
             name: `duplicated test`,
@@ -197,27 +197,27 @@ describe("Tags", () => {
         await (0, models_1.removeTagsPost)({ token: user1.token, tagIds }, replacements_1.fakeCtx);
         expect(await (0, models_1.tagsCreatedByUserGet)(user1.token)).toHaveLength(user1Tags.length - tagIds.length);
     });
-    test(`Subscribing to more tags than MAX_TAG_SUBSCRIPTIONS_ALLOWED is not possible for the same country`, async () => {
-        let user = await (0, users_1.createFakeUser)({ country: "ar" });
+    test(`Subscribing to more tags than MAX_TAG_SUBSCRIPTIONS_ALLOWED is not possible for the same language`, async () => {
+        let user = await (0, users_1.createFakeUser)({ language: "es" });
         const tags = [];
-        // Create the maximum amount of tags for 'ar' country
+        // Create the maximum amount of tags for 'es' language
         for (let i = 0; i < configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED; i++) {
-            const tempUser = await (0, users_1.createFakeUser)({ country: "ar" });
+            const tempUser = await (0, users_1.createFakeUser)({ language: "es" });
             tags.push(await (0, models_1.createTagPost)({ token: tempUser.token, name: `max test tag ${i}`, category: `max test category ${i}` }, replacements_1.fakeCtx));
         }
         await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: tags.map(t => t.tagId) }, replacements_1.fakeCtx);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
         expect(user.tagsSubscribed).toHaveLength(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED);
         // Create one more tag and this one should not be possible to subscribe
-        const tempUser2 = await (0, users_1.createFakeUser)({ country: "ar" });
+        const tempUser2 = await (0, users_1.createFakeUser)({ language: "es" });
         const finalTag = await (0, models_1.createTagPost)({ token: tempUser2.token, name: `max test tag final`, category: `max test category final` }, replacements_1.fakeCtx);
         await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [finalTag.tagId] }, replacements_1.fakeCtx);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
         expect(user.tagsSubscribed).toHaveLength(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED);
-        // Create one more tag but this one in a different country and should be possible to subscribe
-        const tempUser3 = await (0, users_1.createFakeUser)({ country: "ru" });
-        const otherCountryTag = await (0, models_1.createTagPost)({ token: tempUser3.token, name: `max test tag final`, category: `max test category final` }, replacements_1.fakeCtx);
-        await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [otherCountryTag.tagId] }, replacements_1.fakeCtx);
+        // Create one more tag but this one in a different language and should be possible to subscribe
+        const tempUser3 = await (0, users_1.createFakeUser)({ language: "ru" });
+        const otherLanguageTag = await (0, models_1.createTagPost)({ token: tempUser3.token, name: `max test tag final`, category: `max test category final` }, replacements_1.fakeCtx);
+        await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [otherLanguageTag.tagId] }, replacements_1.fakeCtx);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
         expect(user.tagsSubscribed).toHaveLength(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + 1);
     });

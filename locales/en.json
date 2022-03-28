@@ -4,7 +4,7 @@
 	"Only admin users can create global tags": "Only admin users can create global tags",
 	"Only admin users can set the tag country": "Only admin users can set the tag country",
 	"Only admin users can set a fake information": "Only admin users can set a fake information",
-	"A tag with the same name already exists in your country": "A tag with the same name already exists in your country",
+	"A tag with the same name already exists": "A tag with the same name already exists",
 	"Only admin users can remove tags created by anyone": "Only admin users can remove tags created by anyone",
 	"Sorry, %s users have interacted with your tag, it cannot be removed anymore": "Sorry, %s users have interacted with your tag, it cannot be removed anymore",
 	"Group not found": "Group not found",

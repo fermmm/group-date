@@ -29,7 +29,7 @@ export interface TagCreateParams {
 
 export interface TagGetParams {
    token: string;
-   countryFilter?: string | "all";
+   languageFilter?: string | "all";
 }
 
 export interface BasicTagParams {

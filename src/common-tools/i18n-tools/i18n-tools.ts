@@ -16,16 +16,16 @@ export const t = (
 };
 
 /**
- * Sets the translator language, optionally from ctx or from the user. If it's not found sets the
- * language to the default.
+ * Returns the user language, optionally from ctx or from the user. If it's not found returns the
+ * default language from DEFAULT_LANGUAGE.
  */
-function findLocaleIn(sources: LocaleConfigurationSources): string {
+export function findLocaleIn(sources: LocaleConfigurationSources): string {
    let locale: string;
 
-   if (sources.ctx != null) {
-      locale = getLocaleFromHeader(sources.ctx);
-   } else if (sources.user != null) {
+   if (sources?.user?.language != null) {
       locale = sources.user.language;
+   } else if (sources?.ctx != null) {
+      locale = getLocaleFromHeader(sources.ctx);
    } else {
       locale = DEFAULT_LANGUAGE;
    }
