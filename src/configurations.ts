@@ -245,6 +245,30 @@ export const NON_SEARCHER_LIKING_CHUNK = 4;
 export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////  GROUPS  ////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * If this is set to true when a group becomes inactive all group members are required to choose who in the group
+ * they want to see again in the future group matches, this is called "Remove seen menu".
+ * For the moment we are disabling the remove seen menu since it can cause more harm than good.
+ *
+ * Advantages:
+ *    1. Users that could not assist to the date can meet the members in future dates (but they can also join in a second meeting)
+ *    2. Users can exclude a miss behaving member voting to see each other again all with all except this member (this can also be done when moving to WhatsApp group which is faster and easier to organize)
+ *
+ * Disadvantages:
+ *    1. Users that already know and understand each other can be in dates with new people generating a hierarchy, hierarchies are what ruins everything in life
+ *    2. This can potentially be used by a group of hackers or rapists to match each other and also with a single victim (is hard to do but could be possible with the remove seen menu)
+ */
+export const REQUIRE_REMOVE_SEEN_MENU: boolean = false;
+
+/**
+ * If this is set to true the remove seen menu can be accessed all the time in the group menu.
+ */
+export const ALWAYS_SHOW_REMOVE_SEEN_MENU: boolean = false;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  TAGS  //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

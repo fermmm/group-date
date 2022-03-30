@@ -3,7 +3,7 @@ import { MarkRequired } from "ts-essentials";
 import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, column, g, P, sendQuery, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { GROUP_ACTIVE_TIME, GROUP_SLOTS_CONFIGS } from "../../configurations";
+import { ALWAYS_SHOW_REMOVE_SEEN_MENU, GROUP_ACTIVE_TIME, GROUP_SLOTS_CONFIGS } from "../../configurations";
 import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { queryToGetUserByToken } from "../user/queries";
@@ -32,6 +32,7 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property(cardinality.single, "reminder1NotificationSent", false)
       .property(cardinality.single, "reminder2NotificationSent", false)
       .property(cardinality.single, "seenBy", serializeIfNeeded([]))
+      .property(cardinality.single, "showRemoveSeenMenu", ALWAYS_SHOW_REMOVE_SEEN_MENU ? true : false)
       .property(cardinality.single, "isActive", true);
 
    if (params.initialUsers != null) {

@@ -19,6 +19,7 @@ export interface Group {
    reminder2NotificationSent: boolean;
    seenBy: string[];
    isActive: boolean;
+   showRemoveSeenMenu?: boolean;
    isDemoGroup?: boolean;
 }
 

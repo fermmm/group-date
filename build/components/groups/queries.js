@@ -28,6 +28,7 @@ function queryToCreateGroup(params) {
         .property(database_manager_1.cardinality.single, "reminder1NotificationSent", false)
         .property(database_manager_1.cardinality.single, "reminder2NotificationSent", false)
         .property(database_manager_1.cardinality.single, "seenBy", (0, data_conversion_tools_1.serializeIfNeeded)([]))
+        .property(database_manager_1.cardinality.single, "showRemoveSeenMenu", configurations_1.ALWAYS_SHOW_REMOVE_SEEN_MENU ? true : false)
         .property(database_manager_1.cardinality.single, "isActive", true);
     if (params.initialUsers != null) {
         traversal = queryToAddUsersToGroup(traversal, params.initialUsers);

@@ -9,6 +9,7 @@ import {
    MAX_WEEKEND_DAYS_VOTE_OPTIONS,
    SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY,
    SECOND_DATE_REMINDER_TIME,
+   REQUIRE_REMOVE_SEEN_MENU,
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
@@ -144,7 +145,7 @@ export async function addUsersToGroup(groupId: string, users: AddUsersToGroupSet
 }
 
 /**
- * Endpoints to get a specific group that the user is part of.
+ * Endpoints to get a specific group that the user is part of. With full details.
  */
 export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Promise<Group> {
    const group: Group = await getGroupById(params.groupId, {
@@ -156,7 +157,7 @@ export async function groupGet(params: BasicGroupParams, ctx: BaseContext): Prom
 }
 
 /**
- * Endpoint to get all the groups the user is part of.
+ * Endpoint to get all the groups the user is part of. With less details for preview or list proposes.
  */
 export async function userGroupsGet(
    params: TokenParameter,
@@ -409,7 +410,9 @@ export async function findInactiveGroups() {
 
    for (const group of groups) {
       await queryToUpdateGroupProperty({ groupId: group.groupId, isActive: false });
-      await createTaskToShowRemoveSeenMenu(group);
+      if (REQUIRE_REMOVE_SEEN_MENU) {
+         await createTaskToShowRemoveSeenMenu(group);
+      }
    }
 }
 
@@ -449,7 +452,7 @@ export async function sendNewGroupNotification(userId: string, group: Group) {
    );
 }
 
-async function createTaskToShowRemoveSeenMenu(group: Group) {
+export async function createTaskToShowRemoveSeenMenu(group: Group) {
    for (const member of group.members) {
       await createRequiredTaskForUser({
          userId: member.userId,

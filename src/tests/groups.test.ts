@@ -12,6 +12,7 @@ import {
    userGroupsGet,
    chatUnreadAmountGet,
    findInactiveGroups,
+   createTaskToShowRemoveSeenMenu,
 } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
 import { setSeenPost, retrieveFullyRegisteredUser, retrieveUser, userGet } from "../components/user/models";
@@ -224,6 +225,8 @@ describe("Groups", () => {
       JestDateMock.advanceBy(GROUP_ACTIVE_TIME * 1000 + hoursToMilliseconds(1));
 
       await findInactiveGroups();
+      // This should be executed inside the function of the previous line but it depends on the settings so we call it here
+      await createTaskToShowRemoveSeenMenu(group3);
 
       group3 = await groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, fakeCtx);
       expect(group3.isActive).toBeFalse();

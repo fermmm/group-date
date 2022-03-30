@@ -143,6 +143,8 @@ describe("Groups", () => {
         // Simulate time passing
         JestDateMock.advanceBy(configurations_1.GROUP_ACTIVE_TIME * 1000 + (0, general_1.hoursToMilliseconds)(1));
         await (0, models_1.findInactiveGroups)();
+        // This should be executed inside the function of the previous line but it depends on the settings so we call it here
+        await (0, models_1.createTaskToShowRemoveSeenMenu)(group3);
         group3 = await (0, models_1.groupGet)({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, replacements_1.fakeCtx);
         expect(group3.isActive).toBeFalse();
         const updatedUser = await (0, models_2.userGet)({ token: fakeMatchingUsers[0].token }, replacements_1.fakeCtx);

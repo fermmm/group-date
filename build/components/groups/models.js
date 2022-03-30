@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSlotIdFromUsersAmount = exports.sendNewGroupNotification = exports.findInactiveGroups = exports.sendDateReminderNotifications = exports.findSlotsToRelease = exports.chatPost = exports.voteResultGet = exports.chatUnreadAmountGet = exports.chatGet = exports.dateDayVotePost = exports.dateIdeaVotePost = exports.groupSeenPost = exports.userGroupsGet = exports.groupGet = exports.addUsersToGroup = exports.getGroupById = exports.createGroup = exports.initializeGroups = void 0;
+exports.getSlotIdFromUsersAmount = exports.createTaskToShowRemoveSeenMenu = exports.sendNewGroupNotification = exports.findInactiveGroups = exports.sendDateReminderNotifications = exports.findSlotsToRelease = exports.chatPost = exports.voteResultGet = exports.chatUnreadAmountGet = exports.chatGet = exports.dateDayVotePost = exports.dateIdeaVotePost = exports.groupSeenPost = exports.userGroupsGet = exports.groupGet = exports.addUsersToGroup = exports.getGroupById = exports.createGroup = exports.initializeGroups = void 0;
 const moment = require("moment");
 const dynamic_1 = require("set-interval-async/dynamic");
 const configurations_1 = require("../../configurations");
@@ -73,7 +73,7 @@ async function addUsersToGroup(groupId, users) {
 }
 exports.addUsersToGroup = addUsersToGroup;
 /**
- * Endpoints to get a specific group that the user is part of.
+ * Endpoints to get a specific group that the user is part of. With full details.
  */
 async function groupGet(params, ctx) {
     const group = await getGroupById(params.groupId, {
@@ -85,7 +85,7 @@ async function groupGet(params, ctx) {
 }
 exports.groupGet = groupGet;
 /**
- * Endpoint to get all the groups the user is part of.
+ * Endpoint to get all the groups the user is part of. With less details for preview or list proposes.
  */
 async function userGroupsGet(params, ctx, fullInfo) {
     return (0, data_conversion_1.fromQueryToGroupList)((0, queries_2.queryToGetAllGroupsOfUser)(params.token), true, fullInfo !== null && fullInfo !== void 0 ? fullInfo : false);
@@ -276,7 +276,9 @@ async function findInactiveGroups() {
     const groups = await (0, data_conversion_1.fromQueryToGroupList)((0, queries_1.queryToFindShouldBeInactiveGroups)(), false, true);
     for (const group of groups) {
         await (0, queries_2.queryToUpdateGroupProperty)({ groupId: group.groupId, isActive: false });
-        await createTaskToShowRemoveSeenMenu(group);
+        if (configurations_1.REQUIRE_REMOVE_SEEN_MENU) {
+            await createTaskToShowRemoveSeenMenu(group);
+        }
     }
 }
 exports.findInactiveGroups = findInactiveGroups;
@@ -321,6 +323,7 @@ async function createTaskToShowRemoveSeenMenu(group) {
         });
     }
 }
+exports.createTaskToShowRemoveSeenMenu = createTaskToShowRemoveSeenMenu;
 function getComingWeekendDays(limitAmount) {
     const result = [];
     let i = 1;
