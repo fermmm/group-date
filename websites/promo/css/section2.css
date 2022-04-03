@@ -10,7 +10,7 @@
 
 .section2-content-container {
    display: flex;
-   flex-direction: row-reverse;
+   flex-direction: row;
    align-items: center;
    justify-content: center;
    width: 100vw;
@@ -26,7 +26,7 @@
 
 .section2-text-part {
    max-width: 680px;
-   margin-right: 120px;
+   margin-left: 120px;
 }
 
 .section2-title {
@@ -62,7 +62,7 @@
 
    .section2-text-part {
       max-width: unset;
-      margin-right: unset;
+      margin-left: unset;
       margin-top: 30px;
    }
 

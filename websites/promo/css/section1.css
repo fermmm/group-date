@@ -1,12 +1,10 @@
 .section1-mainContainer {
    display: flex;
-   flex-direction: column;
    align-items: center;
    position: relative;
    width: 100vw;
-   height: 600px;
-   max-height: 85vh;
    background: linear-gradient(180deg, #9b63f8 0%, #809ffc 100%);
+   justify-content: center;
 }
 
 .section1-content-container {
@@ -22,13 +20,42 @@
    overflow: hidden;
 }
 
-.section1-text-and-buttons {
-   max-width: 680px;
-   margin-left: 120px;
+.section1-logo-and-buttons {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   flex-wrap: wrap;
+   margin-top: 40px;
 }
 
-.section1-illustration {
-   max-height: 150px;
+.section1-store-buttons-container {
+   display: flex;
+   height: 47px;
+   justify-content: center;
+   flex-direction: row;
+}
+
+.section1-screenshot-and-text {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   max-width: 680px;
+   flex-direction: column;
+}
+
+.section1-screenshot {
+   height: 33vh;
+   margin: 0 45px;
+   max-height: 300px;
+}
+
+.section1-logo {
+   height: 50px;
+   margin-right: 31px;
+   margin-left: 31px;
+   margin-top: 31px;
+   margin-bottom: 31px;
 }
 
 .section1-text {
@@ -36,20 +63,12 @@
    font-size: 23px;
    line-height: 30px;
    text-align: center;
-   margin-top: 25px;
+   /* margin-top: 25px; */
+   margin-bottom: 25px;
 }
 
 .section1-text b {
    font-weight: 600;
-}
-
-.section1-store-buttons-container {
-   display: flex;
-   width: 100%;
-   height: 47px;
-   justify-content: center;
-   flex-direction: row;
-   margin-top: 35px;
 }
 
 .section1-button-store, .section1-button-google {
@@ -58,6 +77,7 @@
    cursor: pointer;
    display: flex;
    justify-content: center;
+   margin: 0 5px;
 }
 
 .section1-button-store:hover, .section1-button-google:hover {
@@ -66,14 +86,6 @@
 
 .section1-button-store img, .section1-button-google img {
    height: 100%;
-}
-
-.section1-button-google {
-   margin: 0 5px;
-}
-
-.section1-button-store {
-   margin: 0 5px;
 }
 
 .section1-legal-buttons-container {
@@ -106,17 +118,34 @@
    .section1-content-container {
       flex-direction: column;
       justify-content: space-evenly;
-      padding: 20px 27px;
+      padding: 22px 42px;
       max-width: 500px;
+      height: 100%;
+      /* flex-grow: 1; */
    }
 
-   .section1-text-and-buttons {
+   .section1-screenshot-and-text {
+      flex-direction: column;
       max-width: unset;
       margin-left: unset;
+      height: 100%;
    }
 
-   .section1-illustration {
-      height: 19vh;
+   .section1-logo-and-buttons {
+      margin-top: unset;
+      flex-direction: column;
+      height: 100%;
+   }
+
+   .section1-screenshot {
+      height: 33vh;
+      max-height: 300px;
+      transform: unset;
+   }
+
+   .section1-logo {
+      width: 24vh;
+      height: unset;
    }
 
    .section1-store-buttons-container {
@@ -129,7 +158,7 @@
 
    .section1-button-store, .section1-button-google {
       width: 100%;
-      max-width: 166px;
+      max-width: 23vh;
       height: auto;
    }
 
