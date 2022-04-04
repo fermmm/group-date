@@ -47,6 +47,8 @@
    text-align: center;
    margin-top: 25px;
    color: white;
+   max-width: 440px;
+   text-align: justify;
 }
 
 .section6-text b {
@@ -82,7 +84,7 @@
    
    .section6-text {
       font-weight: 500;
-      font-size: 19px;
-      line-height: 25px;
+      font-size: 15px;
+      line-height: 22px;
    }
 }

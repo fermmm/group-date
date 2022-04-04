@@ -53,10 +53,6 @@
 
 .section1-logo {
    height: 74px;
-   /* margin-right: 31px; */
-   /* margin-left: 31px; */
-   /* margin-top: 31px; */
-   /* margin-bottom: 31px; */
    margin: 31px;
 }
 
@@ -65,9 +61,9 @@
    font-size: 23px;
    line-height: 27px;
    text-align: center;
-   /* margin-top: 25px; */
    margin-bottom: 25px;
    max-width: 440px;
+   text-align: justify;
 }
 
 .section1-text b {

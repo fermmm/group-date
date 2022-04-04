@@ -47,6 +47,8 @@
    text-align: center;
    margin-top: 25px;
    color: #502E92;
+   max-width: 390px;
+   text-align: justify;
 }
 
 .section5-text b {
@@ -81,8 +83,8 @@
    }
    
    .section5-text {
-      font-size: 19px;
-      line-height: 25px;
+      font-size: 15px;
+      line-height: 23px;
       font-weight: 500;
    }
 }

@@ -44,6 +44,8 @@
    text-align: center;
    margin-top: 25px;
    color: white;
+   max-width: 470px;
+   text-align: justify;
 }
 
 .section3-text b {
@@ -71,8 +73,8 @@
    }
    
    .section3-text {
-      font-size: 19px;
-      line-height: 25px;
+      font-size: 15px;
+      line-height: 23px;
    }
 
    .section3-illustration {
