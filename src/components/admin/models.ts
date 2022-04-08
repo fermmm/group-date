@@ -210,7 +210,7 @@ export async function logUsageReport(): Promise<void> {
 
    const amountOfUsers = (await sendQuery(() => queryToGetAllUsers().count().next())).value;
    const amountOfWantedUsers = (
-      await sendQuery(() => queryToGetAllUsers().has("unwantedUser", false).count().next())
+      await sendQuery(() => queryToGetAllCompleteUsers().has("unwantedUser", false).count().next())
    ).value;
    const amountOfFullyRegisteredUsers = (await sendQuery(() => queryToGetAllCompleteUsers().count().next()))
       .value;
