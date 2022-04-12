@@ -111,7 +111,7 @@ exports.convertToAdmin = convertToAdmin;
 async function logUsageReport() {
     const timeStart = perf_hooks_1.performance.now();
     const amountOfUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().count().next())).value;
-    const amountOfWantedUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().has("unwantedUser", false).count().next())).value;
+    const amountOfWantedUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllCompleteUsers)().has("unwantedUser", false).count().next())).value;
     const amountOfFullyRegisteredUsers = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllCompleteUsers)().count().next()))
         .value;
     const incompleteUsers = amountOfUsers - amountOfFullyRegisteredUsers;

@@ -104,7 +104,7 @@ async function tagsCreatedByUserGet(token) {
 exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
 async function subscribeToTagsPost(params, ctx) {
     const result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "subscribed", false));
-    // Check if by subscribing to the tags the user is unwanted
+    // Check if by subscribing to the tags the user becomes unwanted
     const unwantedUser = (0, models_1.isUnwantedUser)({ tagsIdsToCheck: params.tagIds });
     if (unwantedUser) {
         await (0, models_1.userPost)({ token: params.token, props: { unwantedUser } }, ctx);

@@ -6,25 +6,22 @@ const user_1 = require("../endpoints-interfaces/user");
 // fastest-validator TS fix
 const v = new Validator();
 /**
- * This object contains the user props that will be shown at registration and also the validation restrictions.
+ * This object contains the user props that will be shown/required at registration and also the validation restrictions.
  * Set all as optional = true in order to not generate an issue.
- * If a user prop needs to be validated when received but should not be showed at registration add it in the
+ * If a user prop needs to be validated when received but is not required to have the profile completed add it in the
  * OTHER_USER_PROPS_SCHEMA instead.
  */
-const REGISTRATION_USER_PROPS_SCHEMA = {
+const REQUIRED_USER_PROPS_SCHEMA = {
     name: { type: "string", min: 2, max: 32, optional: true },
     birthDate: { type: "number", optional: true },
     isCoupleProfile: { type: "boolean", optional: true },
     cityName: { type: "string", min: 2, max: 32, optional: true },
-    country: { type: "string", min: 2, max: 32, optional: true },
     images: { type: "array", items: { type: "string", min: 1, max: 800 }, min: 0, max: 6, optional: true },
     targetAgeMin: { type: "number", min: 18, max: 200, optional: true },
     targetAgeMax: { type: "number", min: 18, max: 200, optional: true },
     targetDistance: { type: "number", min: 25, max: 1200, optional: true },
     dateIdea: { type: "string", min: 3, max: 300, optional: true },
     profileDescription: { type: "string", max: 4000, optional: true },
-    locationLat: { type: "number", optional: true },
-    locationLon: { type: "number", optional: true },
     height: { type: "number", min: 0, max: 300, optional: true },
     sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true },
     questionsShowed: { type: "array", items: { type: "string", min: 1, max: 20 }, max: 50, optional: true },
@@ -42,14 +39,18 @@ const REGISTRATION_USER_PROPS_SCHEMA = {
     },
 };
 /**
- * These props list are not showed on registration and not required to finish registration
+ * These props list are not showed on registration and not required to finish registration, may be required to enable
+ * specific features or to have extra info about the user.
  */
 const OTHER_USER_PROPS_SCHEMA = {
+    locationLat: { type: "number", optional: true },
+    locationLon: { type: "number", optional: true },
     notificationsToken: { type: "string", min: 0, max: 2000, optional: true },
     language: { type: "string", min: 0, max: 100, optional: true },
     isUnicornHunter: { type: "boolean", optional: true },
     isUnicornHunterInsisting: { type: "boolean", optional: true },
     unwantedUser: { type: "boolean", optional: true },
+    country: { type: "string", min: 2, max: 32, optional: true },
 };
 /**
  * The only propuse of this line is to generate a TS error when the props of the schemas are not user props.
@@ -57,14 +58,14 @@ const OTHER_USER_PROPS_SCHEMA = {
  */
 const test = "a";
 // The editable props as string list
-exports.requiredUserPropsList = Object.keys(REGISTRATION_USER_PROPS_SCHEMA);
+exports.requiredUserPropsList = Object.keys(REQUIRED_USER_PROPS_SCHEMA);
 exports.editableUserPropsList = Object.keys({
-    ...REGISTRATION_USER_PROPS_SCHEMA,
+    ...REQUIRED_USER_PROPS_SCHEMA,
     ...OTHER_USER_PROPS_SCHEMA,
 });
 // Function to validate user props
 exports.validateUserProps = v.compile({
-    ...REGISTRATION_USER_PROPS_SCHEMA,
+    ...REQUIRED_USER_PROPS_SCHEMA,
     ...OTHER_USER_PROPS_SCHEMA,
 });
 //# sourceMappingURL=user.js.map

@@ -148,7 +148,7 @@ export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseConte
       queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false),
    );
 
-   // Check if by subscribing to the tags the user is unwanted
+   // Check if by subscribing to the tags the user becomes unwanted
    const unwantedUser = isUnwantedUser({ tagsIdsToCheck: params.tagIds });
    if (unwantedUser) {
       await userPost({ token: params.token, props: { unwantedUser } }, ctx);

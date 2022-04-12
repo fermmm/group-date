@@ -32,6 +32,11 @@ export async function initializeCardsGame(): Promise<void> {}
 export async function recommendationsGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
 
+   if (user.locationLat == null || user.locationLon == null) {
+      ctx.throw(400, t("We don't have your location", { ctx, user }));
+      return;
+   }
+
    if (user.demoAccount) {
       return await fromQueryToUserList(queryToGetDemoCardsRecommendations(user), true, false);
    }
@@ -60,6 +65,12 @@ export async function recommendationsGet(params: TokenParameter, ctx: BaseContex
 
 export async function dislikedUsersGet(params: TokenParameter, ctx: BaseContext): Promise<User[]> {
    const user: User = await retrieveFullyRegisteredUser(params.token, true, ctx);
+
+   if (user.locationLat == null || user.locationLon == null) {
+      ctx.throw(400, t("We don't have your location", { ctx, user }));
+      return;
+   }
+
    const recommendationsQuery: Traversal = queryToGetDislikedUsers({
       token: params.token,
       searcherUser: user,

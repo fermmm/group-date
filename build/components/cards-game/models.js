@@ -18,6 +18,10 @@ async function initializeCardsGame() { }
 exports.initializeCardsGame = initializeCardsGame;
 async function recommendationsGet(params, ctx) {
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
+    if (user.locationLat == null || user.locationLon == null) {
+        ctx.throw(400, (0, i18n_tools_1.t)("We don't have your location", { ctx, user }));
+        return;
+    }
     if (user.demoAccount) {
         return await (0, data_conversion_1.fromQueryToUserList)((0, queries_2.queryToGetDemoCardsRecommendations)(user), true, false);
     }
@@ -41,6 +45,10 @@ async function recommendationsGet(params, ctx) {
 exports.recommendationsGet = recommendationsGet;
 async function dislikedUsersGet(params, ctx) {
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
+    if (user.locationLat == null || user.locationLon == null) {
+        ctx.throw(400, (0, i18n_tools_1.t)("We don't have your location", { ctx, user }));
+        return;
+    }
     const recommendationsQuery = (0, queries_2.queryToGetDislikedUsers)({
         token: params.token,
         searcherUser: user,

@@ -11,6 +11,7 @@ function serverInfoGet(params, ctx) {
     return {
         serverOperating: (0, string_tools_1.strToBool)(process.env.SERVER_OPERATING),
         serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
+        postLoginMessage: process.env.SHOW_POST_LOGIN_MESSAGE_IN_CLIENT,
         buildVersionIsCompatible: (0, string_tools_1.versionIsCompatible)((_a = params.buildVersion) !== null && _a !== void 0 ? _a : "0.0.0", configurations_1.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED),
         codeVersionIsCompatible: (0, string_tools_1.versionIsCompatible)((_b = params.codeVersion) !== null && _b !== void 0 ? _b : "0.0.0", configurations_1.MINIMUM_CLIENT_CODE_VERSION_ALLOWED),
         locale: (0, i18n_tools_1.getLocaleFromHeader)(ctx),
