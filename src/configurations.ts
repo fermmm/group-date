@@ -276,7 +276,7 @@ export const ALWAYS_SHOW_REMOVE_SEEN_MENU: boolean = false;
  * This is the amount of tags a user can create in a time frame specified
  * in TAG_CREATION_LIMIT_TIME_FRAME
  */
-export const TAGS_PER_TIME_FRAME = 4;
+export const TAGS_PER_TIME_FRAME = 1;
 
 /**
  * The user needs to wait this time to create a new tag after reaching the creation limit
@@ -288,7 +288,8 @@ export const TAG_CREATION_TIME_FRAME = WEEK_IN_SECONDS;
  * A user can subscribe to this maximum amount of tags.
  * This prevents users from being in too many tags to get more visibility.
  */
-export const MAX_TAG_SUBSCRIPTIONS_ALLOWED = 10;
+// TODO: Create an error message for this
+export const MAX_TAG_SUBSCRIPTIONS_ALLOWED = 40;
 
 /**
  * These are the "app authored" tags. The tagId can be any string but all should be different for each tag here.
