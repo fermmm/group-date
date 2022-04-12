@@ -22,6 +22,7 @@ export function serverInfoGet(params: ServerInfoParams, ctx: BaseContext): Serve
    return {
       serverOperating: strToBool(process.env.SERVER_OPERATING),
       serverMessage: process.env.SHOW_MESSAGE_IN_CLIENT,
+      postLoginMessage: process.env.SHOW_POST_LOGIN_MESSAGE_IN_CLIENT,
       buildVersionIsCompatible: versionIsCompatible(
          params.buildVersion ?? "0.0.0",
          MINIMUM_CLIENT_BUILD_VERSION_ALLOWED,
