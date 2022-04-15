@@ -11,6 +11,7 @@ export interface ServerInfoResponse {
    codeVersionIsCompatible: boolean;
    serverOperating: boolean;
    serverMessage?: string;
+   postLoginMessage?: string;
    locale: string;
    imagesHost: string;
    emailLoginEnabled: boolean;

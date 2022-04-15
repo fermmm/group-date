@@ -1,8 +1,7 @@
 import { IconButton } from "@mui/material";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { VscChevronLeft, VscChevronRight, VscMultipleWindows } from "react-icons/vsc";
-import { visualizerGet } from "../../../../api/server/visualizer";
-import { createUrlParamString } from "../../../../common-tools/browser/url-tools";
+import { databaseQueryRequest } from "../../../../api/server/techOps";
 import { useKeyPress } from "../../../../common-tools/browser/useKeyPress";
 import { Tooltip } from "../../../common/UI/Tooltip/Tooltip";
 import { openQueryInNewTab } from "../tools/openQueryInNewTab";
@@ -29,10 +28,11 @@ interface PropsPanel {
 const Panel: FC<PropsPanel> = props => {
    const { allNodes, allEdges, nodeIdSelected, edgeIdSelected, onSearch, onNextClick, onPrevClick, onRefresh } =
       props;
+
    const [elementToShow, setElementToShow] = useState<GremlinElement>();
    const [elementToShowIsNode, setElementToShowIsNode] = useState<boolean>();
-   const leftKeyPressed = useKeyPress("-");
-   const rightKeyPressed = useKeyPress("+");
+   const leftKeyPressed = useKeyPress("ArrowLeft", { withShift: true });
+   const rightKeyPressed = useKeyPress("ArrowRight", { withShift: true });
    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
@@ -76,7 +76,7 @@ const Panel: FC<PropsPanel> = props => {
 
    useEffect(() => {
       scrollContainerRef.current.scrollTo({ top: 0 });
-   }, [elementToShow]);
+   }, [nodeIdSelected]);
 
    const handleOpenInNewTab = () => {
       openQueryInNewTab(`g.V(${elementToShow.id})`);
@@ -84,9 +84,11 @@ const Panel: FC<PropsPanel> = props => {
 
    const handlePropEdit = async (propName: string, propValue: string | number | boolean) => {
       const typedPropValue = typeof propValue === "string" ? `'${propValue}'` : propValue;
+      const typedVertexId =
+         typeof elementToShow.id === "string" ? `'${elementToShow.id}'` : `${elementToShow.id}L`;
 
-      await visualizerGet({
-         query: `g.V(${elementToShow.id}).property("${propName}", ${typedPropValue})`,
+      await databaseQueryRequest({
+         query: `g.V(${typedVertexId}).property("${propName}", ${typedPropValue})`,
          nodeLimit: 1,
       });
       props.onRefresh();
@@ -128,12 +130,12 @@ const Panel: FC<PropsPanel> = props => {
                            </IconButton>
                         </Tooltip>
                      )}
-                     <Tooltip text={"Previous element"} placement="bottom">
+                     <Tooltip text={"Previous element. Shortcut: Shift + Left cursor key"} placement="bottom">
                         <IconButton onClick={onPrevClick}>
                            <VscChevronLeft />
                         </IconButton>
                      </Tooltip>
-                     <Tooltip text={"Next element"} placement="bottom">
+                     <Tooltip text={"Next element. Shortcut: Shift + Right cursor key"} placement="bottom">
                         <IconButton onClick={onNextClick}>
                            <VscChevronRight />
                         </IconButton>

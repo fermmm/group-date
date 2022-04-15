@@ -5,7 +5,7 @@ import { VisualizerQueryParams } from "../tools/shared-tools/endpoints-interface
 
 export async function visualizerGet<
    Params extends Partial<VisualizerQueryParams>,
-   Response extends GremlinElement[]
+   Response extends GremlinElement[],
 >(params: Params): Promise<Response> {
    const url = "admin/db/visualizer";
    const credentials = getCredentialsFromStorage();

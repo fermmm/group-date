@@ -16,6 +16,9 @@ export const DrawerContainer = styled("div")`
 export const ChildrenContainer = styled("div").withConfig({
    shouldForwardProp: p => !["expanded", "expandOnHover"].includes(p),
 })<{ expanded?: boolean; expandOnHover?: boolean }>`
+   display: flex;
+   flex-direction: column;
+   align-items: center;
    padding-right: 5px;
    padding-left: 5px;
    ${({ expanded, expandOnHover }) =>
@@ -49,16 +52,16 @@ export const ButtonsContainer = styled("div").withConfig({
    row-gap: 0px;
    ${({ expanded, expandOnHover }) => (expandOnHover && !expanded ? "transform: scale(1.2);" : "")}
    transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
-   ${({ expandOnHover }) => (!expandOnHover ? "width: fit-content;" : "")}
+   ${({ expandOnHover }) => (!expandOnHover ? "width: fit-content;" : "width: 100%;")}
 `;
 
 export const LogoContainer = styled("div").withConfig({
    shouldForwardProp: p => !["expanded"].includes(p),
 })<{ expanded?: boolean }>`
    margin: 40px 0;
-   width: 100%;
-   height: 40px;
-   ${({ expanded }) => (expanded ? "transform: scale(1.3);" : "")}
+   width: 40px;
+   ${({ expanded }) =>
+      expanded ? "transform: scale(1.8) translateX(3px);" : "transform: scale(1.4) translateX(1.5px);"};
    transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
