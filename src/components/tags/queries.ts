@@ -74,12 +74,15 @@ export function queryToGetTagsCreatedByUser(token: string, timeFilter?: number):
  * @param relation The relation to add or remove
  * @param remove true = adds the relation. false = removes the relation
  */
-export function queryToRelateUserWithTag(
-   token: string,
-   tagsIds: string[],
-   relation: TagRelationShip,
-   remove: boolean,
-): Traversal {
+export function queryToRelateUserWithTag(props: {
+   token: string;
+   tagIds: string[];
+   relation: TagRelationShip;
+   remove: boolean;
+   maxSubscriptionsAllowed?: number;
+}): Traversal {
+   const { token, tagIds, relation, remove, maxSubscriptionsAllowed = MAX_TAG_SUBSCRIPTIONS_ALLOWED } = props;
+
    let relationTraversal: Traversal;
 
    if (remove) {
@@ -96,14 +99,14 @@ export function queryToRelateUserWithTag(
                .by("language")
                .by("language")
                .count()
-               .is(P.gte(MAX_TAG_SUBSCRIPTIONS_ALLOWED)),
+               .is(P.gte(maxSubscriptionsAllowed)),
             relationTraversal,
          );
       }
    }
 
    return g
-      .inject(tagsIds)
+      .inject(tagIds)
       .as("tags")
       .union(queryToGetUserByToken(token, __).as("user"))
       .select("tags")

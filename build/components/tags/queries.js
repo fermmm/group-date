@@ -66,7 +66,8 @@ exports.queryToGetTagsCreatedByUser = queryToGetTagsCreatedByUser;
  * @param relation The relation to add or remove
  * @param remove true = adds the relation. false = removes the relation
  */
-function queryToRelateUserWithTag(token, tagsIds, relation, remove) {
+function queryToRelateUserWithTag(props) {
+    const { token, tagIds, relation, remove, maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED } = props;
     let relationTraversal;
     if (remove) {
         relationTraversal = database_manager_1.__.inE(relation).where(database_manager_1.__.outV().has("token", token)).drop();
@@ -81,11 +82,11 @@ function queryToRelateUserWithTag(token, tagsIds, relation, remove) {
                 .by("language")
                 .by("language")
                 .count()
-                .is(database_manager_1.P.gte(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED)), relationTraversal);
+                .is(database_manager_1.P.gte(maxSubscriptionsAllowed)), relationTraversal);
         }
     }
     return database_manager_1.g
-        .inject(tagsIds)
+        .inject(tagIds)
         .as("tags")
         .union((0, queries_1.queryToGetUserByToken)(token, database_manager_1.__).as("user"))
         .select("tags")

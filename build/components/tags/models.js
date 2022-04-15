@@ -103,7 +103,21 @@ async function tagsCreatedByUserGet(token) {
 }
 exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
 async function subscribeToTagsPost(params, ctx) {
-    const result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "subscribed", false));
+    var _a;
+    const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.length;
+    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
+    // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
+    if (((_a = user.tagsSubscribed) === null || _a === void 0 ? void 0 : _a.length) >= maxSubscriptionsAllowed) {
+        ctx.throw(400, (0, i18n_tools_1.t)("You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you", { user }, String(maxSubscriptionsAllowed)));
+        return;
+    }
+    const result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)({
+        token: params.token,
+        tagIds: params.tagIds,
+        relation: "subscribed",
+        remove: false,
+        maxSubscriptionsAllowed,
+    }));
     // Check if by subscribing to the tags the user becomes unwanted
     const unwantedUser = (0, models_1.isUnwantedUser)({ tagsIdsToCheck: params.tagIds });
     if (unwantedUser) {
@@ -113,15 +127,30 @@ async function subscribeToTagsPost(params, ctx) {
 }
 exports.subscribeToTagsPost = subscribeToTagsPost;
 async function blockTagsPost(params) {
-    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "blocked", false));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)({
+        token: params.token,
+        tagIds: params.tagIds,
+        relation: "blocked",
+        remove: false,
+    }));
 }
 exports.blockTagsPost = blockTagsPost;
 async function removeSubscriptionToTagsPost(params) {
-    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "subscribed", true));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)({
+        token: params.token,
+        tagIds: params.tagIds,
+        relation: "subscribed",
+        remove: true,
+    }));
 }
 exports.removeSubscriptionToTagsPost = removeSubscriptionToTagsPost;
 async function removeBlockToTagsPost(params) {
-    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)(params.token, params.tagIds, "blocked", true));
+    return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)({
+        token: params.token,
+        tagIds: params.tagIds,
+        relation: "blocked",
+        remove: true,
+    }));
 }
 exports.removeBlockToTagsPost = removeBlockToTagsPost;
 async function removeTagsPost(params, ctx) {

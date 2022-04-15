@@ -4,6 +4,7 @@ import * as moment from "moment";
 import {
    APP_AUTHORED_TAGS,
    APP_AUTHORED_TAGS_AS_QUESTIONS,
+   MAX_TAG_SUBSCRIPTIONS_ALLOWED,
    TAGS_PER_TIME_FRAME,
    TAG_CREATION_TIME_FRAME,
 } from "../../configurations";
@@ -144,8 +145,32 @@ export async function tagsCreatedByUserGet(token: string) {
 }
 
 export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<Tag[]> {
+   const maxSubscriptionsAllowed =
+      MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + APP_AUTHORED_TAGS_AS_QUESTIONS.length;
+
+   const user = await retrieveFullyRegisteredUser(params.token, true, ctx);
+
+   // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
+   if (user.tagsSubscribed?.length >= maxSubscriptionsAllowed) {
+      ctx.throw(
+         400,
+         t(
+            "You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you",
+            { user },
+            String(maxSubscriptionsAllowed),
+         ),
+      );
+      return;
+   }
+
    const result = await fromQueryToTagList(
-      queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", false),
+      queryToRelateUserWithTag({
+         token: params.token,
+         tagIds: params.tagIds,
+         relation: "subscribed",
+         remove: false,
+         maxSubscriptionsAllowed,
+      }),
    );
 
    // Check if by subscribing to the tags the user becomes unwanted
@@ -158,15 +183,36 @@ export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseConte
 }
 
 export async function blockTagsPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "blocked", false));
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag({
+         token: params.token,
+         tagIds: params.tagIds,
+         relation: "blocked",
+         remove: false,
+      }),
+   );
 }
 
 export async function removeSubscriptionToTagsPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "subscribed", true));
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag({
+         token: params.token,
+         tagIds: params.tagIds,
+         relation: "subscribed",
+         remove: true,
+      }),
+   );
 }
 
 export async function removeBlockToTagsPost(params: BasicTagParams): Promise<Tag[]> {
-   return await fromQueryToTagList(queryToRelateUserWithTag(params.token, params.tagIds, "blocked", true));
+   return await fromQueryToTagList(
+      queryToRelateUserWithTag({
+         token: params.token,
+         tagIds: params.tagIds,
+         relation: "blocked",
+         remove: true,
+      }),
+   );
 }
 
 export async function removeTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<void> {
