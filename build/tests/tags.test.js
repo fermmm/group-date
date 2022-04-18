@@ -200,26 +200,21 @@ describe("Tags", () => {
     test(`Subscribing to more tags than MAX_TAG_SUBSCRIPTIONS_ALLOWED is not possible for the same language`, async () => {
         let user = await (0, users_1.createFakeUser)({ language: "es" });
         const tags = [];
+        const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.length;
         // Create the maximum amount of tags for 'es' language
-        for (let i = 0; i < configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED; i++) {
+        for (let i = 0; i < maxSubscriptionsAllowed; i++) {
             const tempUser = await (0, users_1.createFakeUser)({ language: "es" });
             tags.push(await (0, models_1.createTagPost)({ token: tempUser.token, name: `max test tag ${i}`, category: `max test category ${i}` }, replacements_1.fakeCtx));
         }
         await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: tags.map(t => t.tagId) }, replacements_1.fakeCtx);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
-        expect(user.tagsSubscribed).toHaveLength(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED);
+        expect(user.tagsSubscribed).toHaveLength(maxSubscriptionsAllowed);
         // Create one more tag and this one should not be possible to subscribe
         const tempUser2 = await (0, users_1.createFakeUser)({ language: "es" });
         const finalTag = await (0, models_1.createTagPost)({ token: tempUser2.token, name: `max test tag final`, category: `max test category final` }, replacements_1.fakeCtx);
-        await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [finalTag.tagId] }, replacements_1.fakeCtx);
+        await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [finalTag.tagId] }, replacements_1.fakeCtxMuted);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
-        expect(user.tagsSubscribed).toHaveLength(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED);
-        // Create one more tag but this one in a different language and should be possible to subscribe
-        const tempUser3 = await (0, users_1.createFakeUser)({ language: "ru" });
-        const otherLanguageTag = await (0, models_1.createTagPost)({ token: tempUser3.token, name: `max test tag final`, category: `max test category final` }, replacements_1.fakeCtx);
-        await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [otherLanguageTag.tagId] }, replacements_1.fakeCtx);
-        user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
-        expect(user.tagsSubscribed).toHaveLength(configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + 1);
+        expect(user.tagsSubscribed).toHaveLength(maxSubscriptionsAllowed);
     });
     test("Admin users can create unlimited tags", async () => {
         const adminUser = await (0, users_1.createFakeUser)(undefined, { makeItAdmin: true });

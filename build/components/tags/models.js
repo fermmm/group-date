@@ -103,13 +103,17 @@ async function tagsCreatedByUserGet(token) {
 }
 exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
 async function subscribeToTagsPost(params, ctx) {
-    var _a;
+    var _a, _b, _c, _d, _e;
     const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.length;
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
     // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
     if (((_a = user.tagsSubscribed) === null || _a === void 0 ? void 0 : _a.length) >= maxSubscriptionsAllowed) {
         ctx.throw(400, (0, i18n_tools_1.t)("You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you", { user }, String(maxSubscriptionsAllowed)));
         return;
+    }
+    // If the tags to subscribe array is bigger than the amount of tags allowed, we change the length
+    if (params.tagIds.length + ((_c = (_b = user.tagsSubscribed) === null || _b === void 0 ? void 0 : _b.length) !== null && _c !== void 0 ? _c : 0) > maxSubscriptionsAllowed) {
+        params.tagIds.length = maxSubscriptionsAllowed - ((_e = (_d = user.tagsSubscribed) === null || _d === void 0 ? void 0 : _d.length) !== null && _e !== void 0 ? _e : 0);
     }
     const result = await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToRelateUserWithTag)({
         token: params.token,

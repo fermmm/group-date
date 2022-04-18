@@ -8,8 +8,9 @@ import { KeyLabel, MainContainer, NonEditModeContainer, ValueLabel } from "./sty
 export interface PropsProp {
    propName: string;
    propValue?: string | number | boolean;
-   onEdit?: (key: string, value: string | number | boolean) => void;
+   onEdit?: (key: string, value: string | number | boolean, isVertex: boolean) => void;
    showType?: boolean;
+   isVertex: boolean;
 }
 
 const unixTimeProps = [
@@ -23,7 +24,7 @@ const unixTimeProps = [
 ];
 
 const Prop: FC<PropsProp> = props => {
-   const { propName, propValue, onEdit, showType } = props;
+   const { propName, propValue, onEdit, showType, isVertex } = props;
    const [editMode, setEditMode] = useState(false);
    const [newPropValue, setNewPropValue] = useState(propValue);
 
@@ -49,7 +50,7 @@ const Prop: FC<PropsProp> = props => {
          propValueTyped = newPropValue;
       }
 
-      onEdit(propName, propValueTyped);
+      onEdit(propName, propValueTyped, isVertex);
       switchEditMode();
    };
 

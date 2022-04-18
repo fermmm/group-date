@@ -12,7 +12,7 @@ export interface PropsGenericPropertiesTable {
    hideProps?: string[];
    onSearch: OnSearchFunc;
    onRefresh: () => void;
-   onPropEdit: (propName: string, propValue: string | number | boolean) => void;
+   onPropEdit: (propName: string, propValue: string | number | boolean, isVertex: boolean) => void;
 }
 
 export interface QueryButtonProps {
@@ -45,10 +45,16 @@ const GenericPanel: FC<PropsGenericPropertiesTable> = props => {
          {keys.map(
             key =>
                (!hideProps || !hideProps.includes(key)) && (
-                  <Prop propName={key} propValue={properties[key]} onEdit={onPropEdit} key={key} />
+                  <Prop
+                     propName={key}
+                     propValue={properties[key]}
+                     onEdit={onPropEdit}
+                     key={key}
+                     isVertex={isVertex}
+                  />
                ),
          )}
-         <Prop propName={isVertex ? "Vertex ID" : "Edge ID"} propValue={id} showType />
+         <Prop propName={isVertex ? "Vertex ID" : "Edge ID"} propValue={id} showType isVertex={isVertex} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"

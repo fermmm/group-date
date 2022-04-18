@@ -471,8 +471,8 @@ async function banUserPost(params, ctx) {
     await (0, database_manager_1.sendQuery)(() => {
         var _a;
         return (0, queries_1.queryToGetUserById)(userId)
-            .property("banReasons", JSON.stringify([...((_a = user.banReasons) !== null && _a !== void 0 ? _a : []), reason]))
-            .property("banReasonsAmount", user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1)
+            .property(database_manager_1.cardinality.single, "banReasons", JSON.stringify([...((_a = user.banReasons) !== null && _a !== void 0 ? _a : []), reason]))
+            .property(database_manager_1.cardinality.single, "banReasonsAmount", user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1)
             .iterate();
     });
     return { success: true };

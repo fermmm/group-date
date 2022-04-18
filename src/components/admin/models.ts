@@ -62,6 +62,7 @@ import {
 import { fromQueryToChatWithAdmins, fromQueryToChatWithAdminsList } from "./tools/data-conversion";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
+   cardinality,
    exportDatabaseContentToFile,
    importDatabaseContentFromFile,
    importDatabaseContentFromQueryFile,
@@ -656,8 +657,12 @@ export async function banUserPost(params: BanUserPostParams, ctx?: BaseContext) 
 
    await sendQuery(() =>
       queryToGetUserById(userId)
-         .property("banReasons", JSON.stringify([...(user.banReasons ?? []), reason]))
-         .property("banReasonsAmount", user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1)
+         .property(cardinality.single, "banReasons", JSON.stringify([...(user.banReasons ?? []), reason]))
+         .property(
+            cardinality.single,
+            "banReasonsAmount",
+            user.banReasonsAmount != null ? user.banReasonsAmount + 1 : 1,
+         )
          .iterate(),
    );
 

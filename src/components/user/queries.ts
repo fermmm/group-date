@@ -402,7 +402,7 @@ export function queryToRemoveSeen(props: { requesterUserId: string; targetUserId
          __.has("requestedToRemoveSeen", targetUserId),
          // If the target user already requested to remove the seen match we replace the SeenMatch by a Match
          __.sideEffect(__.drop()).select("user").addE("Match").to("targetUser"),
-         // If this is the first request between them we only store the request
+         // If this is the first request between them we only store the request. cardinality.single is not used here because we are in an edge
          __.property("requestedToRemoveSeen", requesterUserId),
       );
 

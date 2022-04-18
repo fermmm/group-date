@@ -92,7 +92,9 @@ function queryToVoteDateIdeas(group, userId, usersIdsToVote) {
         .has("userId", userId)
         .as("user")
         .sideEffect(database_manager_1.__.outE("dateIdeaVote").where(database_manager_1.__.inV().as("group")).drop());
-    usersIdsToVote.forEach(ideaUserId => (traversal = traversal.sideEffect(database_manager_1.__.addE("dateIdeaVote").to("group").property("ideaOfUser", ideaUserId))));
+    usersIdsToVote.forEach(ideaUserId => (traversal = traversal.sideEffect(
+    // cardinality.single is not used here because we are positioned in an edge
+    database_manager_1.__.addE("dateIdeaVote").to("group").property("ideaOfUser", ideaUserId))));
     traversal = traversal.select("group");
     return traversal;
 }
@@ -139,6 +141,7 @@ function queryToUpdateMembershipProperty(traversal, userToken, properties, optio
         traversal = traversal.inE("member").where(database_manager_1.__.outV().has("user", "token", userToken));
     }
     for (const key of Object.keys(properties)) {
+        // cardinality.single is not used here because we are positioned in an edge
         traversal = traversal.property(key, (0, data_conversion_tools_1.serializeIfNeeded)(properties[key]));
     }
     traversal = traversal.inV();
@@ -175,12 +178,13 @@ exports.queryToGetReadMessagesAndTotal = queryToGetReadMessagesAndTotal;
  * Also this function updates membership properties to avoid notification spam
  */
 function queryToGetMembersForNewMsgNotification(groupId, authorUserId) {
-    return queryToGetGroupById(groupId)
+    return (queryToGetGroupById(groupId)
         .inE("member")
         .not(database_manager_1.__.outV().has("userId", authorUserId)) // This prevents a notification to the author of the message
         .has("newMessagesRead", true)
+        // We don't use cardinality.single here because we are working on an edge
         .property("newMessagesRead", false) // This prevents spam
-        .outV();
+        .outV());
 }
 exports.queryToGetMembersForNewMsgNotification = queryToGetMembersForNewMsgNotification;
 function queryToGetGroupsToSendReminder(timeRemaining, reminderProp) {

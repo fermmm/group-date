@@ -163,6 +163,11 @@ export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseConte
       return;
    }
 
+   // If the tags to subscribe array is bigger than the amount of tags allowed, we change the length
+   if (params.tagIds.length + (user.tagsSubscribed?.length ?? 0) > maxSubscriptionsAllowed) {
+      params.tagIds.length = maxSubscriptionsAllowed - (user.tagsSubscribed?.length ?? 0);
+   }
+
    const result = await fromQueryToTagList(
       queryToRelateUserWithTag({
          token: params.token,

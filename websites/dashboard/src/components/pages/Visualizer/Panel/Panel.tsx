@@ -82,15 +82,20 @@ const Panel: FC<PropsPanel> = props => {
       openQueryInNewTab(`g.V(${elementToShow.id})`);
    };
 
-   const handlePropEdit = async (propName: string, propValue: string | number | boolean) => {
+   const handlePropEdit = async (propName: string, propValue: string | number | boolean, isVertex: boolean) => {
       const typedPropValue = typeof propValue === "string" ? `'${propValue}'` : propValue;
       const typedVertexId =
          typeof elementToShow.id === "string" ? `'${elementToShow.id}'` : `${elementToShow.id}L`;
 
-      await databaseQueryRequest({
-         query: `g.V(${typedVertexId}).property("${propName}", ${typedPropValue})`,
-         nodeLimit: 1,
-      });
+      let query = `g.V(${typedVertexId})`;
+
+      if (isVertex) {
+         query = query + `.property(single, "${propName}", ${typedPropValue})`;
+      } else {
+         query = query + `.property("${propName}", ${typedPropValue})`;
+      }
+
+      await databaseQueryRequest({ query, nodeLimit: 1 });
       props.onRefresh();
    };
 

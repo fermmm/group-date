@@ -117,6 +117,7 @@ export function queryToVoteDateIdeas(group: Traversal, userId: string, usersIdsT
    usersIdsToVote.forEach(
       ideaUserId =>
          (traversal = traversal.sideEffect(
+            // cardinality.single is not used here because we are positioned in an edge
             __.addE("dateIdeaVote").to("group").property("ideaOfUser", ideaUserId),
          )),
    );
@@ -184,6 +185,7 @@ export function queryToUpdateMembershipProperty(
    }
 
    for (const key of Object.keys(properties)) {
+      // cardinality.single is not used here because we are positioned in an edge
       traversal = traversal.property(key, serializeIfNeeded(properties[key]));
    }
 
@@ -226,12 +228,15 @@ export function queryToGetReadMessagesAndTotal(traversal: Traversal, userToken: 
  * Also this function updates membership properties to avoid notification spam
  */
 export function queryToGetMembersForNewMsgNotification(groupId: string, authorUserId: string): Traversal {
-   return queryToGetGroupById(groupId)
-      .inE("member")
-      .not(__.outV().has("userId", authorUserId)) // This prevents a notification to the author of the message
-      .has("newMessagesRead", true)
-      .property("newMessagesRead", false) // This prevents spam
-      .outV();
+   return (
+      queryToGetGroupById(groupId)
+         .inE("member")
+         .not(__.outV().has("userId", authorUserId)) // This prevents a notification to the author of the message
+         .has("newMessagesRead", true)
+         // We don't use cardinality.single here because we are working on an edge
+         .property("newMessagesRead", false) // This prevents spam
+         .outV()
+   );
 }
 
 export function queryToGetGroupsToSendReminder(

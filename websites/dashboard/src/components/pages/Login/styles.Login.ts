@@ -10,8 +10,9 @@ export const LoginContainer = styled("div")`
 `;
 
 export const Logo = styled("img")`
-   height: 150px;
+   height: 100px;
    margin-bottom: 50px;
+   transform: translateX(15px);
 `;
 
 export const LoginFormContainer = styled("div")`

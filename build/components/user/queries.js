@@ -305,7 +305,7 @@ function queryToRemoveSeen(props) {
         .choose(database_manager_1.__.has("requestedToRemoveSeen", targetUserId), 
     // If the target user already requested to remove the seen match we replace the SeenMatch by a Match
     database_manager_1.__.sideEffect(database_manager_1.__.drop()).select("user").addE("Match").to("targetUser"), 
-    // If this is the first request between them we only store the request
+    // If this is the first request between them we only store the request. cardinality.single is not used here because we are in an edge
     database_manager_1.__.property("requestedToRemoveSeen", requesterUserId));
     return traversal;
 }

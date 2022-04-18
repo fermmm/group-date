@@ -79,8 +79,8 @@ function queryToRelateUserWithTag(props) {
             relationTraversal = database_manager_1.__.coalesce(database_manager_1.__.select("user")
                 .out("subscribed")
                 .where(database_manager_1.P.eq("tag"))
-                .by("language")
-                .by("language")
+                // .by("language")   // This used to be a way to allow users to subscribe to more tags if they are in a different language
+                // .by("language")
                 .count()
                 .is(database_manager_1.P.gte(maxSubscriptionsAllowed)), relationTraversal);
         }

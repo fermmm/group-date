@@ -96,8 +96,8 @@ export function queryToRelateUserWithTag(props: {
             __.select("user")
                .out("subscribed")
                .where(P.eq("tag"))
-               .by("language")
-               .by("language")
+               // .by("language")   // This used to be a way to allow users to subscribe to more tags if they are in a different language
+               // .by("language")
                .count()
                .is(P.gte(maxSubscriptionsAllowed)),
             relationTraversal,
