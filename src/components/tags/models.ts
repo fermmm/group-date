@@ -148,7 +148,7 @@ export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseConte
    const maxSubscriptionsAllowed =
       MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + APP_AUTHORED_TAGS_AS_QUESTIONS.length;
 
-   const user = await retrieveFullyRegisteredUser(params.token, true, ctx);
+   const user = await retrieveUser(params.token, true, ctx);
 
    // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
    if (user.tagsSubscribed?.length >= maxSubscriptionsAllowed) {

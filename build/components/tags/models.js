@@ -105,7 +105,7 @@ exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
 async function subscribeToTagsPost(params, ctx) {
     var _a, _b, _c, _d, _e;
     const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.length;
-    const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, true, ctx);
+    const user = await (0, models_1.retrieveUser)(params.token, true, ctx);
     // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
     if (((_a = user.tagsSubscribed) === null || _a === void 0 ? void 0 : _a.length) >= maxSubscriptionsAllowed) {
         ctx.throw(400, (0, i18n_tools_1.t)("You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you", { user }, String(maxSubscriptionsAllowed)));
