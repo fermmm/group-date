@@ -8,17 +8,17 @@ export async function getEmailFromGoogle(token: string, ctx: BaseContext) {
    });
 
    if (userDataFromGoogle.success === false) {
-      ctx.throw(400, userDataFromGoogle.error.message);
+      ctx.throw(401, userDataFromGoogle.error.message);
       return;
    }
 
    if (!userDataFromGoogle.content) {
-      ctx.throw(400, "userDataFromFacebook.content is null");
+      ctx.throw(401, "userDataFromFacebook.content is null");
       return;
    }
 
    if (!userDataFromGoogle.content.email) {
-      ctx.throw(400, "userDataFromFacebook.content.email is null");
+      ctx.throw(401, "userDataFromFacebook.content.email is null");
       return;
    }
 

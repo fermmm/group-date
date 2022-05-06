@@ -8,17 +8,17 @@ export async function getEmailFromFacebook(token: string, ctx: BaseContext) {
    });
 
    if (userDataFromFacebook.success === false) {
-      ctx.throw(400, userDataFromFacebook.error.message);
+      ctx.throw(401, userDataFromFacebook.error.message);
       return;
    }
 
    if (!userDataFromFacebook.content) {
-      ctx.throw(400, "userDataFromFacebook.content is null");
+      ctx.throw(401, "userDataFromFacebook.content is null");
       return;
    }
 
    if (!userDataFromFacebook.content.email) {
-      ctx.throw(400, "userDataFromFacebook.content.email is null");
+      ctx.throw(401, "userDataFromFacebook.content.email is null");
       return;
    }
 
