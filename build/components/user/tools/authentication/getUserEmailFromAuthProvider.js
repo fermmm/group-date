@@ -13,7 +13,7 @@ async function getUserEmailFromToken(token, ctx) {
         case AuthenticationProvider_1.AuthenticationProvider.Google:
             return await (0, getEmailFromGoogle_1.getEmailFromGoogle)(tokenInfo.originalToken, ctx);
         case AuthenticationProvider_1.AuthenticationProvider.Email:
-            ctx.throw(400, "Invalid token, please login again");
+            ctx.throw(401, "Invalid token, please login again");
     }
 }
 exports.getUserEmailFromToken = getUserEmailFromToken;

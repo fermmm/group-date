@@ -125,12 +125,12 @@ exports.queryToGetCardsRecommendations = queryToGetCardsRecommendations;
 /**
  * Not all the genders are covered by the same logic here because some genders contain information about the
  * user's genitals, others describe a feeling.
- * The users who don't care about genitals usually configures the app to not filter any gender and that's all.
- * But there are users interested in filtering by genitals, to enable this all users must select at least one
- * cis gender in the gender selection screen and also in the wanted gender screen. This is a way of specifying
- * the genitals without asking directly. Users can filter cis and trans genders because contains information
- * about genitals. The rest of the genders are not related to any filtering logic because it's not useful and
- * to keep code simple and efficient.
+ * The users who don't care about genitals usually configures the app selecting all genders and that's all.
+ * But there are users interested in filtering by genitals like hetero users, to enable this all users must
+ * select at least one cis gender in the gender selection screen. This is a way of specifying the genitals
+ * without asking directly.
+ * Users can filter cis and trans genders because contains information about genitals. The rest of the genders
+ * are not related to any filtering logic because it's not useful and to keep code simple and efficient.
  *
  * With this concept in mind, this is how it works:
  *

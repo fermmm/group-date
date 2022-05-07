@@ -273,7 +273,7 @@ const dateTypeQuestion = {
     text: "What kind of date would you like?",
     answers: [
         {
-            text: "With someone I like, both of us",
+            text: "A date of 2, without anyone else",
             tagId: "q03-a02-v2",
             category: "App usage",
             tagName: "Desired date: With someone",
@@ -289,7 +289,7 @@ const dateTypeQuestion = {
             unwantedUserAnswer: true,
         },
         {
-            text: "A group date where we like each other",
+            text: "A group date where we like each other. Of 3, 4, 5 or more",
             tagId: "q03-a00-v2",
             category: "App usage",
             tagName: "Desired date: Group date",
