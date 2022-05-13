@@ -2,7 +2,7 @@
 
 > This project uses: **Node.js + Koa.js + TypeScript + "Tinkerpop3 Gremlin" for the database.**
 >
-> You need to be an experience developer and know how to code in these technologies to modify the project. To create your own version without modifications you don't need to know how to code but you may need to have a programmer to guide you and someone who knows how to deploy a server project to Amazon or other provider.
+> You need to be an experience developer and know how to code in these technologies to modify the project. To create your own version without modifications you don't need to know how to code but you may need to have a programmer to deploy it or guide you.
 
 It's recommended to run the database in a managed database compatible with gremlin like AWS Neptune and run the app logic in something like AWS Elastic Beanstalk.
 Also Azure is working in similar compatible products: Azure App Engine + Cosmos DB.
