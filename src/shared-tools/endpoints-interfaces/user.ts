@@ -5,12 +5,13 @@ import { ValueOf } from "ts-essentials";
 import { UserBanReason } from "./admin";
 
 /**
- * If you want to add or remove a "user editable user prop" this is the basic todo list:
- *    - Update, add or remove the prop in this interface
+ * If you want to add a user prop this is the basic todo list:
+ *    - Update the prop in this interface
+ *    - If you are adding a prop editable by the user add it to the REQUIRED_USER_PROPS_SCHEMA (read the comment on that constant first).
+ *    - If you are adding a prop that is type string or any type containing a string which is content can be written by: a user, any human or potential hacker add the prop name to USER_PROPS_TO_ENCODE list.
+ *    - If you are adding a prop that should not be visible to other users or hackers make sure you add it to the corresponding prop removal function in security-tools.ts
  *    - Make sure the database queries are updated when using or should use your prop
- *    - If the prop is editable by the user search editableUserPropsSchema constant and update it.
  *    - Make sure the tests are updated specially the code that generates users with random data.
- *    - If the prop should not be visible to other users or hackers make sure you add it to security-tools.ts
  */
 export interface User {
    userId: string;

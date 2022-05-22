@@ -19,15 +19,15 @@ export function fromGremlinMapToObject<T>(
    // Add general props
    const result: Record<keyof T, GremlinValueType> = fromMapToObjectDeep(gremlinMap);
 
-   serializedPropsToParse?.forEach(propName => {
-      if (result[propName] != null) {
-         result[propName] = JSON.parse(result[propName] as string);
-      }
-   });
-
    propsToDecode?.forEach(propName => {
       if (result[propName] != null) {
          result[propName] = decodeString(result[propName] as string);
+      }
+   });
+
+   serializedPropsToParse?.forEach(propName => {
+      if (result[propName] != null) {
+         result[propName] = JSON.parse(result[propName] as string);
       }
    });
 
@@ -54,11 +54,11 @@ export function fromMapToObjectDeep(map: Map<any, any> | Array<Map<any, any>>): 
 export function serializeIfNeeded<T>(value: T): SupportedGremlinTypes {
    const type: string = typeof value;
 
-   if (type !== "string" && type !== "boolean" && type !== "number") {
-      return JSON.stringify(value);
+   if (type === "string" || type === "number" || type === "boolean") {
+      return value as unknown as SupportedGremlinTypes;
    }
 
-   return value as unknown as SupportedGremlinTypes;
+   return JSON.stringify(value);
 }
 
 export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, GremlinValueType> {

@@ -213,16 +213,17 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
  */
 export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<User>): Traversal {
    // Only props on editableUserPropsList are added into the query
-   editableUserPropsList.forEach(editableUserProp => {
-      if (newUserProps[editableUserProp] == null) {
+   editableUserPropsList.forEach(propName => {
+      if (newUserProps[propName] == null) {
          return;
       }
 
-      traversal = traversal.property(
-         cardinality.single,
-         editableUserProp,
-         serializeIfNeeded(encodeIfNeeded(newUserProps[editableUserProp], editableUserProp, "user")),
-      );
+      let value = newUserProps[propName];
+      value = serializeIfNeeded(value);
+      // TODO: Hacer esto tambien para: groups (y chat), chat con admins y tags, tiene que ir despues de serializeIfNeeded
+      value = encodeIfNeeded(value, propName, "user"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
+
+      traversal = traversal.property(cardinality.single, propName, value);
    });
 
    if (newUserProps.images) {
