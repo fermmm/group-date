@@ -68,7 +68,9 @@ function fromGremlinMapToGroup(
    groupFromDatabase.delete("members");
 
    // Now the rest of the group properties can be converted
-   const group = fromGremlinMapToObject<Group>(groupFromDatabase, ["chat", "dayOptions", "seenBy"]);
+   const group = fromGremlinMapToObject<Group>(groupFromDatabase, {
+      serializedPropsToParse: ["chat", "dayOptions", "seenBy"],
+   });
 
    group.members = membersConverted;
 

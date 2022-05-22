@@ -87,3 +87,17 @@ export const validateUserProps = v.compile({
    ...REQUIRED_USER_PROPS_SCHEMA,
    ...OTHER_USER_PROPS_SCHEMA,
 });
+
+/**
+ * This Set contains the names of the user props that will be saved encoded (currently using encodeURI()) because
+ * the content is typed by the user and may contain characters that breaks things like in the format of the database
+ * backup files. Specifically line breaks or the \ character has problems.
+ */
+export const USER_PROPS_TO_ENCODE = new Set<EditableUserPropKey>([
+   "profileDescription",
+   "name",
+   "cityName",
+   "dateIdea",
+]);
+
+export const USER_PROPS_TO_ENCODE_AS_ARRAY = Array.from(USER_PROPS_TO_ENCODE);

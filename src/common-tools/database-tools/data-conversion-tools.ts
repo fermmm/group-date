@@ -1,14 +1,17 @@
+import { EditableUserPropKey, USER_PROPS_TO_ENCODE } from "../../shared-tools/validators/user";
 import { sendQuery, __ } from "./database-manager";
 import { GremlinValueType, SupportedGremlinTypes, Traversal } from "./gremlin-typing-tools";
 
 /**
  * Converts the format of the Gremlin Map output into JS object
- * @param serializedPropsToParse If a prop was serialized you need to include it here in order to be parsed
+ * @param options If a prop was serialized or parsed you need to include it here in order to be restored
  */
 export function fromGremlinMapToObject<T>(
    gremlinMap: Map<keyof T, GremlinValueType>,
-   serializedPropsToParse?: Array<keyof T>,
+   options?: FromGremlinMapToObjectOptions<T>,
 ): T {
+   const { serializedPropsToParse, propsToDecode } = options ?? {};
+
    if (gremlinMap == null) {
       return null;
    }
@@ -19,6 +22,12 @@ export function fromGremlinMapToObject<T>(
    serializedPropsToParse?.forEach(propName => {
       if (result[propName] != null) {
          result[propName] = JSON.parse(result[propName] as string);
+      }
+   });
+
+   propsToDecode?.forEach(propName => {
+      if (result[propName] != null) {
+         result[propName] = decodeString(result[propName] as string);
       }
    });
 
@@ -60,6 +69,39 @@ export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, Gremli
    return result;
 }
 
+export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | "group" | "tag"): T {
+   const type: string = typeof value;
+
+   if (type !== "string") {
+      return value;
+   }
+
+   if (vertex === "user") {
+      if (USER_PROPS_TO_ENCODE.has(valueName as EditableUserPropKey)) {
+         //@ts-ignore
+         return encodeString(value as string) as T;
+      } else {
+         return value;
+      }
+   }
+
+   return value;
+}
+
+/**
+ * Encodes a string using encodeURI() to avoid issues with string characters.
+ */
+export function encodeString(str: string): string {
+   return encodeURI(str);
+}
+
+/**
+ * Decodes a string using encodeString(), currently just calls decodeURI().
+ */
+export function decodeString(str: string): string {
+   return decodeURI(str);
+}
+
 /**
  * Takes a traversal that returns a single vertex or edge, extracts the desired props
  * from it and return them as a parsed object. Useful for optimization to not retrieve a full object from
@@ -67,12 +109,12 @@ export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, Gremli
  * You have to pass a type for the object returned, for example: if you want name and age of a user the
  * type is {name: string, age:number} or Pick<User, "name" | "age">
  *
- * @param serializedPropsToParse If there is any prop to extract that needs to be parsed add it here
+ * @param options If there is any prop to decode from string or to parse use this options object
  */
 export async function fromQueryToSpecificProps<T>(
    query: Traversal,
    propsToExtract: string[],
-   serializedPropsToParse?: Array<keyof T>,
+   options?: FromGremlinMapToObjectOptions<T>,
 ): Promise<T> {
    return fromGremlinMapToObject<T>(
       (
@@ -83,7 +125,7 @@ export async function fromQueryToSpecificProps<T>(
                .next(),
          )
       )?.value,
-      serializedPropsToParse,
+      options,
    );
 }
 
@@ -94,4 +136,16 @@ export async function fromQueryToSpecificProps<T>(
  */
 export async function fromQueryToSpecificPropValue<T>(query: Traversal, propToGetValue: string): Promise<T> {
    return (await sendQuery(() => query.values(propToGetValue).next()))?.value;
+}
+
+interface FromGremlinMapToObjectOptions<T> {
+   /**
+    * If a prop was serialized from an object to a string you need to include it here in order to be parsed back to object
+    */
+   serializedPropsToParse?: Array<keyof T>;
+
+   /**
+    * If a prop was encoded using the encodeString() function you need to include it here in order to be decoded back to normal string
+    */
+   propsToDecode?: Array<keyof T>;
 }

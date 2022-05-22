@@ -1,4 +1,4 @@
-import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
+import { encodeIfNeeded, serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, P, sendQuery, g, column, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import {
@@ -221,7 +221,7 @@ export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<
       traversal = traversal.property(
          cardinality.single,
          editableUserProp,
-         serializeIfNeeded(newUserProps[editableUserProp]),
+         serializeIfNeeded(encodeIfNeeded(newUserProps[editableUserProp], editableUserProp, "user")),
       );
    });
 
