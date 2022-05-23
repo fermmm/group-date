@@ -31,6 +31,7 @@ import {
    queryToRemoveTags,
 } from "./queries";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
+import { encodeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 
 export async function initializeTags(): Promise<void> {
    await createAppAuthoredTags();
@@ -108,6 +109,10 @@ export async function createTagPost(params: TagCreateParams, ctx: BaseContext): 
       subscribersAmount: params.fakeSubscribersAmount ?? 0,
       blockersAmount: params.fakeBlockersAmount ?? 0,
    };
+
+   Object.keys(tagToCreate).forEach(key => {
+      tagToCreate[key] = encodeIfNeeded(tagToCreate[key], key, "tag");
+   });
 
    /*
     * Banned or unwanted users cannot create tags but since it's a shadow ban we don't return an error, we

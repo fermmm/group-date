@@ -1,3 +1,4 @@
+import { EditableTagPropKey, TAG_PROPS_TO_ENCODE } from "../../shared-tools/validators/tags";
 import { EditableUserPropKey, USER_PROPS_TO_ENCODE } from "../../shared-tools/validators/user";
 import { sendQuery, __ } from "./database-manager";
 import { GremlinValueType, SupportedGremlinTypes, Traversal } from "./gremlin-typing-tools";
@@ -83,6 +84,19 @@ export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | 
       } else {
          return value;
       }
+   }
+
+   if (vertex === "tag") {
+      if (TAG_PROPS_TO_ENCODE.has(valueName as EditableTagPropKey)) {
+         //@ts-ignore
+         return encodeString(value as string) as T;
+      } else {
+         return value;
+      }
+   }
+
+   if (vertex === "group") {
+      // TODO: Finish
    }
 
    return value;
