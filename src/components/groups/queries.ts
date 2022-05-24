@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import { MarkRequired } from "ts-essentials";
-import { serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
+import { encodeIfNeeded, serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, column, g, P, sendQuery, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { ALWAYS_SHOW_REMOVE_SEEN_MENU, GROUP_ACTIVE_TIME, GROUP_SLOTS_CONFIGS } from "../../configurations";
@@ -163,7 +163,11 @@ export function queryToUpdateGroupProperty(
    let traversal = queryToGetGroupById(newProps.groupId, filters);
 
    for (const key of Object.keys(newProps)) {
-      traversal = traversal.property(cardinality.single, key, serializeIfNeeded(newProps[key]));
+      let value = newProps[key];
+      value = serializeIfNeeded(value);
+      value = encodeIfNeeded(value, key, "group"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
+
+      traversal = traversal.property(cardinality.single, key, value);
    }
 
    return sendQuery(() => traversal.iterate());

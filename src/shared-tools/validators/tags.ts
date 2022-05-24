@@ -21,7 +21,7 @@ const EDITABLE_TAG_PROPS_SCHEMA = {
  * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
  * format of the database backup files. Specifically line breaks or the \ character has problems.
  */
-export const TAG_PROPS_TO_ENCODE = new Set<EditableTagPropKey>(["name", "category", "language"]);
+export const TAG_PROPS_TO_ENCODE = new Set<keyof Tag>(["name", "category", "language"]);
 export const TAG_PROPS_TO_ENCODE_AS_ARRAY = Array.from(TAG_PROPS_TO_ENCODE);
 
 // Export the same object casted with more type information

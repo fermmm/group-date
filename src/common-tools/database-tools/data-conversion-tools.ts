@@ -1,4 +1,7 @@
-import { EditableTagPropKey, TAG_PROPS_TO_ENCODE } from "../../shared-tools/validators/tags";
+import { Group } from "../../shared-tools/endpoints-interfaces/groups";
+import { Tag } from "../../shared-tools/endpoints-interfaces/tags";
+import { GROUP_PROPS_TO_ENCODE } from "../../shared-tools/validators/group";
+import { TAG_PROPS_TO_ENCODE } from "../../shared-tools/validators/tags";
 import { EditableUserPropKey, USER_PROPS_TO_ENCODE } from "../../shared-tools/validators/user";
 import { sendQuery, __ } from "./database-manager";
 import { GremlinValueType, SupportedGremlinTypes, Traversal } from "./gremlin-typing-tools";
@@ -70,9 +73,10 @@ export function serializeAllValuesIfNeeded<T>(object: T): Record<keyof T, Gremli
    return result;
 }
 
-export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | "group" | "tag"): T {
+export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | "group" | "tag" | "admin"): T {
    const type: string = typeof value;
 
+   // Here we are only continuing with string values but typescript does not realize, that is why typescript needs to be disabled later
    if (type !== "string") {
       return value;
    }
@@ -87,7 +91,7 @@ export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | 
    }
 
    if (vertex === "tag") {
-      if (TAG_PROPS_TO_ENCODE.has(valueName as EditableTagPropKey)) {
+      if (TAG_PROPS_TO_ENCODE.has(valueName as keyof Tag)) {
          //@ts-ignore
          return encodeString(value as string) as T;
       } else {
@@ -96,7 +100,12 @@ export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | 
    }
 
    if (vertex === "group") {
-      // TODO: Finish
+      if (GROUP_PROPS_TO_ENCODE.has(valueName as keyof Group)) {
+         //@ts-ignore
+         return encodeString(value as string) as T;
+      } else {
+         return value;
+      }
    }
 
    return value;

@@ -220,7 +220,6 @@ export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<
 
       let value = newUserProps[propName];
       value = serializeIfNeeded(value);
-      // TODO: Hacer esto tambien para: groups (y chat), chat con admins y tags, tiene que ir despues de serializeIfNeeded
       value = encodeIfNeeded(value, propName, "user"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
 
       traversal = traversal.property(cardinality.single, propName, value);
