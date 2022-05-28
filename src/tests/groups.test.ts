@@ -24,7 +24,7 @@ import { createFakeUsers, getAllTestUsersCreated, getEdgeLabelsBetweenUsers } fr
 import { GROUP_ACTIVE_TIME, MIN_GROUP_SIZE } from "../configurations";
 import { createFullUsersFromGroupCandidate } from "./tools/group-finder/user-creation-tools";
 import { hoursToMilliseconds } from "../common-tools/math-tools/general";
-import { decodeString } from "../common-tools/database-tools/data-conversion-tools";
+import { decodeString } from "../shared-tools/utility-functions/decodeString";
 
 describe("Groups", () => {
    let group: Group;

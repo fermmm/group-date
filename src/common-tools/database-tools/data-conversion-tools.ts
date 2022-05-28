@@ -1,5 +1,7 @@
 import { Group } from "../../shared-tools/endpoints-interfaces/groups";
 import { Tag } from "../../shared-tools/endpoints-interfaces/tags";
+import { decodeString } from "../../shared-tools/utility-functions/decodeString";
+import { encodeString } from "../../shared-tools/utility-functions/encodeString";
 import { GROUP_PROPS_TO_ENCODE } from "../../shared-tools/validators/group";
 import { TAG_PROPS_TO_ENCODE } from "../../shared-tools/validators/tags";
 import { EditableUserPropKey, USER_PROPS_TO_ENCODE } from "../../shared-tools/validators/user";
@@ -109,20 +111,6 @@ export function encodeIfNeeded<T>(value: T, valueName: string, vertex: "user" | 
    }
 
    return value;
-}
-
-/**
- * Encodes a string using encodeURI() to avoid issues with string characters.
- */
-export function encodeString(str: string): string {
-   return encodeURI(str);
-}
-
-/**
- * Decodes a string using encodeString(), currently just calls decodeURI().
- */
-export function decodeString(str: string): string {
-   return decodeURI(str);
 }
 
 /**

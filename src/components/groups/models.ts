@@ -255,10 +255,9 @@ export async function dateDayVotePost(params: DayOptionsVotePostParams, ctx: Bas
 
 /**
  * Optimized endpoint to get the chat value of the group and register the messages as read. This endpoint
- * is optimized as much as possible, so it doesn't parse the chat so the response can be faster and parsing is
- * done on the client, this means the returned value is a string to be parsed by the client.
- * The client receives a json string as usual so there is no difference, the difference is when this function
- * is called inside the server, the response it's not already parsed like the others.
+ * is optimized as much as possible, so it doesn't parse the chat, the response can be faster and parsing is
+ * done on the client. This means the returned value is a string to be parsed by the client.
+ * Before parsing to JSON it needs to be decoded using decodeURI() javascript function or decodeString() wrapper.
  */
 export async function chatGet(params: BasicGroupParams, ctx: BaseContext): Promise<string> {
    let traversal = queryToGetGroupById(params.groupId, { onlyIfAMemberHasToken: params.token });
