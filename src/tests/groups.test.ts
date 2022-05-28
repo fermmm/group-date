@@ -17,13 +17,14 @@ import {
 import { queryToRemoveGroups } from "../components/groups/queries";
 import { setSeenPost, retrieveFullyRegisteredUser, retrieveUser, userGet } from "../components/user/models";
 import { queryToRemoveUsers } from "../components/user/queries";
-import { Group } from "../shared-tools/endpoints-interfaces/groups";
+import { Group, GroupChat } from "../shared-tools/endpoints-interfaces/groups";
 import { NotificationType, SetSeenAction, TaskType, User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createFakeUsers, getAllTestUsersCreated, getEdgeLabelsBetweenUsers } from "./tools/users";
 import { GROUP_ACTIVE_TIME, MIN_GROUP_SIZE } from "../configurations";
 import { createFullUsersFromGroupCandidate } from "./tools/group-finder/user-creation-tools";
 import { hoursToMilliseconds } from "../common-tools/math-tools/general";
+import { decodeString } from "../common-tools/database-tools/data-conversion-tools";
 
 describe("Groups", () => {
    let group: Group;
@@ -178,7 +179,9 @@ describe("Groups", () => {
       );
 
       group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
-      const chat = JSON.parse(await chatGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx));
+      let response = await chatGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
+      response = decodeString(response);
+      const chat = JSON.parse(response) as GroupChat;
 
       expect(chat.messages).toHaveLength(3);
       expect(group.chat.messages).toHaveLength(3);
