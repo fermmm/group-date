@@ -4,6 +4,7 @@ import { __, column, g, cardinality } from "../../common-tools/database-tools/da
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
 import { AdminNotificationFilter } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage } from "../../shared-tools/endpoints-interfaces/common";
+import { encodeString } from "../../shared-tools/utility-functions/encodeString";
 import { queryToGetAllCompleteUsers, queryToGetUserById } from "../user/queries";
 
 export function queryToGetAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
@@ -29,13 +30,16 @@ export function queryToSaveAdminChatMessage(
    updatedMessagesList: ChatMessage[],
    lastMessageIsFromAdmin: boolean,
 ): Traversal {
+   let messages = serializeIfNeeded(updatedMessagesList) as string;
+   messages = encodeString(messages);
+
    return queryToGetUserById(userId)
       .as("user")
       .coalesce(
          __.out("chatWithAdmins"),
          __.addV("chatWithAdmins").as("x").addE("chatWithAdmins").from_("user").select("x"),
       )
-      .property(cardinality.single, "messages", serializeIfNeeded(updatedMessagesList))
+      .property(cardinality.single, "messages", messages)
       .property(cardinality.single, "adminHasResponded", lastMessageIsFromAdmin)
       .property(cardinality.single, "lastMessageDate", moment().unix());
 }

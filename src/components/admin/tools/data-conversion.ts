@@ -54,6 +54,7 @@ function fromGremlinMapToChatWithAdmins(
    // Now the rest of the properties can be converted
    const result = fromGremlinMapToObject<ChatWithAdmins>(chatWithAdmins, {
       serializedPropsToParse: ["messages"],
+      propsToDecode: ["messages"],
    });
    result.nonAdminUser = nonAdminUser;
 
