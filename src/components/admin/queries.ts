@@ -68,8 +68,6 @@ export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): 
 export function queryToSelectUsersForNotification(filters: AdminNotificationFilter): Traversal {
    const traversal = queryToGetAllCompleteUsers();
 
-   console.log(filters.usersEmail);
-
    if (filters.usersEmail && filters.usersEmail.length > 0) {
       traversal.union(...filters.usersEmail.map(email => __.has("email", email)));
    }

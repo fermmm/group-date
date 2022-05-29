@@ -31,11 +31,13 @@ import {
 } from "./models";
 import { validateAdminCredentials } from "./tools/validateAdminCredentials";
 
+// TODO: Endpoints here need a validator (for security)
 export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/validate/credentials", "GET", validateCredentialsGet);
-   createRoute(r, "/admin/chat", "GET", adminChatGet);
-   createRoute(r, "/admin/chat", "POST", adminChatPost);
-   createRoute(r, "/admin/chat/all", "GET", allChatsWithAdminsGet);
+   // Currently this is not used in the client this is why it's commented. It's working when uncommented the only thing that needs is a validator (for security)
+   // createRoute(r, "/admin/chat", "GET", adminChatGet);
+   // createRoute(r, "/admin/chat", "POST", adminChatPost);
+   // createRoute(r, "/admin/chat/all", "GET", allChatsWithAdminsGet);
    createRoute(r, "/admin/logs/files", "GET", logFileListGet);
    createRoute(r, "/admin/log", "GET", logGet);
    createRoute(r, "/admin/log/entry/delete", "POST", logDeleteEntryPost);
