@@ -16,6 +16,14 @@ const EDITABLE_TAG_PROPS_SCHEMA = {
    global: { type: "boolean", optional: true } as V,
 };
 
+/**
+ * This Set contains the names of the tag props that will be saved encoded (currently using encodeURI()) this is needed when
+ * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
+ * format of the database backup files. Specifically line breaks or the \ character has problems.
+ */
+export const TAG_PROPS_TO_ENCODE = new Set<keyof Tag>(["name", "category", "language"]);
+export const TAG_PROPS_TO_ENCODE_AS_ARRAY = Array.from(TAG_PROPS_TO_ENCODE);
+
 // Export the same object casted with more type information
 export const editableTagSchema = EDITABLE_TAG_PROPS_SCHEMA as Record<
    keyof typeof EDITABLE_TAG_PROPS_SCHEMA,

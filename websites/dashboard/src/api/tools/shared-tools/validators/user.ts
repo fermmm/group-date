@@ -56,6 +56,26 @@ const OTHER_USER_PROPS_SCHEMA = {
 };
 
 /**
+ * This Set contains the names of the user props that will be saved encoded (currently using encodeURI()) this is needed when
+ * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
+ * format of the database backup files. Specifically line breaks or the \ character has problems.
+ */
+export const USER_PROPS_TO_ENCODE = new Set<keyof User>([
+   "profileDescription",
+   "name",
+   "cityName",
+   "dateIdea",
+   "country",
+   "language",
+   "images",
+   "questionsShowed",
+   "notificationsToken",
+   "genders",
+   "likesGenders",
+]);
+export const USER_PROPS_TO_ENCODE_AS_ARRAY = Array.from(USER_PROPS_TO_ENCODE);
+
+/**
  * The only propuse of this line is to generate a TS error when the props of the schemas are not user props.
  * If you see a red underlie on the "test" (variable name) it meas there is a wrong property in the schema.
  */
