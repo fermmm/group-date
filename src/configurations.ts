@@ -339,13 +339,16 @@ const dateTypeQuestion: TagsAsQuestion = {
          tagIsVisible: false,
       },
    ],
+   // This object is used to set which responses are incompatible between each other, allowing users to block other users that select an incompatible response.
    incompatibilitiesBetweenAnswers: {
       0: [1, 2],
       1: [0, 2],
       2: [0, 1],
    },
-   filterSelectedByDefault: true,
+   // This means that the user can't select if he/she is going to block users that select an incompatible response.
    filterSelectionInvisible: true, // Enabling this may lead to better results
+   // This means that by it blocks incompatible users by default. Combined with invisible block selection (the previous prop) forces the users to block the incompatible ones.
+   filterSelectedByDefault: true,
 };
 
 const usageIntentionQuestion: TagsAsQuestion = {
@@ -418,6 +421,23 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+TODO: Agregar unicorn hunter como tag.
+
+- Habria que agregar is couple profile tambien como tag, pero seguramente se usa como prop, hay que ver esa prop que onda
+
+- la pregunta de si quieres chica para trio es como cualquier otra
+- es el cliente el que la oculta si es encesario
+- hay una prop en la pregunta de perfil de pareja que se llama answersOtherQuestion: {questionId: "", answerId: ""}
+- eso es solo para mandar al cliente, el cliente hace todo
+
+Migración:
+
+Para evitar que a todos los usuarios les salga la pregunta al antrar:
+Ponemos la pregunta como respondida en todos los perfiles que no sean de pareja
+
+*/
 
 const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
    text: "If you go to a group date from this app, do you plan to go with someone?",

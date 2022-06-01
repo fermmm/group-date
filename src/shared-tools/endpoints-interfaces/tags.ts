@@ -47,9 +47,18 @@ export interface TagsAsQuestion {
    text: string;
    extraText?: string;
    answers: QuestionAnswerData[];
+   /**
+    * This object is used to set which responses are incompatible between each other, allowing users to block other users that select an incompatible response.
+    */
    incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
-   filterSelectedByDefault?: boolean;
+   /**
+    * This means that the user can't select if he/she is going to block users that select an incompatible response.
+    */
    filterSelectionInvisible?: boolean;
+   /**
+    * This means that it blocks incompatible users by default. Combined with invisible block selection (the previous prop) forces the users to block the incompatible ones.
+    */
+   filterSelectedByDefault?: boolean;
 }
 
 export interface QuestionAnswerData {
