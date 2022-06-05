@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Button } from "@mui/material";
 import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
 import { Label } from "../GenericPanel/styles.GenericPanel";
+import { decodeString } from "../../../../../../api/tools/shared-tools/utility-functions/decodeString";
 
 const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
    const { properties, label } = props;
@@ -18,7 +19,7 @@ const EdgePanel: FC<PropsGenericPropertiesTable> = props => {
 
    return (
       <>
-         <Label>{properties.name}</Label>
+         <Label>{decodeString(String(properties.name))}</Label>
          {queryButtons.map(buttonData => (
             <Button
                variant="outlined"

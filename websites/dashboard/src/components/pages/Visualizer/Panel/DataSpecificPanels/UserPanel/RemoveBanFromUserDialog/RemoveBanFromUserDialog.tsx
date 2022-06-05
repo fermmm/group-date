@@ -3,6 +3,7 @@ import { Autocomplete, Button, Dialog, DialogActions, DialogTitle, TextField } f
 import { UserBanReason } from "../../../../../../../api/tools/shared-tools/endpoints-interfaces/admin";
 import { DialogContentStyled } from "./styles.RemoveBanFromUserDialog";
 import { User } from "../../../../../../../api/tools/shared-tools/endpoints-interfaces/user";
+import { decodeString } from "../../../../../../../api/tools/shared-tools/utility-functions/decodeString";
 
 interface PropsRemoveBanFromUserDialog {
    open: boolean;
@@ -22,7 +23,7 @@ const RemoveBanFromUserDialog: FC<PropsRemoveBanFromUserDialog> = props => {
 
    const getUserBanReasons = () => {
       try {
-         return JSON.parse(user.banReasons as unknown as string);
+         return JSON.parse(decodeString((user.banReasons as unknown as string) || "[]"));
       } catch (e) {
          return [];
       }

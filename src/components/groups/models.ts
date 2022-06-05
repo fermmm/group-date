@@ -64,7 +64,6 @@ import { queryToGetUserByTokenOrId } from "../user/queries";
 import { fromQueryToUser } from "../user/tools/data-conversion";
 import { finishMeasureTime, measureTime } from "../../common-tools/js-tools/measureTime";
 import { log } from "../../common-tools/log-tool/log";
-import { loginGet } from "../email-login/models";
 import { LogId } from "../../common-tools/log-tool/types";
 
 export async function initializeGroups(): Promise<void> {

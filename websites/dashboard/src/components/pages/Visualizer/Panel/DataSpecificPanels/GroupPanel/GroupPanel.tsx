@@ -7,11 +7,12 @@ import { useTheme } from "styled-components";
 import ChatBubble from "./ChatBubble/ChatBubble";
 import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
 import { adminGroupGetRequest } from "../../../../../../api/server/groups";
+import { decodeString } from "../../../../../../api/tools/shared-tools/utility-functions/decodeString";
 
 const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
    const group = props.properties as unknown as Partial<Group>;
    const theme = useTheme();
-   const chat: GroupChat = JSON.parse((group.chat ?? "[]") as unknown as string);
+   const chat: GroupChat = JSON.parse(decodeString((group?.chat as unknown as string) || "[]"));
    const [members, setMembers] = useState<Array<{ userId: string; name: string }>>();
 
    /**
@@ -44,7 +45,7 @@ const GroupPanel: FC<PropsGenericPropertiesTable> = props => {
 
    return (
       <>
-         <Label>{group.name}</Label>
+         <Label>{decodeString(group.name)}</Label>
          {queryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"

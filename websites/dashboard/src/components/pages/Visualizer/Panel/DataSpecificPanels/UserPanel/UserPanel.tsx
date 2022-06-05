@@ -18,6 +18,8 @@ import RemoveBanFromUserDialog from "./RemoveBanFromUserDialog/RemoveBanFromUser
 import ConfirmationDialog from "../../../../../common/UI/ConfirmationDialog/ConfirmationDialog";
 import { openQueryInNewTab } from "../../../tools/openQueryInNewTab";
 import ListAppTagsSubscribed from "./ListAppTagsSubscribed/ListAppTagsSubscribed";
+import { decodeString } from "../../../../../../api/tools/shared-tools/utility-functions/decodeString";
+import Prop from "../GenericPanel/Prop/Prop";
 
 const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    const user = props.properties as unknown as Partial<User>;
@@ -85,10 +87,14 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
       props.onRefresh();
    };
 
+   let userImagesParsed: string[] = JSON.parse(
+      decodeString((user?.images as unknown as string) ?? "") as unknown as string,
+   );
+
    return (
       <>
          <Row>
-            <Label>{user.name}</Label>
+            <Label>{decodeString(user.name)}</Label>
             <Label>
                {/*https://flagpedia.net/download/api*/}
                <img
@@ -99,12 +105,17 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
                {getCountryName(user.country)}
             </Label>
          </Row>
-         {user.profileDescription && <Label>{user.profileDescription}</Label>}
-         <Label>Idea: {user.dateIdea}</Label>
+         <Prop
+            propName={"profileDescription"}
+            propValue={user.profileDescription}
+            isVertex
+            onEdit={props.onPropEdit}
+         ></Prop>
+         <Prop propName={"dateIdea"} propValue={user.dateIdea} isVertex onEdit={props.onPropEdit}></Prop>
          <ListAppTagsSubscribed token={user.token} />
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>
-               {(JSON.parse(user.images as unknown as string) as string[])?.map(image => (
+               {userImagesParsed.map(image => (
                   <img src={serverInfo?.data?.imagesHost + image} key={image} />
                ))}
             </ImagesCarousel>
@@ -135,7 +146,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
          <Button variant="outlined" color="secondary" onClick={() => setRemoveAllBansDialogOpen(true)}>
             Remove all bans from user
          </Button>
-         <GenericPanel {...props} hideProps={["images"]} />
+         <GenericPanel {...props} hideProps={["images", "dateIdea", "profileDescription"]} />
          {dangerousQueryButtons.map((buttonData, i) => (
             <Button
                variant="outlined"

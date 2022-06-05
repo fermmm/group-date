@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { decodeString } from "../../../../api/tools/shared-tools/utility-functions/decodeString";
 
 export interface GremlinElement<T = Record<string, number | string | boolean>> {
    label: string;
@@ -46,10 +47,7 @@ export const getDiffEdges = (newList: GremlinElement[], oldList: GremlinElement[
    return _.differenceBy(newList, oldList, edge => `${edge.from},${edge.to}`);
 };
 
-export const extractEdgesAndNodes = (
-   nodeList: GremlinElement[],
-   oldNodeLabels: NodeLabelInfo[] = []
-) => {
+export const extractEdgesAndNodes = (nodeList: GremlinElement[], oldNodeLabels: NodeLabelInfo[] = []) => {
    let edges: any = [];
    const nodes: any = [];
    const nodeLabels = [...oldNodeLabels];
@@ -68,18 +66,18 @@ export const extractEdgesAndNodes = (
       const label = labelField in node.properties ? node.properties[labelField] : type;
       nodes.push({
          id: node.id,
-         label: String(label),
+         label: decodeString(String(label)),
          group: node.label,
          properties: node.properties,
-         type
+         type,
       });
 
       edges = edges.concat(
          _.map(node.edges, edge => ({
             ...edge,
             type: edge.label,
-            arrows: { to: { enabled: true, scaleFactor: 0.5 } }
-         }))
+            arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+         })),
       );
    });
 

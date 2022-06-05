@@ -3,6 +3,7 @@ import { Button } from "@mui/material";
 import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
 import { Label } from "../GenericPanel/styles.GenericPanel";
 import { Tag } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/tags";
+import { decodeString } from "../../../../../../api/tools/shared-tools/utility-functions/decodeString";
 
 const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
    const tag = props.properties as unknown as Partial<Tag>;
@@ -23,7 +24,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
 
    return (
       <>
-         <Label>{tag.name}</Label>
+         <Label>{decodeString(tag.name)}</Label>
          {queryButtons.map(buttonData => (
             <Button
                variant="outlined"

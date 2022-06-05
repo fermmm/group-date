@@ -14,16 +14,15 @@ import { generateId } from "../../common-tools/string-tools/string-tools";
  * This function should not be called directly, use createGroup() to create groups.
  */
 export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal {
+   let initialChat = serializeIfNeeded<GroupChat>({
+      messages: [],
+   }) as string;
+   initialChat = encodeIfNeeded(initialChat, "chat", "group");
+
    let traversal: Traversal = g
       .addV("group")
       .property(cardinality.single, "groupId", generateId())
-      .property(
-         cardinality.single,
-         "chat",
-         serializeIfNeeded<GroupChat>({
-            messages: [],
-         }),
-      )
+      .property(cardinality.single, "chat", initialChat)
       .property(cardinality.single, "chatMessagesAmount", 0)
       .property(cardinality.single, "creationDate", moment().unix())
       .property(cardinality.single, "membersAmount", params.initialUsers?.usersIds.length ?? 0)
