@@ -3,6 +3,7 @@ import React, { ChangeEvent, FC, useState } from "react";
 import { VscChromeClose, VscEdit, VscSave } from "react-icons/vsc";
 import { decodeString } from "../../../../../../../api/tools/shared-tools/utility-functions/decodeString";
 import { encodeString } from "../../../../../../../api/tools/shared-tools/utility-functions/encodeString";
+import { getGlobalSettingValue } from "../../../../../../../common-tools/settings/global-settings";
 import { humanizeUnixTimeStamp } from "../../../../../../../common-tools/strings/humanizeUnixTime";
 import { isProbablyEncodedProp } from "../../../../../../../common-tools/strings/isProbablyEncodedProp";
 import { Row } from "../../../../../../common/UI/Row/Row";
@@ -28,16 +29,17 @@ const unixTimeProps = [
 
 const Prop: FC<PropsProp> = props => {
    const { propName, propValue, onEdit, showType, isVertex } = props;
+   const showDecoded = getGlobalSettingValue("showDecoded");
    const [editMode, setEditMode] = useState(false);
    const [newPropValue, setNewPropValue] = useState<string | number | boolean>(
-      typeof propValue === "string" ? decodeString(propValue) : propValue,
+      showDecoded && typeof propValue === "string" ? decodeString(propValue) : propValue,
    );
    const [sendEncoded, setSendEncoded] = useState<boolean>(
-      typeof propValue === "string" ? isProbablyEncodedProp(propName) : false,
+      showDecoded && typeof propValue === "string" ? isProbablyEncodedProp(propName) : false,
    );
 
    const setupValueToDisplay = (key: string, value: string | number | boolean) => {
-      if (typeof value === "string") {
+      if (showDecoded && typeof value === "string") {
          value = decodeString(value);
       }
 
@@ -61,7 +63,7 @@ const Prop: FC<PropsProp> = props => {
       setEditMode(!editMode);
       if (cancelled) {
          // If the user cancelled the edit we restore the value to the one on the server
-         setNewPropValue(typeof propValue === "string" ? decodeString(propValue) : propValue);
+         setNewPropValue(showDecoded && typeof propValue === "string" ? decodeString(propValue) : propValue);
       }
    };
 

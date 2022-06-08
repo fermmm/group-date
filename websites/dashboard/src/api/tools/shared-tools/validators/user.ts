@@ -73,6 +73,20 @@ export const USER_PROPS_TO_ENCODE = new Set<keyof User>([
    "genders",
    "likesGenders",
 ]);
+
+/**
+ * If you added a prop that is an array or object add it here in order to be converted to JSON string when saving to the database
+ */
+export const USER_PROPS_TO_STRINGIFY: Array<keyof User> = [
+   "images",
+   "notifications",
+   "questionsShowed",
+   "genders",
+   "likesGenders",
+   "banReasons",
+   "requiredTasks",
+];
+
 export const USER_PROPS_TO_ENCODE_AS_ARRAY = Array.from(USER_PROPS_TO_ENCODE);
 
 /**

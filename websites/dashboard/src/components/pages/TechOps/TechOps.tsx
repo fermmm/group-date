@@ -7,6 +7,7 @@ import SendEmailForm from "./SendEmailForm/SendEmailForm";
 import NotificationStatusForm from "./NotificationStatusForm/NotificationStatusForm";
 import SendQueryForm from "./SendQueryForm/SendQueryForm";
 import RunCodeForm from "./RunCodeForm/RunCodeForm";
+import DashboardSettingsForm from "./DashboardSettingsForm/DashboardSettingsForm";
 
 const TechOps: FC = () => {
    return (
@@ -19,6 +20,7 @@ const TechOps: FC = () => {
             <RunCodeForm />
             <SendEmailForm />
             <NotificationStatusForm />
+            <DashboardSettingsForm />
          </ButtonsContainer>
       </DashboardPageContainer>
    );
