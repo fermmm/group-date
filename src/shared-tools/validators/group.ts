@@ -19,6 +19,12 @@ const EDITABLE_GROUP_PROPS_SCHEMA = {
  * format of the database backup files. Specifically line breaks or the \ character has problems.
  */
 export const GROUP_PROPS_TO_ENCODE = new Set<keyof Group>(["name", "chat", "mostVotedIdea"]);
+
+/**
+ * If you added a prop that is an array or object add it here in order to be converted to JSON string when saving to the database
+ */
+export const GROUP_PROPS_TO_STRINGIFY: Array<keyof Group> = ["chat", "dayOptions", "seenBy"];
+
 export const GROUP_PROPS_TO_ENCODE_AS_ARRAY = Array.from(GROUP_PROPS_TO_ENCODE);
 
 // Export the same object casted with more type information

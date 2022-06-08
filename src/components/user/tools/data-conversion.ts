@@ -4,7 +4,7 @@ import { sendQuery } from "../../../common-tools/database-tools/database-manager
 import { GremlinValueType, Traversal } from "../../../common-tools/database-tools/gremlin-typing-tools";
 import { removePrivacySensitiveUserProps } from "../../../common-tools/security-tools/security-tools";
 import { User } from "../../../shared-tools/endpoints-interfaces/user";
-import { USER_PROPS_TO_ENCODE_AS_ARRAY } from "../../../shared-tools/validators/user";
+import { USER_PROPS_TO_ENCODE_AS_ARRAY, USER_PROPS_TO_STRINGIFY } from "../../../shared-tools/validators/user";
 import { queryToIncludeFullInfoInUserQuery } from "../queries";
 
 /**
@@ -56,15 +56,7 @@ export function fromGremlinMapToUser(userFromDatabase: Map<keyof User, GremlinVa
    }
 
    const result = fromGremlinMapToObject<User>(userFromDatabase, {
-      serializedPropsToParse: [
-         "images",
-         "notifications",
-         "questionsShowed",
-         "genders",
-         "likesGenders",
-         "banReasons",
-         "requiredTasks",
-      ],
+      serializedPropsToParse: USER_PROPS_TO_STRINGIFY,
       propsToDecode: USER_PROPS_TO_ENCODE_AS_ARRAY,
    });
 

@@ -88,7 +88,7 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
    };
 
    let userImagesParsed: string[] = JSON.parse(
-      decodeString((user?.images as unknown as string) ?? "") as unknown as string,
+      decodeString((user?.images as unknown as string) ?? "[]") as unknown as string,
    );
 
    return (
@@ -110,8 +110,8 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
             propValue={user.profileDescription}
             isVertex
             onEdit={props.onPropEdit}
-         ></Prop>
-         <Prop propName={"dateIdea"} propValue={user.dateIdea} isVertex onEdit={props.onPropEdit}></Prop>
+         />
+         <Prop propName={"dateIdea"} propValue={user.dateIdea} isVertex onEdit={props.onPropEdit} />
          <ListAppTagsSubscribed token={user.token} />
          {user.images && serverInfo?.data?.imagesHost && (
             <ImagesCarousel>

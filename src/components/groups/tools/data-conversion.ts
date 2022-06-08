@@ -9,7 +9,10 @@ import { User } from "../../../shared-tools/endpoints-interfaces/user";
 import { queryToGetGroupsInFinalFormat } from "../queries";
 import { fromGremlinMapToObject } from "../../../common-tools/database-tools/data-conversion-tools";
 import { fromGremlinMapToUser } from "../../user/tools/data-conversion";
-import { GROUP_PROPS_TO_ENCODE_AS_ARRAY } from "../../../shared-tools/validators/group";
+import {
+   GROUP_PROPS_TO_ENCODE_AS_ARRAY,
+   GROUP_PROPS_TO_STRINGIFY,
+} from "../../../shared-tools/validators/group";
 
 /**
  * Converts a Gremlin query that returns a single group into a Group object.
@@ -70,7 +73,7 @@ function fromGremlinMapToGroup(
 
    // Now the rest of the group properties can be converted
    const group = fromGremlinMapToObject<Group>(groupFromDatabase, {
-      serializedPropsToParse: ["chat", "dayOptions", "seenBy"],
+      serializedPropsToParse: GROUP_PROPS_TO_STRINGIFY,
       propsToDecode: GROUP_PROPS_TO_ENCODE_AS_ARRAY,
    });
 

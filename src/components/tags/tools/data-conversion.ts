@@ -3,7 +3,7 @@ import { fromGremlinMapToObject } from "../../../common-tools/database-tools/dat
 import { sendQuery } from "../../../common-tools/database-tools/database-manager";
 import { GremlinValueType, Traversal } from "../../../common-tools/database-tools/gremlin-typing-tools";
 import { Tag } from "../../../shared-tools/endpoints-interfaces/tags";
-import { TAG_PROPS_TO_ENCODE_AS_ARRAY } from "../../../shared-tools/validators/tags";
+import { TAG_PROPS_TO_ENCODE_AS_ARRAY, TAG_PROPS_TO_STRINGIFY } from "../../../shared-tools/validators/tags";
 
 /**
  * Converts into a Tag object a gremlin query that should return a single tag vertex.
@@ -36,5 +36,8 @@ export function fromGremlinMapToTag(tagFromDatabase: Map<keyof Tag, GremlinValue
       return null;
    }
 
-   return fromGremlinMapToObject<Tag>(tagFromDatabase, { propsToDecode: TAG_PROPS_TO_ENCODE_AS_ARRAY });
+   return fromGremlinMapToObject<Tag>(tagFromDatabase, {
+      serializedPropsToParse: TAG_PROPS_TO_STRINGIFY,
+      propsToDecode: TAG_PROPS_TO_ENCODE_AS_ARRAY,
+   });
 }

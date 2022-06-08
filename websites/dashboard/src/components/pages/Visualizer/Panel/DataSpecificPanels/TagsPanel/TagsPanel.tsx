@@ -1,9 +1,8 @@
 import React, { FC } from "react";
 import { Button } from "@mui/material";
 import GenericPanel, { PropsGenericPropertiesTable, QueryButtonProps } from "../GenericPanel/GenericPanel";
-import { Label } from "../GenericPanel/styles.GenericPanel";
 import { Tag } from "../../../../../../api/tools/shared-tools/endpoints-interfaces/tags";
-import { decodeString } from "../../../../../../api/tools/shared-tools/utility-functions/decodeString";
+import Prop from "../GenericPanel/Prop/Prop";
 
 const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
    const tag = props.properties as unknown as Partial<Tag>;
@@ -24,7 +23,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
 
    return (
       <>
-         <Label>{decodeString(tag.name)}</Label>
+         <Prop propName={"name"} propValue={tag.name} isVertex onEdit={props.onPropEdit} />
          {queryButtons.map(buttonData => (
             <Button
                variant="outlined"
@@ -34,7 +33,7 @@ const TagsPanel: FC<PropsGenericPropertiesTable> = props => {
                {buttonData.name}
             </Button>
          ))}
-         <GenericPanel {...props} hideProps={["images"]} />
+         <GenericPanel {...props} hideProps={["name"]} />
          {dangerousQueryButtons.map(buttonData => (
             <Button
                variant="outlined"

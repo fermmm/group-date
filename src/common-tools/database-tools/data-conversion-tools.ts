@@ -33,7 +33,23 @@ export function fromGremlinMapToObject<T>(
 
    serializedPropsToParse?.forEach(propName => {
       if (result[propName] != null) {
-         result[propName] = JSON.parse(result[propName] as string);
+         try {
+            result[propName] = JSON.parse(result[propName] as string);
+         } catch (e) {
+            // This can potentially happen when the data is corrupted on the database
+            console.log(
+               "Failed to parse JSON prop in fromGremlinMapToObject function.",
+               "Prop name:",
+               propName,
+               "Prop value:",
+               result[propName],
+               "Type:",
+               typeof result[propName],
+               "All props:",
+               result,
+            );
+            delete result[propName];
+         }
       }
    });
 

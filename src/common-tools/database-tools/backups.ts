@@ -82,6 +82,8 @@ async function initializeBackupDatabaseSchedule() {
 async function backupDatabase(folderPath: string, fileName: string, settings?: { saveLog?: boolean }) {
    const { saveLog = true } = settings ?? {};
 
+   const finalTargetFolder = `${DB_EXPORT_FOLDER}${folderPath ? "/" + folderPath : ""}`;
+
    if (saveLog) {
       measureTime("backup-database");
    }
@@ -93,17 +95,17 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
       });
       await uploadFileToS3({
          localFilePath: "admin-uploads/db.zip",
-         s3TargetPath: `${DB_EXPORT_FOLDER}/${folderPath}/${fileName}.zip`,
+         s3TargetPath: `${finalTargetFolder}/${fileName}.zip`,
       });
    } else {
-      await exportDatabaseContentToFile(`${folderPath}/${fileName}.xml`);
-      copyFile(`${folderPath}/${fileName}.xml`, `${DB_EXPORT_FOLDER}/${DB_EXPORT_LATEST_FILE}.xml`);
+      await exportDatabaseContentToFile(`${finalTargetFolder}/${fileName}.xml`);
+      copyFile(`${finalTargetFolder}/${fileName}.xml`, `${DB_EXPORT_FOLDER}/${DB_EXPORT_LATEST_FILE}.xml`);
    }
 
    if (saveLog) {
       log(
          {
-            message: `Database backup done in ${`${folderPath}/${fileName}.xml`}`,
+            message: `Database backup done in ${`${finalTargetFolder}/${fileName}.xml`}`,
             timeConsumedToMakeBackupMs: finishMeasureTime("backup-database"),
          },
          LogId.Backups,
@@ -125,6 +127,6 @@ async function restoreDatabase(folderPath: string, fileName: string) {
 
 function backupDatabaseWhenExiting() {
    executeFunctionBeforeExiting(async () => {
-      await backupDatabase(DB_EXPORT_FOLDER, DB_EXPORT_LATEST_FILE, { saveLog: false });
+      await backupDatabase(null, DB_EXPORT_LATEST_FILE, { saveLog: false });
    });
 }
