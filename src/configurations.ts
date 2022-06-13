@@ -318,13 +318,13 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * The following are the registration questions. You can specify if the question changes user props, subscribes the
- * user to a tag, block tags, answer other questions automatically (like a tree of questions) or do all mentioned
- * things at the same time.
+ * The following are the registration questions. Also the questions can be showed when changing settings. You can
+ * specify if an answer changes user props, subscribes the user to a tag, blocks a tag, answers other questions
+ * automatically (you can do a tree of questions) or does all mentioned things at the same time.
  *
- * When you set the question to subscribe to a tag you need to provide all the info a tag needs like the category and
+ * When you set the question to subscribe to a tag you need to provide all the info of a tag like the category and
  * name becase that will be used to create it at boot (if not present). These tags by default will not be visible in
- * the tags menu (unless you specify otherwise).
+ * the client's tags menu (unless you specify otherwise).
  * When you create a new question you have to create some ids like: questionId, answerId, tagId (maybe), can be any
  * string just make sure all are different.
  *
@@ -332,8 +332,8 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
  * corresponding language file.
  *
  * When you finish creating a new question add it to SETTINGS_AS_QUESTIONS, there you can specify the order in which
- * the questions will be shown, if a question A has an answer that automatically answers question B you need to add
- * answer A before answer B in the mentioned SETTINGS_AS_QUESTIONS array.
+ * the questions will be shown, if a question A has an answer that automatically answers question B
+ * (with answersOtherQuestions prop) then you need to add answer A before answer B in the mentioned SETTINGS_AS_QUESTIONS array.
  */
 const isCoupleProfileQuestion: Question = {
    text: "If you go to a group date from this app, do you plan to go with someone?",
