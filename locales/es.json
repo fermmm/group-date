@@ -36,7 +36,6 @@
 	"Group sex: Could be interesting": "Sexo grupal: Puede ser interesante",
 	"Group sex: Not interested": "Sexo grupal: No estoy interesadx",
 	"If you go to a group date from this app, do you plan to go with someone?": "Si vas a una cita grupal en esta app ¿Tienes pensado ir con alguien?",
-	"Would go on the date with": "Iría a la cita con",
 	"Just me": "Solo yo",
 	"With my couple": "Con mi pareja",
 	"Is your goal in this app to meet new people?": "¿Tu objetivo en esta app es conocer nuevas personas?",
@@ -104,5 +103,10 @@
 	"Have a good time with the activities that come up, sexual or not": "Pasar un buen rato con las actividades que surjan, sexuales o no",
 	"Date activity: Any activity": "Actividad en la cita: Cualquier actividad",
 	"We don't have your location": "No tenemos tu ubicación",
-	"You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you": "Puedes suscribirte a un máximo de %s tags, toca el botón 'Mis tags' y elimina las suscripciones a los tags que sean menos importantes para ti"
+	"You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you": "Puedes suscribirte a un máximo de %s tags, toca el botón 'Mis tags' y elimina las suscripciones a los tags que sean menos importantes para ti",
+	"Couple": "Pareja",
+	"Have you installed the app to find a third person to join you?": "¿Están en la app buscando una tercera persona que se sume a la pareja?",
+	"We can help with that search": "Podemos ayudar en esa búsqueda",
+	"We are a couple looking for a person to join us": "Estamos buscando a una tercera persona",
+	"We are interested in group relationships with many": "Nos interesan las relaciones grupales de a muchxs"
 }

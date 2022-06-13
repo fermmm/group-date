@@ -12,6 +12,7 @@ import {
    RequiredTask,
    SetSeenAction,
    BlockOrUnblockUserParams,
+   Question,
 } from "./../../shared-tools/endpoints-interfaces/user";
 import {
    isValidNotificationsToken,
@@ -38,7 +39,6 @@ import {
    User,
    UserGetParams,
    UserPostParams,
-   UserPropAsQuestion,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
    requiredUserPropsList,
@@ -72,14 +72,11 @@ import { TokenIdOrUser, TokenOrId } from "./tools/typings";
 import { getNotShowedQuestionIds } from "../tags/models";
 import {
    APPLICATION_NAME,
-   APP_AUTHORED_TAGS_AS_QUESTIONS,
+   SETTINGS_AS_QUESTIONS,
    BIG_IMAGE_SIZE,
    ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE,
    LOG_PUSH_NOTIFICATION_DELIVERING_RESULT,
-   MAX_FILE_SIZE_UPLOAD_ALLOWED,
    SMALL_IMAGE_SIZE,
-   UNWANTED_USERS_PROPS,
-   USER_PROPS_AS_QUESTIONS,
 } from "../../configurations";
 import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
@@ -91,9 +88,9 @@ import { uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { isProductionMode, isRunningOnAws } from "../../common-tools/process/process-tools";
 import { sendEmail } from "../../common-tools/email-tools/email-tools";
 import { loadHtmlEmailTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
-import { Tag } from "../../shared-tools/endpoints-interfaces/tags";
 import { log } from "../../common-tools/log-tool/log";
 import { LogId } from "../../common-tools/log-tool/types";
+import { applyQuestionResponses } from "./tools/questions";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -222,19 +219,6 @@ function getMissingEditableUserProps(user: Partial<User>): RequiredUserPropKey[]
    return result;
 }
 
-export function userPropsAsQuestionsGet(params: null, ctx: BaseContext): UserPropAsQuestion[] {
-   // This just returns USER_PROPS_AS_QUESTIONS in the correct language:
-   return USER_PROPS_AS_QUESTIONS.map(question => ({
-      ...question,
-      text: t(question.text, { ctx }),
-      shortVersion: t(question.shortVersion, { ctx }),
-      answers: question.answers.map(answer => ({
-         ...answer,
-         text: t(answer.text, { ctx }),
-      })),
-   }));
-}
-
 /**
  * This endpoint retrieves a user. If userId is not provided it will return the user using the token.
  * If userId is provided it will return the required user (without personal information) but also it will
@@ -252,41 +236,45 @@ export async function userGet(params: UserGetParams, ctx: BaseContext): Promise<
 }
 
 /**
- * This endpoint is used to send the user props.
+ * This endpoint is used to change the user props.
  */
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
-   let query: Traversal = queryToGetUserByToken(params.token);
+   const { token, props, questionAnswers, updateProfileCompletedProp } = params;
 
-   if (params.props != null) {
+   let propsToSave = props ?? {};
+
+   // We may not need to retrieve the user so we initially set it as null
+   let user: Partial<User> = null;
+
+   if (questionAnswers && questionAnswers.length > 0) {
+      user = await retrieveUser(token, false, ctx);
+      const questionRelatedProps = await applyQuestionResponses({
+         token,
+         answers: questionAnswers,
+         questionsAlreadyShowed: user.questionsShowed,
+      });
+      propsToSave = { ...propsToSave, ...questionRelatedProps };
+   }
+
+   let query: Traversal = queryToGetUserByToken(token);
+
+   if (Object.keys(propsToSave).length > 0) {
       // Make sure user props content is valid
-      const validationResult = validateUserProps(params.props);
+      const validationResult = validateUserProps(propsToSave);
       if (validationResult !== true) {
          ctx.throw(400, JSON.stringify(validationResult));
          return;
       }
 
-      // Check if its unwanted user by checking the unwanted props
-      if (isUnwantedUser({ propsToCheck: params.props })) {
-         params.props.unwantedUser = true;
-      }
-
-      // Don't save the unicorn hunter as false since we want to know if the user was a unicorn hunter at any time
-      if (params.props.isUnicornHunter === false) {
-         delete params.props.isUnicornHunter;
-      }
-
-      // Don't save the unicorn hunter insisting as false since we want to know if the user was a unicorn hunter insisting at any time
-      if (params.props.isUnicornHunterInsisting === false) {
-         delete params.props.isUnicornHunterInsisting;
-      }
-
-      query = queryToSetUserProps(query, params.props);
+      query = queryToSetUserProps(query, propsToSave);
    }
 
    await sendQuery(() => query.iterate());
 
-   if (params.updateProfileCompletedProp) {
-      const user = await retrieveUser(params.token, false, ctx);
+   if (updateProfileCompletedProp) {
+      if (user == null) {
+         user = await retrieveUser(token, false, ctx);
+      }
       const profileCompleted = profileStatusIsCompleted(user);
 
       await sendQuery(() =>
@@ -303,6 +291,20 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
          sendWelcomeNotification(user, ctx);
       }
    }
+}
+
+export function settingsAsQuestionsGet(params: null, ctx: BaseContext): Question[] {
+   // This just sends SETTINGS_AS_QUESTIONS but translates it first
+   return SETTINGS_AS_QUESTIONS.map(q => ({
+      ...q,
+      text: t(q.text, { ctx }),
+      extraText: q.extraText != null ? t(q.extraText, { ctx }) : null,
+      answers: q.answers.map(a => ({
+         ...a,
+         text: t(a.text, { ctx }),
+         extraText: a.extraText != null ? t(a.extraText, { ctx }) : null,
+      })),
+   }));
 }
 
 /**
@@ -723,30 +725,6 @@ export async function sendWelcomeNotification(user: Partial<User>, ctx: BaseCont
    });
 }
 
-export function isUnwantedUser(props: { propsToCheck?: Partial<User>; tagsIdsToCheck?: string[] }) {
-   const { propsToCheck, tagsIdsToCheck } = props;
-
-   if (propsToCheck != null) {
-      const unwantedKey = Object.keys(UNWANTED_USERS_PROPS).find(
-         key => UNWANTED_USERS_PROPS[key] === propsToCheck[key] && UNWANTED_USERS_PROPS[key] != null,
-      );
-
-      if (unwantedKey) {
-         return true;
-      }
-   }
-
-   if (tagsIdsToCheck != null) {
-      const unwantedTag = tagsIdsToCheck.find(tagId => UNWANTED_USER_TAG_IDS.includes(tagId));
-
-      if (unwantedTag) {
-         return true;
-      }
-   }
-
-   return false;
-}
-
 export async function onImageFileReceived(ctx: ParameterizedContext<{}, {}>, next: Koa.Next): Promise<void> {
    // Only valid users can upload images
    const user: Partial<User> = await retrieveUser(ctx.request.query.token as string, false, ctx);
@@ -837,7 +815,3 @@ export async function onImageFileSaved(file: File | undefined, ctx: BaseContext)
 
    return { fileNameSmall, fileNameBig };
 }
-
-export const UNWANTED_USER_TAG_IDS = APP_AUTHORED_TAGS_AS_QUESTIONS.map(question =>
-   question.answers.filter(answer => answer.unwantedUserAnswer).map(answer => answer.tagId),
-).flat();

@@ -9,12 +9,12 @@ import {
 } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
-import { Tag, TagsAsQuestion } from "./shared-tools/endpoints-interfaces/tags";
+import { Tag } from "./shared-tools/endpoints-interfaces/tags";
 import {
    NotificationChannelId,
    NotificationChannelInfo,
+   Question,
    User,
-   UserPropAsQuestion,
 } from "./shared-tools/endpoints-interfaces/user";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ export const EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES: boolean = false;
  * Connections = When the users like each other (same than "Match" in monogamy apps)
  * Metaconnections = The connections of your connections within the group
  *
- * So this value is the maximum allowed numeric distance between the connections of a user an the metaconnections
+ * So this value is the maximum allowed numeric distance between the connections of a user and the metaconnections
  * amounts in a range between 0 and 1.
  * In easier words: "How much people I connect with and how much other people I have to "share" my connections".
  * Groups with a value higher than this will not be created and an attempt to fix them by will be executed.
@@ -254,7 +254,7 @@ export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
  * For the moment we are disabling the remove seen menu since it can cause more harm than good.
  *
  * Advantages:
- *    1. Users that could not assist to the date can meet the members in future dates (but they can also join in a second meeting)
+ *    1. Users that could not assist to the date can meet the members in future dates (but they can also join in a second meeting they can organize by themselves since they can talk now).
  *    2. Users can exclude a miss behaving member voting to see each other again all with all except this member (this can also be done when moving to WhatsApp group which is faster and easier to organize)
  *
  * Disadvantages:
@@ -293,6 +293,8 @@ export const MAX_TAG_SUBSCRIPTIONS_ALLOWED = 10;
 
 /**
  * These are the "app authored" tags. The tagId can be any string but all should be different for each tag here.
+ * This tags will be created when the server boots if they don't exist. This tags are visible in the tags menu.
+ * These tags has a special category in the tags menu that makes them more visible than the ones created by users.
  */
 const politicsLeftTag: Partial<Tag> = {
    tagId: "aat0",
@@ -306,113 +308,6 @@ const politicsRightTag: Partial<Tag> = {
    name: "Right-wing",
 };
 
-/**
- * These are the "app authored" tags that will be shown as questions and are mandatory to interact on registration.
- * The tagId can be any string but all should be different for each tag here.
- * If you change or remove a tag id it's required to be changed for analytics when sending user data.
- */
-const dateTypeQuestion: TagsAsQuestion = {
-   questionId: "taq-3-v2",
-   text: "What kind of date would you like?",
-   answers: [
-      {
-         text: "A date of 2, without anyone else",
-         tagId: "q03-a02-v2",
-         category: "App usage",
-         tagName: "Desired date: With someone",
-         tagIsVisible: false,
-         unwantedUserAnswer: true,
-      },
-      {
-         text: "A date of 3, without anyone else",
-         tagId: "q03-a01-v2",
-         category: "App usage",
-         tagName: "Desired date: Only 3 people",
-         tagIsVisible: false,
-         unwantedUserAnswer: true,
-      },
-      {
-         text: "A group date where we like each other. Of 3, 4, 5 or more",
-         tagId: "q03-a00-v2",
-         category: "App usage",
-         tagName: "Desired date: Group date",
-         tagIsVisible: false,
-      },
-   ],
-   // This object is used to set which responses are incompatible between each other, allowing users to block other users that select an incompatible response.
-   incompatibilitiesBetweenAnswers: {
-      0: [1, 2],
-      1: [0, 2],
-      2: [0, 1],
-   },
-   // This means that the user can't select if he/she is going to block users that select an incompatible response.
-   filterSelectionInvisible: true, // Enabling this may lead to better results
-   // This means that by it blocks incompatible users by default. Combined with invisible block selection (the previous prop) forces the users to block the incompatible ones.
-   filterSelectedByDefault: true,
-};
-
-const usageIntentionQuestion: TagsAsQuestion = {
-   questionId: "taq-4",
-   text: "What are you looking for in a date in this app?",
-   answers: [
-      {
-         text: "Sexual experiences without much ado",
-         tagId: "q04-a01",
-         category: "App usage",
-         tagName: "Date activity: Sex directly",
-         tagIsVisible: false,
-         unwantedUserAnswer: true,
-      },
-      {
-         text: "Have a good time with the activities that come up, sexual or not",
-         tagId: "q04-a02",
-         category: "App usage",
-         tagName: "Date activity: Any activity",
-         tagIsVisible: false,
-      },
-   ],
-   incompatibilitiesBetweenAnswers: {
-      0: [1],
-      1: [0],
-   },
-   filterSelectedByDefault: true,
-   filterSelectionInvisible: true, // Enabling this may lead to better results
-};
-
-const feminismQuestion: TagsAsQuestion = {
-   questionId: "taq-0",
-   text: "Do you agree with feminism in general?",
-   answers: [
-      {
-         text: "I totally agree / I Almost totally agree",
-         tagId: "q00-a00",
-         category: "Ideas",
-         tagName: "Feminism",
-         tagIsVisible: false,
-      },
-      {
-         text: "I Don't agree very much / I do not agree at all",
-         tagId: "q00-a01",
-         category: "Ideas",
-         tagName: "Feminism: I Don't agree",
-         tagIsVisible: false,
-         unwantedUserAnswer: true,
-      },
-   ],
-   incompatibilitiesBetweenAnswers: {
-      0: [1],
-      1: [0],
-   },
-   filterSelectedByDefault: true,
-   filterSelectionInvisible: true,
-};
-
-export const APP_AUTHORED_TAGS_AS_QUESTIONS: TagsAsQuestion[] = [
-   dateTypeQuestion,
-   feminismQuestion,
-   usageIntentionQuestion,
-];
-
 // For the moment app authored tags are not required
 export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
    /*politicsLeftTag, politicsRightTag*/
@@ -423,53 +318,199 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-TODO: Agregar unicorn hunter como tag.
-
-- Habria que agregar is couple profile tambien como tag, pero seguramente se usa como prop, hay que ver esa prop que onda
-
-- la pregunta de si quieres chica para trio es como cualquier otra
-- es el cliente el que la oculta si es encesario
-- hay una prop en la pregunta de perfil de pareja que se llama answersOtherQuestion: {questionId: "", answerId: ""}
-- eso es solo para mandar al cliente, el cliente hace todo
-
-Migración:
-
-Para evitar que a todos los usuarios les salga la pregunta al antrar:
-Ponemos la pregunta como respondida en todos los perfiles que no sean de pareja
-
-*/
-
-const isCoupleProfileQuestion: UserPropAsQuestion<boolean> = {
+ * The following are the registration questions. You can specify if the question changes user props, subscribes the
+ * user to a tag, block tags, answer other questions automatically (like a tree of questions) or do all mentioned
+ * things at the same time.
+ *
+ * When you set the question to subscribe to a tag you need to provide all the info a tag needs like the category and
+ * name becase that will be used to create it at boot (if not present). These tags by default will not be visible in
+ * the tags menu (unless you specify otherwise).
+ * When you create a new question you have to create some ids like: questionId, answerId, tagId (maybe), can be any
+ * string just make sure all are different.
+ *
+ * Localization is executed already, you need to add the strings in english here and then add the translation in the
+ * corresponding language file.
+ *
+ * When you finish creating a new question add it to SETTINGS_AS_QUESTIONS, there you can specify the order in which
+ * the questions will be shown, if a question A has an answer that automatically answers question B you need to add
+ * answer A before answer B in the mentioned SETTINGS_AS_QUESTIONS array.
+ */
+const isCoupleProfileQuestion: Question = {
    text: "If you go to a group date from this app, do you plan to go with someone?",
-   shortVersion: "Would go on the date with",
+   questionId: "q05",
    answers: [
       {
          text: "Just me",
-         propName: "isCoupleProfile",
-         value: false,
+         answerId: "q05-a01",
+         setsUserProp: [
+            {
+               propName: "isCoupleProfile",
+               valueToSet: false,
+            },
+         ],
+         // This answer will block unicorn hunters:
+         answersOtherQuestions: [{ questionId: "q06", answerId: "q06-a02" }],
       },
       {
          text: "With my couple",
-         propName: "isCoupleProfile",
-         value: true,
+         answerId: "q05-a02",
+         subscribesToTags: [
+            {
+               tagId: "q05-a01",
+               category: "App usage",
+               tagName: "Couple",
+            },
+         ],
+         setsUserProp: [
+            {
+               propName: "isCoupleProfile",
+               valueToSet: true,
+            },
+         ],
       },
    ],
 };
 
-// When adding a new question make sure it has a unique questionId number
-export const USER_PROPS_AS_QUESTIONS: Array<UserPropAsQuestion> = [isCoupleProfileQuestion];
-
-/**
- * Unwanted users are users that are not the target audience of the app.
- * They are not allowed to use some features, like creating new tags.
- * A user becomes unwanted by answering a question that is set as
- * unwantedUserAnswer: true, also by having user properties set like
- * in this object.
- */
-export const UNWANTED_USERS_PROPS: Partial<User> = {
-   isUnicornHunter: true,
-   isUnicornHunterInsisting: true,
+const unicornHunterQuestion: Question = {
+   text: "Have you installed the app to find a third person to join you?",
+   extraText: "We can help with that search",
+   questionId: "q06",
+   answers: [
+      {
+         text: "We are a couple looking for a person to join us",
+         answerId: "q06-a01",
+         subscribesToTags: [
+            {
+               tagId: "q06-a01",
+               category: "App usage",
+               tagName: "Unicorn hunters",
+            },
+         ],
+         setsUserProp: [
+            { propName: "isUnicornHunter", valueToSet: true },
+            { propName: "unwantedUser", valueToSet: true },
+         ],
+      },
+      {
+         text: "We are interested in group relationships with many",
+         answerId: "q06-a02",
+         blocksTags: [{ tagId: "q06-a01" }],
+      },
+   ],
 };
+
+const dateTypeQuestion: Question = {
+   text: "What kind of date would you like?",
+   questionId: "taq-3-v2",
+   answers: [
+      {
+         text: "A date of 2, without anyone else",
+         answerId: "q03-a02-v2",
+         subscribesToTags: [
+            {
+               tagId: "q03-a02-v2",
+               category: "App usage",
+               tagName: "Desired date: With someone",
+            },
+         ],
+         setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
+      },
+      {
+         text: "A date of 3, without anyone else",
+         answerId: "q03-a01-v2",
+         subscribesToTags: [
+            {
+               tagId: "q03-a01-v2",
+               category: "App usage",
+               tagName: "Desired date: Only 3 people",
+            },
+         ],
+         setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
+      },
+      {
+         text: "A group date where we like each other. Of 3, 4, 5 or more",
+         answerId: "q03-a00-v2",
+         subscribesToTags: [
+            {
+               tagId: "q03-a00-v2",
+               category: "App usage",
+               tagName: "Desired date: Group date",
+            },
+         ],
+         blocksTags: [{ tagId: "q03-a01-v2" }, { tagId: "q03-a02-v2" }],
+      },
+   ],
+};
+
+const usageIntentionQuestion: Question = {
+   questionId: "taq-4",
+   text: "What are you looking for in a date in this app?",
+   answers: [
+      {
+         text: "Sexual experiences without much ado",
+         answerId: "q04-a01",
+         subscribesToTags: [
+            {
+               tagId: "q04-a01",
+               tagName: "Date activity: Sex directly",
+               category: "App usage",
+            },
+         ],
+         setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
+      },
+      {
+         text: "Have a good time with the activities that come up, sexual or not",
+         answerId: "q04-a02",
+         subscribesToTags: [
+            {
+               tagId: "q04-a02",
+               tagName: "Date activity: Any activity",
+               category: "App usage",
+            },
+         ],
+         blocksTags: [{ tagId: "q04-a01" }],
+      },
+   ],
+};
+
+const feminismQuestion: Question = {
+   questionId: "taq-0",
+   text: "Do you agree with feminism in general?",
+   answers: [
+      {
+         text: "I totally agree / I Almost totally agree",
+         answerId: "q00-a00",
+         subscribesToTags: [
+            {
+               tagId: "q00-a00",
+               tagName: "Feminism",
+               category: "Ideas",
+            },
+         ],
+         blocksTags: [{ tagId: "q00-a01" }],
+      },
+      {
+         text: "I Don't agree very much / I do not agree at all",
+         answerId: "q00-a01",
+         subscribesToTags: [
+            {
+               tagId: "q00-a01",
+               tagName: "Feminism: I Don't agree",
+               category: "Ideas",
+            },
+         ],
+         setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
+      },
+   ],
+};
+
+export const SETTINGS_AS_QUESTIONS: Question[] = [
+   isCoupleProfileQuestion,
+   unicornHunterQuestion,
+   dateTypeQuestion,
+   feminismQuestion,
+   usageIntentionQuestion,
+];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////  NOTIFICATIONS  ////////////////////////////////////////////////

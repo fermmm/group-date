@@ -14,7 +14,7 @@ import {
 import { queryToRemoveUsers } from "../components/user/queries";
 import {
    APP_AUTHORED_TAGS,
-   APP_AUTHORED_TAGS_AS_QUESTIONS,
+   SETTINGS_AS_QUESTIONS,
    MAX_TAG_SUBSCRIPTIONS_ALLOWED,
    TAGS_PER_TIME_FRAME,
    TAG_CREATION_TIME_FRAME,
@@ -318,7 +318,7 @@ describe("Tags", () => {
       let user = await createFakeUser({ language: "es" });
       const tags: Tag[] = [];
       const maxSubscriptionsAllowed =
-         MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + APP_AUTHORED_TAGS_AS_QUESTIONS.length;
+         MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + SETTINGS_AS_QUESTIONS.length;
 
       // Create the maximum amount of tags for 'es' language
       for (let i = 0; i < maxSubscriptionsAllowed; i++) {

@@ -9,13 +9,11 @@ import {
    tagsCreatedByUserGet,
    removeSubscriptionToTagsPost,
    removeBlockToTagsPost,
-   appAuthoredTagsAsQuestionsGet,
 } from "./models";
 
 export function tagsRoutes(r: Router): void {
    createRoute(r, "/tags", "GET", tagsGet);
    createRoute(r, "/tags/created", "GET", tagsCreatedByUserGet);
-   createRoute(r, "/tags/questions", "GET", appAuthoredTagsAsQuestionsGet);
 
    createRoute(r, "/tags/create", "POST", createTagPost);
    createRoute(r, "/tags/subscribe", "POST", subscribeToTagsPost);

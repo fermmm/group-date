@@ -11,7 +11,6 @@ import {
    setAttractionPost,
    userGet,
    userPost,
-   userPropsAsQuestionsGet,
    notificationsGet,
    reportUserPost,
    deleteAccountPost,
@@ -19,6 +18,7 @@ import {
    taskCompletedPost,
    blockUserPost,
    unblockUserPost,
+   settingsAsQuestionsGet,
 } from "./models";
 import { imagesLogger } from "../../common-tools/debug-tools/log-routes";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
@@ -27,8 +27,9 @@ export function userRoutes(r: Router): void {
    createRoute(r, "/user", "GET", userGet);
    createRoute(r, "/user", "POST", userPost);
 
+   createRoute(r, "/user/questions", "GET", settingsAsQuestionsGet);
+
    createRoute(r, "/user/profile-status", "GET", profileStatusGet);
-   createRoute(r, "/user/props-as-questions", "GET", userPropsAsQuestionsGet);
    createRoute(r, "/user/notifications", "GET", notificationsGet);
 
    createRoute(r, "/user/set-attraction", "POST", setAttractionPost);

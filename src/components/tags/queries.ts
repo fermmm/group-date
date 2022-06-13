@@ -81,7 +81,7 @@ export function queryToRelateUserWithTag(props: {
    remove: boolean;
    maxSubscriptionsAllowed?: number;
 }): Traversal {
-   const { token, tagIds, relation, remove, maxSubscriptionsAllowed = MAX_TAG_SUBSCRIPTIONS_ALLOWED } = props;
+   const { token, tagIds, relation, remove, maxSubscriptionsAllowed = 99999 } = props;
 
    let relationTraversal: Traversal;
 

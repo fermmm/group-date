@@ -12,7 +12,7 @@ import { chance } from "./generalTools";
 import { fakeCtx } from "./replacements";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import { getAllTestUsersCreatedExperimental } from "./_experimental";
-import { APP_AUTHORED_TAGS_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
+import { SETTINGS_AS_QUESTIONS, DEFAULT_LANGUAGE } from "../../configurations";
 import { DeepPartial } from "ts-essentials";
 import { convertToAdmin } from "../../components/admin/models";
 import { g, __ } from "../../common-tools/database-tools/database-manager";
@@ -108,7 +108,7 @@ export function generateRandomUserProps(customProps?: DeepPartial<User>): DeepPa
       lastLoginDate: moment().unix(),
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
-      questionsShowed: APP_AUTHORED_TAGS_AS_QUESTIONS.map(q => q.questionId),
+      questionsShowed: SETTINGS_AS_QUESTIONS.map(q => q.questionId),
       notificationsToken: generateId(),
    };
 

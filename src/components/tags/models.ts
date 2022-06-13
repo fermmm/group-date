@@ -3,7 +3,7 @@ import { BaseContext } from "koa";
 import * as moment from "moment";
 import {
    APP_AUTHORED_TAGS,
-   APP_AUTHORED_TAGS_AS_QUESTIONS,
+   SETTINGS_AS_QUESTIONS,
    MAX_TAG_SUBSCRIPTIONS_ALLOWED,
    TAGS_PER_TIME_FRAME,
    TAG_CREATION_TIME_FRAME,
@@ -17,11 +17,10 @@ import {
    TagCreateParams,
    TagGetParams,
    BasicTagParams,
-   TagsAsQuestion,
 } from "../../shared-tools/endpoints-interfaces/tags";
 import { User } from "../../shared-tools/endpoints-interfaces/user";
 import { validateTagProps } from "../../shared-tools/validators/tags";
-import { isUnwantedUser, retrieveFullyRegisteredUser, retrieveUser, userPost } from "../user/models";
+import { retrieveFullyRegisteredUser, retrieveUser } from "../user/models";
 import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    queryToCreateTags,
@@ -141,17 +140,13 @@ export async function tagsGet(params: TagGetParams, ctx: BaseContext): Promise<T
    return result;
 }
 
-export function appAuthoredTagsAsQuestionsGet(params: null, ctx: BaseContext): TagsAsQuestion[] {
-   return translateAppAuthoredTagsAsQuestions(APP_AUTHORED_TAGS_AS_QUESTIONS, ctx);
-}
-
 export async function tagsCreatedByUserGet(token: string) {
    return await fromQueryToTagList(queryToGetTagsCreatedByUser(token));
 }
 
 export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<Tag[]> {
    const maxSubscriptionsAllowed =
-      MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + APP_AUTHORED_TAGS_AS_QUESTIONS.length;
+      MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + SETTINGS_AS_QUESTIONS.length;
 
    const user = await retrieveUser(params.token, true, ctx);
 
@@ -182,12 +177,6 @@ export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseConte
          maxSubscriptionsAllowed,
       }),
    );
-
-   // Check if by subscribing to the tags the user becomes unwanted
-   const unwantedUser = isUnwantedUser({ tagsIdsToCheck: params.tagIds });
-   if (unwantedUser) {
-      await userPost({ token: params.token, props: { unwantedUser } }, ctx);
-   }
 
    return result;
 }
@@ -265,21 +254,24 @@ export async function createAppAuthoredTags() {
       visible: true,
    }));
 
-   // Crete app authored tags that are saved as questions
-   tagsToCreate.push(
-      ...APP_AUTHORED_TAGS_AS_QUESTIONS.map(question =>
-         question.answers.map(answer => ({
-            tagId: answer.tagId,
-            category: answer.category,
-            name: answer.tagName,
-            visible: answer.tagIsVisible ?? true,
-            language: "all",
-            creationDate: moment().unix(),
-            lastInteractionDate: moment().unix(),
-            global: true,
-         })),
-      ).flat(),
-   );
+   SETTINGS_AS_QUESTIONS.forEach(question => {
+      question.answers.forEach(answer => {
+         if (answer.subscribesToTags) {
+            tagsToCreate.push(
+               ...answer.subscribesToTags.map(tag => ({
+                  tagId: tag.tagId,
+                  category: tag.category,
+                  name: tag.tagName,
+                  visible: tag.tagIsVisible ?? false,
+                  language: "all",
+                  creationDate: moment().unix(),
+                  lastInteractionDate: moment().unix(),
+                  global: true,
+               })),
+            );
+         }
+      });
+   });
 
    await fromQueryToTag(
       queryToCreateVerticesFromObjects({
@@ -304,7 +296,7 @@ export async function removeAllTagsCreatedBy(users: User[]): Promise<void> {
 export function getNotShowedQuestionIds(user: Partial<User>): string[] {
    const result: string[] = [];
 
-   APP_AUTHORED_TAGS_AS_QUESTIONS.forEach(tagQ => {
+   SETTINGS_AS_QUESTIONS.forEach(tagQ => {
       const foundInUser = user.questionsShowed?.find(q => q === tagQ.questionId);
       if (foundInUser == null) {
          result.push(tagQ.questionId);
@@ -359,29 +351,14 @@ function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfiguration
    });
 }
 
-function translateAppAuthoredTagsAsQuestions(
-   rawQuestions: TagsAsQuestion[],
-   ctx: BaseContext,
-): TagsAsQuestion[] {
-   return rawQuestions.map(q => ({
-      ...q,
-      text: t(q.text, { ctx }),
-      extraText: q.extraText != null ? t(q.extraText, { ctx }) : null,
-      answers: q.answers.map(a => ({
-         ...a,
-         text: t(a.text, { ctx }),
-         category: t(a.category, { ctx }),
-         tagName: a.tagName != null ? t(a.tagName, { ctx }) : null,
-      })),
-   }));
-}
-
 let catchedAppAuthoredQuestions = null;
 export function getAppAuthoredQuestionsIdsAsSet(): Set<string> {
    if (catchedAppAuthoredQuestions == null) {
       const result = new Set<string>();
       APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
-      APP_AUTHORED_TAGS_AS_QUESTIONS.forEach(q => q.answers.forEach(a => result.add(a.tagId)));
+      SETTINGS_AS_QUESTIONS.forEach(q =>
+         q.answers.forEach(a => a.subscribesToTags.forEach(t => result.add(t.tagId))),
+      );
       catchedAppAuthoredQuestions = result;
    }
    return catchedAppAuthoredQuestions;
