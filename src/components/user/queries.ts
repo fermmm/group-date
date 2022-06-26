@@ -212,17 +212,15 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
  * @param traversal A query with one user vertex
  */
 export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<User>): Traversal {
+   const newUserPropsKeys = Object.keys(newUserProps ?? {});
+
    // Only props on editableUserPropsList are added into the query
-   editableUserPropsList.forEach(propName => {
-      if (newUserProps[propName] == null) {
-         return;
-      }
-
-      let value = newUserProps[propName];
+   newUserPropsKeys.forEach(key => {
+      let value = newUserProps[key];
       value = serializeIfNeeded(value);
-      value = encodeIfNeeded(value, propName, "user"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
+      value = encodeIfNeeded(value, key, "user"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
 
-      traversal = traversal.property(cardinality.single, propName, value);
+      traversal = traversal.property(cardinality.single, key, value);
    });
 
    if (newUserProps.images) {

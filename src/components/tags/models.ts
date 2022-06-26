@@ -3,7 +3,7 @@ import { BaseContext } from "koa";
 import * as moment from "moment";
 import {
    APP_AUTHORED_TAGS,
-   SETTINGS_AS_QUESTIONS,
+   QUESTIONS,
    MAX_TAG_SUBSCRIPTIONS_ALLOWED,
    TAGS_PER_TIME_FRAME,
    TAG_CREATION_TIME_FRAME,
@@ -145,8 +145,7 @@ export async function tagsCreatedByUserGet(token: string) {
 }
 
 export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<Tag[]> {
-   const maxSubscriptionsAllowed =
-      MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + SETTINGS_AS_QUESTIONS.length;
+   const maxSubscriptionsAllowed = MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + QUESTIONS.length;
 
    const user = await retrieveUser(params.token, true, ctx);
 
@@ -254,7 +253,7 @@ export async function createAppAuthoredTags() {
       visible: true,
    }));
 
-   SETTINGS_AS_QUESTIONS.forEach(question => {
+   QUESTIONS.forEach(question => {
       question.answers.forEach(answer => {
          if (answer.subscribesToTags) {
             tagsToCreate.push(
@@ -293,13 +292,13 @@ export async function removeAllTagsCreatedBy(users: User[]): Promise<void> {
    await queryToRemoveTags(result.map(tag => tag.tagId)).iterate();
 }
 
-export function getNotShowedQuestionIds(user: Partial<User>): string[] {
+export function getNotRespondedQuestionIds(user: Partial<User>): string[] {
    const result: string[] = [];
 
-   SETTINGS_AS_QUESTIONS.forEach(tagQ => {
-      const foundInUser = user.questionsShowed?.find(q => q === tagQ.questionId);
+   QUESTIONS.forEach(question => {
+      const foundInUser = user.questionsResponded?.find(q => q.questionId === question.questionId);
       if (foundInUser == null) {
-         result.push(tagQ.questionId);
+         result.push(question.questionId);
       }
    });
    return result;
@@ -336,9 +335,10 @@ function getRemainingTimeToCreateNewTag(tags: Tag[]): number {
  * App authored tags are global, this means any language will see the tags, so translation is needed.
  */
 function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfigurationSources): Tag[] {
-   const appAuthoredIds: Set<string> = getAppAuthoredQuestionsIdsAsSet();
+   const appAuthoredIds: Set<string> = getAppAuthoredTagIdsAsSet();
 
    return tags.map(tag => {
+      // App authored tags are already translated
       if (!appAuthoredIds.has(tag.tagId)) {
          return tag;
       }
@@ -352,14 +352,14 @@ function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfiguration
 }
 
 let catchedAppAuthoredQuestions = null;
-export function getAppAuthoredQuestionsIdsAsSet(): Set<string> {
-   if (catchedAppAuthoredQuestions == null) {
-      const result = new Set<string>();
-      APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
-      SETTINGS_AS_QUESTIONS.forEach(q =>
-         q.answers.forEach(a => a.subscribesToTags.forEach(t => result.add(t.tagId))),
-      );
-      catchedAppAuthoredQuestions = result;
+export function getAppAuthoredTagIdsAsSet(): Set<string> {
+   if (catchedAppAuthoredQuestions != null) {
+      return catchedAppAuthoredQuestions;
    }
-   return catchedAppAuthoredQuestions;
+
+   const result = new Set<string>();
+   APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
+   QUESTIONS.forEach(q => q.answers.forEach(a => a.subscribesToTags?.forEach(t => result.add(t.tagId))));
+   catchedAppAuthoredQuestions = result;
+   return result;
 }

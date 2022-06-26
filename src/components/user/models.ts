@@ -44,6 +44,8 @@ import {
    requiredUserPropsList,
    RequiredUserPropKey,
    validateUserProps,
+   editableUserPropListAsSet,
+   EditableUserPropKey,
 } from "../../shared-tools/validators/user";
 import {
    queryToBlockUser,
@@ -69,10 +71,10 @@ import { divideArrayCallback } from "../../common-tools/js-tools/js-tools";
 import { getLocaleFromHeader, t } from "../../common-tools/i18n-tools/i18n-tools";
 import { queryToGetUserByTokenOrId } from "./queries";
 import { TokenIdOrUser, TokenOrId } from "./tools/typings";
-import { getNotShowedQuestionIds } from "../tags/models";
+import { getNotRespondedQuestionIds } from "../tags/models";
 import {
    APPLICATION_NAME,
-   SETTINGS_AS_QUESTIONS,
+   QUESTIONS,
    BIG_IMAGE_SIZE,
    ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE,
    LOG_PUSH_NOTIFICATION_DELIVERING_RESULT,
@@ -160,12 +162,12 @@ export async function profileStatusGet(
 
    const result: ProfileStatusServerResponse = {
       missingEditableUserProps: getMissingEditableUserProps(user),
-      notShowedTagQuestions: getNotShowedQuestionIds(user),
+      notRespondedQuestions: getNotRespondedQuestionIds(user),
       user,
    };
 
    const profileCompleted: boolean =
-      result.missingEditableUserProps.length === 0 && result.notShowedTagQuestions.length === 0;
+      result.missingEditableUserProps.length === 0 && result.notRespondedQuestions.length === 0;
 
    const lastLoginDate = moment().unix();
    const language = getLocaleFromHeader(ctx);
@@ -202,7 +204,7 @@ export async function profileStatusGet(
 }
 
 function profileStatusIsCompleted(user: Partial<User>): boolean {
-   return getMissingEditableUserProps(user).length === 0 && getNotShowedQuestionIds(user).length === 0;
+   return getMissingEditableUserProps(user).length === 0 && getNotRespondedQuestionIds(user).length === 0;
 }
 
 function getMissingEditableUserProps(user: Partial<User>): RequiredUserPropKey[] {
@@ -241,8 +243,17 @@ export async function userGet(params: UserGetParams, ctx: BaseContext): Promise<
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
    const { token, props, questionAnswers, updateProfileCompletedProp } = params;
 
-   let propsToSave = props ?? {};
+   // Check the prop keys received in the request are all editable user prop keys, otherwise throw error.
+   const propsFromServerKeys = Object.keys(props);
+   if (propsFromServerKeys.length > 0) {
+      for (const key of propsFromServerKeys) {
+         if (!editableUserPropListAsSet.has(key as EditableUserPropKey)) {
+            return ctx.throw(400, `Invalid or not editable user prop: ${key}`);
+         }
+      }
+   }
 
+   let userPropsToSet = props ?? {};
    // We may not need to retrieve the user so we initially set it as null
    let user: Partial<User> = null;
 
@@ -251,25 +262,25 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       const questionRelatedProps = await applyQuestionResponses({
          token,
          answers: questionAnswers,
-         questionsAlreadyShowed: user.questionsShowed,
+         questionsResponded: user.questionsResponded,
       });
-      propsToSave = { ...propsToSave, ...questionRelatedProps };
+      userPropsToSet = { ...userPropsToSet, ...questionRelatedProps };
    }
 
-   let query: Traversal = queryToGetUserByToken(token);
+   let traversal: Traversal = queryToGetUserByToken(token);
 
-   if (Object.keys(propsToSave).length > 0) {
+   if (Object.keys(userPropsToSet).length > 0) {
       // Make sure user props content is valid
-      const validationResult = validateUserProps(propsToSave);
+      const validationResult = validateUserProps(userPropsToSet);
       if (validationResult !== true) {
          ctx.throw(400, JSON.stringify(validationResult));
          return;
       }
 
-      query = queryToSetUserProps(query, propsToSave);
+      traversal = queryToSetUserProps(traversal, userPropsToSet);
    }
 
-   await sendQuery(() => query.iterate());
+   await sendQuery(() => traversal.iterate());
 
    if (updateProfileCompletedProp) {
       if (user == null) {
@@ -295,7 +306,7 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
 
 export function settingsAsQuestionsGet(params: null, ctx: BaseContext): Question[] {
    // This just sends SETTINGS_AS_QUESTIONS but translates it first
-   return SETTINGS_AS_QUESTIONS.map(q => ({
+   return QUESTIONS.map(q => ({
       ...q,
       text: t(q.text, { ctx }),
       extraText: q.extraText != null ? t(q.extraText, { ctx }) : null,

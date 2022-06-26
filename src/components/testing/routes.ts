@@ -13,12 +13,7 @@ import { queryToGetAllGroups, queryToGetAllGroupsOfUser, queryToGetGroupById } f
 import { fromQueryToGroupList } from "../groups/tools/data-conversion";
 import { queryToGetTags } from "../tags/queries";
 import { fromQueryToTagList } from "../tags/tools/data-conversion";
-import {
-   queryToGetAllCompleteUsers,
-   queryToGetAllUsers,
-   queryToGetUserByToken,
-   queryToSetUserProps,
-} from "../user/queries";
+import { queryToGetAllUsers, queryToGetUserByToken } from "../user/queries";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
 import {
    createFakeChatConversation,

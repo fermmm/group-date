@@ -40,7 +40,7 @@ export interface User {
    lastGroupJoinedDate: number;
    imagesAmount?: number;
    notifications: Notification[];
-   questionsShowed: string[];
+   questionsResponded: AnswerIds[];
    notificationsToken: string;
    tagsSubscribed?: TagBasicInfo[];
    tagsBlocked?: TagBasicInfo[];
@@ -96,7 +96,7 @@ export const NON_CIS_GENDERS: readonly Gender[] = ALL_GENDERS.filter(gender => !
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
-   notShowedTagQuestions: string[];
+   notRespondedQuestions: string[];
    user: Partial<User>;
 }
 

@@ -1,5 +1,5 @@
 import { sendQuery } from "../../../common-tools/database-tools/database-manager";
-import { SETTINGS_AS_QUESTIONS } from "../../../configurations";
+import { QUESTIONS } from "../../../configurations";
 import { AnswerIds, QuestionAnswer, User } from "../../../shared-tools/endpoints-interfaces/user";
 import { queryToRelateUserWithTag } from "../../tags/queries";
 
@@ -9,17 +9,17 @@ import { queryToRelateUserWithTag } from "../../tags/queries";
  */
 export async function applyQuestionResponses(params: {
    token: string;
-   questionsAlreadyShowed?: string[];
+   questionsResponded?: AnswerIds[];
    answers: AnswerIds[];
 }) {
-   const { token, questionsAlreadyShowed, answers = [] } = params;
+   const { token, questionsResponded, answers = [] } = params;
 
    const answersToCompute = [...answers];
    let newUserProps: Partial<User> = {};
 
    for (const answerInParams of answersToCompute) {
       const { questionId, answerId } = answerInParams;
-      const question = SETTINGS_AS_QUESTIONS.find(q => q.questionId === questionId);
+      const question = QUESTIONS.find(q => q.questionId === questionId);
       const answer = question.answers.find(a => a.answerId === answerId);
       const notSelectedAnswers = question.answers.filter(a => a.answerId !== answerId);
       const userPropsFromAnswer = getUserPropsFromAnswer(answer);
@@ -116,9 +116,9 @@ export async function applyQuestionResponses(params: {
     */
    newUserProps = {
       ...newUserProps,
-      questionsShowed: getQuestionsShowed({
-         questionsPreviouslyShowed: questionsAlreadyShowed,
-         computedAnswers: answersToCompute,
+      questionsResponded: getQuestionsResponded({
+         previousAnswers: questionsResponded,
+         newAnswers: answersToCompute,
       }),
    };
 
@@ -148,20 +148,29 @@ function getUserPropsFromAnswer(answer: QuestionAnswer): Partial<User> {
  * The response of this function should be the new value of "questionsShowed" user prop.
  *
  * @param computedAnswers The answers received in the request that were computed (tags relationship and user props done)
- * @param questionsPreviouslyShowed The questions previously showed (the current ) received in the request that were computed (tags relationship and user props done)
+ * @param questionsResponded The questions previously showed (the current ) received in the request that were computed (tags relationship and user props done)
  */
-function getQuestionsShowed(props: { questionsPreviouslyShowed: string[]; computedAnswers: AnswerIds[] }) {
-   const { questionsPreviouslyShowed, computedAnswers } = props;
-   const questionsShowedSet = new Set([...(questionsPreviouslyShowed ?? [])]);
-   const questionsToAskAgain: AnswerIds[] = [];
+function getQuestionsResponded(props: { previousAnswers: AnswerIds[]; newAnswers: AnswerIds[] }) {
+   const { previousAnswers, newAnswers } = props;
+   let result: AnswerIds[] = [];
+   let questionsToAskAgain: AnswerIds[] = [];
 
-   if (computedAnswers == null || computedAnswers.length === 0) {
-      return questionsPreviouslyShowed;
+   if (newAnswers == null || newAnswers.length === 0) {
+      return previousAnswers;
    }
 
-   computedAnswers.forEach(answer => {
-      questionsToAskAgain.push(...getAnswersTree(answer));
-      questionsShowedSet.add(answer.questionId);
+   newAnswers.forEach(answer => {
+      result.push(answer);
+      questionsToAskAgain.push(...getOtherAnswersTree(answer));
+   });
+
+   const resultAsSet = new Set(result.map(answer => answer.questionId));
+
+   // We need to keep the previous answers in the result to not lose them, but only the questions that are not being responded in the new answers
+   previousAnswers?.forEach(answer => {
+      if (!resultAsSet.has(answer.questionId)) {
+         result.push(answer);
+      }
    });
 
    /**
@@ -169,14 +178,14 @@ function getQuestionsShowed(props: { questionsPreviouslyShowed: string[]; comput
     * required and sends all in the request, so we remove from questionsToAskAgain the ones that come in the
     * same request.
     */
-   questionsToAskAgain.filter(q => !computedAnswers.find(a => a.questionId === q.questionId));
+   questionsToAskAgain = questionsToAskAgain.filter(q => !newAnswers.find(a => a.questionId === q.questionId));
 
    // Here we remove the questions to ask again from the list of questions answered
-   questionsToAskAgain.forEach(q => {
-      questionsShowedSet.delete(q.questionId);
+   questionsToAskAgain.forEach(askAgain => {
+      result = result.filter(resultItem => resultItem.questionId !== askAgain.questionId);
    });
 
-   return Array.from(questionsShowedSet);
+   return result;
 }
 
 /**
@@ -185,9 +194,9 @@ function getQuestionsShowed(props: { questionsPreviouslyShowed: string[]; comput
  * This function returns an array with the questions that needs to be asked again, the idea is to remove them from
  * the already responded questions in user's "questionsShowed" prop and the profile becomes incomplete.
  */
-function getAnswersTree(selectedAnswer: AnswerIds) {
+function getOtherAnswersTree(selectedAnswer: AnswerIds) {
    const { questionId, answerId } = selectedAnswer;
-   const question = SETTINGS_AS_QUESTIONS.find(q => q.questionId === questionId);
+   const question = QUESTIONS.find(q => q.questionId === questionId);
    // The answer note selected from the current question are the ones that contains the tree we need to invalidate
    const notSelectedAnswers = question.answers.filter(a => a.answerId !== answerId);
 
@@ -198,9 +207,7 @@ function getAnswersTree(selectedAnswer: AnswerIds) {
    const resultSet = new Set<AnswerIds>(result);
 
    for (const questionFromTree of result) {
-      const moreQuestionsFromTree = SETTINGS_AS_QUESTIONS.find(
-         q => q.questionId === questionFromTree.questionId,
-      )
+      const moreQuestionsFromTree = QUESTIONS.find(q => q.questionId === questionFromTree.questionId)
          .answers.filter(a => a.answersOtherQuestions?.length > 0)
          .map(a => a.answersOtherQuestions)
          .flat();
