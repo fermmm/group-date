@@ -318,6 +318,16 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * TODO:
+ * 1. Las preguntas se están enviando con props que no deberían llegar al cliente como setsUserProp o subscribesToTags
+ * 2. Cuando se destilda el "avisar de nuevos usuarios" se envia un request, pero cuando se vuelve a tildar no, no se guarda
+ * 3. Checkear que todo se guarde en la db como corresponde
+ * 4. Ver que los tests sigan pasando
+ * 5. Los demo users se están creando incompletos
+ * 6. Los extra text no estan saliendo en el frontend
+ */
+
+/**
  * The following are the registration questions. Also the questions can be showed when changing settings. You can
  * specify if an answer changes user props, subscribes the user to a tag, blocks a tag, answers other questions
  * automatically (you can do a tree of questions) or does all mentioned things at the same time.
@@ -445,6 +455,7 @@ const dateTypeQuestion: Question = {
 const usageIntentionQuestion: Question = {
    questionId: "taq-4",
    text: "What are you looking for in a date in this app?",
+   extraText: "Nobody will see your answer, it determines who you see first",
    answers: [
       {
          text: "Sexual experiences without much ado",
@@ -476,6 +487,7 @@ const usageIntentionQuestion: Question = {
 const feminismQuestion: Question = {
    questionId: "taq-0",
    text: "Do you agree with feminism in general?",
+   extraText: "Nobody will see your answer, it determines who you see first",
    answers: [
       {
          text: "I totally agree / I Almost totally agree",
@@ -504,7 +516,7 @@ const feminismQuestion: Question = {
    ],
 };
 
-export const SETTINGS_AS_QUESTIONS: Question[] = [
+export const QUESTIONS: Question[] = [
    isCoupleProfileQuestion,
    unicornHunterQuestion,
    dateTypeQuestion,
