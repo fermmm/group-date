@@ -1,7 +1,22 @@
 import { sendQuery } from "../../../common-tools/database-tools/database-manager";
 import { QUESTIONS } from "../../../configurations";
-import { AnswerIds, QuestionAnswer, User } from "../../../shared-tools/endpoints-interfaces/user";
+import { AnswerIds, Question, QuestionAnswer, User } from "../../../shared-tools/endpoints-interfaces/user";
 import { queryToRelateUserWithTag } from "../../tags/queries";
+
+/**
+ * This is the same than QUESTIONS const but without the props that should not be sent to the client
+ */
+export const QUESTIONS_FOR_CLIENT: Question[] = QUESTIONS.map(q => {
+   const newQ = { ...q };
+   newQ.answers = newQ.answers.map(a => {
+      const newA = { ...a };
+      delete newA.subscribesToTags;
+      delete newA.blocksTags;
+      delete newA.setsUserProp;
+      return newA;
+   });
+   return newQ;
+});
 
 /**
  * With a list of question answers this function applies the question by making the required tag changes to the user

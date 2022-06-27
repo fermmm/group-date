@@ -105,10 +105,9 @@
 	"We don't have your location": "No tenemos tu ubicación",
 	"You can subscribe to a maximum of %s tags, tap on 'My tags' button and remove the subscriptions to tags that are less important for you": "Puedes suscribirte a un máximo de %s tags, toca el botón 'Mis tags' y elimina las suscripciones a los tags que sean menos importantes para ti",
 	"Couple": "Pareja",
-	"Have you installed the app to find a third person to join you?": "¿Están en la app buscando una tercera persona que se sume a la pareja?",
-	"We can help with that search": "Podemos ayudar en esa búsqueda",
-	"We are a couple looking for a person to join us": "Estamos buscando a una tercera persona",
-	"We are interested in group relationships with many": "Nos interesan las relaciones grupales de a muchxs",
+	"Have you installed the app to find a third person to join you?": "¿Están aquí buscando una tercera persona que se sume a la pareja?",
+	"Yes, we are here looking for a person to join us": "Si, buscamos una tercera persona",
+	"No, we are interested in group relationships with many": "No, nos interesan relaciones grupales de a muchxs",
 	"Unicorn hunters": "Unicorn hunters",
-	"Nobody will see your answer, it determines who you see first": "Nadie verá tu respuesta, determina a quienes ves primero"
+	"Invisible answer. It determines who you see first": "Respuesta invisible, solo determina a quienes ves primero"
 }

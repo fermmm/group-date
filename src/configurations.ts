@@ -319,7 +319,6 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
 
 /**
  * TODO:
- * 1. Las preguntas se están enviando con props que no deberían llegar al cliente como setsUserProp o subscribesToTags
  * 2. Cuando se destilda el "avisar de nuevos usuarios" se envia un request, pero cuando se vuelve a tildar no, no se guarda
  * 3. Checkear que todo se guarde en la db como corresponde
  * 4. Ver que los tests sigan pasando
@@ -383,11 +382,11 @@ const isCoupleProfileQuestion: Question = {
 
 const unicornHunterQuestion: Question = {
    text: "Have you installed the app to find a third person to join you?",
-   extraText: "We can help with that search",
+   extraText: "Invisible answer. It determines who you see first",
    questionId: "q06",
    answers: [
       {
-         text: "We are a couple looking for a person to join us",
+         text: "Yes, we are here looking for a person to join us",
          answerId: "q06-a01",
          subscribesToTags: [
             {
@@ -402,7 +401,7 @@ const unicornHunterQuestion: Question = {
          ],
       },
       {
-         text: "We are interested in group relationships with many",
+         text: "No, we are interested in group relationships with many",
          answerId: "q06-a02",
          blocksTags: [{ tagId: "q06-a01" }],
       },
@@ -455,7 +454,7 @@ const dateTypeQuestion: Question = {
 const usageIntentionQuestion: Question = {
    questionId: "taq-4",
    text: "What are you looking for in a date in this app?",
-   extraText: "Nobody will see your answer, it determines who you see first",
+   extraText: "Invisible answer. It determines who you see first",
    answers: [
       {
          text: "Sexual experiences without much ado",
@@ -487,7 +486,7 @@ const usageIntentionQuestion: Question = {
 const feminismQuestion: Question = {
    questionId: "taq-0",
    text: "Do you agree with feminism in general?",
-   extraText: "Nobody will see your answer, it determines who you see first",
+   extraText: "Invisible answer. It determines who you see first",
    answers: [
       {
          text: "I totally agree / I Almost totally agree",

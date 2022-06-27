@@ -92,7 +92,7 @@ import { sendEmail } from "../../common-tools/email-tools/email-tools";
 import { loadHtmlEmailTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
 import { log } from "../../common-tools/log-tool/log";
 import { LogId } from "../../common-tools/log-tool/types";
-import { applyQuestionResponses } from "./tools/questions";
+import { applyQuestionResponses, QUESTIONS_FOR_CLIENT } from "./tools/questions";
 
 export async function initializeUsers(): Promise<void> {
    createFolder("uploads");
@@ -304,9 +304,9 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
    }
 }
 
-export function settingsAsQuestionsGet(params: null, ctx: BaseContext): Question[] {
-   // This just sends SETTINGS_AS_QUESTIONS but translates it first
-   return QUESTIONS.map(q => ({
+export function questionsGet(params: null, ctx: BaseContext): Question[] {
+   // This just sends QUESTIONS_FOR_CLIENT but translates it first
+   return QUESTIONS_FOR_CLIENT.map(q => ({
       ...q,
       text: t(q.text, { ctx }),
       extraText: q.extraText != null ? t(q.extraText, { ctx }) : null,

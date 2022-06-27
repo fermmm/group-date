@@ -18,7 +18,7 @@ import {
    taskCompletedPost,
    blockUserPost,
    unblockUserPost,
-   settingsAsQuestionsGet,
+   questionsGet,
 } from "./models";
 import { imagesLogger } from "../../common-tools/debug-tools/log-routes";
 import { hoursToMilliseconds } from "../../common-tools/math-tools/general";
@@ -27,7 +27,7 @@ export function userRoutes(r: Router): void {
    createRoute(r, "/user", "GET", userGet);
    createRoute(r, "/user", "POST", userPost);
 
-   createRoute(r, "/user/questions", "GET", settingsAsQuestionsGet);
+   createRoute(r, "/user/questions", "GET", questionsGet);
 
    createRoute(r, "/user/profile-status", "GET", profileStatusGet);
    createRoute(r, "/user/notifications", "GET", notificationsGet);
