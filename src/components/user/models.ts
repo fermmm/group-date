@@ -241,7 +241,7 @@ export async function userGet(params: UserGetParams, ctx: BaseContext): Promise<
  * This endpoint is used to change the user props.
  */
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
-   const { token, props, questionAnswers, updateProfileCompletedProp } = params;
+   const { token, props = {}, questionAnswers, updateProfileCompletedProp } = params;
 
    // Check the prop keys received in the request are all editable user prop keys, otherwise throw error.
    const propsFromServerKeys = Object.keys(props);
@@ -253,7 +253,7 @@ export async function userPost(params: UserPostParams, ctx: BaseContext): Promis
       }
    }
 
-   let userPropsToSet = props ?? {};
+   let userPropsToSet = props;
    // We may not need to retrieve the user so we initially set it as null
    let user: Partial<User> = null;
 
