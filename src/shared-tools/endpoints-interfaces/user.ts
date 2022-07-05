@@ -60,6 +60,7 @@ export interface User {
     * in this object.
     */
    unwantedUser?: boolean;
+   coupleProfileLastChangeDate?: number;
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
@@ -323,9 +324,9 @@ export interface AnswerBlocksTag {
    optional?: boolean;
 }
 
-export interface AnswerSetsUserProp<T = boolean> {
+export interface AnswerSetsUserProp {
    propName: keyof User;
-   valueToSet: T;
+   valueToSet: number | string | boolean | (() => number | string | boolean);
 }
 
 export interface AnswerIds {

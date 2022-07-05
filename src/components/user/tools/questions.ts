@@ -150,7 +150,11 @@ function getUserPropsFromAnswer(answer: QuestionAnswer): Partial<User> {
 
    const props = {};
    answer.setsUserProp.forEach(propToChange => {
-      props[propToChange.propName] = propToChange.valueToSet;
+      if (typeof propToChange.valueToSet !== "function") {
+         props[propToChange.propName] = propToChange.valueToSet;
+      } else {
+         props[propToChange.propName] = propToChange.valueToSet();
+      }
    });
 
    return props;

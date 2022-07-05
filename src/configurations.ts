@@ -1,5 +1,6 @@
 import * as appRoot from "app-root-path";
 import * as i18n from "i18n";
+import * as moment from "moment";
 import * as path from "path";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
@@ -360,6 +361,10 @@ const isCoupleProfileQuestion: Question = {
             {
                propName: "isCoupleProfile",
                valueToSet: true,
+            },
+            {
+               propName: "coupleProfileLastChangeDate",
+               valueToSet: () => moment().unix(),
             },
          ],
       },
