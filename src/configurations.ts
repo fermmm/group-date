@@ -1,12 +1,7 @@
 import * as appRoot from "app-root-path";
 import * as i18n from "i18n";
 import * as path from "path";
-import {
-   DAY_IN_SECONDS,
-   ONE_MONTH_IN_SECONDS,
-   WEEK_IN_SECONDS,
-   YEAR_IN_SECONDS,
-} from "./common-tools/math-tools/constants";
+import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
 import { Tag } from "./shared-tools/endpoints-interfaces/tags";
@@ -316,15 +311,6 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * TODO:
- * 2. Cuando se destilda el "avisar de nuevos usuarios" se envia un request, pero cuando se vuelve a tildar no, no se guarda
- * 3. Checkear que todo se guarde en la db como corresponde
- * 4. Ver que los tests sigan pasando
- * 5. Los demo users se están creando incompletos
- * 6. Los extra text no estan saliendo en el frontend
- */
 
 /**
  * The following are the registration questions. Also the questions can be showed when changing settings. You can

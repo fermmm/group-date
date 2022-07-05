@@ -2,6 +2,7 @@ import * as moment from "moment";
 import { fromAgeToBirthDate, fromBirthDateToAge } from "./../../common-tools/math-tools/date-tools";
 import { createUser, setAttractionPost, userPost } from "../../components/user/models";
 import {
+   AnswerIds,
    Attraction,
    AttractionType,
    CIS_GENDERS,
@@ -40,9 +41,22 @@ export async function createFakeUsers(amount: number, customParams?: Partial<Use
 
 export async function createFakeUser(
    customProps?: DeepPartial<User>,
-   options?: { makeItAdmin?: boolean },
+   options?: {
+      makeItAdmin?: boolean;
+      withRandomQuestionResponses?: boolean;
+      simulateProfileComplete?: boolean;
+   },
 ): Promise<User> {
-   const { makeItAdmin } = options || {};
+   const { makeItAdmin, withRandomQuestionResponses, simulateProfileComplete = true } = options || {};
+
+   const questionAnswers = [
+      ...(customProps?.questionsResponded ?? []),
+      ...(withRandomQuestionResponses ? generateRandomQuestionResponses() : []),
+   ] as AnswerIds[];
+   if (customProps?.isCoupleProfile != null) {
+      questionAnswers.push(getAnswerThatChangesProp("isCoupleProfile", customProps.isCoupleProfile));
+   }
+
    const userProps = generateRandomUserProps(customProps);
 
    await createUser({
@@ -50,11 +64,11 @@ export async function createFakeUser(
       email: userProps.email,
       includeFullInfo: false,
       ctx: fakeCtx,
-      setProfileCompletedForTesting: true,
+      setProfileCompletedForTesting: simulateProfileComplete,
       customUserIdForTesting: userProps.userId,
    });
 
-   await userPost({ token: userProps.token, props: userProps as Partial<User> }, fakeCtx);
+   await userPost({ token: userProps.token, props: userProps as Partial<User>, questionAnswers }, fakeCtx);
    if (makeItAdmin) {
       await convertToAdmin(userProps.token);
    }
@@ -74,9 +88,10 @@ export async function createMultipleFakeCustomUsers(customProps: Array<DeepParti
 
 /**
  * @param customProps Provide user props that should not be random here.
+ * @param customProps Default = false. Also include random question responses
  */
 export function generateRandomUserProps(customProps?: DeepPartial<User>): DeepPartial<User> {
-   const randomProps: User = {
+   const randomProps: DeepPartial<User> = {
       name: chance.first({
          nationality: "it",
          gender: chance.bool() ? "female" : "male",
@@ -88,7 +103,6 @@ export function generateRandomUserProps(customProps?: DeepPartial<User>): DeepPa
          chance.pickone([...CIS_GENDERS]),
          ...chance.pickset([...NON_CIS_GENDERS], chance.integer({ min: 0, max: NON_CIS_GENDERS.length })),
       ],
-      isCoupleProfile: chance.bool(),
       country: chance.country(),
       token: generateId(),
       userId: generateId(),
@@ -108,14 +122,17 @@ export function generateRandomUserProps(customProps?: DeepPartial<User>): DeepPa
       lastLoginDate: moment().unix(),
       profileCompleted: true,
       lastGroupJoinedDate: moment().unix(),
-      questionsResponded: QUESTIONS.map(q => ({
-         questionId: q.questionId,
-         answerId: chance.pickone([...q.answers]).answerId,
-      })),
       notificationsToken: generateId(),
    };
 
    return { ...randomProps, ...(customProps ?? {}) };
+}
+
+export function generateRandomQuestionResponses() {
+   return QUESTIONS.map(q => ({
+      questionId: q.questionId,
+      answerId: chance.pickone([...q.answers]).answerId,
+   }));
 }
 
 let remainingImages: number[] = [];
@@ -194,4 +211,19 @@ export function getAllTestUsersCreated(): User[] {
    const result = [...fakeUsersCreated, ...getAllTestUsersCreatedExperimental()];
    fakeUsersCreated = [];
    return result as User[];
+}
+
+export function getAnswerThatChangesProp(propName: keyof User, propValue: any): AnswerIds {
+   const question = QUESTIONS.find(
+      q => q.answers.find(a => a.setsUserProp?.find(p => p.propName === propName) != null) != null,
+   );
+   const answer = question?.answers.find(a =>
+      a.setsUserProp?.find(p => p.propName === propName && p.valueToSet === propValue),
+   );
+
+   if (question == null || answer == null) {
+      return null;
+   }
+
+   return { questionId: question.questionId, answerId: answer.answerId };
 }

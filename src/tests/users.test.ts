@@ -29,12 +29,15 @@ describe("Users", () => {
       matchingUsersCouple2 = await createMatchingUsers(2);
       matchingUsersCouple3 = await createMatchingUsers(2);
       matching10 = await createMatchingUsers(10);
-      testProtagonist = await createFakeUser();
+      testProtagonist = await createFakeUser(null, {
+         withRandomQuestionResponses: true, // Here we use the random question responses prop to achieve a really complete profile so we can test the code that checks for profile completeness
+         simulateProfileComplete: false,
+      });
    });
 
    test("A user profile can be completed", async () => {
-      await profileStatusGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
-      const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
+      await profileStatusGet({ token: testProtagonist.token }, fakeCtx);
+      const updatedUser = await userGet({ token: testProtagonist.token }, fakeCtx);
       expect(updatedUser.profileCompleted).toBe(true);
    });
 

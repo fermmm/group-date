@@ -243,17 +243,15 @@ export async function userGet(params: UserGetParams, ctx: BaseContext): Promise<
 export async function userPost(params: UserPostParams, ctx: BaseContext): Promise<void> {
    const { token, props = {}, questionAnswers, updateProfileCompletedProp } = params;
 
-   // Check the prop keys received in the request are all editable user prop keys, otherwise throw error.
-   const propsFromServerKeys = Object.keys(props);
-   if (propsFromServerKeys.length > 0) {
-      for (const key of propsFromServerKeys) {
-         if (!editableUserPropListAsSet.has(key as EditableUserPropKey)) {
-            return ctx.throw(400, `Invalid or not editable user prop: ${key}`);
-         }
+   let userPropsToSet = { ...props }; // We need to copy the object here to not brake tests.
+
+   // Check the prop keys received in the request are all editable user prop keys, otherwise delete the prop (ths logic is testing friendly).
+   for (const key of Object.keys(userPropsToSet)) {
+      if (!editableUserPropListAsSet.has(key as EditableUserPropKey)) {
+         delete userPropsToSet[key];
       }
    }
 
-   let userPropsToSet = props;
    // We may not need to retrieve the user so we initially set it as null
    let user: Partial<User> = null;
 
