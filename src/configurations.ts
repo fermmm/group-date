@@ -363,7 +363,7 @@ const isCoupleProfileQuestion: Question = {
                valueToSet: true,
             },
             {
-               propName: "coupleProfileLastChangeDate",
+               propName: "coupleProfileLastChangeDate", // This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because changing from single profile to couple should be allowed always
                valueToSet: () => moment().unix(),
             },
          ],

@@ -325,7 +325,13 @@ export interface AnswerBlocksTag {
 }
 
 export interface AnswerSetsUserProp {
+   /**
+    * The name of the user prop to change.
+    */
    propName: keyof User;
+   /**
+    * The value to set. You can also write a function returning the value, the function will be executed when the question is answered, this can be useful to set the current date as the value.
+    */
    valueToSet: number | string | boolean | (() => number | string | boolean);
 }
 
