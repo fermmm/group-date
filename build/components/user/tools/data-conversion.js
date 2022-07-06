@@ -5,6 +5,7 @@ const common_queries_1 = require("../../../common-tools/database-tools/common-qu
 const data_conversion_tools_1 = require("../../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../../common-tools/database-tools/database-manager");
 const security_tools_1 = require("../../../common-tools/security-tools/security-tools");
+const user_1 = require("../../../shared-tools/validators/user");
 const queries_1 = require("../queries");
 /**
  * Converts into a User object a gremlin query that should return a single user vertex.
@@ -49,15 +50,10 @@ function fromGremlinMapToUser(userFromDatabase) {
     if (userFromDatabase == null) {
         return null;
     }
-    const result = (0, data_conversion_tools_1.fromGremlinMapToObject)(userFromDatabase, [
-        "images",
-        "notifications",
-        "questionsShowed",
-        "genders",
-        "likesGenders",
-        "banReasons",
-        "requiredTasks",
-    ]);
+    const result = (0, data_conversion_tools_1.fromGremlinMapToObject)(userFromDatabase, {
+        serializedPropsToParse: user_1.USER_PROPS_TO_STRINGIFY,
+        propsToDecode: user_1.USER_PROPS_TO_ENCODE_AS_ARRAY,
+    });
     return result;
 }
 exports.fromGremlinMapToUser = fromGremlinMapToUser;

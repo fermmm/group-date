@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllTestUsersCreated = exports.getEdgeLabelsBetweenUsers = exports.createFakeCompatibleUsers = exports.setAttractionAllWithAll = exports.setAttractionMatch = exports.setAttraction = exports.getRandomFakeImage = exports.generateRandomUserProps = exports.createMultipleFakeCustomUsers = exports.createFakeUser = exports.createFakeUsers = void 0;
+exports.getAnswerThatChangesProp = exports.getAllTestUsersCreated = exports.getEdgeLabelsBetweenUsers = exports.createFakeCompatibleUsers = exports.setAttractionAllWithAll = exports.setAttractionMatch = exports.setAttraction = exports.getRandomFakeImage = exports.generateRandomQuestionResponses = exports.generateRandomUserProps = exports.createMultipleFakeCustomUsers = exports.createFakeUser = exports.createFakeUsers = void 0;
 const moment = require("moment");
 const date_tools_1 = require("./../../common-tools/math-tools/date-tools");
 const models_1 = require("../../components/user/models");
@@ -30,17 +30,25 @@ async function createFakeUsers(amount, customParams) {
 }
 exports.createFakeUsers = createFakeUsers;
 async function createFakeUser(customProps, options) {
-    const { makeItAdmin } = options || {};
+    var _a;
+    const { makeItAdmin, withRandomQuestionResponses, simulateProfileComplete = true } = options || {};
+    const questionAnswers = [
+        ...((_a = customProps === null || customProps === void 0 ? void 0 : customProps.questionsResponded) !== null && _a !== void 0 ? _a : []),
+        ...(withRandomQuestionResponses ? generateRandomQuestionResponses() : []),
+    ];
+    if ((customProps === null || customProps === void 0 ? void 0 : customProps.isCoupleProfile) != null) {
+        questionAnswers.push(getAnswerThatChangesProp("isCoupleProfile", customProps.isCoupleProfile));
+    }
     const userProps = generateRandomUserProps(customProps);
     await (0, models_1.createUser)({
         token: userProps.token,
         email: userProps.email,
         includeFullInfo: false,
         ctx: replacements_1.fakeCtx,
-        setProfileCompletedForTesting: true,
+        setProfileCompletedForTesting: simulateProfileComplete,
         customUserIdForTesting: userProps.userId,
     });
-    await (0, models_1.userPost)({ token: userProps.token, props: userProps }, replacements_1.fakeCtx);
+    await (0, models_1.userPost)({ token: userProps.token, props: userProps, questionAnswers }, replacements_1.fakeCtx);
     if (makeItAdmin) {
         await (0, models_2.convertToAdmin)(userProps.token);
     }
@@ -58,6 +66,7 @@ async function createMultipleFakeCustomUsers(customProps) {
 exports.createMultipleFakeCustomUsers = createMultipleFakeCustomUsers;
 /**
  * @param customProps Provide user props that should not be random here.
+ * @param customProps Default = false. Also include random question responses
  */
 function generateRandomUserProps(customProps) {
     const randomProps = {
@@ -72,7 +81,6 @@ function generateRandomUserProps(customProps) {
             generalTools_1.chance.pickone([...user_1.CIS_GENDERS]),
             ...generalTools_1.chance.pickset([...user_1.NON_CIS_GENDERS], generalTools_1.chance.integer({ min: 0, max: user_1.NON_CIS_GENDERS.length })),
         ],
-        isCoupleProfile: generalTools_1.chance.bool(),
         country: generalTools_1.chance.country(),
         token: (0, string_tools_1.generateId)(),
         userId: (0, string_tools_1.generateId)(),
@@ -92,12 +100,18 @@ function generateRandomUserProps(customProps) {
         lastLoginDate: moment().unix(),
         profileCompleted: true,
         lastGroupJoinedDate: moment().unix(),
-        questionsShowed: configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.map(q => q.questionId),
         notificationsToken: (0, string_tools_1.generateId)(),
     };
     return { ...randomProps, ...(customProps !== null && customProps !== void 0 ? customProps : {}) };
 }
 exports.generateRandomUserProps = generateRandomUserProps;
+function generateRandomQuestionResponses() {
+    return configurations_1.QUESTIONS.map(q => ({
+        questionId: q.questionId,
+        answerId: generalTools_1.chance.pickone([...q.answers]).answerId,
+    }));
+}
+exports.generateRandomQuestionResponses = generateRandomQuestionResponses;
 let remainingImages = [];
 function getRandomFakeImage() {
     const fakeImagesAmount = 40;
@@ -166,4 +180,13 @@ function getAllTestUsersCreated() {
     return result;
 }
 exports.getAllTestUsersCreated = getAllTestUsersCreated;
+function getAnswerThatChangesProp(propName, propValue) {
+    const question = configurations_1.QUESTIONS.find(q => q.answers.find(a => { var _a; return ((_a = a.setsUserProp) === null || _a === void 0 ? void 0 : _a.find(p => p.propName === propName)) != null; }) != null);
+    const answer = question === null || question === void 0 ? void 0 : question.answers.find(a => { var _a; return (_a = a.setsUserProp) === null || _a === void 0 ? void 0 : _a.find(p => p.propName === propName && p.valueToSet === propValue); });
+    if (question == null || answer == null) {
+        return null;
+    }
+    return { questionId: question.questionId, answerId: answer.answerId };
+}
+exports.getAnswerThatChangesProp = getAnswerThatChangesProp;
 //# sourceMappingURL=users.js.map

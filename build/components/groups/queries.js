@@ -14,12 +14,14 @@ const string_tools_1 = require("../../common-tools/string-tools/string-tools");
  */
 function queryToCreateGroup(params) {
     var _a, _b, _c;
+    let initialChat = (0, data_conversion_tools_1.serializeIfNeeded)({
+        messages: [],
+    });
+    initialChat = (0, data_conversion_tools_1.encodeIfNeeded)(initialChat, "chat", "group");
     let traversal = database_manager_1.g
         .addV("group")
         .property(database_manager_1.cardinality.single, "groupId", (0, string_tools_1.generateId)())
-        .property(database_manager_1.cardinality.single, "chat", (0, data_conversion_tools_1.serializeIfNeeded)({
-        messages: [],
-    }))
+        .property(database_manager_1.cardinality.single, "chat", initialChat)
         .property(database_manager_1.cardinality.single, "chatMessagesAmount", 0)
         .property(database_manager_1.cardinality.single, "creationDate", moment().unix())
         .property(database_manager_1.cardinality.single, "membersAmount", (_b = (_a = params.initialUsers) === null || _a === void 0 ? void 0 : _a.usersIds.length) !== null && _b !== void 0 ? _b : 0)
@@ -126,7 +128,10 @@ exports.queryToGetAllGroups = queryToGetAllGroups;
 function queryToUpdateGroupProperty(newProps, filters) {
     let traversal = queryToGetGroupById(newProps.groupId, filters);
     for (const key of Object.keys(newProps)) {
-        traversal = traversal.property(database_manager_1.cardinality.single, key, (0, data_conversion_tools_1.serializeIfNeeded)(newProps[key]));
+        let value = newProps[key];
+        value = (0, data_conversion_tools_1.serializeIfNeeded)(value);
+        value = (0, data_conversion_tools_1.encodeIfNeeded)(value, key, "group"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
+        traversal = traversal.property(database_manager_1.cardinality.single, key, value);
     }
     return (0, database_manager_1.sendQuery)(() => traversal.iterate());
 }

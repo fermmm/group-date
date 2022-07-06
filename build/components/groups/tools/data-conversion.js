@@ -6,6 +6,7 @@ const security_tools_1 = require("../../../common-tools/security-tools/security-
 const queries_1 = require("../queries");
 const data_conversion_tools_1 = require("../../../common-tools/database-tools/data-conversion-tools");
 const data_conversion_1 = require("../../user/tools/data-conversion");
+const group_1 = require("../../../shared-tools/validators/group");
 /**
  * Converts a Gremlin query that returns a single group into a Group object.
  *
@@ -45,7 +46,10 @@ function fromGremlinMapToGroup(groupFromDatabase, protectPrivacy = true) {
     });
     groupFromDatabase.delete("members");
     // Now the rest of the group properties can be converted
-    const group = (0, data_conversion_tools_1.fromGremlinMapToObject)(groupFromDatabase, ["chat", "dayOptions", "seenBy"]);
+    const group = (0, data_conversion_tools_1.fromGremlinMapToObject)(groupFromDatabase, {
+        serializedPropsToParse: group_1.GROUP_PROPS_TO_STRINGIFY,
+        propsToDecode: group_1.GROUP_PROPS_TO_ENCODE_AS_ARRAY,
+    });
     group.members = membersConverted;
     if (protectPrivacy) {
         return (0, security_tools_1.removePrivacySensitiveGroupProps)(group);

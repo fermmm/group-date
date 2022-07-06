@@ -21,11 +21,14 @@ describe("Users", () => {
         matchingUsersCouple2 = await (0, groups_1.createMatchingUsers)(2);
         matchingUsersCouple3 = await (0, groups_1.createMatchingUsers)(2);
         matching10 = await (0, groups_1.createMatchingUsers)(10);
-        testProtagonist = await (0, users_1.createFakeUser)();
+        testProtagonist = await (0, users_1.createFakeUser)(null, {
+            withRandomQuestionResponses: true,
+            simulateProfileComplete: false,
+        });
     });
     test("A user profile can be completed", async () => {
-        await (0, models_2.profileStatusGet)({ token: matchingUsersCouple1[0].token }, replacements_1.fakeCtx);
-        const updatedUser = await (0, models_2.userGet)({ token: matchingUsersCouple1[0].token }, replacements_1.fakeCtx);
+        await (0, models_2.profileStatusGet)({ token: testProtagonist.token }, replacements_1.fakeCtx);
+        const updatedUser = await (0, models_2.userGet)({ token: testProtagonist.token }, replacements_1.fakeCtx);
         expect(updatedUser.profileCompleted).toBe(true);
     });
     test("Notifications works", async () => {

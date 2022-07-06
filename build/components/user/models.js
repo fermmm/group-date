@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UNWANTED_USER_TAG_IDS = exports.onImageFileSaved = exports.onImageFileReceived = exports.isUnwantedUser = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.unblockUserPost = exports.blockUserPost = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.sendEmailNotification = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.userPost = exports.userGet = exports.userPropsAsQuestionsGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
+exports.onImageFileSaved = exports.onImageFileReceived = exports.sendWelcomeNotification = exports.createGenders = exports.deleteAccountPost = exports.taskCompletedPost = exports.createRequiredTaskForUser = exports.setSeenPost = exports.attractionsSentGet = exports.attractionsReceivedGet = exports.matchesGet = exports.unblockUserPost = exports.blockUserPost = exports.reportUserPost = exports.setAttractionPost = exports.notificationsGet = exports.sendEmailNotification = exports.addNotificationToUser = exports.retrieveFullyRegisteredUser = exports.questionsGet = exports.userPost = exports.userGet = exports.profileStatusGet = exports.createUser = exports.retrieveUser = exports.initializeUsers = void 0;
 const user_1 = require("./../../shared-tools/endpoints-interfaces/user");
 const push_notifications_1 = require("./../../common-tools/push-notifications/push-notifications");
 const security_tools_1 = require("./../../common-tools/security-tools/security-tools");
@@ -32,6 +32,7 @@ const email_tools_1 = require("../../common-tools/email-tools/email-tools");
 const loadHtmlTemplate_1 = require("../../common-tools/email-tools/loadHtmlTemplate");
 const log_1 = require("../../common-tools/log-tool/log");
 const types_1 = require("../../common-tools/log-tool/types");
+const questions_1 = require("./tools/questions");
 async function initializeUsers() {
     (0, files_tools_1.createFolder)("uploads");
     createGenders();
@@ -80,10 +81,10 @@ async function profileStatusGet(params, ctx) {
     const user = await retrieveUser(params.token, true, ctx);
     const result = {
         missingEditableUserProps: getMissingEditableUserProps(user),
-        notShowedTagQuestions: (0, models_1.getNotShowedQuestionIds)(user),
+        notRespondedQuestions: (0, models_1.getNotRespondedQuestionIds)(user),
         user,
     };
-    const profileCompleted = result.missingEditableUserProps.length === 0 && result.notShowedTagQuestions.length === 0;
+    const profileCompleted = result.missingEditableUserProps.length === 0 && result.notRespondedQuestions.length === 0;
     const lastLoginDate = moment().unix();
     const language = (0, i18n_tools_1.getLocaleFromHeader)(ctx);
     await (0, queries_1.queryToUpdateUserProps)(user.token, [
@@ -115,7 +116,7 @@ async function profileStatusGet(params, ctx) {
 }
 exports.profileStatusGet = profileStatusGet;
 function profileStatusIsCompleted(user) {
-    return getMissingEditableUserProps(user).length === 0 && (0, models_1.getNotShowedQuestionIds)(user).length === 0;
+    return getMissingEditableUserProps(user).length === 0 && (0, models_1.getNotRespondedQuestionIds)(user).length === 0;
 }
 function getMissingEditableUserProps(user) {
     const result = [];
@@ -127,19 +128,6 @@ function getMissingEditableUserProps(user) {
     });
     return result;
 }
-function userPropsAsQuestionsGet(params, ctx) {
-    // This just returns USER_PROPS_AS_QUESTIONS in the correct language:
-    return configurations_1.USER_PROPS_AS_QUESTIONS.map(question => ({
-        ...question,
-        text: (0, i18n_tools_1.t)(question.text, { ctx }),
-        shortVersion: (0, i18n_tools_1.t)(question.shortVersion, { ctx }),
-        answers: question.answers.map(answer => ({
-            ...answer,
-            text: (0, i18n_tools_1.t)(answer.text, { ctx }),
-        })),
-    }));
-}
-exports.userPropsAsQuestionsGet = userPropsAsQuestionsGet;
 /**
  * This endpoint retrieves a user. If userId is not provided it will return the user using the token.
  * If userId is provided it will return the required user (without personal information) but also it will
@@ -158,34 +146,43 @@ async function userGet(params, ctx) {
 }
 exports.userGet = userGet;
 /**
- * This endpoint is used to send the user props.
+ * This endpoint is used to change the user props.
  */
 async function userPost(params, ctx) {
-    let query = (0, queries_1.queryToGetUserByToken)(params.token);
-    if (params.props != null) {
+    const { token, props = {}, questionAnswers, updateProfileCompletedProp } = params;
+    let userPropsToSet = { ...props }; // We need to copy the object here to not brake tests.
+    // Check the prop keys received in the request are all editable user prop keys, otherwise delete the prop (ths logic is testing friendly).
+    for (const key of Object.keys(userPropsToSet)) {
+        if (!user_3.editableUserPropListAsSet.has(key)) {
+            delete userPropsToSet[key];
+        }
+    }
+    // We may not need to retrieve the user so we initially set it as null
+    let user = null;
+    if (questionAnswers && questionAnswers.length > 0) {
+        user = await retrieveUser(token, false, ctx);
+        const questionRelatedProps = await (0, questions_1.applyQuestionResponses)({
+            token,
+            answers: questionAnswers,
+            questionsResponded: user.questionsResponded,
+        });
+        userPropsToSet = { ...userPropsToSet, ...questionRelatedProps };
+    }
+    let traversal = (0, queries_1.queryToGetUserByToken)(token);
+    if (Object.keys(userPropsToSet).length > 0) {
         // Make sure user props content is valid
-        const validationResult = (0, user_3.validateUserProps)(params.props);
+        const validationResult = (0, user_3.validateUserProps)(userPropsToSet);
         if (validationResult !== true) {
             ctx.throw(400, JSON.stringify(validationResult));
             return;
         }
-        // Check if its unwanted user by checking the unwanted props
-        if (isUnwantedUser({ propsToCheck: params.props })) {
-            params.props.unwantedUser = true;
-        }
-        // Don't save the unicorn hunter as false since we want to know if the user was a unicorn hunter at any time
-        if (params.props.isUnicornHunter === false) {
-            delete params.props.isUnicornHunter;
-        }
-        // Don't save the unicorn hunter insisting as false since we want to know if the user was a unicorn hunter insisting at any time
-        if (params.props.isUnicornHunterInsisting === false) {
-            delete params.props.isUnicornHunterInsisting;
-        }
-        query = (0, queries_1.queryToSetUserProps)(query, params.props);
+        traversal = (0, queries_1.queryToSetUserProps)(traversal, userPropsToSet);
     }
-    await (0, database_manager_1.sendQuery)(() => query.iterate());
-    if (params.updateProfileCompletedProp) {
-        const user = await retrieveUser(params.token, false, ctx);
+    await (0, database_manager_1.sendQuery)(() => traversal.iterate());
+    if (updateProfileCompletedProp) {
+        if (user == null) {
+            user = await retrieveUser(token, false, ctx);
+        }
         const profileCompleted = profileStatusIsCompleted(user);
         await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByToken)(params.token)
             .property(database_manager_1.cardinality.single, "profileCompleted", profileCompleted)
@@ -200,6 +197,20 @@ async function userPost(params, ctx) {
     }
 }
 exports.userPost = userPost;
+function questionsGet(params, ctx) {
+    // This just sends QUESTIONS_FOR_CLIENT but translates it first
+    return questions_1.QUESTIONS_FOR_CLIENT.map(q => ({
+        ...q,
+        text: (0, i18n_tools_1.t)(q.text, { ctx }),
+        extraText: q.extraText != null ? (0, i18n_tools_1.t)(q.extraText, { ctx }) : null,
+        answers: q.answers.map(a => ({
+            ...a,
+            text: (0, i18n_tools_1.t)(a.text, { ctx }),
+            extraText: a.extraText != null ? (0, i18n_tools_1.t)(a.extraText, { ctx }) : null,
+        })),
+    }));
+}
+exports.questionsGet = questionsGet;
 /**
  * Calls retrieveUser and returns the same thing, but if profileCompleted is not true throws error
  *
@@ -515,23 +526,6 @@ async function sendWelcomeNotification(user, ctx) {
     });
 }
 exports.sendWelcomeNotification = sendWelcomeNotification;
-function isUnwantedUser(props) {
-    const { propsToCheck, tagsIdsToCheck } = props;
-    if (propsToCheck != null) {
-        const unwantedKey = Object.keys(configurations_1.UNWANTED_USERS_PROPS).find(key => configurations_1.UNWANTED_USERS_PROPS[key] === propsToCheck[key] && configurations_1.UNWANTED_USERS_PROPS[key] != null);
-        if (unwantedKey) {
-            return true;
-        }
-    }
-    if (tagsIdsToCheck != null) {
-        const unwantedTag = tagsIdsToCheck.find(tagId => exports.UNWANTED_USER_TAG_IDS.includes(tagId));
-        if (unwantedTag) {
-            return true;
-        }
-    }
-    return false;
-}
-exports.isUnwantedUser = isUnwantedUser;
 async function onImageFileReceived(ctx, next) {
     // Only valid users can upload images
     const user = await retrieveUser(ctx.request.query.token, false, ctx);
@@ -611,5 +605,4 @@ async function onImageFileSaved(file, ctx) {
     return { fileNameSmall, fileNameBig };
 }
 exports.onImageFileSaved = onImageFileSaved;
-exports.UNWANTED_USER_TAG_IDS = configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.map(question => question.answers.filter(answer => answer.unwantedUserAnswer).map(answer => answer.tagId)).flat();
 //# sourceMappingURL=models.js.map

@@ -13,6 +13,7 @@ const users_1 = require("./tools/users");
 const configurations_1 = require("../configurations");
 const user_creation_tools_1 = require("./tools/group-finder/user-creation-tools");
 const general_1 = require("../common-tools/math-tools/general");
+const decodeString_1 = require("../shared-tools/utility-functions/decodeString");
 describe("Groups", () => {
     let group;
     let group2;
@@ -114,7 +115,9 @@ describe("Groups", () => {
         await (0, models_1.chatPost)({ message: "how are you today?", token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
         await (0, models_1.chatPost)({ message: "I'm so good, I love the world!", token: mainUser2.token, groupId: group.groupId }, replacements_1.fakeCtx);
         group = await (0, models_1.groupGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
-        const chat = JSON.parse(await (0, models_1.chatGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx));
+        let response = await (0, models_1.chatGet)({ token: mainUser.token, groupId: group.groupId }, replacements_1.fakeCtx);
+        response = (0, decodeString_1.decodeString)(response);
+        const chat = JSON.parse(response);
         expect(chat.messages).toHaveLength(3);
         expect(group.chat.messages).toHaveLength(3);
     });

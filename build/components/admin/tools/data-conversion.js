@@ -36,7 +36,11 @@ function fromGremlinMapToChatWithAdmins(chatWithAdmins, protectPrivacy = true) {
         nonAdminUser = (0, security_tools_1.removePrivacySensitiveUserProps)(nonAdminUser);
     }
     // Now the rest of the properties can be converted
-    const result = (0, data_conversion_tools_1.fromGremlinMapToObject)(chatWithAdmins, ["messages"]);
+    const result = (0, data_conversion_tools_1.fromGremlinMapToObject)(chatWithAdmins, {
+        serializedPropsToParse: ["messages"],
+        // TODO: Make an array on their own file along with validation, currently this is not used so there is no validation but when it starts being used we should have a validator
+        propsToDecode: ["messages"],
+    });
     result.nonAdminUser = nonAdminUser;
     return result;
 }

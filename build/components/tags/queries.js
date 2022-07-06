@@ -4,7 +4,6 @@ exports.queryToRemoveTags = exports.queryToGetUsersSubscribedToTags = exports.qu
 const moment = require("moment");
 const common_queries_1 = require("../../common-tools/database-tools/common-queries");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
-const configurations_1 = require("../../configurations");
 const queries_1 = require("../user/queries");
 function queryToCreateTags(userId, tagsToCreate) {
     const traversal = (0, common_queries_1.queryToCreateVerticesFromObjects)({
@@ -67,7 +66,7 @@ exports.queryToGetTagsCreatedByUser = queryToGetTagsCreatedByUser;
  * @param remove true = adds the relation. false = removes the relation
  */
 function queryToRelateUserWithTag(props) {
-    const { token, tagIds, relation, remove, maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED } = props;
+    const { token, tagIds, relation, remove, maxSubscriptionsAllowed = 99999 } = props;
     let relationTraversal;
     if (remove) {
         relationTraversal = database_manager_1.__.inE(relation).where(database_manager_1.__.outV().has("token", token)).drop();

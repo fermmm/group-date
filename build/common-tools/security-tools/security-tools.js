@@ -36,7 +36,7 @@ function removePrivacySensitiveUserProps(user) {
     delete user.sendNewUsersNotification;
     delete user.lastGroupJoinedDate;
     delete user.lastLoginDate;
-    delete user.questionsShowed;
+    delete user.questionsResponded;
     delete user.registrationDate;
     delete user.banReasonsAmount;
     delete user.banReasons;

@@ -71,6 +71,7 @@ async function initializeBackupDatabaseSchedule() {
 }
 async function backupDatabase(folderPath, fileName, settings) {
     const { saveLog = true } = settings !== null && settings !== void 0 ? settings : {};
+    const finalTargetFolder = `${exports.DB_EXPORT_FOLDER}${folderPath ? "/" + folderPath : ""}`;
     if (saveLog) {
         (0, measureTime_1.measureTime)("backup-database");
     }
@@ -81,16 +82,16 @@ async function backupDatabase(folderPath, fileName, settings) {
         });
         await (0, s3_tools_1.uploadFileToS3)({
             localFilePath: "admin-uploads/db.zip",
-            s3TargetPath: `${exports.DB_EXPORT_FOLDER}/${folderPath}/${fileName}.zip`,
+            s3TargetPath: `${finalTargetFolder}/${fileName}.zip`,
         });
     }
     else {
-        await (0, database_manager_1.exportDatabaseContentToFile)(`${folderPath}/${fileName}.xml`);
-        (0, files_tools_1.copyFile)(`${folderPath}/${fileName}.xml`, `${exports.DB_EXPORT_FOLDER}/${exports.DB_EXPORT_LATEST_FILE}.xml`);
+        await (0, database_manager_1.exportDatabaseContentToFile)(`${finalTargetFolder}/${fileName}.xml`);
+        (0, files_tools_1.copyFile)(`${finalTargetFolder}/${fileName}.xml`, `${exports.DB_EXPORT_FOLDER}/${exports.DB_EXPORT_LATEST_FILE}.xml`);
     }
     if (saveLog) {
         (0, log_1.log)({
-            message: `Database backup done in ${`${folderPath}/${fileName}.xml`}`,
+            message: `Database backup done in ${`${finalTargetFolder}/${fileName}.xml`}`,
             timeConsumedToMakeBackupMs: (0, measureTime_1.finishMeasureTime)("backup-database"),
         }, types_1.LogId.Backups);
     }
@@ -106,7 +107,7 @@ async function restoreDatabase(folderPath, fileName) {
 }
 function backupDatabaseWhenExiting() {
     (0, process_tools_1.executeFunctionBeforeExiting)(async () => {
-        await backupDatabase(exports.DB_EXPORT_FOLDER, exports.DB_EXPORT_LATEST_FILE, { saveLog: false });
+        await backupDatabase(null, exports.DB_EXPORT_LATEST_FILE, { saveLog: false });
     });
 }
 //# sourceMappingURL=backups.js.map

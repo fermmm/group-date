@@ -4,7 +4,6 @@ exports.queryToUnblockUser = exports.queryToBlockUser = exports.queryToRemoveSee
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
-const user_2 = require("../../shared-tools/validators/user");
 const moment = require("moment");
 const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
@@ -165,12 +164,13 @@ exports.queryToRemoveUsers = queryToRemoveUsers;
  */
 function queryToSetUserProps(traversal, newUserProps) {
     var _a, _b, _c;
+    const newUserPropsKeys = Object.keys(newUserProps !== null && newUserProps !== void 0 ? newUserProps : {});
     // Only props on editableUserPropsList are added into the query
-    user_2.editableUserPropsList.forEach(editableUserProp => {
-        if (newUserProps[editableUserProp] == null) {
-            return;
-        }
-        traversal = traversal.property(database_manager_1.cardinality.single, editableUserProp, (0, data_conversion_tools_1.serializeIfNeeded)(newUserProps[editableUserProp]));
+    newUserPropsKeys.forEach(key => {
+        let value = newUserProps[key];
+        value = (0, data_conversion_tools_1.serializeIfNeeded)(value);
+        value = (0, data_conversion_tools_1.encodeIfNeeded)(value, key, "user"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
+        traversal = traversal.property(database_manager_1.cardinality.single, key, value);
     });
     if (newUserProps.images) {
         traversal = traversal.property(database_manager_1.cardinality.single, "imagesAmount", (_a = newUserProps.images.length) !== null && _a !== void 0 ? _a : 0);

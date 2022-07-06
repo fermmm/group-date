@@ -4,6 +4,7 @@ exports.fromGremlinMapToTag = exports.fromQueryToTagList = exports.fromQueryToTa
 const common_queries_1 = require("../../../common-tools/database-tools/common-queries");
 const data_conversion_tools_1 = require("../../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../../common-tools/database-tools/database-manager");
+const tags_1 = require("../../../shared-tools/validators/tags");
 /**
  * Converts into a Tag object a gremlin query that should return a single tag vertex.
  */
@@ -30,7 +31,10 @@ function fromGremlinMapToTag(tagFromDatabase) {
     if (tagFromDatabase == null) {
         return null;
     }
-    return (0, data_conversion_tools_1.fromGremlinMapToObject)(tagFromDatabase);
+    return (0, data_conversion_tools_1.fromGremlinMapToObject)(tagFromDatabase, {
+        serializedPropsToParse: tags_1.TAG_PROPS_TO_STRINGIFY,
+        propsToDecode: tags_1.TAG_PROPS_TO_ENCODE_AS_ARRAY,
+    });
 }
 exports.fromGremlinMapToTag = fromGremlinMapToTag;
 //# sourceMappingURL=data-conversion.js.map

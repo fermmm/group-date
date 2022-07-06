@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppAuthoredQuestionsIdsAsSet = exports.getNotShowedQuestionIds = exports.removeAllTagsCreatedBy = exports.createAppAuthoredTags = exports.removeTagsPost = exports.removeBlockToTagsPost = exports.removeSubscriptionToTagsPost = exports.blockTagsPost = exports.subscribeToTagsPost = exports.tagsCreatedByUserGet = exports.appAuthoredTagsAsQuestionsGet = exports.tagsGet = exports.createTagPost = exports.initializeTags = void 0;
+exports.getAppAuthoredTagIdsAsSet = exports.getNotRespondedQuestionIds = exports.removeAllTagsCreatedBy = exports.createAppAuthoredTags = exports.removeTagsPost = exports.removeBlockToTagsPost = exports.removeSubscriptionToTagsPost = exports.blockTagsPost = exports.subscribeToTagsPost = exports.tagsCreatedByUserGet = exports.tagsGet = exports.createTagPost = exports.initializeTags = void 0;
 const moment = require("moment");
 const configurations_1 = require("../../configurations");
 const data_conversion_1 = require("./tools/data-conversion");
@@ -10,6 +10,7 @@ const models_1 = require("../user/models");
 const string_tools_1 = require("../../common-tools/string-tools/string-tools");
 const queries_1 = require("./queries");
 const common_queries_1 = require("../../common-tools/database-tools/common-queries");
+const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 async function initializeTags() {
     await createAppAuthoredTags();
 }
@@ -70,6 +71,9 @@ async function createTagPost(params, ctx) {
         subscribersAmount: (_e = params.fakeSubscribersAmount) !== null && _e !== void 0 ? _e : 0,
         blockersAmount: (_f = params.fakeBlockersAmount) !== null && _f !== void 0 ? _f : 0,
     };
+    Object.keys(tagToCreate).forEach(key => {
+        tagToCreate[key] = (0, data_conversion_tools_1.encodeIfNeeded)(tagToCreate[key], key, "tag");
+    });
     /*
      * Banned or unwanted users cannot create tags but since it's a shadow ban we don't return an error, we
      * return the tag object instead, like if it was created successfully but we are not calling
@@ -94,17 +98,13 @@ async function tagsGet(params, ctx) {
     return result;
 }
 exports.tagsGet = tagsGet;
-function appAuthoredTagsAsQuestionsGet(params, ctx) {
-    return translateAppAuthoredTagsAsQuestions(configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS, ctx);
-}
-exports.appAuthoredTagsAsQuestionsGet = appAuthoredTagsAsQuestionsGet;
 async function tagsCreatedByUserGet(token) {
     return await (0, data_conversion_1.fromQueryToTagList)((0, queries_1.queryToGetTagsCreatedByUser)(token));
 }
 exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
 async function subscribeToTagsPost(params, ctx) {
     var _a, _b, _c, _d, _e;
-    const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.length;
+    const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.QUESTIONS.length;
     const user = await (0, models_1.retrieveUser)(params.token, true, ctx);
     // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
     if (((_a = user.tagsSubscribed) === null || _a === void 0 ? void 0 : _a.length) >= maxSubscriptionsAllowed) {
@@ -122,11 +122,6 @@ async function subscribeToTagsPost(params, ctx) {
         remove: false,
         maxSubscriptionsAllowed,
     }));
-    // Check if by subscribing to the tags the user becomes unwanted
-    const unwantedUser = (0, models_1.isUnwantedUser)({ tagsIdsToCheck: params.tagIds });
-    if (unwantedUser) {
-        await (0, models_1.userPost)({ token: params.token, props: { unwantedUser } }, ctx);
-    }
     return result;
 }
 exports.subscribeToTagsPost = subscribeToTagsPost;
@@ -186,20 +181,25 @@ async function createAppAuthoredTags() {
         global: true,
         visible: true,
     }));
-    // Crete app authored tags that are saved as questions
-    tagsToCreate.push(...configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.map(question => question.answers.map(answer => {
-        var _a;
-        return ({
-            tagId: answer.tagId,
-            category: answer.category,
-            name: answer.tagName,
-            visible: (_a = answer.tagIsVisible) !== null && _a !== void 0 ? _a : true,
-            language: "all",
-            creationDate: moment().unix(),
-            lastInteractionDate: moment().unix(),
-            global: true,
+    configurations_1.QUESTIONS.forEach(question => {
+        question.answers.forEach(answer => {
+            if (answer.subscribesToTags) {
+                tagsToCreate.push(...answer.subscribesToTags.map(tag => {
+                    var _a;
+                    return ({
+                        tagId: tag.tagId,
+                        category: tag.category,
+                        name: tag.tagName,
+                        visible: (_a = tag.tagIsVisible) !== null && _a !== void 0 ? _a : false,
+                        language: "all",
+                        creationDate: moment().unix(),
+                        lastInteractionDate: moment().unix(),
+                        global: true,
+                    });
+                }));
+            }
         });
-    })).flat());
+    });
     await (0, data_conversion_1.fromQueryToTag)((0, common_queries_1.queryToCreateVerticesFromObjects)({
         objects: tagsToCreate,
         label: "tag",
@@ -218,18 +218,18 @@ async function removeAllTagsCreatedBy(users) {
     await (0, queries_1.queryToRemoveTags)(result.map(tag => tag.tagId)).iterate();
 }
 exports.removeAllTagsCreatedBy = removeAllTagsCreatedBy;
-function getNotShowedQuestionIds(user) {
+function getNotRespondedQuestionIds(user) {
     const result = [];
-    configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.forEach(tagQ => {
+    configurations_1.QUESTIONS.forEach(question => {
         var _a;
-        const foundInUser = (_a = user.questionsShowed) === null || _a === void 0 ? void 0 : _a.find(q => q === tagQ.questionId);
+        const foundInUser = (_a = user.questionsResponded) === null || _a === void 0 ? void 0 : _a.find(q => q.questionId === question.questionId);
         if (foundInUser == null) {
-            result.push(tagQ.questionId);
+            result.push(question.questionId);
         }
     });
     return result;
 }
-exports.getNotShowedQuestionIds = getNotShowedQuestionIds;
+exports.getNotRespondedQuestionIds = getNotRespondedQuestionIds;
 function getRemainingTimeToCreateNewTag(tags) {
     const oldestTag = tags.reduce((result, tag) => {
         // Tag is not inside the creation time frame
@@ -255,8 +255,9 @@ function getRemainingTimeToCreateNewTag(tags) {
  * App authored tags are global, this means any language will see the tags, so translation is needed.
  */
 function translateAppAuthoredTags(tags, localeSource) {
-    const appAuthoredIds = getAppAuthoredQuestionsIdsAsSet();
+    const appAuthoredIds = getAppAuthoredTagIdsAsSet();
     return tags.map(tag => {
+        // App authored tags are already translated
         if (!appAuthoredIds.has(tag.tagId)) {
             return tag;
         }
@@ -267,28 +268,16 @@ function translateAppAuthoredTags(tags, localeSource) {
         };
     });
 }
-function translateAppAuthoredTagsAsQuestions(rawQuestions, ctx) {
-    return rawQuestions.map(q => ({
-        ...q,
-        text: (0, i18n_tools_1.t)(q.text, { ctx }),
-        extraText: q.extraText != null ? (0, i18n_tools_1.t)(q.extraText, { ctx }) : null,
-        answers: q.answers.map(a => ({
-            ...a,
-            text: (0, i18n_tools_1.t)(a.text, { ctx }),
-            category: (0, i18n_tools_1.t)(a.category, { ctx }),
-            tagName: a.tagName != null ? (0, i18n_tools_1.t)(a.tagName, { ctx }) : null,
-        })),
-    }));
-}
 let catchedAppAuthoredQuestions = null;
-function getAppAuthoredQuestionsIdsAsSet() {
-    if (catchedAppAuthoredQuestions == null) {
-        const result = new Set();
-        configurations_1.APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
-        configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.forEach(q => q.answers.forEach(a => result.add(a.tagId)));
-        catchedAppAuthoredQuestions = result;
+function getAppAuthoredTagIdsAsSet() {
+    if (catchedAppAuthoredQuestions != null) {
+        return catchedAppAuthoredQuestions;
     }
-    return catchedAppAuthoredQuestions;
+    const result = new Set();
+    configurations_1.APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
+    configurations_1.QUESTIONS.forEach(q => q.answers.forEach(a => { var _a; return (_a = a.subscribesToTags) === null || _a === void 0 ? void 0 : _a.forEach(t => result.add(t.tagId)); }));
+    catchedAppAuthoredQuestions = result;
+    return result;
 }
-exports.getAppAuthoredQuestionsIdsAsSet = getAppAuthoredQuestionsIdsAsSet;
+exports.getAppAuthoredTagIdsAsSet = getAppAuthoredTagIdsAsSet;
 //# sourceMappingURL=models.js.map

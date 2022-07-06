@@ -200,7 +200,7 @@ describe("Tags", () => {
     test(`Subscribing to more tags than MAX_TAG_SUBSCRIPTIONS_ALLOWED is not possible for the same language`, async () => {
         let user = await (0, users_1.createFakeUser)({ language: "es" });
         const tags = [];
-        const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.APP_AUTHORED_TAGS_AS_QUESTIONS.length;
+        const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.QUESTIONS.length;
         // Create the maximum amount of tags for 'es' language
         for (let i = 0; i < maxSubscriptionsAllowed; i++) {
             const tempUser = await (0, users_1.createFakeUser)({ language: "es" });

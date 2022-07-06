@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateTagProps = exports.editableTagPropsList = exports.editableTagSchema = void 0;
+exports.validateTagProps = exports.editableTagPropsList = exports.editableTagSchema = exports.TAG_PROPS_TO_ENCODE_AS_ARRAY = exports.TAG_PROPS_TO_STRINGIFY = exports.TAG_PROPS_TO_ENCODE = void 0;
 const Validator = require("fastest-validator");
 // fastest-validator TS fix
 const v = new Validator();
@@ -13,6 +13,17 @@ const EDITABLE_TAG_PROPS_SCHEMA = {
     language: { type: "string", optional: true },
     global: { type: "boolean", optional: true },
 };
+/**
+ * This Set contains the names of the tag props that will be saved encoded (currently using encodeURI()) this is needed when
+ * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
+ * format of the database backup files. Specifically line breaks or the \ character has problems.
+ */
+exports.TAG_PROPS_TO_ENCODE = new Set(["name", "category", "language"]);
+/**
+ * If you added a prop that is an array or object add it here in order to be converted to JSON string when saving to the database
+ */
+exports.TAG_PROPS_TO_STRINGIFY = [];
+exports.TAG_PROPS_TO_ENCODE_AS_ARRAY = Array.from(exports.TAG_PROPS_TO_ENCODE);
 // Export the same object casted with more type information
 exports.editableTagSchema = EDITABLE_TAG_PROPS_SCHEMA;
 /**

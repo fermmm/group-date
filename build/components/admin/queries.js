@@ -4,6 +4,7 @@ exports.queryToSelectUsersForNotification = exports.queryToGetAllChatsWithAdmins
 const moment = require("moment");
 const data_conversion_tools_1 = require("../../common-tools/database-tools/data-conversion-tools");
 const database_manager_1 = require("../../common-tools/database-tools/database-manager");
+const encodeString_1 = require("../../shared-tools/utility-functions/encodeString");
 const queries_1 = require("../user/queries");
 function queryToGetAdminChatMessages(userId, includeUserData) {
     const projectWithoutUserData = database_manager_1.__.valueMap().by(database_manager_1.__.unfold());
@@ -19,10 +20,12 @@ function queryToGetAdminChatMessages(userId, includeUserData) {
 }
 exports.queryToGetAdminChatMessages = queryToGetAdminChatMessages;
 function queryToSaveAdminChatMessage(userId, updatedMessagesList, lastMessageIsFromAdmin) {
+    let messages = (0, data_conversion_tools_1.serializeIfNeeded)(updatedMessagesList);
+    messages = (0, encodeString_1.encodeString)(messages);
     return (0, queries_1.queryToGetUserById)(userId)
         .as("user")
         .coalesce(database_manager_1.__.out("chatWithAdmins"), database_manager_1.__.addV("chatWithAdmins").as("x").addE("chatWithAdmins").from_("user").select("x"))
-        .property(database_manager_1.cardinality.single, "messages", (0, data_conversion_tools_1.serializeIfNeeded)(updatedMessagesList))
+        .property(database_manager_1.cardinality.single, "messages", messages)
         .property(database_manager_1.cardinality.single, "adminHasResponded", lastMessageIsFromAdmin)
         .property(database_manager_1.cardinality.single, "lastMessageDate", moment().unix());
 }
@@ -42,7 +45,6 @@ function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin) {
 exports.queryToGetAllChatsWithAdmins = queryToGetAllChatsWithAdmins;
 function queryToSelectUsersForNotification(filters) {
     const traversal = (0, queries_1.queryToGetAllCompleteUsers)();
-    console.log(filters.usersEmail);
     if (filters.usersEmail && filters.usersEmail.length > 0) {
         traversal.union(...filters.usersEmail.map(email => database_manager_1.__.has("email", email)));
     }

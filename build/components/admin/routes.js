@@ -7,11 +7,13 @@ const route_tools_1 = require("../../common-tools/route-tools/route-tools");
 const configurations_1 = require("../../configurations");
 const models_1 = require("./models");
 const validateAdminCredentials_1 = require("./tools/validateAdminCredentials");
+// TODO: Endpoints here need a validator (for security)
 function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/validate/credentials", "GET", models_1.validateCredentialsGet);
-    (0, route_tools_1.createRoute)(r, "/admin/chat", "GET", models_1.adminChatGet);
-    (0, route_tools_1.createRoute)(r, "/admin/chat", "POST", models_1.adminChatPost);
-    (0, route_tools_1.createRoute)(r, "/admin/chat/all", "GET", models_1.allChatsWithAdminsGet);
+    // Currently this is not used in the client this is why it's commented. It's working when uncommented the only thing that needs is a validator (for security)
+    // createRoute(r, "/admin/chat", "GET", adminChatGet);
+    // createRoute(r, "/admin/chat", "POST", adminChatPost);
+    // createRoute(r, "/admin/chat/all", "GET", allChatsWithAdminsGet);
     (0, route_tools_1.createRoute)(r, "/admin/logs/files", "GET", models_1.logFileListGet);
     (0, route_tools_1.createRoute)(r, "/admin/log", "GET", models_1.logGet);
     (0, route_tools_1.createRoute)(r, "/admin/log/entry/delete", "POST", models_1.logDeleteEntryPost);

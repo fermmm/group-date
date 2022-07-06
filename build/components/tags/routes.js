@@ -6,7 +6,6 @@ const models_1 = require("./models");
 function tagsRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/tags", "GET", models_1.tagsGet);
     (0, route_tools_1.createRoute)(r, "/tags/created", "GET", models_1.tagsCreatedByUserGet);
-    (0, route_tools_1.createRoute)(r, "/tags/questions", "GET", models_1.appAuthoredTagsAsQuestionsGet);
     (0, route_tools_1.createRoute)(r, "/tags/create", "POST", models_1.createTagPost);
     (0, route_tools_1.createRoute)(r, "/tags/subscribe", "POST", models_1.subscribeToTagsPost);
     (0, route_tools_1.createRoute)(r, "/tags/block", "POST", models_1.blockTagsPost);
