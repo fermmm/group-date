@@ -92,15 +92,23 @@ export async function exportDatabaseContentFromNeptune(
       return Promise.reject("AWS_REGION is not set in the .env file");
    }
 
-   let commandResponse = await executeSystemCommand(
-      "test -e vendor/neptune-export/neptune-export.jar && echo true || echo false",
-   );
+   let commandResponse: string;
+   /**
+    * This commented code avoids downloading the neptune-export.jar file if it's already present,
+    * but I commented it because it caused a problem: it was throwing an error and the solution was
+    * to download a new version of the file (from the same URL) I commented this code to avoid this
+    * problem if happens again in the future. Currently the the file will be re-downloaded each time an
+    * export is done, it adds to the time it takes to export but it's not a big deal.
+    */
+   // commandResponse = await executeSystemCommand(
+   //    "test -e vendor/neptune-export/neptune-export.jar && echo true || echo false",
+   // );
 
-   if (commandResponse === "false") {
-      commandResponse = await executeSystemCommand(
-         "wget https://s3.amazonaws.com/aws-neptune-customer-samples/neptune-export/bin/neptune-export.jar -P vendor/neptune-export",
-      );
-   }
+   // if (commandResponse === "false") {
+   commandResponse = await executeSystemCommand(
+      "wget https://s3.amazonaws.com/aws-neptune-customer-samples/neptune-export/bin/neptune-export.jar -P vendor/neptune-export",
+   );
+   // }
 
    commandResponse = await executeSystemCommand(
       "test -e vendor/neptune-export/neptune-export.jar && echo true || echo false",
