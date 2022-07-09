@@ -40,7 +40,7 @@ export interface User {
    lastGroupJoinedDate: number;
    imagesAmount?: number;
    notifications: Notification[];
-   questionsShowed: string[];
+   questionsResponded: AnswerIds[];
    notificationsToken: string;
    tagsSubscribed?: TagBasicInfo[];
    tagsBlocked?: TagBasicInfo[];
@@ -52,7 +52,15 @@ export interface User {
    isUnicornHunter?: boolean;
    isUnicornHunterInsisting?: boolean;
    requiredTasks?: RequiredTask[];
+   /**
+    * Unwanted users are users that are not the target audience of the app.
+    * They are not allowed to use some features, like creating new tags.
+    * A user becomes unwanted by answering a question that is set as
+    * unwantedUserAnswer: true, also by having user properties set like
+    * in this object.
+    */
    unwantedUser?: boolean;
+   coupleProfileLastChangeDate?: number;
 }
 
 export type UserPropsValueTypes = ValueOf<User>;
@@ -89,7 +97,7 @@ export const NON_CIS_GENDERS: readonly Gender[] = ALL_GENDERS.filter(gender => !
 
 export interface ProfileStatusServerResponse {
    missingEditableUserProps: RequiredUserPropKey[];
-   notShowedTagQuestions: string[];
+   notRespondedQuestions: string[];
    user: Partial<User>;
 }
 
@@ -100,6 +108,7 @@ export interface UserGetParams extends TokenParameter {
 export interface UserPostParams {
    token: string;
    props?: Partial<User>;
+   questionAnswers?: AnswerIds[];
    updateProfileCompletedProp?: boolean;
 }
 
@@ -150,20 +159,8 @@ export enum NotificationType {
    About,
 }
 
-export type UserPropsAsQuestionsTypes = boolean;
-
-export interface UserPropAsQuestion<T = UserPropsAsQuestionsTypes> {
-   text: string;
-   answers: Array<UserPropAsQuestionAnswer<T>>;
-   multipleAnswersAllowed?: boolean;
-   shortVersion?: string;
-}
-
-export interface UserPropAsQuestionAnswer<T = UserPropsAsQuestionsTypes> {
-   propName: keyof User;
-   text: string;
-   shortVersion?: string;
-   value: T;
+export interface SettingsAsQuestionPostParams extends TokenParameter {
+   answers: AnswerIds[];
 }
 
 export const allAttractionTypes: AttractionType[] = Object.values(AttractionType);
@@ -243,4 +240,102 @@ export interface TaskCompletedResponse {
 
 export enum TaskType {
    ShowRemoveSeenMenu = "ShowRemoveSeenMenu",
+}
+
+export interface Question {
+   /**
+    * You need to create a unique question id for each question. It will be used to reference this question.
+    */
+   questionId: string;
+   /**
+    * Text of the question. Localization is already implemented.
+    */
+   text: string;
+   /**
+    * Extra text to display after the question.
+    */
+   extraText?: string;
+   answers: QuestionAnswer[];
+}
+
+export interface QuestionAnswer {
+   /**
+    * You need to create a unique id for this answer. It will be used to reference this answer.
+    */
+   answerId: string;
+   /**
+    * Text of the answer. Localization is already implemented.
+    */
+   text: string;
+   /**
+    * Extra text that is displayed below the answer.
+    */
+   extraText?: string;
+   /**
+    * If this parameter is set, one or more tags will be created when the server boots and the user responding
+    * this answer will be subscribed to these tag(s).
+    */
+   subscribesToTags?: AnswerSubscribesToTag[];
+   /**
+    * If this parameter is set, when the user selects this answer one or more tags will be blocked by the user.
+    */
+   blocksTags?: AnswerBlocksTag[];
+   /**
+    * When this parameter is set, one or more user props will be changed when the user selects this answer.
+    * WARNING: If the user changes the response of the question this user prop will not be reverted to the original value,
+    * you may want the other responses to also set this user prop to avoid unintended effects.
+    */
+   setsUserProp?: AnswerSetsUserProp[];
+   /**
+    * When this parameter is set, when the user selects this answer other questions can be automatically answered.
+    * Make sure the order of the other questions are placed after this, otherwise the user will be answering the
+    * automatic question first and this feature will be not used.
+    */
+   answersOtherQuestions?: AnswerIds[];
+}
+
+export interface AnswerSubscribesToTag {
+   /**
+    * The id of the tag that will be created and the user subscribed to when answering this.
+    */
+   tagId: string;
+   /**
+    * If this param is set with a tag name, the tag will be created if it doesn't exist when booting the server and the user will be subscribed to it when selecting this answer.
+    */
+   tagName: string;
+   /**
+    * The category of the tag
+    */
+   category?: string;
+   /**
+    * This means that the user never sees the tag is used internally and it's not visible in the client app. Default = false
+    */
+   tagIsVisible?: boolean;
+}
+
+export interface AnswerBlocksTag {
+   /**
+    * The id of the tag that will be blocked.
+    */
+   tagId: string;
+   /**
+    * If this param is set to true the user will be asked if he/she wants to block the tag or not. Default = false
+    */
+   optional?: boolean;
+}
+
+export interface AnswerSetsUserProp {
+   /**
+    * The name of the user prop to change.
+    */
+   propName: keyof User;
+   /**
+    * The value to set. You can also write a function returning the value, the function will be executed when the question is answered, this can be useful to set the current date as the value.
+    */
+   valueToSet: number | string | boolean | (() => number | string | boolean);
+}
+
+export interface AnswerIds {
+   questionId: string;
+   answerId: string;
 }

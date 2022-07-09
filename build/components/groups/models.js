@@ -167,7 +167,7 @@ exports.dateDayVotePost = dateDayVotePost;
  * Optimized endpoint to get the chat value of the group and register the messages as read. This endpoint
  * is optimized as much as possible, so it doesn't parse the chat, the response can be faster and parsing is
  * done on the client. This means the returned value is a string to be parsed by the client.
- * Before parsing to JSON it needs to be decoded using decodeURI() javascript function or decodeString() wrapper.
+ * Before parsing to JSON it needs to be decoded using decodeURIComponent() javascript function or decodeString() wrapper.
  */
 async function chatGet(params, ctx) {
     let traversal = (0, queries_2.queryToGetGroupById)(params.groupId, { onlyIfAMemberHasToken: params.token });

@@ -51,7 +51,7 @@ const OTHER_USER_PROPS_SCHEMA = {
     country: { type: "string", min: 2, max: 32, optional: true },
 };
 /**
- * This Set contains the names of the user props that will be saved encoded (currently using encodeURI()) this is needed when
+ * This Set contains the names of the user props that will be saved encoded (currently using encodeURIComponent()) this is needed when
  * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
  * format of the database backup files. Specifically line breaks or the \ character has problems.
  */

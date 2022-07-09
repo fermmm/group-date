@@ -87,9 +87,15 @@ const UserPanel: FC<PropsGenericPropertiesTable> = props => {
       props.onRefresh();
    };
 
-   let userImagesParsed: string[] = JSON.parse(
-      decodeString((user?.images as unknown as string) ?? "[]") as unknown as string,
-   );
+   let userImagesParsed: string[];
+
+   try {
+      userImagesParsed = JSON.parse(
+         decodeString((user?.images as unknown as string) ?? "[]") as unknown as string,
+      );
+   } catch (e) {
+      console.log(user?.images);
+   }
 
    return (
       <>

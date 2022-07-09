@@ -14,7 +14,7 @@ const EDITABLE_TAG_PROPS_SCHEMA = {
     global: { type: "boolean", optional: true },
 };
 /**
- * This Set contains the names of the tag props that will be saved encoded (currently using encodeURI()) this is needed when
+ * This Set contains the names of the tag props that will be saved encoded (currently using encodeURIComponent())) this is needed when
  * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
  * format of the database backup files. Specifically line breaks or the \ character has problems.
  */

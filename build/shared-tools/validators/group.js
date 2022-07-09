@@ -11,7 +11,7 @@ const EDITABLE_GROUP_PROPS_SCHEMA = {
 // Currently there is no group prop that is edited on endpoints.
 };
 /**
- * This Set contains the names of the group props that will be saved encoded (currently using encodeURI()) this is needed when
+ * This Set contains the names of the group props that will be saved encoded (currently using encodeURIComponent()) this is needed when
  * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
  * format of the database backup files. Specifically line breaks or the \ character has problems.
  */

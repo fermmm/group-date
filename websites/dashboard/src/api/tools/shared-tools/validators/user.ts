@@ -15,7 +15,6 @@ type V = ValidationRule;
 const REQUIRED_USER_PROPS_SCHEMA = {
    name: { type: "string", min: 2, max: 32, optional: true } as V,
    birthDate: { type: "number", optional: true } as V,
-   isCoupleProfile: { type: "boolean", optional: true } as V,
    cityName: { type: "string", min: 2, max: 32, optional: true } as V,
    images: { type: "array", items: { type: "string", min: 1, max: 800 }, min: 0, max: 6, optional: true } as V,
    targetAgeMin: { type: "number", min: 18, max: 200, optional: true } as V,
@@ -25,7 +24,6 @@ const REQUIRED_USER_PROPS_SCHEMA = {
    profileDescription: { type: "string", max: 4000, optional: true } as V,
    height: { type: "number", min: 0, max: 300, optional: true } as V,
    sendNewUsersNotification: { type: "number", min: 0, max: 50, optional: true } as V,
-   questionsShowed: { type: "array", items: { type: "string", min: 1, max: 20 }, max: 50, optional: true } as V,
    genders: {
       type: "array",
       items: { type: "string", min: 1, max: 100 },
@@ -56,7 +54,7 @@ const OTHER_USER_PROPS_SCHEMA = {
 };
 
 /**
- * This Set contains the names of the user props that will be saved encoded (currently using encodeURI()) this is needed when
+ * This Set contains the names of the user props that will be saved encoded (currently using encodeURIComponent()) this is needed when
  * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
  * format of the database backup files. Specifically line breaks or the \ character has problems.
  */
@@ -68,7 +66,7 @@ export const USER_PROPS_TO_ENCODE = new Set<keyof User>([
    "country",
    "language",
    "images",
-   "questionsShowed",
+   "questionsResponded",
    "notificationsToken",
    "genders",
    "likesGenders",
@@ -80,7 +78,7 @@ export const USER_PROPS_TO_ENCODE = new Set<keyof User>([
 export const USER_PROPS_TO_STRINGIFY: Array<keyof User> = [
    "images",
    "notifications",
-   "questionsShowed",
+   "questionsResponded",
    "genders",
    "likesGenders",
    "banReasons",
@@ -115,6 +113,8 @@ export const editableUserPropsList: EditableUserPropKey[] = Object.keys({
    ...REQUIRED_USER_PROPS_SCHEMA,
    ...OTHER_USER_PROPS_SCHEMA,
 }) as EditableUserPropKey[];
+
+export const editableUserPropListAsSet = new Set(editableUserPropsList);
 
 // Function to validate user props
 export const validateUserProps = v.compile({

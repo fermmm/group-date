@@ -42,33 +42,4 @@ export interface BasicSingleTagParams {
    tagId: string;
 }
 
-export interface TagsAsQuestion {
-   questionId: string;
-   text: string;
-   extraText?: string;
-   answers: QuestionAnswerData[];
-   /**
-    * This object is used to set which responses are incompatible between each other, allowing users to block other users that select an incompatible response.
-    */
-   incompatibilitiesBetweenAnswers?: { [key: number]: number[] };
-   /**
-    * This means that the user can't select if he/she is going to block users that select an incompatible response.
-    */
-   filterSelectionInvisible?: boolean;
-   /**
-    * This means that it blocks incompatible users by default. Combined with invisible block selection (the previous prop) forces the users to block the incompatible ones.
-    */
-   filterSelectedByDefault?: boolean;
-}
-
-export interface QuestionAnswerData {
-   text: string;
-   tagId?: string;
-   category?: string;
-   tagName?: string;
-   tagIsVisible?: boolean;
-   extraText?: string;
-   unwantedUserAnswer?: boolean;
-}
-
 export type TagRelationShip = "subscribed" | "blocked";
