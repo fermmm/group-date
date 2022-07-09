@@ -23,8 +23,8 @@ exports.APP_STORE_URL = "https://apps.apple.com/app/groupdate-polyamory-dating/i
 /*
  * Versions of the client allowed to connect to the server
  */
-exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.4.3";
-exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.4.3";
+exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.4.5";
+exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.4.5";
 /**
  * If you change this you also have to change it in:
  *    - The api calls of the email-login website

@@ -30,8 +30,8 @@ export const APP_STORE_URL = "https://apps.apple.com/app/groupdate-polyamory-dat
 /*
  * Versions of the client allowed to connect to the server
  */
-export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.4.3";
-export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.4.3";
+export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.4.5";
+export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.4.5";
 
 /**
  * If you change this you also have to change it in:
