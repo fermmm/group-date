@@ -345,13 +345,15 @@ const isCoupleProfileQuestion = {
             text: "Just me",
             answerId: "justMe",
             setsUserProp: [{ propName: "isCoupleProfile", valueToSet: false }],
-            // This answer will also block unicorn hunters:
+            // This auto-answer will also block unicorn hunters:
             answersOtherQuestions: [{ questionId: "q06", answerId: "notUnicornHunters" }],
         },
         {
             text: "With my couple",
             answerId: "couple",
             subscribesToTags: [{ tagId: "couple" }],
+            // For couples can be confusing to be asked about the date size because that size can or cannot include the partner. So we auto-answer that question with the answer that is less restrictive but not the one of the target users.
+            answersOtherQuestions: [{ questionId: "taq-3-v2", answerId: "only3" }],
             setsUserProp: [
                 { propName: "isCoupleProfile", valueToSet: true },
                 // This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because changing from single profile to couple should be allowed always

@@ -3,15 +3,16 @@ import { BaseContext } from "koa";
 import { getRandomInt } from "./../../common-tools/math-tools/general";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import { Tag, TagCreateParams } from "../../shared-tools/endpoints-interfaces/tags";
-import { AttractionType } from "../../shared-tools/endpoints-interfaces/user";
+import { AttractionType, User } from "../../shared-tools/endpoints-interfaces/user";
 import { chance } from "../../tests/tools/generalTools";
 import { createFakeCompatibleUsers } from "../../tests/tools/users";
 import { searchAndCreateNewGroups } from "../groups-finder/models";
 import { createTagPost, subscribeToTagsPost } from "../tags/models";
-import { retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
+import { retrieveFullyRegisteredUser, setAttractionPost, userPost } from "../user/models";
 import { chatPost, userGroupsGet } from "../groups/models";
 import { fromQueryToUser } from "../user/tools/data-conversion";
 import { queryToGetUserById } from "../user/queries";
+import { fakeCtx } from "../../tests/tools/replacements";
 
 const allUsersCreated = [];
 export async function createFakeUsersPost(
@@ -124,4 +125,32 @@ export async function createFakeChatConversation(params: TokenParameter, ctx: Ba
    }
 
    return `Created fake conversation.`;
+}
+
+/**
+ * Process the questions again, useful when the question settings changes and the users need to be updated.
+ */
+export async function refreshQuestions(props: {
+   user: User;
+   onlyRefreshQuestionIds?: string[];
+   ignoreQuestionIds?: string[];
+   ctx?: BaseContext;
+}): Promise<void> {
+   const { user, ctx, onlyRefreshQuestionIds, ignoreQuestionIds } = props;
+
+   let questionAnswers = [...(user.questionsResponded ?? [])];
+
+   if (onlyRefreshQuestionIds) {
+      questionAnswers = questionAnswers.filter(q => onlyRefreshQuestionIds.includes(q.questionId));
+   }
+
+   if (ignoreQuestionIds) {
+      questionAnswers = questionAnswers.filter(q => !ignoreQuestionIds.includes(q.questionId));
+   }
+
+   if (questionAnswers.length === 0) {
+      return;
+   }
+
+   await userPost({ token: user.token, questionAnswers, updateProfileCompletedProp: true }, ctx ?? fakeCtx);
 }

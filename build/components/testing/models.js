@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFakeChatConversation = exports.forceGroupSearch = exports.createFakeTagsPost = exports.createFakeUsersPost = void 0;
+exports.refreshQuestions = exports.createFakeChatConversation = exports.forceGroupSearch = exports.createFakeTagsPost = exports.createFakeUsersPost = void 0;
 const moment = require("moment");
 const general_1 = require("./../../common-tools/math-tools/general");
 const user_1 = require("../../shared-tools/endpoints-interfaces/user");
@@ -12,6 +12,7 @@ const models_3 = require("../user/models");
 const models_4 = require("../groups/models");
 const data_conversion_1 = require("../user/tools/data-conversion");
 const queries_1 = require("../user/queries");
+const replacements_1 = require("../../tests/tools/replacements");
 const allUsersCreated = [];
 async function createFakeUsersPost(params, ctx) {
     const user = await (0, models_3.retrieveFullyRegisteredUser)(params.token, false, ctx);
@@ -98,4 +99,23 @@ async function createFakeChatConversation(params, ctx) {
     return `Created fake conversation.`;
 }
 exports.createFakeChatConversation = createFakeChatConversation;
+/**
+ * Process the questions again, useful when the question settings changes and the users need to be updated.
+ */
+async function refreshQuestions(props) {
+    var _a;
+    const { user, ctx, onlyRefreshQuestionIds, ignoreQuestionIds } = props;
+    let questionAnswers = [...((_a = user.questionsResponded) !== null && _a !== void 0 ? _a : [])];
+    if (onlyRefreshQuestionIds) {
+        questionAnswers = questionAnswers.filter(q => onlyRefreshQuestionIds.includes(q.questionId));
+    }
+    if (ignoreQuestionIds) {
+        questionAnswers = questionAnswers.filter(q => !ignoreQuestionIds.includes(q.questionId));
+    }
+    if (questionAnswers.length === 0) {
+        return;
+    }
+    await (0, models_3.userPost)({ token: user.token, questionAnswers, updateProfileCompletedProp: true }, ctx !== null && ctx !== void 0 ? ctx : replacements_1.fakeCtx);
+}
+exports.refreshQuestions = refreshQuestions;
 //# sourceMappingURL=models.js.map
