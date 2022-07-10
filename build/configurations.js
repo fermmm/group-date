@@ -344,13 +344,8 @@ const isCoupleProfileQuestion = {
         {
             text: "Just me",
             answerId: "justMe",
-            setsUserProp: [
-                {
-                    propName: "isCoupleProfile",
-                    valueToSet: false,
-                },
-            ],
-            // This answer will block unicorn hunters:
+            setsUserProp: [{ propName: "isCoupleProfile", valueToSet: false }],
+            // This answer will also block unicorn hunters:
             answersOtherQuestions: [{ questionId: "q06", answerId: "notUnicornHunters" }],
         },
         {
@@ -358,14 +353,9 @@ const isCoupleProfileQuestion = {
             answerId: "couple",
             subscribesToTags: [{ tagId: "couple" }],
             setsUserProp: [
-                {
-                    propName: "isCoupleProfile",
-                    valueToSet: true,
-                },
-                {
-                    propName: "coupleProfileLastChangeDate",
-                    valueToSet: () => moment().unix(),
-                },
+                { propName: "isCoupleProfile", valueToSet: true },
+                // This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because changing from single profile to couple should be allowed always
+                { propName: "coupleProfileLastChangeDate", valueToSet: () => moment().unix() },
             ],
         },
     ],
@@ -405,13 +395,15 @@ const dateTypeQuestion = {
             text: "A date of 3, without anyone else",
             answerId: "only3",
             subscribesToTags: [{ tagId: "only3" }],
+            blocksTags: [{ tagId: "withSomeone" }],
             setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
         },
         {
             text: "A group date where we like each other. Of 3, 4, 5 or more",
             answerId: "groupDate",
             subscribesToTags: [{ tagId: "groupDate" }],
-            blocksTags: [{ tagId: "only3" }, { tagId: "withSomeone" }],
+            // Here couples are also blocked because the users that selects this answer are the target users of the app, they should not see couples because couples are not target users
+            blocksTags: [{ tagId: "only3" }, { tagId: "withSomeone" }, { tagId: "couple" }],
         },
     ],
 };

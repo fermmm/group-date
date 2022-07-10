@@ -8,22 +8,22 @@ function testingRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/testing/create-fake-tags", "GET", models_1.createFakeTagsPost);
     (0, route_tools_1.createRoute)(r, "/testing/force-groups-search", "GET", models_1.forceGroupSearch);
     (0, route_tools_1.createRoute)(r, "/testing/create-fake-chat", "GET", models_1.createFakeChatConversation);
-    const newTagsIds = {
-        "q05-a01": "couple",
-        "q06-a01": "unicornHunters",
-        "q03-a00-v2": "groupDate",
-        "q03-a01-v2": "only3",
-        "q03-a02-v2": "withSomeone",
-        "q04-a01": "sexDirectly",
-        "q04-a02": "anyActivity",
-        "q00-a00": "feminism",
-        "q00-a01": "antiFeminist",
-    };
-    const newAnswerIds = {
-        ...newTagsIds,
-        "q06-a02": "notUnicornHunters",
-        "q05-a01": "justMe",
-    };
+    // const newTagsIds = {
+    //    "q05-a01": "couple",
+    //    "q06-a01": "unicornHunters",
+    //    "q03-a00-v2": "groupDate",
+    //    "q03-a01-v2": "only3",
+    //    "q03-a02-v2": "withSomeone",
+    //    "q04-a01": "sexDirectly",
+    //    "q04-a02": "anyActivity",
+    //    "q00-a00": "feminism",
+    //    "q00-a01": "antiFeminist",
+    // };
+    // const newAnswerIds = {
+    //    ...newTagsIds,
+    //    "q06-a02": "notUnicornHunters",
+    //    "q05-a01": "justMe",
+    // };
     (0, route_tools_1.createRoute)(r, "/testing/temp", "GET", async (params, ctx) => {
         // await notifyAllUsersAboutNewCards();
         // const allTags = await fromQueryToTagList(g.V().hasLabel("tag").has("global", true));
