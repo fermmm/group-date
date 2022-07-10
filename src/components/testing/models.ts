@@ -9,7 +9,6 @@ import { createFakeCompatibleUsers } from "../../tests/tools/users";
 import { searchAndCreateNewGroups } from "../groups-finder/models";
 import { createTagPost, subscribeToTagsPost } from "../tags/models";
 import { retrieveFullyRegisteredUser, setAttractionPost } from "../user/models";
-import { APP_AUTHORED_TAGS } from "../../configurations";
 import { chatPost, userGroupsGet } from "../groups/models";
 import { fromQueryToUser } from "../user/tools/data-conversion";
 import { queryToGetUserById } from "../user/queries";
@@ -30,15 +29,6 @@ export async function createFakeUsersPost(
       Number(params.text),
    );
    allUsersCreated.push(...usersCreated);
-
-   for (let i = 0; i < usersCreated.length; i++) {
-      const userCreated = usersCreated[i];
-      if (i % 2 == 0) {
-         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[0].tagId] }, ctx);
-      } else {
-         await subscribeToTagsPost({ token: userCreated.token, tagIds: [APP_AUTHORED_TAGS[1].tagId] }, ctx);
-      }
-   }
 
    for (const userCreated of allUsersCreated) {
       await setAttractionPost(

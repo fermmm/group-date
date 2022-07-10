@@ -318,7 +318,7 @@ describe("Tags", () => {
       let user = await createFakeUser({ language: "es" });
       const tags: Tag[] = [];
       const maxSubscriptionsAllowed =
-         MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + QUESTIONS.length;
+         MAX_TAG_SUBSCRIPTIONS_ALLOWED + Object.keys(APP_AUTHORED_TAGS).length + QUESTIONS.length;
 
       // Create the maximum amount of tags for 'es' language
       for (let i = 0; i < maxSubscriptionsAllowed; i++) {

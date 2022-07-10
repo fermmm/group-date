@@ -95,13 +95,13 @@ const types_1 = require("./common-tools/log-tool/types");
     (0, log_routes_1.routesLogger)(router);
     // Routes:
     (0, routes_4.serverInfoRoutes)(router);
+    (0, routes_5.testingRoutes)(router);
+    (0, routes_1.adminRoutes)(router);
     (0, routes_8.emailLoginRoutes)(router);
     (0, routes_7.userRoutes)(router);
     (0, routes_2.cardsGameRoutes)(router);
     (0, routes_3.groupsRoutes)(router);
     (0, routes_6.tagsRoutes)(router);
-    (0, routes_1.adminRoutes)(router);
-    (0, routes_5.testingRoutes)(router);
     // Final console messages
     console.log("✓ Server initialized!");
     console.log(`✓ Promo website available in ${(0, getServerUrl_1.getServerUrl)()}/`);

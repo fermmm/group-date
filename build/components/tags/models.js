@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppAuthoredTagIdsAsSet = exports.getNotRespondedQuestionIds = exports.removeAllTagsCreatedBy = exports.createAppAuthoredTags = exports.removeTagsPost = exports.removeBlockToTagsPost = exports.removeSubscriptionToTagsPost = exports.blockTagsPost = exports.subscribeToTagsPost = exports.tagsCreatedByUserGet = exports.tagsGet = exports.createTagPost = exports.initializeTags = void 0;
+exports.getNotRespondedQuestionIds = exports.removeAllTagsCreatedBy = exports.createAppAuthoredTags = exports.removeTagsPost = exports.removeBlockToTagsPost = exports.removeSubscriptionToTagsPost = exports.blockTagsPost = exports.subscribeToTagsPost = exports.tagsCreatedByUserGet = exports.tagsGet = exports.createTagPost = exports.initializeTags = void 0;
 const moment = require("moment");
 const configurations_1 = require("../../configurations");
 const data_conversion_1 = require("./tools/data-conversion");
@@ -104,7 +104,7 @@ async function tagsCreatedByUserGet(token) {
 exports.tagsCreatedByUserGet = tagsCreatedByUserGet;
 async function subscribeToTagsPost(params, ctx) {
     var _a, _b, _c, _d, _e;
-    const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + configurations_1.APP_AUTHORED_TAGS.length + configurations_1.QUESTIONS.length;
+    const maxSubscriptionsAllowed = configurations_1.MAX_TAG_SUBSCRIPTIONS_ALLOWED + Object.keys(configurations_1.APP_AUTHORED_TAGS).length + configurations_1.QUESTIONS.length;
     const user = await (0, models_1.retrieveUser)(params.token, true, ctx);
     // Max tags allowed should also sum the tags the user does not know he/she is subscribed to
     if (((_a = user.tagsSubscribed) === null || _a === void 0 ? void 0 : _a.length) >= maxSubscriptionsAllowed) {
@@ -172,32 +172,16 @@ async function removeTagsPost(params, ctx) {
 }
 exports.removeTagsPost = removeTagsPost;
 async function createAppAuthoredTags() {
-    // Create raw app authored tags
-    const tagsToCreate = configurations_1.APP_AUTHORED_TAGS.map(tag => ({
-        ...tag,
-        language: "all",
-        creationDate: moment().unix(),
-        lastInteractionDate: moment().unix(),
-        global: true,
-        visible: true,
-    }));
-    configurations_1.QUESTIONS.forEach(question => {
-        question.answers.forEach(answer => {
-            if (answer.subscribesToTags) {
-                tagsToCreate.push(...answer.subscribesToTags.map(tag => {
-                    var _a;
-                    return ({
-                        tagId: tag.tagId,
-                        category: tag.category,
-                        name: tag.tagName,
-                        visible: (_a = tag.tagIsVisible) !== null && _a !== void 0 ? _a : false,
-                        language: "all",
-                        creationDate: moment().unix(),
-                        lastInteractionDate: moment().unix(),
-                        global: true,
-                    });
-                }));
-            }
+    const tagsToCreate = Object.keys(configurations_1.APP_AUTHORED_TAGS).map(tagId => {
+        var _a;
+        return ({
+            ...configurations_1.APP_AUTHORED_TAGS[tagId],
+            tagId,
+            language: "all",
+            creationDate: moment().unix(),
+            lastInteractionDate: moment().unix(),
+            global: true,
+            visible: (_a = configurations_1.APP_AUTHORED_TAGS[tagId].visible) !== null && _a !== void 0 ? _a : false,
         });
     });
     await (0, data_conversion_1.fromQueryToTag)((0, common_queries_1.queryToCreateVerticesFromObjects)({
@@ -255,10 +239,8 @@ function getRemainingTimeToCreateNewTag(tags) {
  * App authored tags are global, this means any language will see the tags, so translation is needed.
  */
 function translateAppAuthoredTags(tags, localeSource) {
-    const appAuthoredIds = getAppAuthoredTagIdsAsSet();
     return tags.map(tag => {
-        // App authored tags are already translated
-        if (!appAuthoredIds.has(tag.tagId)) {
+        if (configurations_1.APP_AUTHORED_TAGS[tag.tagId] == null) {
             return tag;
         }
         return {
@@ -268,16 +250,4 @@ function translateAppAuthoredTags(tags, localeSource) {
         };
     });
 }
-let catchedAppAuthoredQuestions = null;
-function getAppAuthoredTagIdsAsSet() {
-    if (catchedAppAuthoredQuestions != null) {
-        return catchedAppAuthoredQuestions;
-    }
-    const result = new Set();
-    configurations_1.APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
-    configurations_1.QUESTIONS.forEach(q => q.answers.forEach(a => { var _a; return (_a = a.subscribesToTags) === null || _a === void 0 ? void 0 : _a.forEach(t => result.add(t.tagId)); }));
-    catchedAppAuthoredQuestions = result;
-    return result;
-}
-exports.getAppAuthoredTagIdsAsSet = getAppAuthoredTagIdsAsSet;
 //# sourceMappingURL=models.js.map

@@ -109,13 +109,13 @@ import { LogId } from "./common-tools/log-tool/types";
 
    // Routes:
    serverInfoRoutes(router);
+   testingRoutes(router);
+   adminRoutes(router);
    emailLoginRoutes(router);
    userRoutes(router);
    cardsGameRoutes(router);
    groupsRoutes(router);
    tagsRoutes(router);
-   adminRoutes(router);
-   testingRoutes(router);
 
    // Final console messages
    console.log("✓ Server initialized!");

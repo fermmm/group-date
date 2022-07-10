@@ -9,7 +9,6 @@ const users_1 = require("../../tests/tools/users");
 const models_1 = require("../groups-finder/models");
 const models_2 = require("../tags/models");
 const models_3 = require("../user/models");
-const configurations_1 = require("../../configurations");
 const models_4 = require("../groups/models");
 const data_conversion_1 = require("../user/tools/data-conversion");
 const queries_1 = require("../user/queries");
@@ -21,15 +20,6 @@ async function createFakeUsersPost(params, ctx) {
     }
     const usersCreated = await (0, users_1.createFakeCompatibleUsers)(await (0, models_3.retrieveFullyRegisteredUser)(params.token, false, ctx), Number(params.text));
     allUsersCreated.push(...usersCreated);
-    for (let i = 0; i < usersCreated.length; i++) {
-        const userCreated = usersCreated[i];
-        if (i % 2 == 0) {
-            await (0, models_2.subscribeToTagsPost)({ token: userCreated.token, tagIds: [configurations_1.APP_AUTHORED_TAGS[0].tagId] }, ctx);
-        }
-        else {
-            await (0, models_2.subscribeToTagsPost)({ token: userCreated.token, tagIds: [configurations_1.APP_AUTHORED_TAGS[1].tagId] }, ctx);
-        }
-    }
     for (const userCreated of allUsersCreated) {
         await (0, models_3.setAttractionPost)({
             token: userCreated.token,

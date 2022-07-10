@@ -145,7 +145,8 @@ export async function tagsCreatedByUserGet(token: string) {
 }
 
 export async function subscribeToTagsPost(params: BasicTagParams, ctx: BaseContext): Promise<Tag[]> {
-   const maxSubscriptionsAllowed = MAX_TAG_SUBSCRIPTIONS_ALLOWED + APP_AUTHORED_TAGS.length + QUESTIONS.length;
+   const maxSubscriptionsAllowed =
+      MAX_TAG_SUBSCRIPTIONS_ALLOWED + Object.keys(APP_AUTHORED_TAGS).length + QUESTIONS.length;
 
    const user = await retrieveUser(params.token, true, ctx);
 
@@ -243,34 +244,15 @@ export async function removeTagsPost(params: BasicTagParams, ctx: BaseContext): 
 }
 
 export async function createAppAuthoredTags() {
-   // Create raw app authored tags
-   const tagsToCreate: Array<Partial<Tag>> = APP_AUTHORED_TAGS.map(tag => ({
-      ...tag,
+   const tagsToCreate: Array<Partial<Tag>> = Object.keys(APP_AUTHORED_TAGS).map(tagId => ({
+      ...APP_AUTHORED_TAGS[tagId],
+      tagId,
       language: "all",
       creationDate: moment().unix(),
       lastInteractionDate: moment().unix(),
       global: true,
-      visible: true,
+      visible: APP_AUTHORED_TAGS[tagId].visible ?? false,
    }));
-
-   QUESTIONS.forEach(question => {
-      question.answers.forEach(answer => {
-         if (answer.subscribesToTags) {
-            tagsToCreate.push(
-               ...answer.subscribesToTags.map(tag => ({
-                  tagId: tag.tagId,
-                  category: tag.category,
-                  name: tag.tagName,
-                  visible: tag.tagIsVisible ?? false,
-                  language: "all",
-                  creationDate: moment().unix(),
-                  lastInteractionDate: moment().unix(),
-                  global: true,
-               })),
-            );
-         }
-      });
-   });
 
    await fromQueryToTag(
       queryToCreateVerticesFromObjects({
@@ -335,11 +317,8 @@ function getRemainingTimeToCreateNewTag(tags: Tag[]): number {
  * App authored tags are global, this means any language will see the tags, so translation is needed.
  */
 function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfigurationSources): Tag[] {
-   const appAuthoredIds: Set<string> = getAppAuthoredTagIdsAsSet();
-
    return tags.map(tag => {
-      // App authored tags are already translated
-      if (!appAuthoredIds.has(tag.tagId)) {
+      if (APP_AUTHORED_TAGS[tag.tagId] == null) {
          return tag;
       }
 
@@ -349,17 +328,4 @@ function translateAppAuthoredTags(tags: Tag[], localeSource: LocaleConfiguration
          name: t(tag.name, localeSource),
       };
    });
-}
-
-let catchedAppAuthoredQuestions = null;
-export function getAppAuthoredTagIdsAsSet(): Set<string> {
-   if (catchedAppAuthoredQuestions != null) {
-      return catchedAppAuthoredQuestions;
-   }
-
-   const result = new Set<string>();
-   APP_AUTHORED_TAGS.forEach(q => result.add(q.tagId));
-   QUESTIONS.forEach(q => q.answers.forEach(a => a.subscribesToTags?.forEach(t => result.add(t.tagId))));
-   catchedAppAuthoredQuestions = result;
-   return result;
 }

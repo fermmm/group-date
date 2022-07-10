@@ -5,7 +5,6 @@ import * as path from "path";
 import { DAY_IN_SECONDS, ONE_MONTH_IN_SECONDS, WEEK_IN_SECONDS } from "./common-tools/math-tools/constants";
 import { hoursToMilliseconds, minutesToMilliseconds } from "./common-tools/math-tools/general";
 import { Slot } from "./shared-tools/endpoints-interfaces/groups";
-import { Tag } from "./shared-tools/endpoints-interfaces/tags";
 import {
    NotificationChannelId,
    NotificationChannelInfo,
@@ -31,7 +30,7 @@ export const APP_STORE_URL = "https://apps.apple.com/app/groupdate-polyamory-dat
  * Versions of the client allowed to connect to the server
  */
 export const MINIMUM_CLIENT_CODE_VERSION_ALLOWED = "1.4.5";
-export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.4.5";
+export const MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = "1.4.3";
 
 /**
  * If you change this you also have to change it in:
@@ -288,26 +287,66 @@ export const TAG_CREATION_TIME_FRAME = WEEK_IN_SECONDS;
 export const MAX_TAG_SUBSCRIPTIONS_ALLOWED = 10;
 
 /**
- * These are the "app authored" tags. The tagId can be any string but all should be different for each tag here.
- * This tags will be created when the server boots if they don't exist. This tags are visible in the tags menu.
- * These tags has a special category in the tags menu that makes them more visible than the ones created by users.
+ * These are the "app authored" tags. The key of this object is the tagId, you have to create it here, can be any string.
+ * These tags will be created when the server boots if they don't exist. This tags can be visible in the tags menu or not with the visible prop.
+ * If the tags are visible in the tags menu it will have a special category that makes them more visible than the ones created by users.
+ * If you don't add the visible prop ir will be invisible by default.
+ * Also the tags can be invisible and used in the registration questions.
+ * Don't use quotes in the keys so typescript can do it's job.
  */
-const politicsLeftTag: Partial<Tag> = {
-   tagId: "aat0",
-   category: "Ideas",
-   name: "Left-wing",
+export const APP_AUTHORED_TAGS = {
+   couple: {
+      name: "Couple",
+      category: "App usage",
+   },
+   unicornHunters: {
+      name: "Unicorn hunters",
+      category: "App usage",
+   },
+   groupDate: {
+      name: "Desired date: Group date",
+      category: "App usage",
+   },
+   only3: {
+      name: "Desired date: Only 3 people",
+      category: "App usage",
+   },
+   withSomeone: {
+      name: "Desired date: With someone",
+      category: "App usage",
+   },
+   sexDirectly: {
+      name: "Date activity: Sex directly",
+      category: "App usage",
+   },
+   anyActivity: {
+      name: "Date activity: Any activity",
+      category: "App usage",
+   },
+   feminism: {
+      name: "Feminism",
+      category: "Ideas",
+   },
+   antiFeminist: {
+      name: "Feminism: I Don't agree",
+      category: "Ideas",
+   },
+   /**
+    * These ideology tags are not needed for the moment, it seems almost all people interested in group polyamory are leftists. Right-wing media seems to not
+    * want to mention group relationships because it's a collective idea and that is philosophically left-wing by definition.
+    * 
+     aat0: {
+         name: "Left-wing",
+         category: "Ideas",
+         visible: true,
+      },
+      aat1: {
+         name: "Right-wing",
+         category: "Ideas",
+         visible: true,
+      },
+   */
 };
-
-const politicsRightTag: Partial<Tag> = {
-   tagId: "aat1",
-   category: "Ideas",
-   name: "Right-wing",
-};
-
-// For the moment app authored tags are not required
-export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
-   /*politicsLeftTag, politicsRightTag*/
-];
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////  USER REGISTRATION  ////////////////////////////////////////////////
@@ -318,26 +357,30 @@ export const APP_AUTHORED_TAGS: Array<Partial<Tag>> = [
  * specify if an answer changes user props, subscribes the user to a tag, blocks a tag, answers other questions
  * automatically (you can do a tree of questions) or does all mentioned things at the same time.
  *
- * When you set the question to subscribe to a tag you need to provide all the info of a tag like the category and
- * name becase that will be used to create it at boot (if not present). These tags by default will not be visible in
- * the client's tags menu (unless you specify otherwise).
- * When you create a new question you have to create some ids like: questionId, answerId, tagId (maybe), can be any
- * string just make sure all are different.
+ * When you set the question to subscribe to a tag it needs to be a tag present on the APP_AUTHORED_TAGS.
+ * When you create a new question you have to create some ids like: questionId, answerId, can be any
+ * string just make sure all are different, these ids can be referenced in other questions for auto responses.
  *
- * Localization is executed already, you need to add the strings in english here and then add the translation in the
+ * Localization is executed already, you just need to add the strings in english here and then add the translation in the
  * corresponding language file.
  *
  * When you finish creating a new question add it to SETTINGS_AS_QUESTIONS, there you can specify the order in which
  * the questions will be shown, if a question A has an answer that automatically answers question B
  * (with answersOtherQuestions prop) then you need to add answer A before answer B in the mentioned SETTINGS_AS_QUESTIONS array.
+ *
+ * New questions added will be shown to the user when they boot the app.
+ *
+ * If you make a change on a question and want all the users to be affected by the new change, one way to solve this problem is
+ * by changing the id of que question, that forces the user to answer that question again when they boot the app, like if it's
+ * a new question.
  */
-const isCoupleProfileQuestion: Question = {
+const isCoupleProfileQuestion: Question<keyof typeof APP_AUTHORED_TAGS> = {
    text: "If you go to a group date from this app, do you plan to go with someone?",
    questionId: "q05",
    answers: [
       {
          text: "Just me",
-         answerId: "q05-a01",
+         answerId: "justMe",
          setsUserProp: [
             {
                propName: "isCoupleProfile",
@@ -345,18 +388,12 @@ const isCoupleProfileQuestion: Question = {
             },
          ],
          // This answer will block unicorn hunters:
-         answersOtherQuestions: [{ questionId: "q06", answerId: "q06-a02" }],
+         answersOtherQuestions: [{ questionId: "q06", answerId: "notUnicornHunters" }],
       },
       {
          text: "With my couple",
-         answerId: "q05-a02",
-         subscribesToTags: [
-            {
-               tagId: "q05-a01",
-               category: "App usage",
-               tagName: "Couple",
-            },
-         ],
+         answerId: "couple",
+         subscribesToTags: [{ tagId: "couple" }],
          setsUserProp: [
             {
                propName: "isCoupleProfile",
@@ -371,21 +408,15 @@ const isCoupleProfileQuestion: Question = {
    ],
 };
 
-const unicornHunterQuestion: Question = {
+const unicornHunterQuestion: Question<keyof typeof APP_AUTHORED_TAGS> = {
    text: "Have you installed the app to find a third person to join you?",
    extraText: "Invisible answer. It determines who you see first",
    questionId: "q06",
    answers: [
       {
          text: "Yes, we are here looking for a person to join us",
-         answerId: "q06-a01",
-         subscribesToTags: [
-            {
-               tagId: "q06-a01",
-               category: "App usage",
-               tagName: "Unicorn hunters",
-            },
-         ],
+         answerId: "unicornHunters",
+         subscribesToTags: [{ tagId: "unicornHunters" }],
          setsUserProp: [
             { propName: "isUnicornHunter", valueToSet: true },
             { propName: "unwantedUser", valueToSet: true },
@@ -393,114 +424,72 @@ const unicornHunterQuestion: Question = {
       },
       {
          text: "No, we are interested in group relationships with many",
-         answerId: "q06-a02",
-         blocksTags: [{ tagId: "q06-a01" }],
+         answerId: "notUnicornHunters",
+         blocksTags: [{ tagId: "unicornHunters" }],
       },
    ],
 };
 
-const dateTypeQuestion: Question = {
+const dateTypeQuestion: Question<keyof typeof APP_AUTHORED_TAGS> = {
    text: "What kind of date would you like?",
    questionId: "taq-3-v2",
    answers: [
       {
          text: "A date of 2, without anyone else",
-         answerId: "q03-a02-v2",
-         subscribesToTags: [
-            {
-               tagId: "q03-a02-v2",
-               category: "App usage",
-               tagName: "Desired date: With someone",
-            },
-         ],
+         answerId: "withSomeone",
+         subscribesToTags: [{ tagId: "withSomeone" }],
          setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
       },
       {
          text: "A date of 3, without anyone else",
-         answerId: "q03-a01-v2",
-         subscribesToTags: [
-            {
-               tagId: "q03-a01-v2",
-               category: "App usage",
-               tagName: "Desired date: Only 3 people",
-            },
-         ],
+         answerId: "only3",
+         subscribesToTags: [{ tagId: "only3" }],
          setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
       },
       {
          text: "A group date where we like each other. Of 3, 4, 5 or more",
-         answerId: "q03-a00-v2",
-         subscribesToTags: [
-            {
-               tagId: "q03-a00-v2",
-               category: "App usage",
-               tagName: "Desired date: Group date",
-            },
-         ],
-         blocksTags: [{ tagId: "q03-a01-v2" }, { tagId: "q03-a02-v2" }],
+         answerId: "groupDate",
+         subscribesToTags: [{ tagId: "groupDate" }],
+         blocksTags: [{ tagId: "only3" }, { tagId: "withSomeone" }],
       },
    ],
 };
 
-const usageIntentionQuestion: Question = {
+const usageIntentionQuestion: Question<keyof typeof APP_AUTHORED_TAGS> = {
    questionId: "taq-4",
    text: "What are you looking for in a date in this app?",
    extraText: "Invisible answer. It determines who you see first",
    answers: [
       {
          text: "Sexual experiences without much ado",
-         answerId: "q04-a01",
-         subscribesToTags: [
-            {
-               tagId: "q04-a01",
-               tagName: "Date activity: Sex directly",
-               category: "App usage",
-            },
-         ],
+         answerId: "sexDirectly",
+         subscribesToTags: [{ tagId: "sexDirectly" }],
          setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
       },
       {
          text: "Have a good time with the activities that come up, sexual or not",
-         answerId: "q04-a02",
-         subscribesToTags: [
-            {
-               tagId: "q04-a02",
-               tagName: "Date activity: Any activity",
-               category: "App usage",
-            },
-         ],
-         blocksTags: [{ tagId: "q04-a01" }],
+         answerId: "anyActivity",
+         subscribesToTags: [{ tagId: "anyActivity" }],
+         blocksTags: [{ tagId: "sexDirectly" }],
       },
    ],
 };
 
-const feminismQuestion: Question = {
+const feminismQuestion: Question<keyof typeof APP_AUTHORED_TAGS> = {
    questionId: "taq-0",
    text: "Do you agree with feminism in general?",
    extraText: "Invisible answer. It determines who you see first",
    answers: [
       {
          text: "I totally agree / I Almost totally agree",
-         answerId: "q00-a00",
-         subscribesToTags: [
-            {
-               tagId: "q00-a00",
-               tagName: "Feminism",
-               category: "Ideas",
-            },
-         ],
-         blocksTags: [{ tagId: "q00-a01" }],
+         answerId: "feminism",
+         subscribesToTags: [{ tagId: "feminism" }],
+         blocksTags: [{ tagId: "antiFeminist" }],
       },
       {
          text: "I Don't agree very much / I do not agree at all",
-         answerId: "q00-a01",
-         subscribesToTags: [
-            {
-               tagId: "q00-a01",
-               tagName: "Feminism: I Don't agree",
-               category: "Ideas",
-            },
-         ],
+         answerId: "antiFeminist",
+         subscribesToTags: [{ tagId: "antiFeminist" }],
          setsUserProp: [{ propName: "unwantedUser", valueToSet: true }],
       },
    ],

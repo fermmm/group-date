@@ -74,7 +74,6 @@ import { TokenIdOrUser, TokenOrId } from "./tools/typings";
 import { getNotRespondedQuestionIds } from "../tags/models";
 import {
    APPLICATION_NAME,
-   QUESTIONS,
    BIG_IMAGE_SIZE,
    ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE,
    LOG_PUSH_NOTIFICATION_DELIVERING_RESULT,

@@ -242,7 +242,7 @@ export enum TaskType {
    ShowRemoveSeenMenu = "ShowRemoveSeenMenu",
 }
 
-export interface Question {
+export interface Question<TAG_ID = string> {
    /**
     * You need to create a unique question id for each question. It will be used to reference this question.
     */
@@ -255,10 +255,10 @@ export interface Question {
     * Extra text to display after the question.
     */
    extraText?: string;
-   answers: QuestionAnswer[];
+   answers: QuestionAnswer<TAG_ID>[];
 }
 
-export interface QuestionAnswer {
+export interface QuestionAnswer<TAG_ID = string> {
    /**
     * You need to create a unique id for this answer. It will be used to reference this answer.
     */
@@ -275,11 +275,11 @@ export interface QuestionAnswer {
     * If this parameter is set, one or more tags will be created when the server boots and the user responding
     * this answer will be subscribed to these tag(s).
     */
-   subscribesToTags?: AnswerSubscribesToTag[];
+   subscribesToTags?: AnswerSubscribesToTag<TAG_ID>[];
    /**
     * If this parameter is set, when the user selects this answer one or more tags will be blocked by the user.
     */
-   blocksTags?: AnswerBlocksTag[];
+   blocksTags?: AnswerBlocksTag<TAG_ID>[];
    /**
     * When this parameter is set, one or more user props will be changed when the user selects this answer.
     * WARNING: If the user changes the response of the question this user prop will not be reverted to the original value,
@@ -294,30 +294,22 @@ export interface QuestionAnswer {
    answersOtherQuestions?: AnswerIds[];
 }
 
-export interface AnswerSubscribesToTag {
+export interface AnswerSubscribesToTag<TAG_ID = string> {
    /**
     * The id of the tag that will be created and the user subscribed to when answering this.
     */
-   tagId: string;
-   /**
-    * If this param is set with a tag name, the tag will be created if it doesn't exist when booting the server and the user will be subscribed to it when selecting this answer.
-    */
-   tagName: string;
-   /**
-    * The category of the tag
-    */
-   category?: string;
+   tagId: TAG_ID;
    /**
     * This means that the user never sees the tag is used internally and it's not visible in the client app. Default = false
     */
    tagIsVisible?: boolean;
 }
 
-export interface AnswerBlocksTag {
+export interface AnswerBlocksTag<TAG_ID = string> {
    /**
     * The id of the tag that will be blocked.
     */
-   tagId: string;
+   tagId: TAG_ID;
    /**
     * If this param is set to true the user will be asked if he/she wants to block the tag or not. Default = false
     */
