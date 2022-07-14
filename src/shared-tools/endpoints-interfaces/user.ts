@@ -272,12 +272,13 @@ export interface QuestionAnswer<TAG_ID = string> {
     */
    extraText?: string;
    /**
-    * If this parameter is set, one or more tags will be created when the server boots and the user responding
-    * this answer will be subscribed to these tag(s).
+    * If this parameter is set, when the user selects this answer one or more tags will be subscribed by the user.
+    * When the user changes the answer in the future the tags will be unsubscribed.
     */
    subscribesToTags?: AnswerSubscribesToTag<TAG_ID>[];
    /**
     * If this parameter is set, when the user selects this answer one or more tags will be blocked by the user.
+    * When the user changes the answer in the future the tags will be unblocked.
     */
    blocksTags?: AnswerBlocksTag<TAG_ID>[];
    /**
@@ -290,6 +291,7 @@ export interface QuestionAnswer<TAG_ID = string> {
     * When this parameter is set, when the user selects this answer other questions can be automatically answered.
     * Make sure the order of the other questions are placed after this, otherwise the user will be answering the
     * automatic question first and this feature will be not used.
+    * When the user changes the answer in the future the client will ask the question that was previously auto answered.
     */
    answersOtherQuestions?: AnswerIds[];
 }

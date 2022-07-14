@@ -327,9 +327,9 @@ exports.APP_AUTHORED_TAGS = {
  * Localization is executed already, you just need to add the strings in english here and then add the translation in the
  * corresponding language file.
  *
- * When you finish creating a new question add it to SETTINGS_AS_QUESTIONS, there you can specify the order in which
- * the questions will be shown, if a question A has an answer that automatically answers question B
- * (with answersOtherQuestions prop) then you need to add answer A before answer B in the mentioned SETTINGS_AS_QUESTIONS array.
+ * When you finish creating a new question add it to the QUESTIONS array, there you can specify the order in which
+ * the questions will be shown, Note: If question "A" has an answer that automatically answers question "B"
+ * (with answersOtherQuestions prop) then you need to add answer A before answer B in the mentioned QUESTIONS array.
  *
  * New questions added will be shown to the user when they boot the app.
  *
@@ -339,6 +339,7 @@ exports.APP_AUTHORED_TAGS = {
  */
 const isCoupleProfileQuestion = {
     text: "If you go to a group date from this app, do you plan to go with someone?",
+    extraText: "This app is not designed to participate as a couple, but it's still possible for those who cannot avoid it",
     questionId: "q05",
     answers: [
         {
@@ -352,11 +353,11 @@ const isCoupleProfileQuestion = {
             text: "With my couple",
             answerId: "couple",
             subscribesToTags: [{ tagId: "couple" }],
-            // For couples can be confusing to be asked about the date size because that size can or cannot include the partner. So we auto-answer that question with the answer that is less restrictive but not the one of the target users.
+            // For couples can be confusing to be asked about the date size because that size can or cannot include the partner. So we auto-answer that question with the answer that is less restrictive but not the one of the poly users.
             answersOtherQuestions: [{ questionId: "taq-3-v2", answerId: "only3" }],
             setsUserProp: [
                 { propName: "isCoupleProfile", valueToSet: true },
-                // This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because changing from single profile to couple should be allowed always
+                // This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because changing from single profile to couple should be allowed without waiting
                 { propName: "coupleProfileLastChangeDate", valueToSet: () => moment().unix() },
             ],
         },
@@ -379,7 +380,6 @@ const unicornHunterQuestion = {
         {
             text: "No, we are interested in group relationships with many",
             answerId: "notUnicornHunters",
-            blocksTags: [{ tagId: "unicornHunters" }],
         },
     ],
 };
@@ -404,7 +404,7 @@ const dateTypeQuestion = {
             text: "A group date where we like each other. Of 3, 4, 5 or more",
             answerId: "groupDate",
             subscribesToTags: [{ tagId: "groupDate" }],
-            // Here couples are also blocked because the users that selects this answer are the target users of the app, they should not see couples because couples are not target users
+            // Here couples are also blocked because the users that selects this answer are the target users of the app, they should not see couples because couples are not target users and introduce many problems for them
             blocksTags: [{ tagId: "only3" }, { tagId: "withSomeone" }, { tagId: "couple" }],
         },
     ],
@@ -447,6 +447,7 @@ const feminismQuestion = {
         },
     ],
 };
+// This determines the order of the questions
 exports.QUESTIONS = [
     isCoupleProfileQuestion,
     unicornHunterQuestion,
