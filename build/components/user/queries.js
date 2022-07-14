@@ -165,7 +165,6 @@ exports.queryToRemoveUsers = queryToRemoveUsers;
 function queryToSetUserProps(traversal, newUserProps) {
     var _a, _b, _c;
     const newUserPropsKeys = Object.keys(newUserProps !== null && newUserProps !== void 0 ? newUserProps : {});
-    // Only props on editableUserPropsList are added into the query
     newUserPropsKeys.forEach(key => {
         let value = newUserProps[key];
         value = (0, data_conversion_tools_1.serializeIfNeeded)(value);

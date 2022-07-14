@@ -12,7 +12,7 @@ import {
    ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS,
 } from "../../configurations";
 import * as moment from "moment";
-import { queryToGetAllCompleteUsers } from "../user/queries";
+import { queryToGetAllUsers } from "../user/queries";
 import { GroupQuality } from "./tools/types";
 import { MINIMUM_CONNECTIONS_TO_BE_ON_GROUP } from "../../configurations";
 import { SizeRestriction } from "../../shared-tools/endpoints-interfaces/groups";
@@ -53,7 +53,11 @@ export function queryToGetUsersAllowedToBeOnGroups(
    quality: GroupQuality,
    traversal?: Traversal,
 ): Traversal {
-   traversal = traversal ?? queryToGetAllCompleteUsers();
+   /**
+    * We should include incomplete users because the profile may be incomplete after a migration and the
+    * user does not have the last changes. We check for matches so that filter too incomplete users.
+    */
+   traversal = traversal ?? queryToGetAllUsers();
    traversal = traversal
 
       // Optimization. Discards all users that don't have matches.

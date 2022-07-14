@@ -214,7 +214,6 @@ export async function queryToRemoveUsers(users?: Array<Partial<User>>): Promise<
 export function queryToSetUserProps(traversal: Traversal, newUserProps: Partial<User>): Traversal {
    const newUserPropsKeys = Object.keys(newUserProps ?? {});
 
-   // Only props on editableUserPropsList are added into the query
    newUserPropsKeys.forEach(key => {
       let value = newUserProps[key];
       value = serializeIfNeeded(value);

@@ -18,12 +18,12 @@ import {
    User,
 } from "../../shared-tools/endpoints-interfaces/user";
 import {
-   queryToGetAllCompleteUsers,
    queryToGetUserByToken,
    queryToGetUserById,
    queryToIncludeFullInfoInUserQuery,
    queryToGetAllDemoUsers,
    queryToGetUsersFromIdList,
+   queryToGetAllUsers,
 } from "../user/queries";
 
 export function queryToGetCardsRecommendations(
@@ -36,7 +36,12 @@ export function queryToGetCardsRecommendations(
       limit?: number;
    },
 ): Traversal {
-   let traversal: Traversal = settings?.traversal ?? queryToGetAllCompleteUsers();
+   /**
+    * Users that are incomplete should also be included because they may have profileCompleted = false because
+    * a new feature and they didn't login to update. Since we only show users with picture we use that filter to
+    * exclude too incomplete users.
+    */
+   let traversal: Traversal = settings?.traversal ?? queryToGetAllUsers();
 
    /**
     * Is inside the distance range the user wants
@@ -334,17 +339,10 @@ export function queryToGetDislikedUsers(props: {
    return traversal;
 }
 
-export function queryToGetUsersWantingNewCardsNotification(userIds?: string[]): Traversal {
+export function queryToGetUsersWantingNewCardsNotification(userIds: string[]): Traversal {
    let traversal: Traversal;
-
-   if (userIds) {
-      traversal = queryToGetUsersFromIdList(userIds);
-   } else {
-      traversal = queryToGetAllCompleteUsers();
-   }
-
+   traversal = queryToGetUsersFromIdList(userIds);
    traversal = traversal.has("sendNewUsersNotification", P.gt(0));
-
    return traversal;
 }
 

@@ -108,7 +108,7 @@ export async function recommendationsFromTagGet(
  *       is disabled because the cycle is complete and not because the user disabled it.
  *    5. When the user swipe cards and there are no more the client sets sendNewUsersNotification again to repeat the cycle
  */
-export async function notifyUsersAboutNewCards(params?: { userIds?: string[] }): Promise<void> {
+export async function notifyUsersAboutNewCards(params: { userIds: string[] }): Promise<void> {
    const { userIds } = params ?? {};
 
    measureTime("new_cards_time");

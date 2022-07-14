@@ -10,7 +10,12 @@ const user_1 = require("../../shared-tools/endpoints-interfaces/user");
 const queries_1 = require("../user/queries");
 function queryToGetCardsRecommendations(searcherUser, settings) {
     var _a, _b;
-    let traversal = (_a = settings === null || settings === void 0 ? void 0 : settings.traversal) !== null && _a !== void 0 ? _a : (0, queries_1.queryToGetAllCompleteUsers)();
+    /**
+     * Users that are incomplete should also be included because they may have profileCompleted = false because
+     * a new feature and they didn't login to update. Since we only show users with picture we use that filter to
+     * exclude too incomplete users.
+     */
+    let traversal = (_a = settings === null || settings === void 0 ? void 0 : settings.traversal) !== null && _a !== void 0 ? _a : (0, queries_1.queryToGetAllUsers)();
     /**
      * Is inside the distance range the user wants
      */
@@ -225,12 +230,7 @@ function queryToGetDislikedUsers(props) {
 exports.queryToGetDislikedUsers = queryToGetDislikedUsers;
 function queryToGetUsersWantingNewCardsNotification(userIds) {
     let traversal;
-    if (userIds) {
-        traversal = (0, queries_1.queryToGetUsersFromIdList)(userIds);
-    }
-    else {
-        traversal = (0, queries_1.queryToGetAllCompleteUsers)();
-    }
+    traversal = (0, queries_1.queryToGetUsersFromIdList)(userIds);
     traversal = traversal.has("sendNewUsersNotification", database_manager_1.P.gt(0));
     return traversal;
 }

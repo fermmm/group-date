@@ -32,7 +32,11 @@ exports.queryToGetGroupCandidates = queryToGetGroupCandidates;
  * If no traversal is provided then it will start with all complete users and then filter that list.
  */
 function queryToGetUsersAllowedToBeOnGroups(targetSlotIndex, quality, traversal) {
-    traversal = traversal !== null && traversal !== void 0 ? traversal : (0, queries_1.queryToGetAllCompleteUsers)();
+    /**
+     * We should include incomplete users because the profile may be incomplete after a migration and the
+     * user does not have the last changes. We check for matches so that filter too incomplete users.
+     */
+    traversal = traversal !== null && traversal !== void 0 ? traversal : (0, queries_1.queryToGetAllUsers)();
     traversal = traversal
         // Optimization. Discards all users that don't have matches.
         .where(database_manager_1.__.bothE("Match").count().is(database_manager_1.P.gt(1)))
