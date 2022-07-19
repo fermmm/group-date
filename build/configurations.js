@@ -300,12 +300,12 @@ exports.APP_AUTHORED_TAGS = {
      * These ideology tags are not needed for the moment, it seems almost all people interested in group polyamory are leftists. Right-wing media seems to not
      * want to mention group relationships because it's a collective idea and that is philosophically left-wing by definition.
      *
-      aat0: {
+      leftWing: {
           name: "Left-wing",
           category: "Ideas",
           visible: true,
        },
-       aat1: {
+       rightWing: {
           name: "Right-wing",
           category: "Ideas",
           visible: true,
@@ -353,11 +353,17 @@ const isCoupleProfileQuestion = {
             text: "With my couple",
             answerId: "couple",
             subscribesToTags: [{ tagId: "couple" }],
-            // For couples can be confusing to be asked about the date size because that size can or cannot include the partner. So we auto-answer that question with the answer that is less restrictive but not the one of the poly users.
+            /**
+             * For couples can be confusing to be asked about the date size because that size can or cannot include the partner. So we
+             * auto-answer that question with the answer that is less restrictive but not the one of the poly users.
+             */
             answersOtherQuestions: [{ questionId: "taq-3-v2", answerId: "only3" }],
             setsUserProp: [
                 { propName: "isCoupleProfile", valueToSet: true },
-                // This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because changing from single profile to couple should be allowed without waiting
+                /**
+                 * This is used in the frontend to disallow changing the answer too often. It's not added also to the other answer because
+                 * changing from single profile to couple should be allowed without waiting
+                 */
                 { propName: "coupleProfileLastChangeDate", valueToSet: () => moment().unix() },
             ],
         },
@@ -404,7 +410,12 @@ const dateTypeQuestion = {
             text: "A group date where we like each other. Of 3, 4, 5 or more",
             answerId: "groupDate",
             subscribesToTags: [{ tagId: "groupDate" }],
-            // Here couples are also blocked because the users that selects this answer are the target users of the app, they should not see couples because couples are not target users and introduce many problems for them
+            /**
+             * Here couples are also blocked because the users that selects this answer are the target users of the app (the poly users), they
+             * should not see couples because couples are not target users and introduces many unwanted side effects for the groups, such as:
+             * unwanted gender imbalance, unwanted sub-grouping, unwanted hierarchy, also the participation of the other partner must be
+             * consensual between them and this is not always the case. Also the idea of this app is to introduce an alternative for the concept of couples.
+             */
             blocksTags: [{ tagId: "only3" }, { tagId: "withSomeone" }, { tagId: "couple" }],
         },
     ],

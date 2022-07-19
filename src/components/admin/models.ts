@@ -64,11 +64,14 @@ import { generateId } from "../../common-tools/string-tools/string-tools";
 import {
    cardinality,
    exportDatabaseContentToFile,
+   g,
    importDatabaseContentFromFile,
    importDatabaseContentFromQueryFile,
+   P,
    removeAllDatabaseContent,
    sendQuery,
    sendQueryAsString,
+   __,
 } from "../../common-tools/database-tools/database-manager";
 import { queryToGetAllGroups } from "../groups/queries";
 import { queryToGetGroupsReceivingMoreUsers } from "../groups-finder/queries";
@@ -206,16 +209,61 @@ export async function convertToAdmin(token: string): Promise<void> {
    await queryToUpdateUserProps(token, [{ key: "isAdmin", value: true }]);
 }
 
+/**
+ * TODO:
+ * 1. El total sin mas
+ * 2. La cantidad sin foto (si no tienen fotos no puedo saber tampoco si son unwanted o no)
+ * 2. Los unwanted completados
+ */
 export async function logUsageReport(): Promise<void> {
    const timeStart = performance.now();
 
-   const amountOfUsers = (await sendQuery(() => queryToGetAllUsers().count().next())).value;
-   const amountOfWantedUsers = (
-      await sendQuery(() => queryToGetAllCompleteUsers().has("unwantedUser", false).count().next())
-   ).value;
-   const amountOfFullyRegisteredUsers = (await sendQuery(() => queryToGetAllCompleteUsers().count().next()))
+   /**
+    * Reusable queries
+    */
+   const queryToGetWantedWithPhotoUsers = () =>
+      queryToGetAllUsers().not(__.has("unwantedUser", true)).has("imagesAmount", P.gt(0));
+
+   /**
+    * Final queries
+    */
+   // I'ts important to know how many users are being created in the database
+   const total = await (await sendQuery(() => queryToGetAllUsers().count().next())).value;
+   // Users without photo are considered incomplete, we don't check for wanted because we don't know if the incomplete users are wanted or not
+   const withPhoto = (await sendQuery(() => queryToGetAllUsers().has("imagesAmount", P.gt(0)).count().next()))
       .value;
-   const incompleteUsers = amountOfUsers - amountOfFullyRegisteredUsers;
+   // Now all counts will be based on users that have photo
+   const wanted = (await sendQuery(() => queryToGetWantedWithPhotoUsers().count().next())).value;
+   const unwanted = (
+      await sendQuery(() =>
+         queryToGetAllUsers().has("unwantedUser", true).has("imagesAmount", P.gt(0)).count().next(),
+      )
+   ).value;
+   const couples = (
+      await sendQuery(() =>
+         queryToGetAllUsers().has("isCoupleProfile", true).has("imagesAmount", P.gt(0)).count().next(),
+      )
+   ).value;
+   // Now all counts will be wanted users with photo, the others are not interesting
+   const mens = (
+      await sendQuery(() =>
+         queryToGetWantedWithPhotoUsers()
+            .where(__.both("isGender").has("genderId", "Man"))
+            .not(__.has("isCoupleProfile", true))
+            .count()
+            .next(),
+      )
+   ).value;
+   const women = (
+      await sendQuery(() =>
+         queryToGetWantedWithPhotoUsers()
+            .where(__.both("isGender").has("genderId", "Woman"))
+            .not(__.has("isCoupleProfile", true))
+            .count()
+            .next(),
+      )
+   ).value;
+
    const amountOfGroups = (await sendQuery(() => queryToGetAllGroups().count().next())).value;
    let totalOpenGroups = 0;
    const openGroupsBySlot: number[] = [];
@@ -229,9 +277,13 @@ export async function logUsageReport(): Promise<void> {
    const timeSpentOnReportMs = Math.round(performance.now() - timeStart);
 
    const report: UsageReport = {
-      amountOfUsers: amountOfFullyRegisteredUsers,
-      wantedUsers: amountOfWantedUsers,
-      incompleteUsers,
+      total,
+      withPhoto,
+      couples,
+      unwanted,
+      wanted,
+      mens,
+      women,
       amountOfGroups,
       totalOpenGroups,
       openGroupsBySlot,
