@@ -5,7 +5,7 @@ import {
    encode,
    createHash,
 } from "../../common-tools/cryptography-tools/cryptography-tools";
-import { sendEmail } from "../../common-tools/email-tools/email-tools";
+import { EmailSendProps, sendEmail } from "../../common-tools/email-tools/email-tools";
 import { loadHtmlEmailTemplate } from "../../common-tools/email-tools/loadHtmlTemplate";
 import { tryToGetErrorMessage } from "../../common-tools/httpRequest/tools/tryToGetErrorMessage";
 import { t } from "../../common-tools/i18n-tools/i18n-tools";
@@ -48,7 +48,7 @@ export async function createAccountPost(
    params: CreateAccountParams,
    ctx: BaseContext,
 ): Promise<CreateAccountResponse> {
-   const { email, password, appUrl } = params;
+   const { email, password, appUrl, logLinkOnConsole } = params;
 
    if (email?.length < 4 || !email.includes("@") || password?.length < 1) {
       ctx.throw(400, "Invalid credentials");
@@ -64,9 +64,12 @@ export async function createAccountPost(
 
    const hashToSend = encode(JSON.stringify({ email, password }));
    const emailLink = `${getServerUrl()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
+   if (logLinkOnConsole) {
+      console.log(emailLink);
+   }
 
    try {
-      await sendEmail({
+      const emailInfo: EmailSendProps = {
          to: email,
          senderName: `${APPLICATION_NAME} app`,
          subject: `${t("Verify your email", { ctx })}`,
@@ -84,12 +87,14 @@ export async function createAccountPost(
             },
             translationSources: { ctx },
          }),
-      });
+      };
+
+      await sendEmail(emailInfo);
 
       return { success: true };
    } catch (error) {
       ctx.throw(
-         500,
+         400,
          `${t(
             "Our email sending service is not working in this moment, please create your account using a different kind of registration",
             { ctx },

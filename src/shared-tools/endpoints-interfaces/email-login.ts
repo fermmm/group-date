@@ -9,6 +9,8 @@ export interface EncryptedEmailLoginCredentials {
 
 export interface CreateAccountParams extends EmailLoginCredentials {
    appUrl: string;
+   /** For testing in case the email is not sent (it may not be sent from a localhost testing server) */
+   logLinkOnConsole?: boolean;
 }
 
 export interface CreateAccountResponse {
