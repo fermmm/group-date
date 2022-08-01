@@ -209,12 +209,6 @@ export async function convertToAdmin(token: string): Promise<void> {
    await queryToUpdateUserProps(token, [{ key: "isAdmin", value: true }]);
 }
 
-/**
- * TODO:
- * 1. El total sin mas
- * 2. La cantidad sin foto (si no tienen fotos no puedo saber tampoco si son unwanted o no)
- * 2. Los unwanted completados
- */
 export async function logUsageReport(): Promise<void> {
    const timeStart = performance.now();
 
