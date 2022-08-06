@@ -108,18 +108,13 @@ async function convertToAdmin(token) {
     await (0, queries_1.queryToUpdateUserProps)(token, [{ key: "isAdmin", value: true }]);
 }
 exports.convertToAdmin = convertToAdmin;
-/**
- * TODO:
- * 1. El total sin mas
- * 2. La cantidad sin foto (si no tienen fotos no puedo saber tampoco si son unwanted o no)
- * 2. Los unwanted completados
- */
 async function logUsageReport() {
     const timeStart = perf_hooks_1.performance.now();
     /**
      * Reusable queries
      */
     const queryToGetWantedWithPhotoUsers = () => (0, queries_1.queryToGetAllUsers)().not(database_manager_1.__.has("unwantedUser", true)).has("imagesAmount", database_manager_1.P.gt(0));
+    const queryToGetUnwantedUsersWithPhoto = () => (0, queries_1.queryToGetAllUsers)().has("unwantedUser", true).has("imagesAmount", database_manager_1.P.gt(0));
     /**
      * Final queries
      */
@@ -130,7 +125,7 @@ async function logUsageReport() {
         .value;
     // Now all counts will be based on users that have photo
     const wanted = (await (0, database_manager_1.sendQuery)(() => queryToGetWantedWithPhotoUsers().count().next())).value;
-    const unwanted = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().has("unwantedUser", true).has("imagesAmount", database_manager_1.P.gt(0)).count().next())).value;
+    const unwanted = (await (0, database_manager_1.sendQuery)(() => queryToGetUnwantedUsersWithPhoto().count().next())).value;
     const couples = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().has("isCoupleProfile", true).has("imagesAmount", database_manager_1.P.gt(0)).count().next())).value;
     // Now all counts will be wanted users with photo, the others are not interesting
     const mens = (await (0, database_manager_1.sendQuery)(() => queryToGetWantedWithPhotoUsers()
@@ -143,6 +138,12 @@ async function logUsageReport() {
         .not(database_manager_1.__.has("isCoupleProfile", true))
         .count()
         .next())).value;
+    const usersWith2Matches = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)()
+        .where(database_manager_1.__.both("Match", "SeenMatch").count().is(database_manager_1.P.gt(1)))
+        .count()
+        .next())).value;
+    const wantedUsersInAGroup = (await (0, database_manager_1.sendQuery)(() => queryToGetWantedWithPhotoUsers().where(database_manager_1.__.both("member")).count().next())).value;
+    const unwantedUsersInAGroup = (await (0, database_manager_1.sendQuery)(() => queryToGetUnwantedUsersWithPhoto().where(database_manager_1.__.both("member")).count().next())).value;
     const amountOfGroups = (await (0, database_manager_1.sendQuery)(() => (0, queries_3.queryToGetAllGroups)().count().next())).value;
     let totalOpenGroups = 0;
     const openGroupsBySlot = [];
@@ -160,6 +161,9 @@ async function logUsageReport() {
         wanted,
         mens,
         women,
+        usersWith2Matches,
+        wantedUsersInAGroup,
+        unwantedUsersInAGroup,
         amountOfGroups,
         totalOpenGroups,
         openGroupsBySlot,

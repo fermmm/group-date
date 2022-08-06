@@ -183,13 +183,18 @@ exports.queryToGetReadMessagesAndTotal = queryToGetReadMessagesAndTotal;
  * Also this function updates membership properties to avoid notification spam
  */
 function queryToGetMembersForNewMsgNotification(groupId, authorUserId) {
-    return (queryToGetGroupById(groupId)
-        .inE("member")
-        .not(database_manager_1.__.outV().has("userId", authorUserId)) // This prevents a notification to the author of the message
-        .has("newMessagesRead", true)
-        // We don't use cardinality.single here because we are working on an edge
-        .property("newMessagesRead", false) // This prevents spam
-        .outV());
+    // Get all members of the group
+    let traversal = queryToGetGroupById(groupId).inE("member");
+    // This prevents sending a notification to the author of the message
+    traversal = traversal.not(database_manager_1.__.outV().has("userId", authorUserId));
+    // This prevents receiving a notification if the last one was ignored (less spam)
+    // We don't use cardinality.single here because we are working on an edge
+    if (!configurations_1.SEND_ONE_NOTIFICATION_PER_CHAT_MESSAGE) {
+        traversal = traversal.has("newMessagesRead", true).property("newMessagesRead", false);
+    }
+    // Return the users
+    traversal = traversal.outV();
+    return traversal;
 }
 exports.queryToGetMembersForNewMsgNotification = queryToGetMembersForNewMsgNotification;
 function queryToGetGroupsToSendReminder(timeRemaining, reminderProp) {

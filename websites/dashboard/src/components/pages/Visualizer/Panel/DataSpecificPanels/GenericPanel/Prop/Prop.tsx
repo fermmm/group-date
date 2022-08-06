@@ -89,7 +89,7 @@ const Prop: FC<PropsProp> = props => {
                {typeof propValue === "string" || typeof propValue === "number" ? (
                   <>
                      <TextField
-                        label={propName}
+                        label={`${propName} (${typeof propValue})`}
                         variant="standard"
                         type={"text"}
                         multiline

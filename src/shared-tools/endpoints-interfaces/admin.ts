@@ -52,6 +52,9 @@ export interface UsageReport {
    wanted: number;
    mens: number;
    women: number;
+   usersWith2Matches: number;
+   wantedUsersInAGroup: number;
+   unwantedUsersInAGroup: number;
    amountOfGroups: number;
    totalOpenGroups: number;
    openGroupsBySlot: number[];

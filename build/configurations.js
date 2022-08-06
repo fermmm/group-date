@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ENABLE_MULTITHREADING_IN_GROUP_FINDER = exports.SINGLE_QUERY_GROUP_FINDER = exports.SMALL_IMAGE_SIZE = exports.BIG_IMAGE_SIZE = exports.MAX_FILE_SIZE_UPLOAD_ALLOWED = exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = exports.SEARCH_GROUPS_FREQUENCY = exports.DEFAULT_LANGUAGE = exports.PUSH_NOTIFICATION_CHANNELS = exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = exports.SECOND_DATE_REMINDER_TIME = exports.FIRST_DATE_REMINDER_TIME = exports.QUESTIONS = exports.APP_AUTHORED_TAGS = exports.MAX_TAG_SUBSCRIPTIONS_ALLOWED = exports.TAG_CREATION_TIME_FRAME = exports.TAGS_PER_TIME_FRAME = exports.ALWAYS_SHOW_REMOVE_SEEN_MENU = exports.REQUIRE_REMOVE_SEEN_MENU = exports.SHUFFLE_LIKING_NON_LIKING_RESULTS = exports.NON_SEARCHER_LIKING_CHUNK = exports.SEARCHER_LIKING_CHUNK = exports.MAXIMUM_INACTIVITY_FOR_CARDS = exports.MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = exports.EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = exports.MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = exports.MAX_WEEKEND_DAYS_VOTE_OPTIONS = exports.MAX_CONNECTIONS_POSSIBLE_IN_REALITY = exports.ALLOW_SMALL_GROUPS_BECOME_BIG = exports.ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS = exports.CREATE_BIGGER_GROUPS_FIRST = exports.GROUP_ACTIVE_TIME = exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = exports.FORM_BAD_QUALITY_GROUPS_TIME = exports.SEARCH_BAD_QUALITY_GROUPS = exports.GROUP_SLOTS_CONFIGS = exports.MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = exports.MAX_GROUP_SIZE = exports.MIN_GROUP_SIZE = exports.USERS_API_PATH = exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = exports.APP_STORE_URL = exports.GOOGLE_PLAY_URL = exports.APPLICATION_NAME_COMPLETE = exports.APPLICATION_NAME = void 0;
-exports.DEMO_ACCOUNTS = exports.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT = exports.LOG_IMAGE_ACCESS = exports.LOG_ROUTE_ACCESS = exports.REPORT_DATABASE_RETRYING = exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = exports.LOG_USAGE_REPORT_FREQUENCY = exports.BACKUP_LOGS_TO_FILE_FREQUENCY = exports.ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = exports.DATABASE_BACKUP_HOUR = exports.DATABASE_BACKUP_MONTHLY = exports.DATABASE_BACKUP_WEEKLY = exports.DATABASE_BACKUP_DAILY = void 0;
+exports.SMALL_IMAGE_SIZE = exports.BIG_IMAGE_SIZE = exports.MAX_FILE_SIZE_UPLOAD_ALLOWED = exports.MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = exports.CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = exports.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY = exports.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY = exports.SEARCH_GROUPS_FREQUENCY = exports.DEFAULT_LANGUAGE = exports.PUSH_NOTIFICATION_CHANNELS = exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = exports.SECOND_DATE_REMINDER_TIME = exports.FIRST_DATE_REMINDER_TIME = exports.SHOW_MESSAGE_TEXT_IN_NOTIFICATION = exports.SEND_ONE_NOTIFICATION_PER_CHAT_MESSAGE = exports.QUESTIONS = exports.APP_AUTHORED_TAGS = exports.MAX_TAG_SUBSCRIPTIONS_ALLOWED = exports.TAG_CREATION_TIME_FRAME = exports.TAGS_PER_TIME_FRAME = exports.ALWAYS_SHOW_REMOVE_SEEN_MENU = exports.REQUIRE_REMOVE_SEEN_MENU = exports.SHUFFLE_LIKING_NON_LIKING_RESULTS = exports.NON_SEARCHER_LIKING_CHUNK = exports.SEARCHER_LIKING_CHUNK = exports.MAXIMUM_INACTIVITY_FOR_CARDS = exports.MAX_CONNECTIONS_METACONNECTIONS_DISTANCE = exports.EVALUATE_GROUPS_AGAIN_REMOVING_SQUARES = exports.MAXIMUM_INACTIVITY_FOR_NEW_GROUPS = exports.MAX_WEEKEND_DAYS_VOTE_OPTIONS = exports.MAX_CONNECTIONS_POSSIBLE_IN_REALITY = exports.ALLOW_SMALL_GROUPS_BECOME_BIG = exports.ALLOW_BIGGER_GROUPS_TO_USE_SMALLER_SLOTS = exports.CREATE_BIGGER_GROUPS_FIRST = exports.GROUP_ACTIVE_TIME = exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = exports.FORM_BAD_QUALITY_GROUPS_TIME = exports.SEARCH_BAD_QUALITY_GROUPS = exports.GROUP_SLOTS_CONFIGS = exports.MINIMUM_CONNECTIONS_TO_BE_ON_GROUP = exports.MAX_GROUP_SIZE = exports.MIN_GROUP_SIZE = exports.USERS_API_PATH = exports.MINIMUM_CLIENT_BUILD_VERSION_ALLOWED = exports.MINIMUM_CLIENT_CODE_VERSION_ALLOWED = exports.APP_STORE_URL = exports.GOOGLE_PLAY_URL = exports.APPLICATION_NAME_COMPLETE = exports.APPLICATION_NAME = void 0;
+exports.DEMO_ACCOUNTS = exports.LOG_PUSH_NOTIFICATION_DELIVERING_RESULT = exports.LOG_IMAGE_ACCESS = exports.LOG_ROUTE_ACCESS = exports.REPORT_DATABASE_RETRYING = exports.REPORT_DATA_CORRUPTION_PROBLEMS_ON_GROUP_FINDER = exports.LOG_USAGE_REPORT_FREQUENCY = exports.BACKUP_LOGS_TO_FILE_FREQUENCY = exports.ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE = exports.RATE_LIMITER_CACHE_CLEAR_INTERVAL = exports.DATABASE_BACKUP_HOUR = exports.DATABASE_BACKUP_MONTHLY = exports.DATABASE_BACKUP_WEEKLY = exports.DATABASE_BACKUP_DAILY = exports.ENABLE_MULTITHREADING_IN_GROUP_FINDER = exports.SINGLE_QUERY_GROUP_FINDER = void 0;
 const appRoot = require("app-root-path");
 const i18n = require("i18n");
 const moment = require("moment");
@@ -113,9 +113,9 @@ exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = constants_1.DAY_IN_SECONDS * 2;
  * The time a group is considered active (in seconds). An inactive group currently involves only 2 things:
  * 1) Can potentially be displayed more hidden in the client app.
  * 2) When the group becomes inactive all users receive a task where they have to choose who in the group
- *    they want to see again in future group matches.
+ *    they want to see again in future group matches (if that feature is enabled).
  */
-exports.GROUP_ACTIVE_TIME = constants_1.WEEK_IN_SECONDS * 4;
+exports.GROUP_ACTIVE_TIME = constants_1.DAY_IN_SECONDS * 10;
 /**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
@@ -217,21 +217,19 @@ exports.SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 /**
  * If this is set to true when a group becomes inactive all group members are required to choose who in the group
  * they want to see again in the future group matches, this is called "Remove seen menu".
- * For the moment we are disabling the remove seen menu since it can cause more harm than good.
  *
  * Advantages:
  *    1. Users that could not assist to the date can meet the members in future dates (but they can also join in a second meeting they can organize by themselves since they can talk now).
  *    2. Users can exclude a miss behaving member voting to see each other again all with all except this member (this can also be done when moving to WhatsApp group which is faster and easier to organize)
  *
  * Disadvantages:
- *    1. Users that already know and understand each other can be in dates with new people generating a hierarchy, hierarchies are what ruins everything in life
- *    2. This can potentially be used by a group of hackers or rapists to match each other and also with a single victim (is hard to do but could be possible with the remove seen menu)
+ *    1. Users that already know and understand each other can be in dates with new people generating a hierarchy, hierarchies are what ruins everything in life (they probably are not going to select users that are seen)
  */
-exports.REQUIRE_REMOVE_SEEN_MENU = false;
+exports.REQUIRE_REMOVE_SEEN_MENU = true;
 /**
  * If this is set to true the remove seen menu can be accessed all the time in the group menu.
  */
-exports.ALWAYS_SHOW_REMOVE_SEEN_MENU = false;
+exports.ALWAYS_SHOW_REMOVE_SEEN_MENU = true;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  TAGS  //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -470,15 +468,27 @@ exports.QUESTIONS = [
 /////////////////////////////////////////////////  NOTIFICATIONS  ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
- * Amount of time before the date to send the first reminder
+ * If this is true the users will receive one notification for each chat message they receive. If it's false they
+ * will receive only one notification and no more until they read the messages (less notification spam).
+ */
+exports.SEND_ONE_NOTIFICATION_PER_CHAT_MESSAGE = true;
+/**
+ * If this is true the notification of a new chat message will contain the text of the message. If it's false the notification
+ * will just contain a text similar to "You have a new message".
+ */
+exports.SHOW_MESSAGE_TEXT_IN_NOTIFICATION = true;
+/**
+ * DEPRECATED AND DISABLED Amount of time before the date to send the first reminder
  */
 exports.FIRST_DATE_REMINDER_TIME = constants_1.DAY_IN_SECONDS * 3;
 /**
+ * DEPRECATED AND DISABLED
  * Amount of time before the date to send the second reminder
  * The specific time of the day is not voted so the reminder also is limited because of that.
  */
 exports.SECOND_DATE_REMINDER_TIME = constants_1.DAY_IN_SECONDS;
 /**
+ * DEPRECATED AND DISABLED
  * How often to execute the search of groups to send the remainder notification to members
  */
 exports.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = (0, general_1.hoursToMilliseconds)(5);

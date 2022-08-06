@@ -21,7 +21,8 @@ const log_1 = require("../../common-tools/log-tool/log");
 const types_1 = require("../../common-tools/log-tool/types");
 async function initializeGroups() {
     (0, dynamic_1.setIntervalAsync)(findSlotsToRelease, configurations_1.FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
-    (0, dynamic_1.setIntervalAsync)(sendDateReminderNotifications, configurations_1.SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
+    // This does not make uch sense, maybe should be removed
+    // setIntervalAsync(sendDateReminderNotifications, SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
     (0, dynamic_1.setIntervalAsync)(findInactiveGroups, configurations_1.FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
     findInactiveGroups();
 }
@@ -223,14 +224,17 @@ async function chatPost(params, ctx) {
         await (0, models_1.addNotificationToUser)({ userId }, {
             type: user_1.NotificationType.Chat,
             title: "New chat messages",
-            text: "There are new chat messages in your group date",
+            text: configurations_1.SHOW_MESSAGE_TEXT_IN_NOTIFICATION
+                ? params.message
+                : "There are new chat messages in your group date",
             targetId: group.groupId,
             // Previous notifications that has the same value here are replaced
             idForReplacement: group.groupId,
         }, {
             sendPushNotification: true,
             channelId: user_1.NotificationChannelId.ChatMessages,
-            translateNotification: true,
+            translateTitleOnly: true,
+            translateNotification: !configurations_1.SHOW_MESSAGE_TEXT_IN_NOTIFICATION,
         });
     }
 }
@@ -268,13 +272,14 @@ async function sendDateReminderNotifications() {
 }
 exports.sendDateReminderNotifications = sendDateReminderNotifications;
 /**
- * Find groups that should be set to inactive, this also executed code that should be executed when a
+ * Find groups that should be set to inactive, this function also contains any code that should be executed when a
  * group becomes inactive.
  */
 async function findInactiveGroups() {
     const groups = await (0, data_conversion_1.fromQueryToGroupList)((0, queries_1.queryToFindShouldBeInactiveGroups)(), false, true);
     for (const group of groups) {
         await (0, queries_2.queryToUpdateGroupProperty)({ groupId: group.groupId, isActive: false });
+        // Add here other stuff that should be done when the group becomes inactive
         if (configurations_1.REQUIRE_REMOVE_SEEN_MENU) {
             await createTaskToShowRemoveSeenMenu(group);
         }

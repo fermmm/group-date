@@ -10,6 +10,7 @@ import {
    SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY,
    SECOND_DATE_REMINDER_TIME,
    REQUIRE_REMOVE_SEEN_MENU,
+   SHOW_MESSAGE_TEXT_IN_NOTIFICATION,
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
@@ -68,7 +69,8 @@ import { LogId } from "../../common-tools/log-tool/types";
 
 export async function initializeGroups(): Promise<void> {
    setIntervalAsync(findSlotsToRelease, FIND_SLOTS_TO_RELEASE_CHECK_FREQUENCY);
-   setIntervalAsync(sendDateReminderNotifications, SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
+   // This does not make uch sense, maybe should be removed
+   // setIntervalAsync(sendDateReminderNotifications, SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY);
    setIntervalAsync(findInactiveGroups, FIND_INACTIVE_GROUPS_CHECK_FREQUENCY);
    findInactiveGroups();
 }
@@ -333,7 +335,9 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
          {
             type: NotificationType.Chat,
             title: "New chat messages",
-            text: "There are new chat messages in your group date",
+            text: SHOW_MESSAGE_TEXT_IN_NOTIFICATION
+               ? params.message
+               : "There are new chat messages in your group date",
             targetId: group.groupId,
             // Previous notifications that has the same value here are replaced
             idForReplacement: group.groupId,
@@ -341,7 +345,8 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
          {
             sendPushNotification: true,
             channelId: NotificationChannelId.ChatMessages,
-            translateNotification: true,
+            translateTitleOnly: true,
+            translateNotification: !SHOW_MESSAGE_TEXT_IN_NOTIFICATION,
          },
       );
    }
@@ -400,7 +405,7 @@ export async function sendDateReminderNotifications(): Promise<void> {
 }
 
 /**
- * Find groups that should be set to inactive, this also executed code that should be executed when a
+ * Find groups that should be set to inactive, this function also contains any code that should be executed when a
  * group becomes inactive.
  */
 export async function findInactiveGroups() {
@@ -408,6 +413,7 @@ export async function findInactiveGroups() {
 
    for (const group of groups) {
       await queryToUpdateGroupProperty({ groupId: group.groupId, isActive: false });
+      // Add here other stuff that should be done when the group becomes inactive
       if (REQUIRE_REMOVE_SEEN_MENU) {
          await createTaskToShowRemoveSeenMenu(group);
       }

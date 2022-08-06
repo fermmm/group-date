@@ -344,6 +344,7 @@ export async function addNotificationToUser(
    notification: NotificationContent,
    settings?: {
       translateNotification?: boolean;
+      translateTitleOnly?: boolean;
       sendPushNotification?: boolean;
       sendEmailNotification?: boolean;
       /* The email text is the notification text but here you can append extra content */
@@ -365,6 +366,11 @@ export async function addNotificationToUser(
          ...notification,
          title: t(notification.title, { user }),
          text: t(notification.text, { user }),
+      };
+   } else if (settings?.translateTitleOnly) {
+      notification = {
+         ...notification,
+         title: t(notification.title, { user }),
       };
    }
 

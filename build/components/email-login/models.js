@@ -19,7 +19,7 @@ const data_conversion_1 = require("../user/tools/data-conversion");
  * encoded in the url. The website sends the hash back to the confirmEmailPost() endpoint to create the user.
  */
 async function createAccountPost(params, ctx) {
-    const { email, password, appUrl } = params;
+    const { email, password, appUrl, logLinkOnConsole } = params;
     if ((email === null || email === void 0 ? void 0 : email.length) < 4 || !email.includes("@") || (password === null || password === void 0 ? void 0 : password.length) < 1) {
         ctx.throw(400, "Invalid credentials");
         return;
@@ -31,8 +31,11 @@ async function createAccountPost(params, ctx) {
     }
     const hashToSend = (0, cryptography_tools_1.encode)(JSON.stringify({ email, password }));
     const emailLink = `${(0, getServerUrl_1.getServerUrl)()}/confirm-email/?hash=${hashToSend}&appUrl=${appUrl}`;
+    if (logLinkOnConsole) {
+        console.log(emailLink);
+    }
     try {
-        await (0, email_tools_1.sendEmail)({
+        const emailInfo = {
             to: email,
             senderName: `${configurations_1.APPLICATION_NAME} app`,
             subject: `${(0, i18n_tools_1.t)("Verify your email", { ctx })}`,
@@ -50,11 +53,12 @@ async function createAccountPost(params, ctx) {
                 },
                 translationSources: { ctx },
             }),
-        });
+        };
+        await (0, email_tools_1.sendEmail)(emailInfo);
         return { success: true };
     }
     catch (error) {
-        ctx.throw(500, `${(0, i18n_tools_1.t)("Our email sending service is not working in this moment, please create your account using a different kind of registration", { ctx })}. Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error)}`);
+        ctx.throw(400, `${(0, i18n_tools_1.t)("Our email sending service is not working in this moment, please create your account using a different kind of registration", { ctx })}. Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error)}`);
         return;
     }
 }

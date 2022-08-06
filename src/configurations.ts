@@ -128,9 +128,9 @@ export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
  * The time a group is considered active (in seconds). An inactive group currently involves only 2 things:
  * 1) Can potentially be displayed more hidden in the client app.
  * 2) When the group becomes inactive all users receive a task where they have to choose who in the group
- *    they want to see again in future group matches.
+ *    they want to see again in future group matches (if that feature is enabled).
  */
-export const GROUP_ACTIVE_TIME = WEEK_IN_SECONDS * 4;
+export const GROUP_ACTIVE_TIME = DAY_IN_SECONDS * 10;
 
 /**
  * If true will create bigger groups first, the result is more bigger groups.
@@ -246,22 +246,20 @@ export const SHUFFLE_LIKING_NON_LIKING_RESULTS = true;
 /**
  * If this is set to true when a group becomes inactive all group members are required to choose who in the group
  * they want to see again in the future group matches, this is called "Remove seen menu".
- * For the moment we are disabling the remove seen menu since it can cause more harm than good.
  *
  * Advantages:
  *    1. Users that could not assist to the date can meet the members in future dates (but they can also join in a second meeting they can organize by themselves since they can talk now).
  *    2. Users can exclude a miss behaving member voting to see each other again all with all except this member (this can also be done when moving to WhatsApp group which is faster and easier to organize)
  *
  * Disadvantages:
- *    1. Users that already know and understand each other can be in dates with new people generating a hierarchy, hierarchies are what ruins everything in life
- *    2. This can potentially be used by a group of hackers or rapists to match each other and also with a single victim (is hard to do but could be possible with the remove seen menu)
+ *    1. Users that already know and understand each other can be in dates with new people generating a hierarchy, hierarchies are what ruins everything in life (they probably are not going to select users that are seen)
  */
-export const REQUIRE_REMOVE_SEEN_MENU: boolean = false;
+export const REQUIRE_REMOVE_SEEN_MENU: boolean = true;
 
 /**
  * If this is set to true the remove seen menu can be accessed all the time in the group menu.
  */
-export const ALWAYS_SHOW_REMOVE_SEEN_MENU: boolean = false;
+export const ALWAYS_SHOW_REMOVE_SEEN_MENU: boolean = true;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////  TAGS  //////////////////////////////////////////////////////
@@ -515,17 +513,31 @@ export const QUESTIONS: Question[] = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Amount of time before the date to send the first reminder
+ * If this is true the users will receive one notification for each chat message they receive. If it's false they
+ * will receive only one notification and no more until they read the messages (less notification spam).
+ */
+export const SEND_ONE_NOTIFICATION_PER_CHAT_MESSAGE = true;
+
+/**
+ * If this is true the notification of a new chat message will contain the text of the message. If it's false the notification
+ * will just contain a text similar to "You have a new message".
+ */
+export const SHOW_MESSAGE_TEXT_IN_NOTIFICATION = true;
+
+/**
+ * DEPRECATED AND DISABLED Amount of time before the date to send the first reminder
  */
 export const FIRST_DATE_REMINDER_TIME = DAY_IN_SECONDS * 3;
 
 /**
+ * DEPRECATED AND DISABLED
  * Amount of time before the date to send the second reminder
  * The specific time of the day is not voted so the reminder also is limited because of that.
  */
 export const SECOND_DATE_REMINDER_TIME = DAY_IN_SECONDS;
 
 /**
+ * DEPRECATED AND DISABLED
  * How often to execute the search of groups to send the remainder notification to members
  */
 export const SEARCH_GROUPS_TO_SEND_REMINDER_FREQUENCY = hoursToMilliseconds(5);

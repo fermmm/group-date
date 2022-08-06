@@ -218,6 +218,9 @@ export async function logUsageReport(): Promise<void> {
    const queryToGetWantedWithPhotoUsers = () =>
       queryToGetAllUsers().not(__.has("unwantedUser", true)).has("imagesAmount", P.gt(0));
 
+   const queryToGetUnwantedUsersWithPhoto = () =>
+      queryToGetAllUsers().has("unwantedUser", true).has("imagesAmount", P.gt(0));
+
    /**
     * Final queries
     */
@@ -228,11 +231,7 @@ export async function logUsageReport(): Promise<void> {
       .value;
    // Now all counts will be based on users that have photo
    const wanted = (await sendQuery(() => queryToGetWantedWithPhotoUsers().count().next())).value;
-   const unwanted = (
-      await sendQuery(() =>
-         queryToGetAllUsers().has("unwantedUser", true).has("imagesAmount", P.gt(0)).count().next(),
-      )
-   ).value;
+   const unwanted = (await sendQuery(() => queryToGetUnwantedUsersWithPhoto().count().next())).value;
    const couples = (
       await sendQuery(() =>
          queryToGetAllUsers().has("isCoupleProfile", true).has("imagesAmount", P.gt(0)).count().next(),
@@ -257,6 +256,20 @@ export async function logUsageReport(): Promise<void> {
             .next(),
       )
    ).value;
+   const usersWith2Matches = (
+      await sendQuery(() =>
+         queryToGetAllUsers()
+            .where(__.both("Match", "SeenMatch").count().is(P.gt(1)))
+            .count()
+            .next(),
+      )
+   ).value;
+   const wantedUsersInAGroup = (
+      await sendQuery(() => queryToGetWantedWithPhotoUsers().where(__.both("member")).count().next())
+   ).value;
+   const unwantedUsersInAGroup = (
+      await sendQuery(() => queryToGetUnwantedUsersWithPhoto().where(__.both("member")).count().next())
+   ).value;
 
    const amountOfGroups = (await sendQuery(() => queryToGetAllGroups().count().next())).value;
    let totalOpenGroups = 0;
@@ -278,6 +291,9 @@ export async function logUsageReport(): Promise<void> {
       wanted,
       mens,
       women,
+      usersWith2Matches,
+      wantedUsersInAGroup,
+      unwantedUsersInAGroup,
       amountOfGroups,
       totalOpenGroups,
       openGroupsBySlot,

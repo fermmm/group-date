@@ -3,7 +3,12 @@ import { MarkRequired } from "ts-essentials";
 import { encodeIfNeeded, serializeIfNeeded } from "../../common-tools/database-tools/data-conversion-tools";
 import { __, column, g, P, sendQuery, cardinality } from "../../common-tools/database-tools/database-manager";
 import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tools";
-import { ALWAYS_SHOW_REMOVE_SEEN_MENU, GROUP_ACTIVE_TIME, GROUP_SLOTS_CONFIGS } from "../../configurations";
+import {
+   ALWAYS_SHOW_REMOVE_SEEN_MENU,
+   GROUP_ACTIVE_TIME,
+   GROUP_SLOTS_CONFIGS,
+   SEND_ONE_NOTIFICATION_PER_CHAT_MESSAGE,
+} from "../../configurations";
 import { DayOption, Group, GroupChat, GroupMembership } from "../../shared-tools/endpoints-interfaces/groups";
 import { GroupQuality } from "../groups-finder/tools/types";
 import { queryToGetUserByToken } from "../user/queries";
@@ -231,15 +236,22 @@ export function queryToGetReadMessagesAndTotal(traversal: Traversal, userToken: 
  * Also this function updates membership properties to avoid notification spam
  */
 export function queryToGetMembersForNewMsgNotification(groupId: string, authorUserId: string): Traversal {
-   return (
-      queryToGetGroupById(groupId)
-         .inE("member")
-         .not(__.outV().has("userId", authorUserId)) // This prevents a notification to the author of the message
-         .has("newMessagesRead", true)
-         // We don't use cardinality.single here because we are working on an edge
-         .property("newMessagesRead", false) // This prevents spam
-         .outV()
-   );
+   // Get all members of the group
+   let traversal = queryToGetGroupById(groupId).inE("member");
+
+   // This prevents sending a notification to the author of the message
+   traversal = traversal.not(__.outV().has("userId", authorUserId));
+
+   // This prevents receiving a notification if the last one was ignored (less spam)
+   // We don't use cardinality.single here because we are working on an edge
+   if (!SEND_ONE_NOTIFICATION_PER_CHAT_MESSAGE) {
+      traversal = traversal.has("newMessagesRead", true).property("newMessagesRead", false);
+   }
+
+   // Return the users
+   traversal = traversal.outV();
+
+   return traversal;
 }
 
 export function queryToGetGroupsToSendReminder(

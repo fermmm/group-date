@@ -245,6 +245,12 @@ async function addNotificationToUser(tokenIdOrUser, notification, settings) {
             text: (0, i18n_tools_1.t)(notification.text, { user }),
         };
     }
+    else if (settings === null || settings === void 0 ? void 0 : settings.translateTitleOnly) {
+        notification = {
+            ...notification,
+            title: (0, i18n_tools_1.t)(notification.title, { user }),
+        };
+    }
     if (notification.idForReplacement != null) {
         const previousNotificationIndex = user.notifications.findIndex(n => n.idForReplacement === notification.idForReplacement);
         if (previousNotificationIndex > -1) {
