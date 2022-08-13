@@ -232,6 +232,15 @@ export async function logUsageReport(): Promise<void> {
    // Now all counts will be based on users that have photo
    const wanted = (await sendQuery(() => queryToGetWantedWithPhotoUsers().count().next())).value;
    const unwanted = (await sendQuery(() => queryToGetUnwantedUsersWithPhoto().count().next())).value;
+   const unwantedWomen = (
+      await sendQuery(() =>
+         queryToGetUnwantedUsersWithPhoto()
+            .where(__.both("isGender").has("genderId", "Woman"))
+            .not(__.has("isCoupleProfile", true))
+            .count()
+            .next(),
+      )
+   ).value;
    const couples = (
       await sendQuery(() =>
          queryToGetAllUsers().has("isCoupleProfile", true).has("imagesAmount", P.gt(0)).count().next(),
@@ -288,6 +297,7 @@ export async function logUsageReport(): Promise<void> {
       withPhoto,
       couples,
       unwanted,
+      unwantedWomen,
       wanted,
       mens,
       women,

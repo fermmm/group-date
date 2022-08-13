@@ -49,6 +49,7 @@ export interface UsageReport {
    withPhoto: number;
    couples: number;
    unwanted: number;
+   unwantedWomen: number;
    wanted: number;
    mens: number;
    women: number;

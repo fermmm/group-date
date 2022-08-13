@@ -18,7 +18,7 @@ import {
 
 // The name of the application to show to the users.
 export const APPLICATION_NAME = "GroupDate";
-export const APPLICATION_NAME_COMPLETE = "GroupDate - Non-monogamy group dating"; // Translated on usage
+export const APPLICATION_NAME_COMPLETE = "GroupDate - group chat, parties, no-monogamy, friendship and more"; // Translated on usage
 export const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.poly.dates";
 export const APP_STORE_URL = "https://apps.apple.com/app/groupdate-polyamory-dating/id1610688573";
 
@@ -87,12 +87,12 @@ export const GROUP_SLOTS_CONFIGS: Slot[] = [
    {
       maximumSize: 6,
       amount: 1,
-      releaseTime: WEEK_IN_SECONDS * 3,
+      releaseTime: DAY_IN_SECONDS * 10,
    },
    {
       minimumSize: 7,
       amount: 1,
-      releaseTime: WEEK_IN_SECONDS * 2,
+      releaseTime: DAY_IN_SECONDS * 7,
    },
 ];
 
@@ -122,7 +122,7 @@ export const FORM_BAD_QUALITY_GROUPS_TIME = WEEK_IN_SECONDS * 6;
  * see the matching members of the group in person and will not form group with them again because the members
  * are now "seen matches". So it's a good idea to keep this setting low.
  */
-export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
+export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 5;
 
 /**
  * The time a group is considered active (in seconds). An inactive group currently involves only 2 things:
@@ -130,14 +130,14 @@ export const MAX_TIME_GROUPS_RECEIVE_NEW_USERS = DAY_IN_SECONDS * 2;
  * 2) When the group becomes inactive all users receive a task where they have to choose who in the group
  *    they want to see again in future group matches (if that feature is enabled).
  */
-export const GROUP_ACTIVE_TIME = DAY_IN_SECONDS * 10;
+export const GROUP_ACTIVE_TIME = DAY_IN_SECONDS * 7;
 
 /**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
  * Quality means more matches between members and better distribution of them.
  */
-export const CREATE_BIGGER_GROUPS_FIRST: boolean = true;
+export const CREATE_BIGGER_GROUPS_FIRST: boolean = false;
 
 /**
  * When searching for small groups and finds a big group:
