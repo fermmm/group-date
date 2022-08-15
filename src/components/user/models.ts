@@ -46,6 +46,8 @@ import {
    validateUserProps,
    editableUserPropListAsSet,
    EditableUserPropKey,
+   USER_PROPS_TO_ENCODE,
+   USER_PROPS_TO_STRINGIFY,
 } from "../../shared-tools/validators/user";
 import {
    queryToBlockUser,
@@ -461,7 +463,10 @@ export async function sendEmailNotification(props: { user: Partial<User>; notifi
 
 export async function notificationsGet(params: TokenParameter, ctx: BaseContext): Promise<string> {
    const traversal = queryToGetUserByToken(params.token, null, true);
-   return await fromQueryToSpecificPropValue<string>(traversal, "notifications");
+   return await fromQueryToSpecificPropValue<string>(traversal, "notifications", {
+      needsDecoding: USER_PROPS_TO_ENCODE.has("notifications"),
+      needsParsing: USER_PROPS_TO_STRINGIFY.includes("notifications"),
+   });
 }
 
 /**

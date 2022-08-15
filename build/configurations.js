@@ -14,7 +14,7 @@ const user_1 = require("./shared-tools/endpoints-interfaces/user");
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // The name of the application to show to the users.
 exports.APPLICATION_NAME = "GroupDate";
-exports.APPLICATION_NAME_COMPLETE = "GroupDate - Non-monogamy group dating"; // Translated on usage
+exports.APPLICATION_NAME_COMPLETE = "GroupDate - group chat, parties, no-monogamy, friendship and more"; // Translated on usage
 exports.GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.poly.dates";
 exports.APP_STORE_URL = "https://apps.apple.com/app/groupdate-polyamory-dating/id1610688573";
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,12 +76,12 @@ exports.GROUP_SLOTS_CONFIGS = [
     {
         maximumSize: 6,
         amount: 1,
-        releaseTime: constants_1.WEEK_IN_SECONDS * 3,
+        releaseTime: constants_1.DAY_IN_SECONDS * 10,
     },
     {
         minimumSize: 7,
         amount: 1,
-        releaseTime: constants_1.WEEK_IN_SECONDS * 2,
+        releaseTime: constants_1.DAY_IN_SECONDS * 7,
     },
 ];
 /**
@@ -108,20 +108,20 @@ exports.FORM_BAD_QUALITY_GROUPS_TIME = constants_1.WEEK_IN_SECONDS * 6;
  * see the matching members of the group in person and will not form group with them again because the members
  * are now "seen matches". So it's a good idea to keep this setting low.
  */
-exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = constants_1.DAY_IN_SECONDS * 2;
+exports.MAX_TIME_GROUPS_RECEIVE_NEW_USERS = constants_1.DAY_IN_SECONDS * 5;
 /**
  * The time a group is considered active (in seconds). An inactive group currently involves only 2 things:
  * 1) Can potentially be displayed more hidden in the client app.
  * 2) When the group becomes inactive all users receive a task where they have to choose who in the group
  *    they want to see again in future group matches (if that feature is enabled).
  */
-exports.GROUP_ACTIVE_TIME = constants_1.DAY_IN_SECONDS * 10;
+exports.GROUP_ACTIVE_TIME = constants_1.DAY_IN_SECONDS * 7;
 /**
  * If true will create bigger groups first, the result is more bigger groups.
  * If false it will create quality groups first, the result will be less bigger groups but better quality.
  * Quality means more matches between members and better distribution of them.
  */
-exports.CREATE_BIGGER_GROUPS_FIRST = true;
+exports.CREATE_BIGGER_GROUPS_FIRST = false;
 /**
  * When searching for small groups and finds a big group:
  * true = Use the small group slot to store the big group

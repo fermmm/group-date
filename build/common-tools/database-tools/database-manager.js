@@ -1,13 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeAllDatabaseContent = exports.importDatabaseContentFromQueryFile = exports.importDatabaseContentFromFile = exports.exportDatabaseContentToFile = exports.sendQueryAsString = exports.sendQuery = exports.waitForDatabase = exports.cardinality = exports.t = exports.scope = exports.id = exports.column = exports.order = exports.P = exports.TextP = exports.withOptions = exports.__ = exports.g = exports.databaseUrl = void 0;
+exports.removeAllDatabaseContent = exports.importDatabaseContentFromFile = exports.exportDatabaseContentToFile = exports.sendQueryAsString = exports.sendQuery = exports.waitForDatabase = exports.cardinality = exports.t = exports.scope = exports.id = exports.column = exports.order = exports.P = exports.TextP = exports.withOptions = exports.__ = exports.g = exports.databaseUrl = void 0;
 const gremlin = require("gremlin");
-const path = require("path");
 const js_tools_1 = require("../js-tools/js-tools");
 const configurations_1 = require("../../configurations");
 const process_tools_1 = require("../process/process-tools");
 const files_tools_1 = require("../files-tools/files-tools");
-const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const fix_graphml_bug_1 = require("./fix-graphml-bug");
 exports.databaseUrl = (0, process_tools_1.isProductionMode)() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
@@ -136,33 +134,6 @@ async function importDatabaseContentFromFile(path) {
     await exports.g.io(`../../${path}`).read().iterate();
 }
 exports.importDatabaseContentFromFile = importDatabaseContentFromFile;
-/**
- * Loads database content provided in a file that contains queries separated by a line break.
- */
-async function importDatabaseContentFromQueryFile(props) {
-    const { fileContent, fileNameForLogs } = props;
-    let responseText = "";
-    let successfulQueries = 0;
-    let failedQueries = 0;
-    if (fileNameForLogs != null) {
-        responseText += `\n\nFile: ${path.basename(fileNameForLogs)}\n`;
-    }
-    const queries = fileContent.split(/\r\n|\r|\n/g).filter(query => query.trim().length > 0);
-    for (const query of queries) {
-        try {
-            await sendQueryAsString(query);
-            successfulQueries++;
-        }
-        catch (e) {
-            const error = (0, tryToGetErrorMessage_1.tryToGetErrorMessage)(e);
-            responseText += error + "\n";
-            failedQueries++;
-        }
-    }
-    responseText += `Finished. Successful queries: ${successfulQueries}. Failed queries: ${failedQueries}`;
-    return responseText;
-}
-exports.importDatabaseContentFromQueryFile = importDatabaseContentFromQueryFile;
 async function removeAllDatabaseContent() {
     await sendQuery(() => exports.g.V().drop().iterate());
 }

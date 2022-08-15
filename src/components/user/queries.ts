@@ -140,6 +140,9 @@ export async function queryToUpdateUserProps(
          typeof tokenOrTraversal === "string" ? queryToGetUserByToken(tokenOrTraversal) : tokenOrTraversal;
 
       for (const prop of props) {
+         if (prop.value == null) {
+            continue;
+         }
          let value = prop.value;
          value = serializeIfNeeded(value);
          value = encodeIfNeeded(value, prop.key, "user");

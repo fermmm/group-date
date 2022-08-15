@@ -20,6 +20,7 @@ function adminRoutes(r) {
     (0, route_tools_1.createRoute)(r, "/admin/convert", "POST", models_1.convertToAdminPost);
     (0, route_tools_1.createRoute)(r, "/admin/db/import", "POST", models_1.importDatabasePost);
     (0, route_tools_1.createRoute)(r, "/admin/db/export", "GET", models_1.exportDatabaseGet);
+    (0, route_tools_1.createRoute)(r, "/admin/db/export2", "GET", models_1.exportDatabase2Get);
     (0, route_tools_1.createRoute)(r, "/admin/db/visualizer", "POST", models_1.visualizerPost);
     (0, route_tools_1.createRoute)(r, "/admin/db/query", "POST", models_1.queryPost);
     (0, route_tools_1.createRoute)(r, "/admin/db/delete", "POST", models_1.deleteDbPost);

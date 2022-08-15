@@ -37,17 +37,17 @@ export function fromGremlinMapToObject<T>(
             result[propName] = JSON.parse(result[propName] as string);
          } catch (e) {
             // This can potentially happen when the data is corrupted on the database
-            console.log(
-               "Failed to parse JSON prop in fromGremlinMapToObject function.",
-               "Prop name:",
-               propName,
-               "Prop value:",
-               result[propName],
-               "Type:",
-               typeof result[propName],
-               "All props:",
-               result,
-            );
+            // console.log(
+            //    "Failed to parse JSON prop in fromGremlinMapToObject function.",
+            //    "Prop name:",
+            //    propName,
+            //    "Prop value:",
+            //    result[propName],
+            //    "Type:",
+            //    typeof result[propName],
+            //    "All props:",
+            //    result,
+            // );
             delete result[propName];
          }
       }
@@ -161,8 +161,26 @@ export async function fromQueryToSpecificProps<T>(
  * and returns is parsed. Useful for optimization to not retrieve a full object from the database.
  * You have to pass a type for the object returned.
  */
-export async function fromQueryToSpecificPropValue<T>(query: Traversal, propToGetValue: string): Promise<T> {
-   return (await sendQuery(() => query.values(propToGetValue).next()))?.value;
+export async function fromQueryToSpecificPropValue<T>(
+   query: Traversal,
+   propToGetValue: string,
+   settings?: { needsDecoding?: boolean; needsParsing?: boolean },
+): Promise<T> {
+   const { needsDecoding, needsParsing } = settings ?? {};
+
+   let result = (await sendQuery(() => query.values(propToGetValue).next()))?.value;
+
+   if (typeof result === "string" && needsDecoding) {
+      result = decodeString(result as string);
+   }
+
+   if (typeof result === "string" && needsParsing) {
+      try {
+         result = JSON.parse(result as string);
+      } catch (e) {}
+   }
+
+   return result;
 }
 
 interface FromGremlinMapToObjectOptions<T> {

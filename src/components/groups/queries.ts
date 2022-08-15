@@ -170,6 +170,11 @@ export function queryToUpdateGroupProperty(
 
    for (const key of Object.keys(newProps)) {
       let value = newProps[key];
+
+      if (value == null) {
+         continue;
+      }
+
       value = serializeIfNeeded(value);
       value = encodeIfNeeded(value, key, "group"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
 

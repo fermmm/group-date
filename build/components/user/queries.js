@@ -101,7 +101,13 @@ async function queryToUpdateUserProps(tokenOrTraversal, props) {
     await (0, database_manager_1.sendQuery)(() => {
         let query = typeof tokenOrTraversal === "string" ? queryToGetUserByToken(tokenOrTraversal) : tokenOrTraversal;
         for (const prop of props) {
-            query = query.property(database_manager_1.cardinality.single, prop.key, (0, data_conversion_tools_1.serializeIfNeeded)(prop.value));
+            if (prop.value == null) {
+                continue;
+            }
+            let value = prop.value;
+            value = (0, data_conversion_tools_1.serializeIfNeeded)(value);
+            value = (0, data_conversion_tools_1.encodeIfNeeded)(value, prop.key, "user");
+            query = query.property(database_manager_1.cardinality.single, prop.key, value);
         }
         return query.next();
     });

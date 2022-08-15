@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabaseGet = exports.importDatabasePost = exports.logDeleteEntryPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabase2Get = exports.exportDatabaseGet = exports.importDatabasePost = exports.logDeleteEntryPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -40,6 +40,8 @@ const log_1 = require("../../common-tools/log-tool/log");
 const types_2 = require("../../common-tools/log-tool/types");
 const log_storage_memory_1 = require("../../common-tools/log-tool/storage/log-storage-memory");
 const config_1 = require("../../common-tools/log-tool/config");
+const importer_1 = require("../../common-tools/database-tools/exporters/query-format/importer");
+const exporter_1 = require("../../common-tools/database-tools/exporters/query-format/exporter");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -126,6 +128,11 @@ async function logUsageReport() {
     // Now all counts will be based on users that have photo
     const wanted = (await (0, database_manager_1.sendQuery)(() => queryToGetWantedWithPhotoUsers().count().next())).value;
     const unwanted = (await (0, database_manager_1.sendQuery)(() => queryToGetUnwantedUsersWithPhoto().count().next())).value;
+    const unwantedWomen = (await (0, database_manager_1.sendQuery)(() => queryToGetUnwantedUsersWithPhoto()
+        .where(database_manager_1.__.both("isGender").has("genderId", "Woman"))
+        .not(database_manager_1.__.has("isCoupleProfile", true))
+        .count()
+        .next())).value;
     const couples = (await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetAllUsers)().has("isCoupleProfile", true).has("imagesAmount", database_manager_1.P.gt(0)).count().next())).value;
     // Now all counts will be wanted users with photo, the others are not interesting
     const mens = (await (0, database_manager_1.sendQuery)(() => queryToGetWantedWithPhotoUsers()
@@ -158,6 +165,7 @@ async function logUsageReport() {
         withPhoto,
         couples,
         unwanted,
+        unwantedWomen,
         wanted,
         mens,
         women,
@@ -249,7 +257,7 @@ async function importDatabasePost(params, ctx) {
             else {
                 fileContent = (0, files_tools_1.getFileContent)(filePath);
             }
-            responses += await (0, database_manager_1.importDatabaseContentFromQueryFile)({ fileContent, fileNameForLogs: filePath });
+            responses += await (0, importer_1.importDatabaseContentFromQueryFile)({ fileContent, fileNameForLogs: filePath });
         }
     }
     if (params.format === admin_1.DatabaseContentFileFormat.GraphMl) {
@@ -305,6 +313,26 @@ async function exportDatabaseGet(params, ctx) {
     }
 }
 exports.exportDatabaseGet = exportDatabaseGet;
+/**
+ * Another database exporter that uses a different code and it's compatible with any gremlin database.
+ */
+async function exportDatabase2Get(params, ctx) {
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        ctx.throw(passwordValidation.error);
+        return;
+    }
+    const nodes = await (0, exporter_1.exportNodes)();
+    const edges = await (0, exporter_1.exportEdges)();
+    (0, files_tools_1.writeFile)("admin-uploads/temp/db-export/nodes.gremlin", nodes);
+    (0, files_tools_1.writeFile)("admin-uploads/temp/db-export/edges.gremlin", edges);
+    await (0, files_tools_1.createZipFileFromDirectory)("admin-uploads/temp/db-export", "admin-uploads/db-export/db-exported.zip");
+    return {
+        commandResponse: "Done",
+        folder: `api/admin-uploads/db-export/db-exported.zip?hash=${(0, validateAdminCredentials_1.getCredentialsHash)()}`,
+    };
+}
+exports.exportDatabase2Get = exportDatabase2Get;
 async function visualizerPost(params, ctx) {
     const { query, nodeLimit } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);

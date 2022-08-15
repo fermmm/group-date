@@ -18,6 +18,8 @@ function queryToCreateGroup(params) {
         messages: [],
     });
     initialChat = (0, data_conversion_tools_1.encodeIfNeeded)(initialChat, "chat", "group");
+    let dayOptions = (0, data_conversion_tools_1.serializeIfNeeded)(params.dayOptions);
+    dayOptions = (0, data_conversion_tools_1.encodeIfNeeded)(dayOptions, "dayOptions", "group");
     let traversal = database_manager_1.g
         .addV("group")
         .property(database_manager_1.cardinality.single, "groupId", (0, string_tools_1.generateId)())
@@ -25,11 +27,11 @@ function queryToCreateGroup(params) {
         .property(database_manager_1.cardinality.single, "chatMessagesAmount", 0)
         .property(database_manager_1.cardinality.single, "creationDate", moment().unix())
         .property(database_manager_1.cardinality.single, "membersAmount", (_b = (_a = params.initialUsers) === null || _a === void 0 ? void 0 : _a.usersIds.length) !== null && _b !== void 0 ? _b : 0)
-        .property(database_manager_1.cardinality.single, "dayOptions", (0, data_conversion_tools_1.serializeIfNeeded)(params.dayOptions))
+        .property(database_manager_1.cardinality.single, "dayOptions", dayOptions)
         .property(database_manager_1.cardinality.single, "initialQuality", (_c = params.initialQuality) !== null && _c !== void 0 ? _c : types_1.GroupQuality.Good)
         .property(database_manager_1.cardinality.single, "reminder1NotificationSent", false)
         .property(database_manager_1.cardinality.single, "reminder2NotificationSent", false)
-        .property(database_manager_1.cardinality.single, "seenBy", (0, data_conversion_tools_1.serializeIfNeeded)([]))
+        .property(database_manager_1.cardinality.single, "seenBy", "[]")
         .property(database_manager_1.cardinality.single, "showRemoveSeenMenu", configurations_1.ALWAYS_SHOW_REMOVE_SEEN_MENU ? true : false)
         .property(database_manager_1.cardinality.single, "isActive", true);
     if (params.initialUsers != null) {
@@ -129,6 +131,9 @@ function queryToUpdateGroupProperty(newProps, filters) {
     let traversal = queryToGetGroupById(newProps.groupId, filters);
     for (const key of Object.keys(newProps)) {
         let value = newProps[key];
+        if (value == null) {
+            continue;
+        }
         value = (0, data_conversion_tools_1.serializeIfNeeded)(value);
         value = (0, data_conversion_tools_1.encodeIfNeeded)(value, key, "group"); // This should be after serializeIfNeeded() so it can act in the case of a json stringified covering all the sub-properties
         traversal = traversal.property(database_manager_1.cardinality.single, key, value);

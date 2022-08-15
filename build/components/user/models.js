@@ -329,7 +329,10 @@ async function sendEmailNotification(props) {
 exports.sendEmailNotification = sendEmailNotification;
 async function notificationsGet(params, ctx) {
     const traversal = (0, queries_1.queryToGetUserByToken)(params.token, null, true);
-    return await (0, data_conversion_tools_1.fromQueryToSpecificPropValue)(traversal, "notifications");
+    return await (0, data_conversion_tools_1.fromQueryToSpecificPropValue)(traversal, "notifications", {
+        needsDecoding: user_3.USER_PROPS_TO_ENCODE.has("notifications"),
+        needsParsing: user_3.USER_PROPS_TO_STRINGIFY.includes("notifications"),
+    });
 }
 exports.notificationsGet = notificationsGet;
 /**

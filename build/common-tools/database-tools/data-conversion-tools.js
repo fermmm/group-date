@@ -30,7 +30,17 @@ function fromGremlinMapToObject(gremlinMap, options) {
             }
             catch (e) {
                 // This can potentially happen when the data is corrupted on the database
-                console.log("Failed to parse JSON prop in fromGremlinMapToObject function.", "Prop name:", propName, "Prop value:", result[propName], "Type:", typeof result[propName], "All props:", result);
+                // console.log(
+                //    "Failed to parse JSON prop in fromGremlinMapToObject function.",
+                //    "Prop name:",
+                //    propName,
+                //    "Prop value:",
+                //    result[propName],
+                //    "Type:",
+                //    typeof result[propName],
+                //    "All props:",
+                //    result,
+                // );
                 delete result[propName];
             }
         }
@@ -126,9 +136,20 @@ exports.fromQueryToSpecificProps = fromQueryToSpecificProps;
  * and returns is parsed. Useful for optimization to not retrieve a full object from the database.
  * You have to pass a type for the object returned.
  */
-async function fromQueryToSpecificPropValue(query, propToGetValue) {
+async function fromQueryToSpecificPropValue(query, propToGetValue, settings) {
     var _a;
-    return (_a = (await (0, database_manager_1.sendQuery)(() => query.values(propToGetValue).next()))) === null || _a === void 0 ? void 0 : _a.value;
+    const { needsDecoding, needsParsing } = settings !== null && settings !== void 0 ? settings : {};
+    let result = (_a = (await (0, database_manager_1.sendQuery)(() => query.values(propToGetValue).next()))) === null || _a === void 0 ? void 0 : _a.value;
+    if (typeof result === "string" && needsDecoding) {
+        result = (0, decodeString_1.decodeString)(result);
+    }
+    if (typeof result === "string" && needsParsing) {
+        try {
+            result = JSON.parse(result);
+        }
+        catch (e) { }
+    }
+    return result;
 }
 exports.fromQueryToSpecificPropValue = fromQueryToSpecificPropValue;
 //# sourceMappingURL=data-conversion-tools.js.map

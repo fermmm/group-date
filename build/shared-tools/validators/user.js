@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateUserProps = exports.editableUserPropListAsSet = exports.editableUserPropsList = exports.requiredUserPropsList = exports.USER_PROPS_TO_ENCODE_AS_ARRAY = exports.USER_PROPS_TO_STRINGIFY = exports.USER_PROPS_TO_ENCODE = void 0;
+exports.validateUserProps = exports.editableUserPropListAsSet = exports.editableUserPropsList = exports.requiredUserPropsList = exports.USER_PROPS_TO_ENCODE_AS_ARRAY = exports.USER_PROPS_TO_ENCODE = exports.USER_PROPS_TO_STRINGIFY = void 0;
 const Validator = require("fastest-validator");
 const user_1 = require("../endpoints-interfaces/user");
 // fastest-validator TS fix
@@ -51,24 +51,6 @@ const OTHER_USER_PROPS_SCHEMA = {
     country: { type: "string", min: 2, max: 32, optional: true },
 };
 /**
- * This Set contains the names of the user props that will be saved encoded (currently using encodeURIComponent()) this is needed when
- * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
- * format of the database backup files. Specifically line breaks or the \ character has problems.
- */
-exports.USER_PROPS_TO_ENCODE = new Set([
-    "profileDescription",
-    "name",
-    "cityName",
-    "dateIdea",
-    "country",
-    "language",
-    "images",
-    "questionsResponded",
-    "notificationsToken",
-    "genders",
-    "likesGenders",
-]);
-/**
  * If you added a prop that is an array or object add it here in order to be converted to JSON string when saving to the database
  */
 exports.USER_PROPS_TO_STRINGIFY = [
@@ -80,6 +62,22 @@ exports.USER_PROPS_TO_STRINGIFY = [
     "banReasons",
     "requiredTasks",
 ];
+/**
+ * This Set contains the names of the user props that will be saved encoded (currently using encodeURIComponent()) this is needed when
+ * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
+ * format of the database backup files. Specifically line breaks or the \ character has problems.
+ * Props that are stringified should also be encoded, that is why we add the other array into this one.
+ */
+exports.USER_PROPS_TO_ENCODE = new Set([
+    ...exports.USER_PROPS_TO_STRINGIFY,
+    "profileDescription",
+    "name",
+    "cityName",
+    "dateIdea",
+    "country",
+    "language",
+    "notificationsToken",
+]);
 exports.USER_PROPS_TO_ENCODE_AS_ARRAY = Array.from(exports.USER_PROPS_TO_ENCODE);
 /**
  * The only propuse of this line is to generate a TS error when the props of the schemas are not user props.
