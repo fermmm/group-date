@@ -17,16 +17,22 @@ const EDITABLE_TAG_PROPS_SCHEMA = {
 };
 
 /**
- * This Set contains the names of the tag props that will be saved encoded (currently using encodeURIComponent())) this is needed when
- * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
- * format of the database backup files. Specifically line breaks or the \ character has problems.
- */
-export const TAG_PROPS_TO_ENCODE = new Set<keyof Tag>(["name", "category", "language"]);
-
-/**
  * If you added a prop that is an array or object add it here in order to be converted to JSON string when saving to the database
  */
 export const TAG_PROPS_TO_STRINGIFY: Array<keyof Tag> = [];
+
+/**
+ * This Set contains the names of the tag props that will be saved encoded (currently using encodeURIComponent())) this is needed when
+ * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
+ * format of the database backup files. Specifically line breaks or the \ character has problems.
+ * Props that are stringified should also be encoded, that is why we add the other array into this one.
+ */
+export const TAG_PROPS_TO_ENCODE = new Set<keyof Tag>([
+   ...TAG_PROPS_TO_STRINGIFY,
+   "name",
+   "category",
+   "language",
+]);
 
 export const TAG_PROPS_TO_ENCODE_AS_ARRAY = Array.from(TAG_PROPS_TO_ENCODE);
 

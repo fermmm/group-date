@@ -38,6 +38,9 @@ export function testingRoutes(r: Router): void {
    createRoute(r, "/testing/force-groups-search", "GET", forceGroupSearch);
    createRoute(r, "/testing/create-fake-chat", "GET", createFakeChatConversation);
 
+   // TODO: Para que el exportador funcione va a ser necesario encodear las props que ahora fueron agregadas:
+   // hay que hacer un migrador que levante todo y lo vuelva a encodear si hace falta, para users y groups
+
    createRoute(r, "/testing/temp", "GET", async (params: any, ctx: BaseContext) => {
       // await notifyAllUsersAboutNewCards();
 

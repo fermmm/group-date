@@ -4,6 +4,7 @@ import { useFilePicker } from "use-file-picker";
 import {
    deleteDatabaseRequest,
    exportDbRequest,
+   exportDbRequest2,
    importDbRequest,
    uploadAdminFiles,
 } from "../../../../api/server/techOps";
@@ -72,11 +73,17 @@ const ImportExportForm: FC = props => {
       setResponse(null);
    };
 
-   const handleExportClick = async () => {
+   const handleExportClick = async (method: "method1" | "method2") => {
       setLoading(true);
-      const exportResponse = await exportDbRequest();
+      let exportResponse;
+      if (method === "method1") {
+         exportResponse = await exportDbRequest();
+      } else {
+         exportResponse = await exportDbRequest2();
+      }
       setResponse(JSON.stringify(exportResponse, null, 2));
       window.location.href = `${window.location.origin}/${exportResponse.folder}`;
+      // window.open(`${window.location.origin}/${exportResponse.folder}`, "_blank");
       setLoading(false);
    };
 
@@ -138,8 +145,11 @@ const ImportExportForm: FC = props => {
                      <b>remember to import the node files first.</b> Multiple file selection is supported.
                   </ButtonComment>
                </RowCentered>
-               <Button variant="outlined" onClick={handleExportClick}>
+               <Button variant="outlined" onClick={() => handleExportClick("method1")}>
                   Export database content
+               </Button>
+               <Button variant="outlined" onClick={() => handleExportClick("method2")}>
+                  Export database content method 2
                </Button>
                <RowCentered>
                   <Button variant="outlined" color="error" onClick={handleDeleteClick}>

@@ -49,9 +49,13 @@ export interface UsageReport {
    withPhoto: number;
    couples: number;
    unwanted: number;
+   unwantedWomen: number;
    wanted: number;
    mens: number;
    women: number;
+   usersWith2Matches: number;
+   wantedUsersInAGroup: number;
+   unwantedUsersInAGroup: number;
    amountOfGroups: number;
    totalOpenGroups: number;
    openGroupsBySlot: number[];

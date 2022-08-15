@@ -10,6 +10,10 @@ export async function exportNodes() {
       let properties: Object = {};
 
       node.forEach((value, key) => {
+         if (value == null) {
+            return;
+         }
+
          if (typeof key === "object") {
             if (key.elementName === "label") {
                label = value;
@@ -56,6 +60,10 @@ export async function exportEdges() {
          }
          if (key === "edge") {
             value.forEach((edgeValue, edgeKey) => {
+               if (edgeValue == null) {
+                  return;
+               }
+
                if (typeof edgeKey === "object") {
                   if (edgeKey.elementName === "label") {
                      label = edgeValue;
@@ -77,6 +85,9 @@ export async function exportEdges() {
    return result;
 }
 
+/**
+ * With the info of a node, returns a query line that when is executed it adds the same node to the database.
+ */
 function fromNodeInfoToQueryLine(nodeId: string | number, nodeLabel: string, nodeProperties: Object) {
    let result = `g.addV("${nodeLabel}").property(id, ${typeof nodeId === "string" ? `"${nodeId}"` : nodeId})`;
    Object.keys(nodeProperties).forEach(key => {
@@ -87,6 +98,10 @@ function fromNodeInfoToQueryLine(nodeId: string | number, nodeLabel: string, nod
    return result;
 }
 
+/**
+ * With the info of an edge, returns a query line that when is executed it adds the same edge to the database, the
+ * nodes should already be added otherwise the returned query will do nothing.
+ */
 function fromEdgeInfoToQueryLine(
    edgeId: string | number,
    edgeLabel: string,
@@ -94,9 +109,8 @@ function fromEdgeInfoToQueryLine(
    inV: string | number,
    outV: string | number,
 ) {
-   let result = `g.V(${typeof inV === "string" ? `"${inV}"` : inV}).as("a")`;
-   result += `.V(${typeof outV === "string" ? `"${outV}"` : outV}).as("b")`;
-   // TODO: Esto puede estar invertido, checkear bien
+   let result = `g.V(${typeof outV === "string" ? `"${outV}"` : outV}).as("a")`;
+   result += `.V(${typeof inV === "string" ? `"${inV}"` : inV}).as("b")`;
    result += `.addE("${edgeLabel}").from("a").to("b")`;
    result += `.property(id, ${typeof edgeId === "string" ? `"${edgeId}"` : edgeId})`;
    Object.keys(edgeProperties).forEach(key => {

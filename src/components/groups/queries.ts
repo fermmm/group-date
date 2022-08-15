@@ -23,6 +23,8 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       messages: [],
    }) as string;
    initialChat = encodeIfNeeded(initialChat, "chat", "group");
+   let dayOptions = serializeIfNeeded(params.dayOptions);
+   dayOptions = encodeIfNeeded(dayOptions, "dayOptions", "group");
 
    let traversal: Traversal = g
       .addV("group")
@@ -31,11 +33,11 @@ export function queryToCreateGroup(params: CreateNewGroupParameters): Traversal 
       .property(cardinality.single, "chatMessagesAmount", 0)
       .property(cardinality.single, "creationDate", moment().unix())
       .property(cardinality.single, "membersAmount", params.initialUsers?.usersIds.length ?? 0)
-      .property(cardinality.single, "dayOptions", serializeIfNeeded(params.dayOptions))
+      .property(cardinality.single, "dayOptions", dayOptions)
       .property(cardinality.single, "initialQuality", params.initialQuality ?? GroupQuality.Good)
       .property(cardinality.single, "reminder1NotificationSent", false)
       .property(cardinality.single, "reminder2NotificationSent", false)
-      .property(cardinality.single, "seenBy", serializeIfNeeded([]))
+      .property(cardinality.single, "seenBy", "[]")
       .property(cardinality.single, "showRemoveSeenMenu", ALWAYS_SHOW_REMOVE_SEEN_MENU ? true : false)
       .property(cardinality.single, "isActive", true);
 

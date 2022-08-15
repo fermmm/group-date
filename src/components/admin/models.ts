@@ -66,7 +66,6 @@ import {
    exportDatabaseContentToFile,
    g,
    importDatabaseContentFromFile,
-   importDatabaseContentFromQueryFile,
    P,
    removeAllDatabaseContent,
    sendQuery,
@@ -90,6 +89,7 @@ import {
    deleteFile,
    getFileContent,
    readFolder,
+   writeFile,
 } from "../../common-tools/files-tools/files-tools";
 import { deleteFilesFromS3, readFileContentFromS3, uploadFileToS3 } from "../../common-tools/aws/s3-tools";
 import { fromQueryToUser, fromQueryToUserList } from "../user/tools/data-conversion";
@@ -124,6 +124,8 @@ import {
    getAllInMemoryLogs,
 } from "../../common-tools/log-tool/storage/log-storage-memory";
 import { ENTRY_SEPARATOR_STRING, logsConfig } from "../../common-tools/log-tool/config";
+import { importDatabaseContentFromQueryFile } from "../../common-tools/database-tools/exporters/query-format/importer";
+import { exportEdges, exportNodes } from "../../common-tools/database-tools/exporters/query-format/exporter";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -478,6 +480,33 @@ export async function exportDatabaseGet(
          folder: `api/admin-uploads/db-export/db-exported.zip?hash=${getCredentialsHash()}`,
       };
    }
+}
+
+/**
+ * Another database exporter that uses a different code and it's compatible with any gremlin database.
+ */
+export async function exportDatabase2Get(
+   params: ExportDatabaseGetParams,
+   ctx: BaseContext,
+): Promise<ExportDatabaseResponse> {
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      ctx.throw(passwordValidation.error);
+      return;
+   }
+
+   const nodes = await exportNodes();
+   const edges = await exportEdges();
+
+   writeFile("admin-uploads/temp/db-export/nodes.gremlin", nodes);
+   writeFile("admin-uploads/temp/db-export/edges.gremlin", edges);
+
+   await createZipFileFromDirectory("admin-uploads/temp/db-export", "admin-uploads/db-export/db-exported.zip");
+
+   return {
+      commandResponse: "Done",
+      folder: `api/admin-uploads/db-export/db-exported.zip?hash=${getCredentialsHash()}`,
+   };
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
