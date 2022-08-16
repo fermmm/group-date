@@ -145,11 +145,11 @@ const ImportExportForm: FC = props => {
                      <b>remember to import the node files first.</b> Multiple file selection is supported.
                   </ButtonComment>
                </RowCentered>
-               <Button variant="outlined" onClick={() => handleExportClick("method1")}>
+               <Button variant="outlined" onClick={() => handleExportClick("method2")}>
                   Export database content
                </Button>
-               <Button variant="outlined" onClick={() => handleExportClick("method2")}>
-                  Export database content method 2
+               <Button variant="outlined" onClick={() => handleExportClick("method1")}>
+                  Export database content (old deprecated method)
                </Button>
                <RowCentered>
                   <Button variant="outlined" color="error" onClick={handleDeleteClick}>

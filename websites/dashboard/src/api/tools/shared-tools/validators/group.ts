@@ -14,16 +14,21 @@ const EDITABLE_GROUP_PROPS_SCHEMA = {
 };
 
 /**
- * This Set contains the names of the group props that will be saved encoded (currently using encodeURIComponent()) this is needed when
- * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
- * format of the database backup files. Specifically line breaks or the \ character has problems.
- */
-export const GROUP_PROPS_TO_ENCODE = new Set<keyof Group>(["name", "chat", "mostVotedIdea"]);
-
-/**
  * If you added a prop that is an array or object add it here in order to be converted to JSON string when saving to the database
  */
 export const GROUP_PROPS_TO_STRINGIFY: Array<keyof Group> = ["chat", "dayOptions", "seenBy"];
+
+/**
+ * This Set contains the names of the group props that will be saved encoded (currently using encodeURIComponent()) this is needed when
+ * the content can be edited by users or other human sources because it may contain characters that breaks things like in the
+ * format of the database backup files. Specifically line breaks or the \ character has problems.
+ * Props that are stringified should also be encoded, that is why we add the other array into this one.
+ */
+export const GROUP_PROPS_TO_ENCODE = new Set<keyof Group>([
+   ...GROUP_PROPS_TO_STRINGIFY,
+   "name",
+   "mostVotedIdea",
+]);
 
 export const GROUP_PROPS_TO_ENCODE_AS_ARRAY = Array.from(GROUP_PROPS_TO_ENCODE);
 
