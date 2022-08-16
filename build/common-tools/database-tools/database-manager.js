@@ -6,6 +6,7 @@ const js_tools_1 = require("../js-tools/js-tools");
 const configurations_1 = require("../../configurations");
 const process_tools_1 = require("../process/process-tools");
 const files_tools_1 = require("../files-tools/files-tools");
+const tryToGetErrorMessage_1 = require("../httpRequest/tools/tryToGetErrorMessage");
 const fix_graphml_bug_1 = require("./fix-graphml-bug");
 exports.databaseUrl = (0, process_tools_1.isProductionMode)() ? process.env.DATABASE_URL : process.env.DATABASE_URL_DEVELOPMENT;
 const traversal = gremlin.process.AnonymousTraversalSource.traversal;
@@ -113,8 +114,8 @@ async function sendQueryAsString(query) {
         return await client.submit(query, {});
     }
     catch (error) {
-        console.log("");
         console.log(`Error sending query as a string, query: ${query}`);
+        console.log(`Error: ${(0, tryToGetErrorMessage_1.tryToGetErrorMessage)(error)}`);
         throw error;
     }
 }
