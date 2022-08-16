@@ -198,6 +198,7 @@ exports.voteResultGet = voteResultGet;
  * Endpoint to send a chat message to a group
  */
 async function chatPost(params, ctx) {
+    var _a;
     const user = await (0, models_1.retrieveFullyRegisteredUser)(params.token, false, ctx);
     const group = await getGroupById(params.groupId, {
         filters: { onlyIfAMemberHasToken: params.token },
@@ -211,10 +212,13 @@ async function chatPost(params, ctx) {
         time: moment().unix(),
         authorUserId: user.userId,
     });
+    if (group.chat.messages.length > configurations_1.MAX_CHAT_MESSAGES) {
+        group.chat.messages.splice(0, group.chat.messages.length - configurations_1.MAX_CHAT_MESSAGES);
+    }
     await (0, queries_2.queryToUpdateGroupProperty)({
         groupId: group.groupId,
         chat: group.chat,
-        chatMessagesAmount: group.chat.messages.length,
+        chatMessagesAmount: ((_a = group.chatMessagesAmount) !== null && _a !== void 0 ? _a : 0) + 1,
     });
     // Send a notification to group members informing that there is a new message
     const usersToReceiveNotification = (await (0, queries_1.queryToGetMembersForNewMsgNotification)(group.groupId, user.userId)

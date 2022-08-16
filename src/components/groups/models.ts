@@ -11,6 +11,7 @@ import {
    SECOND_DATE_REMINDER_TIME,
    REQUIRE_REMOVE_SEEN_MENU,
    SHOW_MESSAGE_TEXT_IN_NOTIFICATION,
+   MAX_CHAT_MESSAGES,
 } from "../../configurations";
 import { TokenParameter } from "../../shared-tools/endpoints-interfaces/common";
 import {
@@ -315,10 +316,14 @@ export async function chatPost(params: ChatPostParams, ctx: BaseContext): Promis
       authorUserId: user.userId,
    });
 
+   if (group.chat.messages.length > MAX_CHAT_MESSAGES) {
+      group.chat.messages.splice(0, group.chat.messages.length - MAX_CHAT_MESSAGES);
+   }
+
    await queryToUpdateGroupProperty({
       groupId: group.groupId,
       chat: group.chat,
-      chatMessagesAmount: group.chat.messages.length,
+      chatMessagesAmount: (group.chatMessagesAmount ?? 0) + 1,
    });
 
    // Send a notification to group members informing that there is a new message

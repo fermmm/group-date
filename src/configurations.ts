@@ -591,6 +591,11 @@ export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_LIKING = 70;
 export const CARDS_GAME_MAX_RESULTS_PER_REQUEST_OTHERS = 70;
 export const MAX_TIME_TO_WAIT_ON_DATABASE_RETRY = 2048;
 
+/**
+ * Old chat messages are removed after this amount
+ */
+export const MAX_CHAT_MESSAGES = 80;
+
 // Image manipulation before saving:
 export const MAX_FILE_SIZE_UPLOAD_ALLOWED = 0.2 * 1024 * 1024; /// 1024 * 1024 converts mb to byte
 export const BIG_IMAGE_SIZE = 512;
