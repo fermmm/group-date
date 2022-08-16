@@ -38,22 +38,23 @@ export function testingRoutes(r: Router): void {
    createRoute(r, "/testing/force-groups-search", "GET", forceGroupSearch);
    createRoute(r, "/testing/create-fake-chat", "GET", createFakeChatConversation);
 
-   // TODO: Para que el exportador funcione va a ser necesario encodear las props que ahora fueron agregadas:
-   // hay que hacer un migrador que levante todo y lo vuelva a encodear si hace falta, para users y groups
-
    createRoute(r, "/testing/temp", "GET", async (params: any, ctx: BaseContext) => {
       // await notifyAllUsersAboutNewCards();
 
-      let usersDone = 0;
-      const allUsers = await fromQueryToUserList(queryToGetAllUsers(), false, false);
-      for (const user of allUsers) {
-         await refreshQuestions({ user, ctx, onlyRefreshQuestionIds: ["q05"] });
-         await refreshQuestions({ user, ctx, onlyRefreshQuestionIds: ["taq-3-v2"] });
-         usersDone++;
-         console.log(`done: ${usersDone}/${allUsers.length}`);
-      }
+      // let usersDone = 0;
+      // const allUsers = await fromQueryToUserList(
+      //    queryToGetAllUsers({ includeDemoAccounts: true }),
+      //    false,
+      //    false,
+      // );
+      // for (const user of allUsers) {
+      //    await refreshQuestions({ user, ctx, onlyRefreshQuestionIds: ["q05"] });
+      //    await refreshQuestions({ user, ctx, onlyRefreshQuestionIds: ["taq-3-v2"] });
+      //    usersDone++;
+      //    console.log(`done: ${usersDone}/${allUsers.length}`);
+      // }
 
-      console.log("Finished with users");
+      // console.log("Finished with users");
 
       // const allUsers = await fromQueryToUserList(queryToGetAllCompleteUsers(), false, false);
       // for (const user of allUsers) {

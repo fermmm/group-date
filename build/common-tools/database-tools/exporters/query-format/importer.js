@@ -26,6 +26,7 @@ async function importDatabaseContentFromQueryFile(props) {
             responseText += error + "\n";
             failedQueries++;
         }
+        console.log(`Queries done: ${successfulQueries + failedQueries}/${queries.length} ${Math.round(((successfulQueries + failedQueries) / queries.length) * 100)}%`);
     }
     responseText += `Finished. Successful queries: ${successfulQueries}. Failed queries: ${failedQueries}`;
     return responseText;

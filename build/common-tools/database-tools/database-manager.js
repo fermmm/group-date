@@ -22,6 +22,10 @@ exports.id = gremlin.process.t.id;
 exports.scope = gremlin.process.scope;
 exports.t = gremlin.process.t;
 exports.cardinality = gremlin.process.cardinality;
+const clientForStringQueries = new gremlin.driver.Client(exports.databaseUrl, {
+    traversalSource: "g",
+    mimeType: "application/json",
+});
 /**
  * The promise of this function resolves only when database responds to a simple query
  *
@@ -104,14 +108,10 @@ exports.sendQuery = sendQuery;
  * Sends a query that is in a string format, eg: "g.V().toList()"
  */
 async function sendQueryAsString(query) {
-    const client = new gremlin.driver.Client(exports.databaseUrl, {
-        traversalSource: "g",
-        mimeType: "application/json",
-    });
     // AWS Neptune workaround
     query = query.replace("g.V", "g.inject(0).V");
     try {
-        return await client.submit(query, {});
+        return await clientForStringQueries.submit(query, {});
     }
     catch (error) {
         console.log(`Error sending query as a string, query: ${query}`);

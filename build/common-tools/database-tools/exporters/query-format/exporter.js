@@ -92,9 +92,9 @@ function fromNodeInfoToQueryLine(nodeId, nodeLabel, nodeProperties) {
  */
 function fromEdgeInfoToQueryLine(edgeId, edgeLabel, edgeProperties, inV, outV) {
     let result = `g.V(${typeof outV === "string" ? `"${outV}"` : outV}).as("a")`;
-    result += `.V(${typeof inV === "string" ? `"${inV}"` : inV})`;
-    result += `.addE("${edgeLabel}").from("a")`;
-    // result += `.property(id, ${typeof edgeId === "string" ? `"${edgeId}"` : edgeId})`;
+    result += `.V(${typeof inV === "string" ? `"${inV}"` : inV}).as("b")`;
+    result += `.addE("${edgeLabel}").from("a").to("b")`;
+    result += `.property(id, ${typeof edgeId === "string" ? `"${edgeId}"` : edgeId})`;
     Object.keys(edgeProperties).forEach(key => {
         result += `.property("${key}", ${typeof edgeProperties[key] === "string" ? `"${edgeProperties[key]}"` : edgeProperties[key]})`;
     });
