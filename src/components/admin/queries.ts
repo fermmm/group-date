@@ -5,7 +5,7 @@ import { Traversal } from "../../common-tools/database-tools/gremlin-typing-tool
 import { AdminNotificationFilter } from "../../shared-tools/endpoints-interfaces/admin";
 import { ChatMessage } from "../../shared-tools/endpoints-interfaces/common";
 import { encodeString } from "../../shared-tools/utility-functions/encodeString";
-import { queryToGetAllCompleteUsers, queryToGetUserById } from "../user/queries";
+import { queryToGetAllCompleteUsers, queryToGetAllUsers, queryToGetUserById } from "../user/queries";
 
 export function queryToGetAdminChatMessages(userId: string, includeUserData: boolean): Traversal {
    const projectWithoutUserData: Traversal = __.valueMap().by(__.unfold());
@@ -66,7 +66,7 @@ export function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin: boolean): 
 }
 
 export function queryToSelectUsersForNotification(filters: AdminNotificationFilter): Traversal {
-   const traversal = queryToGetAllCompleteUsers();
+   const traversal = queryToGetAllUsers({ includeDemoAccounts: false });
 
    if (filters.usersEmail && filters.usersEmail.length > 0) {
       traversal.union(...filters.usersEmail.map(email => __.has("email", email)));

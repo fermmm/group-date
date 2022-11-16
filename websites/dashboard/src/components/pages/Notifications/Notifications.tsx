@@ -53,7 +53,8 @@ const Notifications: FC = () => {
          onlyReturnUsersAmount,
          filters,
          notificationContent,
-         sendEmailNotification: notificationOptions?.sendEmailNotification,
+         sendEmailNotification: notificationOptions?.sendEmail,
+         sendPushNotification: notificationOptions?.sendPush,
          channelId:
             notificationContent?.type === NotificationType.NearbyPartyOrEvent
                ? NotificationChannelId.Events

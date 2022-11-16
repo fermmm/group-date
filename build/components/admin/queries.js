@@ -44,7 +44,7 @@ function queryToGetAllChatsWithAdmins(excludeRespondedByAdmin) {
 }
 exports.queryToGetAllChatsWithAdmins = queryToGetAllChatsWithAdmins;
 function queryToSelectUsersForNotification(filters) {
-    const traversal = (0, queries_1.queryToGetAllCompleteUsers)();
+    const traversal = (0, queries_1.queryToGetAllUsers)({ includeDemoAccounts: false });
     if (filters.usersEmail && filters.usersEmail.length > 0) {
         traversal.union(...filters.usersEmail.map(email => database_manager_1.__.has("email", email)));
     }

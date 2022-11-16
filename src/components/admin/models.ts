@@ -611,8 +611,17 @@ export async function onAdminFileSaved(
 }
 
 export async function adminNotificationSendPost(params: AdminNotificationPostParams, ctx: BaseContext) {
-   const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification, logResult } =
-      params;
+   const {
+      channelId,
+      onlyReturnUsersAmount,
+      filters,
+      notificationContent,
+      sendPushNotification,
+      sendEmailNotification,
+      logResult,
+   } = params;
+
+   let returnMessage: string = "";
 
    const passwordValidation = await validateAdminCredentials(params);
    if (!passwordValidation.isValid) {
@@ -635,41 +644,50 @@ export async function adminNotificationSendPost(params: AdminNotificationPostPar
       });
    }
 
-   const expoPushTickets = await sendPushNotifications(
-      users.map(user => ({
-         to: user.notificationsToken,
-         title: notificationContent.title,
-         body: notificationContent.text,
-         data: {
-            type: notificationContent.type,
-            targetId: notificationContent.targetId,
-            notificationId: generateId(),
-         } as NotificationData,
-         channelId: channelId ? channelId : NotificationChannelId.Default,
-      })),
-   );
-
-   if (logResult) {
-      log(
-         {
-            to: users?.map(user => user.notificationsToken) ?? [],
+   if (sendPushNotification) {
+      const expoPushTickets = await sendPushNotifications(
+         users.map(user => ({
+            to: user.notificationsToken,
             title: notificationContent.title,
             body: notificationContent.text,
-            result: expoPushTickets,
-         },
-         LogId.TestNotificationsResult,
+            data: {
+               type: notificationContent.type,
+               targetId: notificationContent.targetId,
+               notificationId: generateId(),
+            } as NotificationData,
+            channelId: channelId ? channelId : NotificationChannelId.Default,
+         })),
       );
-   }
 
-   // Some time to wait in order for expo to process the notification before the delivery status can be checked
-   await time(10000);
+      if (logResult) {
+         log(
+            {
+               to: users?.map(user => user.notificationsToken) ?? [],
+               title: notificationContent.title,
+               body: notificationContent.text,
+               result: expoPushTickets,
+            },
+            LogId.TestNotificationsResult,
+         );
+      }
 
-   const errors = await getNotificationsDeliveryErrors(expoPushTickets);
+      // Some time to wait in order for expo to process the notification before the delivery status can be checked
+      await time(10000);
 
-   let returnMessage = `Notification sent to ${users.length - errors.length} users.`;
-   if (errors.length > 0) {
-      returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
-      errors.forEach(error => (returnMessage += `\n${error}`));
+      const errors = await getNotificationsDeliveryErrors(expoPushTickets);
+
+      returnMessage += `Notification sent to ${users.length - errors.length} users.`;
+
+      if (errors.length > 0) {
+         returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
+         errors.forEach(error => (returnMessage += `\n${error}`));
+      }
+   } else {
+      if (sendEmailNotification) {
+         returnMessage += `Email notification sent to ${users.length} users.`;
+      } else {
+         returnMessage += "No notification sent because you didn't select the type of notification";
+      }
    }
 
    return returnMessage;

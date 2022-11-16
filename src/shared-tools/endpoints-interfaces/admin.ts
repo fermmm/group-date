@@ -104,6 +104,7 @@ export interface AdminNotificationPostParams extends AdminProtectionParams {
    onlyReturnUsersAmount?: boolean;
    notificationContent?: NotificationContent;
    sendEmailNotification?: boolean;
+   sendPushNotification?: boolean;
    channelId?: NotificationChannelId;
    logResult?: boolean;
 }

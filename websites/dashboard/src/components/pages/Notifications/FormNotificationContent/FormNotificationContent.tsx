@@ -11,13 +11,21 @@ export interface PropsNotificationContent {
 }
 
 export interface NotificationSendingOptions {
-   sendEmailNotification: boolean;
+   sendEmail: boolean;
+   sendPush: boolean;
 }
 
 const FormNotificationContent: FC<PropsNotificationContent> = props => {
    const [title, setTitle] = useState<string>();
-   const [text, setText] = useState<string>();
+   const [text, setText] = useState<string>(
+      `<pre style="text-align: justify;">
+
+Use this example pre tag for large texts on email notifications, for push or small texts don't use html, remove all this and just write the text
+
+</pre>`,
+   );
    const [sendEmail, setSendEmail] = useState<boolean>(false);
+   const [sendPush, setSendPush] = useState<boolean>(false);
    const [targetId, setTargetId] = useState<string>();
    const [type, setType] = useState<NotificationType>(NotificationType.TextOnly);
 
@@ -26,7 +34,7 @@ const FormNotificationContent: FC<PropsNotificationContent> = props => {
    useEffect(() => {
       props.onChange(
          { title, text, type, idForReplacement: `${title}${text}${type}` },
-         { sendEmailNotification: sendEmail },
+         { sendEmail, sendPush },
       );
    }, [title, text, type, sendEmail]);
 
@@ -43,15 +51,27 @@ const FormNotificationContent: FC<PropsNotificationContent> = props => {
             label="Notification text"
             variant="outlined"
             fullWidth
+            multiline
             value={text}
             onChange={e => setText(e.target.value)}
          />
+         Notification type
          <FormControlLabel
-            label={"Also send an email notification"}
+            label={"Email notification"}
             control={
                <Checkbox
                   checked={sendEmail}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSendEmail(e.target.checked)}
+                  inputProps={{ "aria-label": "controlled" }}
+               />
+            }
+         />
+         <FormControlLabel
+            label={"Push notification"}
+            control={
+               <Checkbox
+                  checked={sendPush}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSendPush(e.target.checked)}
                   inputProps={{ "aria-label": "controlled" }}
                />
             }

@@ -418,7 +418,8 @@ async function onAdminFileSaved(files, ctx) {
 exports.onAdminFileSaved = onAdminFileSaved;
 async function adminNotificationSendPost(params, ctx) {
     var _a;
-    const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendEmailNotification, logResult } = params;
+    const { channelId, onlyReturnUsersAmount, filters, notificationContent, sendPushNotification, sendEmailNotification, logResult, } = params;
+    let returnMessage = "";
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
     if (!passwordValidation.isValid) {
         return passwordValidation.error;
@@ -436,32 +437,42 @@ async function adminNotificationSendPost(params, ctx) {
             logResult,
         });
     }
-    const expoPushTickets = await (0, push_notifications_1.sendPushNotifications)(users.map(user => ({
-        to: user.notificationsToken,
-        title: notificationContent.title,
-        body: notificationContent.text,
-        data: {
-            type: notificationContent.type,
-            targetId: notificationContent.targetId,
-            notificationId: (0, string_tools_1.generateId)(),
-        },
-        channelId: channelId ? channelId : user_1.NotificationChannelId.Default,
-    })));
-    if (logResult) {
-        (0, log_1.log)({
-            to: (_a = users === null || users === void 0 ? void 0 : users.map(user => user.notificationsToken)) !== null && _a !== void 0 ? _a : [],
+    if (sendPushNotification) {
+        const expoPushTickets = await (0, push_notifications_1.sendPushNotifications)(users.map(user => ({
+            to: user.notificationsToken,
             title: notificationContent.title,
             body: notificationContent.text,
-            result: expoPushTickets,
-        }, types_2.LogId.TestNotificationsResult);
+            data: {
+                type: notificationContent.type,
+                targetId: notificationContent.targetId,
+                notificationId: (0, string_tools_1.generateId)(),
+            },
+            channelId: channelId ? channelId : user_1.NotificationChannelId.Default,
+        })));
+        if (logResult) {
+            (0, log_1.log)({
+                to: (_a = users === null || users === void 0 ? void 0 : users.map(user => user.notificationsToken)) !== null && _a !== void 0 ? _a : [],
+                title: notificationContent.title,
+                body: notificationContent.text,
+                result: expoPushTickets,
+            }, types_2.LogId.TestNotificationsResult);
+        }
+        // Some time to wait in order for expo to process the notification before the delivery status can be checked
+        await (0, js_tools_1.time)(10000);
+        const errors = await (0, push_notifications_1.getNotificationsDeliveryErrors)(expoPushTickets);
+        returnMessage += `Notification sent to ${users.length - errors.length} users.`;
+        if (errors.length > 0) {
+            returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
+            errors.forEach(error => (returnMessage += `\n${error}`));
+        }
     }
-    // Some time to wait in order for expo to process the notification before the delivery status can be checked
-    await (0, js_tools_1.time)(10000);
-    const errors = await (0, push_notifications_1.getNotificationsDeliveryErrors)(expoPushTickets);
-    let returnMessage = `Notification sent to ${users.length - errors.length} users.`;
-    if (errors.length > 0) {
-        returnMessage += ` ${errors.length} user(s) didn't receive the notification probably because uninstalled the app or disabled notifications, this is the delivery status report of those failed notifications:`;
-        errors.forEach(error => (returnMessage += `\n${error}`));
+    else {
+        if (sendEmailNotification) {
+            returnMessage += `Email notification sent to ${users.length} users.`;
+        }
+        else {
+            returnMessage += "No notification sent because you didn't select the type of notification";
+        }
     }
     return returnMessage;
 }
