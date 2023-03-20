@@ -81,7 +81,11 @@ import {
    LOG_PUSH_NOTIFICATION_DELIVERING_RESULT,
    SMALL_IMAGE_SIZE,
 } from "../../configurations";
-import { fromQueryToSpecificPropValue } from "../../common-tools/database-tools/data-conversion-tools";
+import {
+   encodeIfNeeded,
+   fromQueryToSpecificPropValue,
+   serializeIfNeeded,
+} from "../../common-tools/database-tools/data-conversion-tools";
 import { sendPushNotifications } from "../../common-tools/push-notifications/push-notifications";
 import { getUserEmailFromToken } from "./tools/authentication/getUserEmailFromAuthProvider";
 import { queryToCreateVerticesFromObjects } from "../../common-tools/database-tools/common-queries";
@@ -651,11 +655,11 @@ export async function createRequiredTaskForUser(params: {
    }
 
    const newRequiredTasks = [...(user.requiredTasks ?? []), { ...task, taskId: generateId() }];
+   let requiredTasksToSend = serializeIfNeeded(newRequiredTasks);
+   requiredTasksToSend = encodeIfNeeded(requiredTasksToSend, "requiredTasks", "user");
 
    await sendQuery(() =>
-      queryToGetUserById(userId)
-         .property(cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
-         .iterate(),
+      queryToGetUserById(userId).property(cardinality.single, "requiredTasks", requiredTasksToSend).iterate(),
    );
 
    if (notification) {
@@ -684,10 +688,12 @@ export async function taskCompletedPost(
    }
 
    const newRequiredTasks = user.requiredTasks.filter(task => task.taskId !== taskId);
+   let requiredTasksToSend = serializeIfNeeded(newRequiredTasks);
+   requiredTasksToSend = encodeIfNeeded(requiredTasksToSend, "requiredTasks", "user");
 
    await sendQuery(() =>
       queryToGetUserByToken(params.token)
-         .property(cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
+         .property(cardinality.single, "requiredTasks", requiredTasksToSend)
          .iterate(),
    );
 

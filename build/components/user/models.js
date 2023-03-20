@@ -465,9 +465,9 @@ async function createRequiredTaskForUser(params) {
         }
     }
     const newRequiredTasks = [...((_b = user.requiredTasks) !== null && _b !== void 0 ? _b : []), { ...task, taskId: (0, string_tools_1.generateId)() }];
-    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId)
-        .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
-        .iterate());
+    let requiredTasksToSend = (0, data_conversion_tools_1.serializeIfNeeded)(newRequiredTasks);
+    requiredTasksToSend = (0, data_conversion_tools_1.encodeIfNeeded)(requiredTasksToSend, "requiredTasks", "user");
+    await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserById)(userId).property(database_manager_1.cardinality.single, "requiredTasks", requiredTasksToSend).iterate());
     if (notification) {
         await addNotificationToUser({ userId }, notification, {
             sendPushNotification: true,
@@ -488,8 +488,10 @@ async function taskCompletedPost(params, ctx) {
         return;
     }
     const newRequiredTasks = user.requiredTasks.filter(task => task.taskId !== taskId);
+    let requiredTasksToSend = (0, data_conversion_tools_1.serializeIfNeeded)(newRequiredTasks);
+    requiredTasksToSend = (0, data_conversion_tools_1.encodeIfNeeded)(requiredTasksToSend, "requiredTasks", "user");
     await (0, database_manager_1.sendQuery)(() => (0, queries_1.queryToGetUserByToken)(params.token)
-        .property(database_manager_1.cardinality.single, "requiredTasks", JSON.stringify(newRequiredTasks))
+        .property(database_manager_1.cardinality.single, "requiredTasks", requiredTasksToSend)
         .iterate());
     return { success: true };
 }
