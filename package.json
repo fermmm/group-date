@@ -120,5 +120,8 @@
          "jest-extended"
       ],
       "snapshotResolver": "./build/tests/tools/snapshotsResolver.js"
+   },
+   "volta": {
+      "node": "16.19.0"
    }
 }

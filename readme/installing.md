@@ -9,16 +9,18 @@
 
 3. Make sure you have Node.js at least version 14, to verify run `node -v`. If it's not installed you should follow these steps:
 
-   1. Make sure you have curl installed on your system: `sudo apt update && sudo apt install curl -y`
-   2. Install nvm (Node Version Manager) for current logged user: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash`
-   3. Refresh system environment to have nvm command available, in Debian based systems: `source ~/.profile`, in CentOS, Fedora and Redhat systems: `source ~/.bashrc`
-   4. Install latest Node.js version: `nvm install lts/*`
-   5. Set the Node.js version just installed as the permanent to use: `nvm alias default node`
+   1. Make sure you have curl installed on your system: ```sudo apt update && sudo apt install curl -y```
+   2. Install Volta (It's a Node Version Manager): ```curl https://get.volta.sh | bash```
+   3. Close the console or the ssh session and reopen it to have the ```volta``` command available
+   4. Install a default Node.js and Yarn version: ```volta install node```
+   5. Now run ```node --version``` and you should see the version of the node installed
 
 4. Duplicate the file `.env.example` and rename it: `.env`. In Unix you can use this command: `cp .env.example .env`. Also do it on the **/websites/dashboard** folder.
 
 5. **Optional**: To enable the dashboard (an admin page of the server) follow the [dashboard setup steps](./dashboard.md).
 
-6. Run: `npm install` and `npm install pm2@latest -g`
+6. Run: `npm install pm2@latest -g`
+
+7. If you are going to do code changes on the machine run: `npm install`
 
 That's all for installing.
