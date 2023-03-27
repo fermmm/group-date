@@ -5,6 +5,7 @@ import {
    deleteDatabaseRequest,
    exportDbRequest,
    exportDbRequest2,
+   forceXmlBackupRequest,
    importDbRequest,
    uploadAdminFiles,
 } from "../../../../api/server/techOps";
@@ -87,6 +88,13 @@ const ImportExportForm: FC = props => {
       setLoading(false);
    };
 
+   const handleForceXmlBackupClick = async () => {
+      setLoading(true);
+      let exportResponse = await forceXmlBackupRequest();
+      setResponse(JSON.stringify(exportResponse, null, 2));
+      setLoading(false);
+   };
+
    const handleDeleteClick = async () => {
       setConfirmationDialogProps({
          open: true,
@@ -149,8 +157,17 @@ const ImportExportForm: FC = props => {
                   Export database content
                </Button>
                <Button variant="outlined" onClick={() => handleExportClick("method1")}>
-                  Export database content (old deprecated method)
+                  Export database content as XML
                </Button>
+               <RowCentered>
+                  <Button variant="outlined" onClick={() => handleForceXmlBackupClick()}>
+                     Force XML database backup
+                  </Button>
+                  <ButtonComment>
+                     To be used when the database is running in the same server, to prevent data lost at server
+                     restart
+                  </ButtonComment>
+               </RowCentered>
                <RowCentered>
                   <Button variant="outlined" color="error" onClick={handleDeleteClick}>
                      Delete database content

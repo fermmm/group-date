@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.executeSystemCommand = exports.logEnvironmentMode = exports.isRunningOnAws = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
+exports.executeSystemCommand = exports.logEnvironmentMode = exports.isUsingS3 = exports.isUsingNeptune = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
 const shell = require("shelljs");
 const exitSignals = [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`];
 let initialized = false;
@@ -30,10 +30,14 @@ function isProductionMode() {
     return false;
 }
 exports.isProductionMode = isProductionMode;
-function isRunningOnAws() {
-    return process.env.USING_AWS === "true" && isProductionMode();
+function isUsingNeptune() {
+    return process.env.USING_NEPTUNE_DATABASE === "true" && isProductionMode();
 }
-exports.isRunningOnAws = isRunningOnAws;
+exports.isUsingNeptune = isUsingNeptune;
+function isUsingS3() {
+    return process.env.USING_S3 === "true" && isProductionMode();
+}
+exports.isUsingS3 = isUsingS3;
 function logEnvironmentMode() {
     console.log("");
     if (isProductionMode()) {

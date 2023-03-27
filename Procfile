@@ -1,1 +1,1 @@
-web: npm run aws-start
+web: npm run start-no-pm2

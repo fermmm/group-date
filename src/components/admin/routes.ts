@@ -13,6 +13,7 @@ import {
    deleteDbPost,
    exportDatabase2Get,
    exportDatabaseGet,
+   forceXmlDatabaseBackupGet,
    getGroup,
    importDatabasePost,
    logDeleteEntryPost,
@@ -46,6 +47,7 @@ export function adminRoutes(r: Router): void {
    createRoute(r, "/admin/db/import", "POST", importDatabasePost);
    createRoute(r, "/admin/db/export", "GET", exportDatabaseGet);
    createRoute(r, "/admin/db/export2", "GET", exportDatabase2Get);
+   createRoute(r, "/admin/db/force", "GET", forceXmlDatabaseBackupGet);
    createRoute(r, "/admin/db/visualizer", "POST", visualizerPost);
    createRoute(r, "/admin/db/query", "POST", queryPost);
    createRoute(r, "/admin/db/delete", "POST", deleteDbPost);

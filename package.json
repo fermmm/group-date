@@ -16,6 +16,8 @@
       "dev-persistent": "npm run database-restart; nodemon --watch",
       "dev": "npm run database-restart && RESTORE_DATABASE_ON_INIT=false PERFORM_DATABASE_BACKUPS=false nodemon --watch",
       "start": "NODE_ENV=production pm2 start build/index.js --name group-date-server --update-env && npm run database-init",
+      "start-no-pm2": "NODE_ENV=production npm run database-init && node build/index.js",
+      "start-neptune": "NODE_ENV=production NO_DATABASE=true node build/index.js",
       "database-only": "pm2 start build/database-only.js --name group-date-database --update-env && npm run database-init",
       "no-database-prod": "NODE_ENV=production NO_DATABASE=true pm2 start build/index.js --name group-date-server --update-env",
       "stop": "pm2 stop group-date-server",
@@ -25,7 +27,6 @@
       "prettier": "prettier --write \"src/**/*.ts\"",
       "prettier-differences": "prettier --list-different \"src/**/*.ts\"",
       "rimraf": "./node_modules/rimraf/bin.js",
-      "aws-start": "NODE_ENV=production NO_DATABASE=true node build/index.js",
       "deploy": "npm run build && eb deploy"
    },
    "dependencies": {

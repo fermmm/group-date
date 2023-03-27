@@ -94,6 +94,8 @@ export interface ExportDatabaseResponse {
    folder: string;
 }
 
+export interface ForceXmlBackupGetParams extends AdminProtectionParams {}
+
 export interface CredentialsValidationResult {
    isValid: boolean;
    error?: string;

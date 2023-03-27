@@ -31,6 +31,12 @@ export async function exportDbRequest2<Response extends ExportDatabaseResponse>(
    return httpRequest({ url, method: "GET", params: { ...credentials } });
 }
 
+export async function forceXmlBackupRequest<Response extends ExportDatabaseResponse>(): Promise<Response> {
+   const url = "admin/db/force";
+   const credentials = getCredentialsFromStorage();
+   return httpRequest({ url, method: "GET", params: { ...credentials } });
+}
+
 export async function uploadAdminFiles<Params extends Partial<{ files: File[]; folder: string }>>(
    params: Params,
 ): Promise<{ filePaths: string[] }> {

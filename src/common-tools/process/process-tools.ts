@@ -34,8 +34,12 @@ export function isProductionMode() {
    return false;
 }
 
-export function isRunningOnAws(): boolean {
-   return process.env.USING_AWS === "true" && isProductionMode();
+export function isUsingNeptune(): boolean {
+   return process.env.USING_NEPTUNE_DATABASE === "true" && isProductionMode();
+}
+
+export function isUsingS3(): boolean {
+   return process.env.USING_S3 === "true" && isProductionMode();
 }
 
 export function logEnvironmentMode() {

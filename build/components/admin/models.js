@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.exportDatabase2Get = exports.exportDatabaseGet = exports.importDatabasePost = exports.logDeleteEntryPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
+exports.sendEmailPost = exports.removeAllBanReasonsFromUser = exports.removeBanFromUserPost = exports.banUserPost = exports.getGroup = exports.runCodePost = exports.runCommandPost = exports.notificationStatusGet = exports.adminNotificationSendPost = exports.onAdminFileSaved = exports.onAdminFileReceived = exports.deleteDbPost = exports.queryPost = exports.visualizerPost = exports.forceXmlDatabaseBackupGet = exports.exportDatabase2Get = exports.exportDatabaseGet = exports.importDatabasePost = exports.logDeleteEntryPost = exports.logGet = exports.logFileListGet = exports.logUsageReport = exports.convertToAdmin = exports.convertToAdminPost = exports.allChatsWithAdminsGet = exports.adminChatPost = exports.adminChatGet = exports.validateCredentialsGet = exports.initializeAdmin = void 0;
 const moment = require("moment");
 const fs = require("fs");
 const dynamic_1 = require("set-interval-async/dynamic");
@@ -42,6 +42,7 @@ const log_storage_memory_1 = require("../../common-tools/log-tool/storage/log-st
 const config_1 = require("../../common-tools/log-tool/config");
 const importer_1 = require("../../common-tools/database-tools/exporters/query-format/importer");
 const exporter_1 = require("../../common-tools/database-tools/exporters/query-format/exporter");
+const backups_1 = require("../../common-tools/database-tools/backups");
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
  * the last database backup if there is any and in order to restore the backup the database
@@ -239,18 +240,18 @@ async function importDatabasePost(params, ctx) {
     }
     let responses = "";
     if (params.format === admin_1.DatabaseContentFileFormat.NeptuneCsv) {
-        if ((0, process_tools_1.isRunningOnAws)()) {
+        if ((0, process_tools_1.isUsingNeptune)()) {
             responses += JSON.stringify(await (0, neptune_tools_1.importDatabaseContentCsvToNeptune)(params, ctx));
             // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
         }
         else {
-            ctx.throw(400, "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true");
+            ctx.throw(400, "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_NEPTUNE_DATABASE = true");
         }
     }
     if (params.format === admin_1.DatabaseContentFileFormat.GremlinQuery) {
         for (const filePath of params.filePaths) {
             let fileContent;
-            if ((0, process_tools_1.isRunningOnAws)()) {
+            if ((0, process_tools_1.isUsingNeptune)()) {
                 fileContent = await (0, s3_tools_1.readFileContentFromS3)(filePath);
                 // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
             }
@@ -265,7 +266,7 @@ async function importDatabasePost(params, ctx) {
             ctx.throw(400, "Error: GraphML file format is only 1 file for the whole database. Multiple files were selected.");
         }
         const filePath = params.filePaths[0];
-        if ((0, process_tools_1.isRunningOnAws)()) {
+        if ((0, process_tools_1.isUsingNeptune)()) {
             try {
                 responses += await (0, neptune_tools_1.importDatabaseContentXmlToNeptune)(filePath, ctx);
             }
@@ -291,7 +292,7 @@ async function exportDatabaseGet(params, ctx) {
         ctx.throw(passwordValidation.error);
         return;
     }
-    if ((0, process_tools_1.isRunningOnAws)()) {
+    if ((0, process_tools_1.isUsingNeptune)()) {
         try {
             return await (0, neptune_tools_1.exportDatabaseContentFromNeptune)({
                 targetFilePath: "admin-uploads/db.zip",
@@ -333,6 +334,15 @@ async function exportDatabase2Get(params, ctx) {
     };
 }
 exports.exportDatabase2Get = exportDatabase2Get;
+async function forceXmlDatabaseBackupGet(params, ctx) {
+    const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
+    if (!passwordValidation.isValid) {
+        ctx.throw(passwordValidation.error);
+        return;
+    }
+    await (0, database_manager_1.exportDatabaseContentToFile)(`${backups_1.DB_EXPORT_FOLDER}/${backups_1.DB_EXPORT_LATEST_FILE}.xml`);
+}
+exports.forceXmlDatabaseBackupGet = forceXmlDatabaseBackupGet;
 async function visualizerPost(params, ctx) {
     const { query, nodeLimit } = params;
     const passwordValidation = await (0, validateAdminCredentials_1.validateAdminCredentials)(params);
@@ -400,7 +410,7 @@ async function onAdminFileSaved(files, ctx) {
         const absoluteFolderPath = path.dirname(file.path);
         const folderPath = path.relative(appRoot.path, absoluteFolderPath) + "/";
         const fileName = path.basename(file.path);
-        if (process.env.USING_AWS === "true" && (0, process_tools_1.isProductionMode)()) {
+        if ((0, process_tools_1.isUsingS3)()) {
             const fileNameInS3 = await (0, s3_tools_1.uploadFileToS3)({
                 localFilePath: file.path,
                 s3TargetPath: folderPath + fileName,

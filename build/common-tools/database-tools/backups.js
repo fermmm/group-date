@@ -75,7 +75,7 @@ async function backupDatabase(folderPath, fileName, settings) {
     if (saveLog) {
         (0, measureTime_1.measureTime)("backup-database");
     }
-    if ((0, process_tools_1.isRunningOnAws)()) {
+    if ((0, process_tools_1.isUsingNeptune)()) {
         await (0, neptune_tools_1.exportDatabaseContentFromNeptune)({
             targetFilePath: "admin-uploads/db.zip",
             cloneClusterBeforeBackup: false,
@@ -97,7 +97,7 @@ async function backupDatabase(folderPath, fileName, settings) {
     }
 }
 async function restoreDatabase(folderPath, fileName) {
-    if ((0, process_tools_1.isRunningOnAws)()) {
+    if ((0, process_tools_1.isUsingNeptune)()) {
         return;
     }
     if (!(0, files_tools_1.fileOrFolderExists)(`${folderPath}/${fileName}.xml`)) {

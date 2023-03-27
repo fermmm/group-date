@@ -27,6 +27,7 @@ import {
    DatabaseContentFileFormat,
    ExportDatabaseGetParams,
    ExportDatabaseResponse,
+   ForceXmlBackupGetParams,
    ImportDatabasePostParams,
    LogFileListResponse,
    LogResponse,
@@ -101,7 +102,8 @@ import { time } from "../../common-tools/js-tools/js-tools";
 import {
    executeSystemCommand,
    isProductionMode,
-   isRunningOnAws,
+   isUsingNeptune,
+   isUsingS3,
 } from "../../common-tools/process/process-tools";
 import {
    exportDatabaseContentFromNeptune,
@@ -126,6 +128,7 @@ import {
 import { ENTRY_SEPARATOR_STRING, logsConfig } from "../../common-tools/log-tool/config";
 import { importDatabaseContentFromQueryFile } from "../../common-tools/database-tools/exporters/query-format/importer";
 import { exportEdges, exportNodes } from "../../common-tools/database-tools/exporters/query-format/exporter";
+import { DB_EXPORT_FOLDER, DB_EXPORT_LATEST_FILE } from "../../common-tools/database-tools/backups";
 
 /**
  * This initializer should be executed before the others because loadDatabaseFromDisk() restores
@@ -395,13 +398,13 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
    let responses = "";
 
    if (params.format === DatabaseContentFileFormat.NeptuneCsv) {
-      if (isRunningOnAws()) {
+      if (isUsingNeptune()) {
          responses += JSON.stringify(await importDatabaseContentCsvToNeptune(params, ctx));
          // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
       } else {
          ctx.throw(
             400,
-            "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_AWS = true",
+            "Error: Importing Neptune CSV files only works when running on AWS (in production mode) and when USING_NEPTUNE_DATABASE = true",
          );
       }
    }
@@ -409,7 +412,7 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
    if (params.format === DatabaseContentFileFormat.GremlinQuery) {
       for (const filePath of params.filePaths) {
          let fileContent: string;
-         if (isRunningOnAws()) {
+         if (isUsingNeptune()) {
             fileContent = await readFileContentFromS3(filePath);
             // deleteFilesFromS3(params.filePaths); // This seems to prevent loader to work, it uses the files in the S3 for some time and cannot be removed.
          } else {
@@ -429,7 +432,7 @@ export async function importDatabasePost(params: ImportDatabasePostParams, ctx: 
       }
 
       const filePath = params.filePaths[0];
-      if (isRunningOnAws()) {
+      if (isUsingNeptune()) {
          try {
             responses += await importDatabaseContentXmlToNeptune(filePath, ctx);
          } catch (e) {
@@ -459,7 +462,7 @@ export async function exportDatabaseGet(
       return;
    }
 
-   if (isRunningOnAws()) {
+   if (isUsingNeptune()) {
       try {
          return await exportDatabaseContentFromNeptune({
             targetFilePath: "admin-uploads/db.zip",
@@ -507,6 +510,16 @@ export async function exportDatabase2Get(
       commandResponse: "Done",
       folder: `api/admin-uploads/db-export/db-exported.zip?hash=${getCredentialsHash()}`,
    };
+}
+
+export async function forceXmlDatabaseBackupGet(params: ForceXmlBackupGetParams, ctx: BaseContext) {
+   const passwordValidation = await validateAdminCredentials(params);
+   if (!passwordValidation.isValid) {
+      ctx.throw(passwordValidation.error);
+      return;
+   }
+
+   await exportDatabaseContentToFile(`${DB_EXPORT_FOLDER}/${DB_EXPORT_LATEST_FILE}.xml`);
 }
 
 export async function visualizerPost(params: VisualizerQueryParams, ctx: BaseContext) {
@@ -592,7 +605,7 @@ export async function onAdminFileSaved(
       const folderPath = path.relative(appRoot.path, absoluteFolderPath) + "/";
       const fileName: string = path.basename(file.path);
 
-      if (process.env.USING_AWS === "true" && isProductionMode()) {
+      if (isUsingS3()) {
          const fileNameInS3 = await uploadFileToS3({
             localFilePath: file.path,
             s3TargetPath: folderPath + fileName,

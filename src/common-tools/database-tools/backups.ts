@@ -7,7 +7,7 @@ import {
    DATABASE_BACKUP_WEEKLY,
 } from "../../configurations";
 import { copyFile, fileOrFolderExists, createFolder } from "../files-tools/files-tools";
-import { executeFunctionBeforeExiting, isRunningOnAws } from "../process/process-tools";
+import { executeFunctionBeforeExiting, isUsingNeptune } from "../process/process-tools";
 import { databaseIsEmpty } from "../database-tools/common-queries";
 import { exportDatabaseContentFromNeptune } from "../aws/neptune-tools";
 import { uploadFileToS3 } from "../aws/s3-tools";
@@ -88,7 +88,7 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
       measureTime("backup-database");
    }
 
-   if (isRunningOnAws()) {
+   if (isUsingNeptune()) {
       await exportDatabaseContentFromNeptune({
          targetFilePath: "admin-uploads/db.zip",
          cloneClusterBeforeBackup: false,
@@ -114,7 +114,7 @@ async function backupDatabase(folderPath: string, fileName: string, settings?: {
 }
 
 async function restoreDatabase(folderPath: string, fileName: string) {
-   if (isRunningOnAws()) {
+   if (isUsingNeptune()) {
       return;
    }
 
