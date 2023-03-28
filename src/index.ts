@@ -119,7 +119,7 @@ import { LogId } from "./common-tools/log-tool/types";
 
    // Final console messages
    console.log("✓ Server initialized!");
-   console.log(`✓ Mode: ${getNodeEnv()}`);
+   console.log(`✓ NODE_ENV is: ${getNodeEnv()}`);
    console.log(`✓ Promo website available in ${getServerUrl()}/`);
    console.log(`✓ Api endpoints available in ${getServerUrl()}${USERS_API_PATH}`);
    console.log(`✓ Admin dashboard available in ${getServerUrl()}/dashboard`);

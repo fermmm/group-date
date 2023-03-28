@@ -104,7 +104,7 @@ const types_1 = require("./common-tools/log-tool/types");
     (0, routes_6.tagsRoutes)(router);
     // Final console messages
     console.log("✓ Server initialized!");
-    console.log(`✓ Mode: ${(0, process_tools_1.getNodeEnv)()}`);
+    console.log(`✓ NODE_ENV is: ${(0, process_tools_1.getNodeEnv)()}`);
     console.log(`✓ Promo website available in ${(0, getServerUrl_1.getServerUrl)()}/`);
     console.log(`✓ Api endpoints available in ${(0, getServerUrl_1.getServerUrl)()}${configurations_1.USERS_API_PATH}`);
     console.log(`✓ Admin dashboard available in ${(0, getServerUrl_1.getServerUrl)()}/dashboard`);

@@ -27,7 +27,7 @@ export function executeFunctionBeforeExiting(fn: () => Promise<void> | void) {
 
 export function getNodeEnv(): string {
    // The .? it seems to not work with unknown types
-   if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV) {
+   if (process && process.env && process.env.NODE_ENV) {
       return process.env.NODE_ENV.toLocaleLowerCase();
    }
 
