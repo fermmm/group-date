@@ -415,8 +415,6 @@ async function onAdminFileSaved(files, ctx) {
                 localFilePath: file.path,
                 s3TargetPath: folderPath + fileName,
             });
-            // Remove the file from the server because it's already on the S3
-            await fs.promises.unlink(file.path);
             filePaths.push(fileNameInS3);
         }
         else {
