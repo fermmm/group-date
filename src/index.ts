@@ -26,7 +26,7 @@ import { initializeUsers } from "./components/user/models";
 import { userMountedFolders, userRoutes } from "./components/user/routes";
 import { initializeDatabaseBackups } from "./common-tools/database-tools/backups";
 import { strToBool } from "./common-tools/string-tools/string-tools";
-import { logEnvironmentMode } from "./common-tools/process/process-tools";
+import { getNodeEnv, logEnvironmentMode } from "./common-tools/process/process-tools";
 import { serveFolderFiles, serveWebsite } from "./common-tools/koa-tools/koa-tools";
 import { USERS_API_PATH } from "./configurations";
 import { emailLoginRoutes } from "./components/email-login/routes";
@@ -119,6 +119,7 @@ import { LogId } from "./common-tools/log-tool/types";
 
    // Final console messages
    console.log("✓ Server initialized!");
+   console.log(`✓ Mode: ${getNodeEnv()}`);
    console.log(`✓ Promo website available in ${getServerUrl()}/`);
    console.log(`✓ Api endpoints available in ${getServerUrl()}${USERS_API_PATH}`);
    console.log(`✓ Admin dashboard available in ${getServerUrl()}/dashboard`);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.executeSystemCommand = exports.logEnvironmentMode = exports.isUsingS3 = exports.isUsingNeptune = exports.isProductionMode = exports.executeFunctionBeforeExiting = void 0;
+exports.executeSystemCommand = exports.logEnvironmentMode = exports.isUsingS3 = exports.isUsingNeptune = exports.isProductionMode = exports.getNodeEnv = exports.executeFunctionBeforeExiting = void 0;
 const shell = require("shelljs");
 const exitSignals = [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`];
 let initialized = false;
@@ -22,9 +22,16 @@ function executeFunctionBeforeExiting(fn) {
     initialized = true;
 }
 exports.executeFunctionBeforeExiting = executeFunctionBeforeExiting;
-function isProductionMode() {
+function getNodeEnv() {
     // The .? it seems to not work with unknown types
-    if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV.toLowerCase() === "production") {
+    if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV) {
+        return process.env.NODE_ENV.toLocaleLowerCase();
+    }
+    return "undefined";
+}
+exports.getNodeEnv = getNodeEnv;
+function isProductionMode() {
+    if (getNodeEnv() === "production") {
         return true;
     }
     return false;

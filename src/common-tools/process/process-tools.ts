@@ -25,9 +25,17 @@ export function executeFunctionBeforeExiting(fn: () => Promise<void> | void) {
    initialized = true;
 }
 
-export function isProductionMode() {
+export function getNodeEnv(): string {
    // The .? it seems to not work with unknown types
-   if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV.toLowerCase() === "production") {
+   if (process && process.env && process.env.NODE_ENV && process.env.NODE_ENV) {
+      return process.env.NODE_ENV.toLocaleLowerCase();
+   }
+
+   return "undefined";
+}
+
+export function isProductionMode() {
+   if (getNodeEnv() === "production") {
       return true;
    }
 
