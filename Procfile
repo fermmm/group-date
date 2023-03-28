@@ -1,1 +1,1 @@
-web: npm run start-no-pm2
+web: npm run start-external-db
