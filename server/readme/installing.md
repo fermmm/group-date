@@ -5,7 +5,7 @@
 
 1. Make sure the full path to this repo does not contain any spaces because that breaks gremlin database (the database that runs in local).
 
-2. Make sure you have Java installed (JDK or OpenJDK), at least version 8 (or 1.8 it's the same). It's required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, in an Ubuntu compatible OS you can install it with `sudo apt install default-jdk`. [In MacOS you can instal it with Brew](https://devqa.io/brew-install-java/).
+2. Make sure you have Java installed (JDK or OpenJDK is the same), at least version 8 (or 1.8 it's the same). This is required to run gremlin database. To verify that Java is installed or which version you have, run the command `java -version`. If you don't have it, in an Ubuntu compatible OS you can install it with `sudo apt install default-jdk`. In MacOS you first [install Brew](https://brew.sh/) and then run [these commands to install Java](https://stackoverflow.com/a/65601197/624810).
 
 3. Make sure you have Node.js at least version 14, to verify run `node -v`. If it's not installed you should follow these steps:
 
@@ -23,4 +23,4 @@
 
 7. If you are going to do code changes on the machine run: `npm install`
 
-That's all for installing.
+That's all for installing, now you can continue to the documentation about how to run.

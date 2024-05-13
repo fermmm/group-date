@@ -4,8 +4,8 @@
 
 ### Development mode
 
-If you want to make code changes run the development mode:
-This runs the server with error reporting and automatic restart when the code changes. Also database information is not permanent between restarts (when pressing Ctrl + C), this is recommended to force user registration to be well debugged.
+If you want to make code changes or run it in local just for testing if it works, run the development mode:
+This runs the server with error reporting and automatic restart when the code changes. Also database information is removed when closing (when pressing Ctrl + C), this is recommended to force user registration to be well debugged.
 
 ```
 npm run dev
