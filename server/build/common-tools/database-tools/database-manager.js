@@ -35,12 +35,19 @@ async function waitForDatabase() {
     let resolvePromise;
     const result = new Promise(r => (resolvePromise = r));
     let promiseSolved = false;
+    let attemptsAmount = 0;
+    let showErrorsAfterAttemptsAmount = 10;
+    let showError = false;
     console.log(`Database URL is: ${exports.databaseUrl}`);
     console.log("Waiting for database...");
     const interval = setInterval(() => {
         checkDatabase();
     }, 1000);
     const checkDatabase = () => {
+        attemptsAmount++;
+        if (attemptsAmount > showErrorsAfterAttemptsAmount) {
+            console.log(`Database connection was attempted ${attemptsAmount} times and is not connecting yet, it seems to be taking long, it may be not working.`);
+        }
         exports.g.inject(0)
             .toList()
             .then(() => {
@@ -51,7 +58,11 @@ async function waitForDatabase() {
                 resolvePromise();
             }
         })
-            .catch(error => { });
+            .catch(error => {
+            if (attemptsAmount > showErrorsAfterAttemptsAmount) {
+                console.error(error);
+            }
+        });
     };
     checkDatabase();
     return result;
