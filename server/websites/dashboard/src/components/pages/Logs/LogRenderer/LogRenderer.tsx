@@ -7,7 +7,7 @@ interface PropsLogRenderer {
 }
 
 const LogRenderer: FC<PropsLogRenderer> = props => {
-   return <></>;
+   return <>{props.children}</>;
 };
 
 export default LogRenderer;
