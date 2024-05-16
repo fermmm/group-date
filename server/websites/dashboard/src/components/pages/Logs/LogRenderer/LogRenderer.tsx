@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import { LogResponse } from "../../../../api/tools/shared-tools/endpoints-interfaces/admin";
+import { JsonTextContainer } from "../../TechOps/ResponseDisplay/styles.ResponseDisplay";
 
 interface PropsLogRenderer {
    log: LogResponse;
@@ -7,7 +8,7 @@ interface PropsLogRenderer {
 }
 
 const LogRenderer: FC<PropsLogRenderer> = props => {
-   return <>{props.children}</>;
+   return <>{JSON.stringify(props.log)}</>;
 };
 
 export default LogRenderer;
