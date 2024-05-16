@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-require("jest");
-const JestDateMock = require("jest-date-mock");
+require("mocha");
+const earl_1 = require("earl");
+const beforeAllTests_1 = require("./tools/beforeAllTests");
 const models_1 = require("../components/tags/models");
 const queries_1 = require("../components/user/queries");
 const configurations_1 = require("../configurations");
@@ -10,13 +11,16 @@ const users_1 = require("./tools/users");
 const general_1 = require("../common-tools/math-tools/general");
 const models_2 = require("../components/user/models");
 const js_tools_1 = require("../common-tools/js-tools/js-tools");
+const generalTools_1 = require("./tools/generalTools");
+const test = it;
 describe("Tags", () => {
     let user1;
     let user2;
     let userUnrelated;
     let user1Tags;
     let user2Tags;
-    beforeAll(async () => {
+    before(async () => {
+        await (0, beforeAllTests_1.initAppForTests)();
         user1 = await (0, users_1.createFakeUser)({ language: "es" });
         user2 = await (0, users_1.createFakeUser)({ language: "es" });
         userUnrelated = await (0, users_1.createFakeUser)({ language: "en" });
@@ -42,9 +46,9 @@ describe("Tags", () => {
         user1Tags = await (0, models_1.tagsCreatedByUserGet)(user1.token);
         user2Tags = await (0, models_1.tagsCreatedByUserGet)(user2.token);
         const unrelatedTags = await (0, models_1.tagsCreatedByUserGet)(userUnrelated.token);
-        expect(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
-        expect(user2Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
-        expect(unrelatedTags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
+        (0, earl_1.expect)(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
+        (0, earl_1.expect)(user2Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
+        (0, earl_1.expect)(unrelatedTags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
     });
     test("Creating more tags than the maximum allowed per time frame should be not possible", async () => {
         await (0, models_1.createTagPost)({
@@ -53,28 +57,28 @@ describe("Tags", () => {
             category: "test category 2",
         }, replacements_1.fakeCtxMuted);
         user1Tags = await (0, models_1.tagsCreatedByUserGet)(user1.token);
-        expect(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
+        (0, earl_1.expect)(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
     });
     test("After full time frame passes it should be possible to add new tags", async () => {
         // Simulate time passing, not all required time
-        JestDateMock.advanceBy((configurations_1.TAG_CREATION_TIME_FRAME * 1000) / 2);
+        (0, generalTools_1.changeCurrentTimeBy)((configurations_1.TAG_CREATION_TIME_FRAME * 1000) / 2);
         await (0, models_1.createTagPost)({
             token: user1.token,
             name: `test tag should not be created`,
             category: "test category 2",
         }, replacements_1.fakeCtxMuted);
         user1Tags = await (0, models_1.tagsCreatedByUserGet)(user1.token);
-        expect(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
+        (0, earl_1.expect)(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
         // Now enough time has passed
-        JestDateMock.advanceBy((configurations_1.TAG_CREATION_TIME_FRAME * 1000) / 2 + (0, general_1.hoursToMilliseconds)(1));
+        (0, generalTools_1.changeCurrentTimeBy)((configurations_1.TAG_CREATION_TIME_FRAME * 1000) / 2 + (0, general_1.hoursToMilliseconds)(1));
         await (0, models_1.createTagPost)({
             token: user1.token,
             name: `new test tag`,
             category: "test category 2",
         }, replacements_1.fakeCtx);
         user1Tags = await (0, models_1.tagsCreatedByUserGet)(user1.token);
-        expect(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME + 1);
-        JestDateMock.clear();
+        (0, earl_1.expect)(user1Tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME + 1);
+        (0, generalTools_1.resetTime)();
     });
     test("Should not be possible to create 2 tags with the same name in the same language", async () => {
         const user = await (0, users_1.createFakeUser)({ language: "es" });
@@ -97,9 +101,9 @@ describe("Tags", () => {
             category: "test category",
         }, replacements_1.fakeCtx);
         const userTags = await (0, models_1.tagsCreatedByUserGet)(user.token);
-        expect(userTags).toHaveLength(1);
+        (0, earl_1.expect)(userTags).toHaveLength(1);
         const userOutsideTags = await (0, models_1.tagsCreatedByUserGet)(userOutside.token);
-        expect(userOutsideTags).toHaveLength(1);
+        (0, earl_1.expect)(userOutsideTags).toHaveLength(1);
     });
     test("Subscribing and retrieving subscribed tags works", async () => {
         var _a, _b;
@@ -111,12 +115,12 @@ describe("Tags", () => {
         }, replacements_1.fakeCtx);
         user1 = await (0, models_2.retrieveFullyRegisteredUser)(user1.token, true, replacements_1.fakeCtx);
         user2 = await (0, models_2.retrieveFullyRegisteredUser)(user2.token, true, replacements_1.fakeCtx);
-        expect(user1.tagsSubscribed
+        (0, earl_1.expect)(user1.tagsSubscribed
             .map(t => t.tagId)
             .sort()
             .join()).toEqual(tagIds.sort().join());
-        expect((_a = user1.tagsBlocked) !== null && _a !== void 0 ? _a : []).toHaveLength(0);
-        expect((_b = user2.tagsSubscribed) !== null && _b !== void 0 ? _b : []).toHaveLength(0);
+        (0, earl_1.expect)((_a = user1.tagsBlocked) !== null && _a !== void 0 ? _a : []).toHaveLength(0);
+        (0, earl_1.expect)((_b = user2.tagsSubscribed) !== null && _b !== void 0 ? _b : []).toHaveLength(0);
     });
     test("Removing subscription works", async () => {
         var _a;
@@ -127,7 +131,7 @@ describe("Tags", () => {
             tagIds: [originalSubscriptions[0].tagId],
         });
         user1 = await (0, models_2.retrieveFullyRegisteredUser)(user1.token, true, replacements_1.fakeCtx);
-        expect((0, js_tools_1.objectsContentIsEqual)(user1.tagsSubscribed.map(t => t.tagId), [originalSubscriptions[1].tagId])).toBe(true);
+        (0, earl_1.expect)((0, js_tools_1.objectsContentIsEqual)(user1.tagsSubscribed.map(t => t.tagId), [originalSubscriptions[1].tagId])).toEqual(true);
         await (0, models_1.subscribeToTagsPost)({
             token: user1.token,
             tagIds: [originalSubscriptions[0].tagId],
@@ -143,8 +147,8 @@ describe("Tags", () => {
         });
         user1 = await (0, models_2.retrieveFullyRegisteredUser)(user1.token, true, replacements_1.fakeCtx);
         user2 = await (0, models_2.retrieveFullyRegisteredUser)(user2.token, true, replacements_1.fakeCtx);
-        expect((_a = user1.tagsSubscribed) !== null && _a !== void 0 ? _a : []).toHaveLength(0);
-        expect(user2.tagsSubscribed).toHaveLength(1);
+        (0, earl_1.expect)((_a = user1.tagsSubscribed) !== null && _a !== void 0 ? _a : []).toHaveLength(0);
+        (0, earl_1.expect)(user2.tagsSubscribed).toHaveLength(1);
     });
     test("Adding and removing block works", async () => {
         var _a, _b;
@@ -156,14 +160,14 @@ describe("Tags", () => {
         });
         user1 = await (0, models_2.retrieveFullyRegisteredUser)(user1.token, true, replacements_1.fakeCtx);
         user2 = await (0, models_2.retrieveFullyRegisteredUser)(user2.token, true, replacements_1.fakeCtx);
-        expect((0, js_tools_1.objectsContentIsEqual)(tagIds, user1.tagsBlocked.map(t => t.tagId))).toBe(true);
-        expect((_a = user2.tagsBlocked) !== null && _a !== void 0 ? _a : []).toHaveLength(0);
+        (0, earl_1.expect)((0, js_tools_1.objectsContentIsEqual)(tagIds, user1.tagsBlocked.map(t => t.tagId))).toEqual(true);
+        (0, earl_1.expect)((_a = user2.tagsBlocked) !== null && _a !== void 0 ? _a : []).toHaveLength(0);
         await (0, models_1.removeBlockToTagsPost)({
             token: user1.token,
             tagIds,
         });
         user1 = await (0, models_2.retrieveFullyRegisteredUser)(user1.token, true, replacements_1.fakeCtx);
-        expect((_b = user1.tagsBlocked) !== null && _b !== void 0 ? _b : []).toHaveLength(0);
+        (0, earl_1.expect)((_b = user1.tagsBlocked) !== null && _b !== void 0 ? _b : []).toHaveLength(0);
     });
     test("Removing tag is possible when it has no interactions and not possible when has", async () => {
         user1Tags = await (0, models_1.tagsCreatedByUserGet)(user1.token);
@@ -177,7 +181,7 @@ describe("Tags", () => {
             tagIds: [tagIds[1]],
         });
         await (0, models_1.removeTagsPost)({ token: user1.token, tagIds: [tagIds[0]] }, replacements_1.fakeCtxMuted);
-        expect(await (0, models_1.tagsCreatedByUserGet)(user1.token)).toHaveLength(user1Tags.length);
+        (0, earl_1.expect)(await (0, models_1.tagsCreatedByUserGet)(user1.token)).toHaveLength(user1Tags.length);
         await (0, models_1.removeSubscriptionToTagsPost)({
             token: user2.token,
             tagIds,
@@ -195,7 +199,7 @@ describe("Tags", () => {
             tagIds,
         });
         await (0, models_1.removeTagsPost)({ token: user1.token, tagIds }, replacements_1.fakeCtx);
-        expect(await (0, models_1.tagsCreatedByUserGet)(user1.token)).toHaveLength(user1Tags.length - tagIds.length);
+        (0, earl_1.expect)(await (0, models_1.tagsCreatedByUserGet)(user1.token)).toHaveLength(user1Tags.length - tagIds.length);
     });
     test(`Subscribing to more tags than MAX_TAG_SUBSCRIPTIONS_ALLOWED is not possible for the same language`, async () => {
         let user = await (0, users_1.createFakeUser)({ language: "es" });
@@ -208,13 +212,13 @@ describe("Tags", () => {
         }
         await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: tags.map(t => t.tagId) }, replacements_1.fakeCtx);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
-        expect(user.tagsSubscribed).toHaveLength(maxSubscriptionsAllowed);
+        (0, earl_1.expect)(user.tagsSubscribed).toHaveLength(maxSubscriptionsAllowed);
         // Create one more tag and this one should not be possible to subscribe
         const tempUser2 = await (0, users_1.createFakeUser)({ language: "es" });
         const finalTag = await (0, models_1.createTagPost)({ token: tempUser2.token, name: `max test tag final`, category: `max test category final` }, replacements_1.fakeCtx);
         await (0, models_1.subscribeToTagsPost)({ token: user.token, tagIds: [finalTag.tagId] }, replacements_1.fakeCtxMuted);
         user = await (0, models_2.retrieveFullyRegisteredUser)(user.token, true, replacements_1.fakeCtx);
-        expect(user.tagsSubscribed).toHaveLength(maxSubscriptionsAllowed);
+        (0, earl_1.expect)(user.tagsSubscribed).toHaveLength(maxSubscriptionsAllowed);
     });
     test("Admin users can create unlimited tags", async () => {
         const adminUser = await (0, users_1.createFakeUser)(undefined, { makeItAdmin: true });
@@ -226,13 +230,13 @@ describe("Tags", () => {
             }, replacements_1.fakeCtx);
         }
         const tags = await (0, models_1.tagsCreatedByUserGet)(adminUser.token);
-        expect(tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME + 2);
+        (0, earl_1.expect)(tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME + 2);
     });
     test("Unrelated user created at the beginning of the test was not affected", async () => {
         const tags = await (0, models_1.tagsCreatedByUserGet)(userUnrelated.token);
-        expect(tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
+        (0, earl_1.expect)(tags).toHaveLength(configurations_1.TAGS_PER_TIME_FRAME);
     });
-    afterAll(async () => {
+    after(async () => {
         const testUsers = (0, users_1.getAllTestUsersCreated)();
         await (0, queries_1.queryToRemoveUsers)(testUsers);
         await (0, models_1.removeAllTagsCreatedBy)(testUsers);

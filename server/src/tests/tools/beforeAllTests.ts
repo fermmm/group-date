@@ -1,5 +1,6 @@
 // tslint:disable-next-line: no-var-requires
 require("dotenv").config();
+import "../../common-tools/ts-tools/globals";
 
 process.env.PERFORM_DATABASE_BACKUPS = "false";
 process.env.RESTORE_DATABASE_ON_INIT = "false";
@@ -9,10 +10,7 @@ import { waitForDatabase } from "../../common-tools/database-tools/database-mana
 import { createAppAuthoredTags } from "../../components/tags/models";
 import { createGenders } from "../../components/user/models";
 
-/**
- * The tests are not going to run before this async function completes
- */
-export default async () => {
+export const initAppForTests = async () => {
    /**
     * These are the initialization functions from index.ts that needs to be executed on the tests
     */

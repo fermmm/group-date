@@ -1,4 +1,4 @@
-import "jest";
+import { expect } from "earl";
 import { firstBy } from "thenby";
 import { DeepPartial } from "ts-essentials";
 import { objectsContentIsEqual } from "../../common-tools/js-tools/js-tools";
@@ -26,7 +26,7 @@ export function createdUsersMatchesFakeData(
    for (let i = 0; i < createdUsers.length; i++) {
       const user = createdUsers[i];
       const userData = dataUsed[i];
-      expect(usersDataMatches(user, userData)).toBeTrue();
+      expect(usersDataMatches(user, userData)).toEqual(true);
    }
 }
 

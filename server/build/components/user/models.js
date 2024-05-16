@@ -271,7 +271,9 @@ async function addNotificationToUser(tokenIdOrUser, notification, settings) {
     ]);
     // Don't send push notifications on test environment
     if (!(0, process_tools_1.isProductionMode)() && !configurations_1.ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE) {
-        console.log("Notification will not send because the environment is not production and ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE is disabled");
+        // console.log(
+        //    "Notification will not send because the environment is not production and ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE is disabled",
+        // );
         return;
     }
     if ((settings === null || settings === void 0 ? void 0 : settings.sendPushNotification) && (0, push_notifications_1.isValidNotificationsToken)(user.notificationsToken)) {

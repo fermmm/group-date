@@ -1,5 +1,6 @@
-import "jest";
-import * as JestDateMock from "jest-date-mock";
+import "mocha";
+import { expect } from "earl";
+import { initAppForTests } from "./tools/beforeAllTests";
 import {
    blockTagsPost,
    createTagPost,
@@ -26,6 +27,9 @@ import { hoursToMilliseconds } from "../common-tools/math-tools/general";
 import { Tag } from "../shared-tools/endpoints-interfaces/tags";
 import { retrieveFullyRegisteredUser } from "../components/user/models";
 import { objectsContentIsEqual } from "../common-tools/js-tools/js-tools";
+import { changeCurrentTimeBy, resetTime } from "./tools/generalTools";
+
+const test = it;
 
 describe("Tags", () => {
    let user1: User;
@@ -34,7 +38,8 @@ describe("Tags", () => {
    let user1Tags: Tag[];
    let user2Tags: Tag[];
 
-   beforeAll(async () => {
+   before(async () => {
+      await initAppForTests();
       user1 = await createFakeUser({ language: "es" });
       user2 = await createFakeUser({ language: "es" });
       userUnrelated = await createFakeUser({ language: "en" });
@@ -94,7 +99,7 @@ describe("Tags", () => {
 
    test("After full time frame passes it should be possible to add new tags", async () => {
       // Simulate time passing, not all required time
-      JestDateMock.advanceBy((TAG_CREATION_TIME_FRAME * 1000) / 2);
+      changeCurrentTimeBy((TAG_CREATION_TIME_FRAME * 1000) / 2);
 
       await createTagPost(
          {
@@ -109,7 +114,7 @@ describe("Tags", () => {
       expect(user1Tags).toHaveLength(TAGS_PER_TIME_FRAME);
 
       // Now enough time has passed
-      JestDateMock.advanceBy((TAG_CREATION_TIME_FRAME * 1000) / 2 + hoursToMilliseconds(1));
+      changeCurrentTimeBy((TAG_CREATION_TIME_FRAME * 1000) / 2 + hoursToMilliseconds(1));
 
       await createTagPost(
          {
@@ -123,7 +128,7 @@ describe("Tags", () => {
       user1Tags = await tagsCreatedByUserGet(user1.token);
       expect(user1Tags).toHaveLength(TAGS_PER_TIME_FRAME + 1);
 
-      JestDateMock.clear();
+      resetTime();
    });
 
    test("Should not be possible to create 2 tags with the same name in the same language", async () => {
@@ -207,7 +212,7 @@ describe("Tags", () => {
             user1.tagsSubscribed.map(t => t.tagId),
             [originalSubscriptions[1].tagId],
          ),
-      ).toBe(true);
+      ).toEqual(true);
 
       await subscribeToTagsPost(
          {
@@ -254,7 +259,7 @@ describe("Tags", () => {
             tagIds,
             user1.tagsBlocked.map(t => t.tagId),
          ),
-      ).toBe(true);
+      ).toEqual(true);
 
       expect(user2.tagsBlocked ?? []).toHaveLength(0);
 
@@ -374,7 +379,7 @@ describe("Tags", () => {
       expect(tags).toHaveLength(TAGS_PER_TIME_FRAME);
    });
 
-   afterAll(async () => {
+   after(async () => {
       const testUsers = getAllTestUsersCreated();
       await queryToRemoveUsers(testUsers);
       await removeAllTagsCreatedBy(testUsers);

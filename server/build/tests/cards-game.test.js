@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("mocha");
+const earl_1 = require("earl");
+const beforeAllTests_1 = require("./tools/beforeAllTests");
 const date_tools_1 = require("./../common-tools/math-tools/date-tools");
-require("jest");
 const models_1 = require("../components/cards-game/models");
 const models_2 = require("../components/user/models");
 const queries_1 = require("../components/user/queries");
@@ -11,6 +13,7 @@ const reusable_tests_1 = require("./tools/reusable-tests");
 const users_1 = require("./tools/users");
 const models_3 = require("../components/tags/models");
 const configurations_1 = require("../configurations");
+const test = it;
 describe("Cards game", () => {
     let usersDataCompatible;
     let usersDataIncompatible;
@@ -128,13 +131,14 @@ describe("Cards game", () => {
         incompatibleCisGender,
     ];
     allUsersData = [...usersDataCompatible, ...usersDataIncompatible];
-    beforeAll(async () => {
+    before(async () => {
+        await (0, beforeAllTests_1.initAppForTests)();
         searcherUser = await (0, users_1.createFakeUser)(searcherParams);
         fakeUsers = await (0, users_1.createMultipleFakeCustomUsers)(allUsersData);
         recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
     });
     test("Only the compatible users appear on the recommendations", async () => {
-        expect(recommendations).toHaveLength(usersDataCompatible.length);
+        (0, earl_1.expect)(recommendations).toHaveLength(usersDataCompatible.length);
     });
     test("Incompatible recommendations tests were done correctly", () => {
         (0, reusable_tests_1.createdUsersMatchesFakeData)(fakeUsers, allUsersData, true);
@@ -146,27 +150,27 @@ describe("Cards game", () => {
         const targetUserId = recommendations[0].userId;
         await (0, models_2.blockUserPost)({ token: searcherUser.token, targetUserId }, replacements_1.fakeCtx);
         recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
-        expect(recommendations).toHaveLength(originalAmount - 1);
+        (0, earl_1.expect)(recommendations).toHaveLength(originalAmount - 1);
         await (0, models_2.unblockUserPost)({ token: searcherUser.token, targetUserId }, replacements_1.fakeCtx);
         recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
-        expect(recommendations).toHaveLength(originalAmount);
+        (0, earl_1.expect)(recommendations).toHaveLength(originalAmount);
     });
     test("Recommendations returns correct users in correct order", async () => {
         // Check amount
-        expect(recommendations).toHaveLength(2);
+        (0, earl_1.expect)(recommendations).toHaveLength(2);
         // Check for duplication
-        expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
+        (0, earl_1.expect)(recommendations[0].userId !== recommendations[1].userId).toEqual(true);
         // Send profile evaluation to search results and try again to make sure evaluated users are not returned
         await (0, users_1.setAttraction)(searcherUser, recommendations, user_1.AttractionType.Dislike);
         recommendations = await (0, models_1.recommendationsGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
-        expect(recommendations).toHaveLength(0);
+        (0, earl_1.expect)(recommendations).toHaveLength(0);
     });
     test("Disliked users returns the correct data", async () => {
         recommendations = await (0, models_1.dislikedUsersGet)({ token: searcherUser.token }, replacements_1.fakeCtx);
         // Check amount
-        expect(recommendations).toHaveLength(usersDataCompatible.length);
+        (0, earl_1.expect)(recommendations).toHaveLength(usersDataCompatible.length);
         // Check for duplication
-        expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
+        (0, earl_1.expect)(recommendations[0].userId !== recommendations[1].userId).toEqual(true);
         await (0, queries_1.queryToRemoveUsers)(fakeUsers);
     });
     test("Users gets notified of new cards when they request for it", async () => {
@@ -176,21 +180,21 @@ describe("Cards game", () => {
         // The test is going to be done correctly
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
         // The welcome notification is not working on tests so we should have 0 notifications
-        expect(mainUser.notifications.length).toBe(0);
+        (0, earl_1.expect)(mainUser.notifications.length).toEqual(0);
         // If the user does not request for notifications should be not notified
         await (0, models_1.notifyUsersAboutNewCards)({ userIds: [mainUser.userId] });
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
-        expect(mainUser.notifications.length).toBe(0);
+        (0, earl_1.expect)(mainUser.notifications.length).toEqual(0);
         // Here user requests for notifications
         await (0, models_2.userPost)({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, replacements_1.fakeCtx);
         // Now it should be notified
         await (0, models_1.notifyUsersAboutNewCards)({ userIds: [mainUser.userId] });
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
-        expect(mainUser.notifications.length).toBe(1);
+        (0, earl_1.expect)(mainUser.notifications.length).toEqual(1);
         // Repetition should not add more notifications
         await (0, models_1.notifyUsersAboutNewCards)({ userIds: [mainUser.userId] });
         mainUser = (await (0, models_2.userGet)({ token: mainUser.token }, replacements_1.fakeCtx));
-        expect(mainUser.notifications.length).toBe(1);
+        (0, earl_1.expect)(mainUser.notifications.length).toEqual(1);
         await (0, queries_1.queryToRemoveUsers)([mainUser]);
         await (0, queries_1.queryToRemoveUsers)(fakeCompatibleUsers);
     });
@@ -246,10 +250,10 @@ describe("Cards game", () => {
             tagIds: [tagIds[0]],
         });
         recommendations = await (0, models_1.recommendationsGet)({ token: searcher.token }, replacements_1.fakeCtx);
-        expect(recommendations).toHaveLength(9);
-        expect(recommendations[0].userId).toBe(tagCompatibleUsers[0].userId);
-        expect(recommendations[1].userId).toBe(tagCompatibleUsers[1].userId);
-        expect(recommendations[2].userId).toBe(tagCompatibleUsers[2].userId);
+        (0, earl_1.expect)(recommendations).toHaveLength(9);
+        (0, earl_1.expect)(recommendations[0].userId).toEqual(tagCompatibleUsers[0].userId);
+        (0, earl_1.expect)(recommendations[1].userId).toEqual(tagCompatibleUsers[1].userId);
+        (0, earl_1.expect)(recommendations[2].userId).toEqual(tagCompatibleUsers[2].userId);
     });
     test("Liking users appears in the first places of the results", async () => {
         const searcher = await (0, users_1.createFakeUser)();
@@ -275,9 +279,9 @@ describe("Cards game", () => {
             await (0, models_3.subscribeToTagsPost)({ token: usr.token, tagIds: [tag.tagId] }, replacements_1.fakeCtx);
         }
         recommendations = await (0, models_1.recommendationsGet)({ token: searcher.token }, replacements_1.fakeCtx);
-        expect(recommendations.findIndex(u => likingUsers[0].userId === u.userId)).toBeLessThanOrEqual(configurations_1.SEARCHER_LIKING_CHUNK + configurations_1.NON_SEARCHER_LIKING_CHUNK);
+        (0, earl_1.expect)(recommendations.findIndex(u => likingUsers[0].userId === u.userId)).toBeLessThanOrEqual(configurations_1.SEARCHER_LIKING_CHUNK + configurations_1.NON_SEARCHER_LIKING_CHUNK);
     });
-    afterAll(async () => {
+    after(async () => {
         const testUsers = (0, users_1.getAllTestUsersCreated)();
         await (0, queries_1.queryToRemoveUsers)(testUsers);
         await (0, models_3.removeAllTagsCreatedBy)(testUsers);

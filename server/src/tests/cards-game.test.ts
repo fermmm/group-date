@@ -1,5 +1,7 @@
+import "mocha";
+import { expect } from "earl";
+import { initAppForTests } from "./tools/beforeAllTests";
 import { fromAgeToBirthDate } from "./../common-tools/math-tools/date-tools";
-import "jest";
 import {
    dislikedUsersGet,
    notifyUsersAboutNewCards,
@@ -33,6 +35,8 @@ import {
    tagsCreatedByUserGet,
 } from "../components/tags/models";
 import { NON_SEARCHER_LIKING_CHUNK, SEARCHER_LIKING_CHUNK } from "../configurations";
+
+const test = it;
 
 describe("Cards game", () => {
    let usersDataCompatible: Array<DeepPartial<User>>;
@@ -167,7 +171,8 @@ describe("Cards game", () => {
 
    allUsersData = [...usersDataCompatible, ...usersDataIncompatible];
 
-   beforeAll(async () => {
+   before(async () => {
+      await initAppForTests();
       searcherUser = await createFakeUser(searcherParams);
       fakeUsers = await createMultipleFakeCustomUsers(allUsersData);
       recommendations = await recommendationsGet({ token: searcherUser.token }, fakeCtx);
@@ -204,7 +209,7 @@ describe("Cards game", () => {
       expect(recommendations).toHaveLength(2);
 
       // Check for duplication
-      expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
+      expect(recommendations[0].userId !== recommendations[1].userId).toEqual(true);
 
       // Send profile evaluation to search results and try again to make sure evaluated users are not returned
       await setAttraction(searcherUser, recommendations, AttractionType.Dislike);
@@ -219,7 +224,7 @@ describe("Cards game", () => {
       expect(recommendations).toHaveLength(usersDataCompatible.length);
 
       // Check for duplication
-      expect(recommendations[0].userId !== recommendations[1].userId).toBe(true);
+      expect(recommendations[0].userId !== recommendations[1].userId).toEqual(true);
 
       await queryToRemoveUsers(fakeUsers);
    });
@@ -233,12 +238,12 @@ describe("Cards game", () => {
       // The test is going to be done correctly
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
       // The welcome notification is not working on tests so we should have 0 notifications
-      expect(mainUser.notifications.length).toBe(0);
+      expect(mainUser.notifications.length).toEqual(0);
 
       // If the user does not request for notifications should be not notified
       await notifyUsersAboutNewCards({ userIds: [mainUser.userId] });
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(0);
+      expect(mainUser.notifications.length).toEqual(0);
 
       // Here user requests for notifications
       await userPost({ token: mainUser.token, props: { sendNewUsersNotification: 10 } }, fakeCtx);
@@ -246,12 +251,12 @@ describe("Cards game", () => {
       // Now it should be notified
       await notifyUsersAboutNewCards({ userIds: [mainUser.userId] });
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(1);
+      expect(mainUser.notifications.length).toEqual(1);
 
       // Repetition should not add more notifications
       await notifyUsersAboutNewCards({ userIds: [mainUser.userId] });
       mainUser = (await userGet({ token: mainUser.token }, fakeCtx)) as User;
-      expect(mainUser.notifications.length).toBe(1);
+      expect(mainUser.notifications.length).toEqual(1);
 
       await queryToRemoveUsers([mainUser]);
       await queryToRemoveUsers(fakeCompatibleUsers);
@@ -335,9 +340,9 @@ describe("Cards game", () => {
       recommendations = await recommendationsGet({ token: searcher.token }, fakeCtx);
 
       expect(recommendations).toHaveLength(9);
-      expect(recommendations[0].userId).toBe(tagCompatibleUsers[0].userId);
-      expect(recommendations[1].userId).toBe(tagCompatibleUsers[1].userId);
-      expect(recommendations[2].userId).toBe(tagCompatibleUsers[2].userId);
+      expect(recommendations[0].userId).toEqual(tagCompatibleUsers[0].userId);
+      expect(recommendations[1].userId).toEqual(tagCompatibleUsers[1].userId);
+      expect(recommendations[2].userId).toEqual(tagCompatibleUsers[2].userId);
    });
 
    test("Liking users appears in the first places of the results", async () => {
@@ -380,7 +385,7 @@ describe("Cards game", () => {
       );
    });
 
-   afterAll(async () => {
+   after(async () => {
       const testUsers = getAllTestUsersCreated();
       await queryToRemoveUsers(testUsers);
       await removeAllTagsCreatedBy(testUsers);

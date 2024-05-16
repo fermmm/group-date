@@ -1,4 +1,6 @@
-import "jest";
+import "mocha";
+import { assert } from "chai";
+import { initAppForTests } from "./tools/beforeAllTests";
 import { createGroup, getSlotIdFromUsersAmount } from "../components/groups/models";
 import { queryToRemoveGroups } from "../components/groups/queries";
 import {
@@ -24,7 +26,8 @@ describe("Users", () => {
    let matching10Group: Group;
    let testProtagonist: User;
 
-   beforeAll(async () => {
+   before(async () => {
+      await initAppForTests();
       matchingUsersCouple1 = await createMatchingUsers(2);
       matchingUsersCouple2 = await createMatchingUsers(2);
       matchingUsersCouple3 = await createMatchingUsers(2);
@@ -35,13 +38,13 @@ describe("Users", () => {
       });
    });
 
-   test("A user profile can be completed", async () => {
+   it("A user profile can be completed", async () => {
       await profileStatusGet({ token: testProtagonist.token }, fakeCtx);
       const updatedUser = await userGet({ token: testProtagonist.token }, fakeCtx);
-      expect(updatedUser.profileCompleted).toBe(true);
+      assert(updatedUser.profileCompleted === true);
    });
 
-   test("Notifications works", async () => {
+   it("Notifications works", async () => {
       await addNotificationToUser(
          { token: matchingUsersCouple1[0].token },
          {
@@ -63,53 +66,53 @@ describe("Users", () => {
 
       const updatedUser: Partial<User> = await userGet({ token: matchingUsersCouple1[0].token }, fakeCtx);
       // There is a notification created when the user is created but it does not get created in the tests
-      expect(updatedUser.notifications.length).toBe(2);
+      assert(updatedUser.notifications.length === 2);
    });
 
-   test("Attraction works", async () => {
+   it("Attraction works", async () => {
       // Self liking should be not possible
       await setAttraction(testProtagonist, [testProtagonist], AttractionType.Like);
-      expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(0);
-      expect(await attractionsReceivedGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(0);
+      assert((await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).length === 0);
+      assert((await attractionsReceivedGet(testProtagonist.token, [AttractionType.Like])).length === 0);
 
       // Multiple likes sent simultaneously gets saved
       await setAttraction(testProtagonist, matchingUsersCouple2, AttractionType.Like);
       await setAttraction(testProtagonist, matchingUsersCouple3, AttractionType.Dislike);
-      expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).toHaveLength(
-         matchingUsersCouple2.length,
+      assert(
+         (await attractionsSentGet(testProtagonist.token, [AttractionType.Like])).length ===
+            matchingUsersCouple2.length,
       );
-      expect(await attractionsSentGet(testProtagonist.token, [AttractionType.Dislike])).toHaveLength(
-         matchingUsersCouple3.length,
+      assert(
+         (await attractionsSentGet(testProtagonist.token, [AttractionType.Dislike])).length ===
+            matchingUsersCouple3.length,
       );
-      expect(await attractionsReceivedGet(matchingUsersCouple2[0].token, [AttractionType.Like])).toHaveLength(
-         1,
+      assert((await attractionsReceivedGet(matchingUsersCouple2[0].token, [AttractionType.Like])).length === 1);
+      assert(
+         (await attractionsReceivedGet(matchingUsersCouple2[0].token, [AttractionType.Like]))[0].userId ===
+            testProtagonist.userId,
       );
-      expect(
-         (await attractionsReceivedGet(matchingUsersCouple2[0].token, [AttractionType.Like]))[0].userId,
-      ).toBe(testProtagonist.userId);
 
       // Matches can be added and removed without losing information
       await setAttraction(matchingUsersCouple2[0], [testProtagonist], AttractionType.Like);
       await setAttraction(matchingUsersCouple2[1], [testProtagonist], AttractionType.Like);
-      expect(await attractionsReceivedGet(matchingUsersCouple2[0].token, [AttractionType.Like])).toHaveLength(
-         0,
-      );
-      expect(await matchesGet(matchingUsersCouple2[0].token)).toHaveLength(2);
+      assert((await attractionsReceivedGet(matchingUsersCouple2[0].token, [AttractionType.Like])).length === 0);
+      assert((await matchesGet(matchingUsersCouple2[0].token)).length === 2);
       await setAttraction(matchingUsersCouple2[0], [testProtagonist], AttractionType.Dislike);
-      expect(await matchesGet(matchingUsersCouple2[0].token)).toHaveLength(1);
-      expect((await attractionsReceivedGet(testProtagonist.token, [AttractionType.Dislike]))[0].userId).toBe(
-         matchingUsersCouple2[0].userId,
+      assert((await matchesGet(matchingUsersCouple2[0].token)).length === 1);
+      assert(
+         (await attractionsReceivedGet(testProtagonist.token, [AttractionType.Dislike]))[0].userId ===
+            matchingUsersCouple2[0].userId,
       );
       await setAttraction(matchingUsersCouple2[0], [testProtagonist], AttractionType.Like);
-      expect(await matchesGet(matchingUsersCouple2[0].token)).toHaveLength(2);
-      expect(await attractionsReceivedGet(testProtagonist.token, [AttractionType.Dislike])).toHaveLength(0);
+      assert((await matchesGet(matchingUsersCouple2[0].token)).length === 2);
+      assert((await attractionsReceivedGet(testProtagonist.token, [AttractionType.Dislike])).length === 0);
 
       // Other users don't get affected by the previous lines
-      expect(await matchesGet(matchingUsersCouple1[0].token)).toHaveLength(1);
-      expect(await matchesGet(matchingUsersCouple1[1].token)).toHaveLength(1);
-      expect((await matchesGet(matchingUsersCouple1[0].token))[0].userId).toBe(matchingUsersCouple1[1].userId);
-      expect((await matchesGet(matchingUsersCouple1[1].token))[0].userId).toBe(matchingUsersCouple1[0].userId);
-      expect(await matchesGet(matching10[matching10.length - 1].token)).toHaveLength(matching10.length - 1);
+      assert((await matchesGet(matchingUsersCouple1[0].token)).length === 1);
+      assert((await matchesGet(matchingUsersCouple1[1].token)).length === 1);
+      assert((await matchesGet(matchingUsersCouple1[0].token))[0].userId === matchingUsersCouple1[1].userId);
+      assert((await matchesGet(matchingUsersCouple1[1].token))[0].userId === matchingUsersCouple1[0].userId);
+      assert((await matchesGet(matching10[matching10.length - 1].token)).length === matching10.length - 1);
 
       // After a group creation the users "Match" are converted into a "SeenMatch" and it should not be possible to change set attraction anymore
       matching10Group = await createGroup({
@@ -117,10 +120,10 @@ describe("Users", () => {
          slotToUse: getSlotIdFromUsersAmount(matching10.length),
       });
       await setAttraction(matching10[0], [matching10[1]], AttractionType.Dislike);
-      expect(await attractionsSentGet(matching10[0].token, [AttractionType.Dislike])).toHaveLength(0);
+      assert((await attractionsSentGet(matching10[0].token, [AttractionType.Dislike])).length === 0);
    });
 
-   afterAll(async () => {
+   after(async () => {
       await queryToRemoveUsers(getAllTestUsersCreated());
       await queryToRemoveGroups([matching10Group]);
    });

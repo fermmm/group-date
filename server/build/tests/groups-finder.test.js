@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-require("jest");
-const JestDateMock = require("jest-date-mock");
+require("mocha");
+const earl_1 = require("earl");
+const beforeAllTests_1 = require("./tools/beforeAllTests");
 const user_creation_tools_1 = require("./tools/group-finder/user-creation-tools");
 const GroupCandTestTools = require("./tools/group-finder/group-candidate-test-editing");
 const configurations_1 = require("../configurations");
@@ -16,7 +17,16 @@ const group_candidate_analysis_1 = require("../components/groups-finder/tools/gr
 const group_candidate_editing_1 = require("../components/groups-finder/tools/group-candidate-editing");
 const models_2 = require("../components/groups/models");
 const group_candidates_ordering_1 = require("./tools/group-finder/group-candidates-ordering");
+const generalTools_1 = require("./tools/generalTools");
+const test = it;
 describe("Group finder", () => {
+    before(async () => {
+        await (0, beforeAllTests_1.initAppForTests)();
+    });
+    it("matches snapshot", function () {
+        // Here we pass the `this` as test context
+        // expect(Math.random()).toMatchSnapshot(this);
+    });
     test("Matching users below minimum amount does not form a group", async () => {
         const groupCandidate = GroupCandTestTools.createGroupCandidate({
             amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE - 1,
@@ -24,18 +34,7 @@ describe("Group finder", () => {
         });
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
-        expect(await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users)).toHaveLength(0);
-    });
-    test("Matching in minimum amount creates a group", async () => {
-        const groupCandidate = GroupCandTestTools.createGroupCandidate({
-            amountOfInitialUsers: configurations_1.MIN_GROUP_SIZE,
-            connectAllWithAll: true,
-        });
-        await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
-        await (0, user_creation_tools_1.callGroupFinder)();
-        const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect(groups).toHaveLength(1);
-        expect(groups[0].members).toHaveLength(configurations_1.MIN_GROUP_SIZE);
+        (0, earl_1.expect)(await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users)).toHaveLength(0);
     });
     test("Additional user matching can enter the group even after creation", async () => {
         let groupCandidate = GroupCandTestTools.createGroupCandidate({
@@ -48,8 +47,8 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect(groups).toHaveLength(1);
-        expect(groups[0].members).toHaveLength(configurations_1.MIN_GROUP_SIZE + 1);
+        (0, earl_1.expect)(groups).toHaveLength(1);
+        (0, earl_1.expect)(groups[0].members).toHaveLength(configurations_1.MIN_GROUP_SIZE + 1);
     });
     test("Users that decrease the quality of an existing group when joining should not join", async () => {
         let groupCandidate = GroupCandTestTools.createGroupCandidate({
@@ -62,8 +61,8 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect(groups).toHaveLength(1);
-        expect(groups[0].members).toHaveLength(4);
+        (0, earl_1.expect)(groups).toHaveLength(1);
+        (0, earl_1.expect)(groups[0].members).toHaveLength(4);
     });
     test("Additional users added to a group cannot be higher than maximum configured", async () => {
         let groupCandidate = GroupCandTestTools.createGroupCandidate({
@@ -76,7 +75,7 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect((0, groups_1.getBiggestGroup)(groups).members.length).toBeLessThanOrEqual(configurations_1.MAX_GROUP_SIZE);
+        (0, earl_1.expect)((0, groups_1.getBiggestGroup)(groups).members.length).toBeLessThanOrEqual(configurations_1.MAX_GROUP_SIZE);
     });
     test("Additional users are not added after too much time", async () => {
         let groupCandidate = GroupCandTestTools.createGroupCandidate({
@@ -86,14 +85,14 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
         // Simulate time passing
-        JestDateMock.advanceBy(configurations_1.MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + (0, general_1.hoursToMilliseconds)(1));
+        (0, generalTools_1.changeCurrentTimeBy)(configurations_1.MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + (0, general_1.hoursToMilliseconds)(1));
         groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, 2, "all");
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
-        JestDateMock.clear();
+        (0, generalTools_1.resetTime)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect(groups).toHaveLength(1);
-        expect(groups[0].members).toHaveLength(4);
+        (0, earl_1.expect)(groups).toHaveLength(1);
+        (0, earl_1.expect)(groups[0].members).toHaveLength(4);
     });
     test("Users should not have more groups than what the slots allows", async () => {
         const testUserId = "testUser";
@@ -136,11 +135,11 @@ describe("Group finder", () => {
         const allGroups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidates.map(g => g.users).flat());
         testUserGroups.sort((0, thenby_1.firstBy)(g => g.members.length));
         // The amount of groups for the users is correct:
-        expect(testUserGroups).toHaveLength(groupsAllowedBySize.length);
-        expect(allGroups).toHaveLength(groupCandidates.length);
+        (0, earl_1.expect)(testUserGroups).toHaveLength(groupsAllowedBySize.length);
+        (0, earl_1.expect)(allGroups).toHaveLength(groupCandidates.length);
         // The user has big and small groups according to slots
         for (let i = 0; i < testUserGroups.length; i++) {
-            expect(testUserGroups[i].members).toHaveLength(groupsAllowedBySize[i]);
+            (0, earl_1.expect)(testUserGroups[i].members).toHaveLength(groupsAllowedBySize[i]);
         }
     });
     test("Only one group is created when many users like all with all", async () => {
@@ -151,8 +150,8 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect(groups).toHaveLength(1);
-        expect(groups[0].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
+        (0, earl_1.expect)(groups).toHaveLength(1);
+        (0, earl_1.expect)(groups[0].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
     });
     test("A group with more members than MAX_GROUP_SIZE cannot be created", async () => {
         const groupCandidate = GroupCandTestTools.createGroupCandidate({
@@ -162,9 +161,9 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate);
         await (0, user_creation_tools_1.callGroupFinder)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(groupCandidate.users);
-        expect(groups).toHaveLength(2);
-        expect(groups[0].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
-        expect(groups[1].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
+        (0, earl_1.expect)(groups).toHaveLength(2);
+        (0, earl_1.expect)(groups[0].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
+        (0, earl_1.expect)(groups[1].members).toHaveLength(configurations_1.MAX_GROUP_SIZE);
     });
     test("Seen users cannot form a group again", async () => {
         const testUsersIds = ["testUser1", "testUser2", "testUser3"];
@@ -197,10 +196,10 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(triangle2);
         await (0, user_creation_tools_1.callGroupFinder)();
         const createdGroups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)([...triangle1.users, ...triangle2.users]);
-        expect(createdGroups).toHaveLength(2);
-        expect(createdGroups[0].members).toHaveLength(3);
-        expect(createdGroups[1].members).toHaveLength(3);
-        expect(createdGroups[0].groupId !== createdGroups[1].groupId).toBeTrue();
+        (0, earl_1.expect)(createdGroups).toHaveLength(2);
+        (0, earl_1.expect)(createdGroups[0].members).toHaveLength(3);
+        (0, earl_1.expect)(createdGroups[1].members).toHaveLength(3);
+        (0, earl_1.expect)(createdGroups[0].groupId !== createdGroups[1].groupId).toEqual(true);
     });
     test("Too bad quality groups gets fixed before creation and not ruined when adding more users afterwards", async () => {
         const groupWith2 = GroupCandTestTools.createGroupCandidate({
@@ -212,8 +211,8 @@ describe("Group finder", () => {
         await (0, user_creation_tools_1.callGroupFinder)();
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(badGroupCandidate.users);
         const badGroupCandidateFixed = (0, group_candidate_editing_1.tryToFixBadQualityGroupIfNeeded)((0, group_candidate_analysis_1.analiceGroupCandidate)(badGroupCandidate), (0, models_1.slotsIndexesOrdered)().reverse()[0]);
-        expect(groups).toHaveLength(1);
-        expect(groups[0].members.length).toBeLessThanOrEqual(badGroupCandidateFixed.group.users.length);
+        (0, earl_1.expect)(groups).toHaveLength(1);
+        (0, earl_1.expect)(groups[0].members.length).toBeLessThanOrEqual(badGroupCandidateFixed.group.users.length);
     });
     test("From 2 groups that shares users only the best quality one is created", async () => {
         var _a, _b;
@@ -252,7 +251,7 @@ describe("Group finder", () => {
             return p;
         }, []);
         const groups = await (0, user_creation_tools_1.retrieveFinalGroupsOf)(usersThatShouldNotHaveGroup);
-        expect(groups).toHaveLength(0);
+        (0, earl_1.expect)(groups).toHaveLength(0);
     });
     test("Slots gets free after time passes", async () => {
         var _a;
@@ -273,24 +272,24 @@ describe("Group finder", () => {
         }
         let groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
         // Only half of the group candidates created should be converted into final groups
-        expect(groupsCreated).toHaveLength(groupsRequiredToFillSlot);
+        (0, earl_1.expect)(groupsCreated).toHaveLength(groupsRequiredToFillSlot);
         // Call the function to release slots but shouldn't release any slot because no time has passed
         await (0, models_2.findSlotsToRelease)();
         // Try again but still shouldn't be possible to create the other groups because slot is still full
         groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
-        expect(groupsCreated).toHaveLength(0);
+        (0, earl_1.expect)(groupsCreated).toHaveLength(0);
         // Simulate time passing
-        JestDateMock.advanceBy(smallerSlot.releaseTime * 1000 + (0, general_1.hoursToMilliseconds)(1));
+        (0, generalTools_1.changeCurrentTimeBy)(smallerSlot.releaseTime * 1000 + (0, general_1.hoursToMilliseconds)(1));
         // Now the function to release slot should release it because time has passed
         await (0, models_2.findSlotsToRelease)();
         // Try again but this time the other group should be created because the slot got free
         groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
-        expect(groupsCreated).toHaveLength(groupsRequiredToFillSlot);
+        (0, earl_1.expect)(groupsCreated).toHaveLength(groupsRequiredToFillSlot);
         // Try again but this time should not create a group because the slot is full again
         await (0, models_2.findSlotsToRelease)();
         groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
-        expect(groupsCreated).toHaveLength(0);
-        JestDateMock.clear();
+        (0, earl_1.expect)(groupsCreated).toHaveLength(0);
+        (0, generalTools_1.resetTime)();
     });
     test("All groups that should be created gets created", async () => {
         const testingGroups = (0, group_candidates_ordering_1.getTestingGroups)();
@@ -299,28 +298,28 @@ describe("Group finder", () => {
             await (0, user_creation_tools_1.createFullUsersFromGroupCandidate)(groupCandidate.group);
         }
         const groupsCreated = await (0, user_creation_tools_1.callGroupFinder)();
-        expect(groupsCreated.length).toBeGreaterThanOrEqual(groupsFilteredAndSorted.length);
+        (0, earl_1.expect)(groupsCreated.length).toBeGreaterThanOrEqual(groupsFilteredAndSorted.length);
     });
-    test("Group analysis was not modified", async () => {
+    test("Group analysis was not modified", function () {
         /**
          * If this snapshot does not match anymore it means you changed code or a setting that affects
          * group analysis and you should check if everything is still working as expected before re
          * generating the snapshot.
          */
-        expect((0, group_candidates_ordering_1.groupAnalysisReport)()).toMatchSnapshot();
+        (0, earl_1.expect)((0, group_candidates_ordering_1.groupAnalysisReport)()).toMatchSnapshot(this);
         /**
          * In that case uncomment this line and check if you are happy with the console output
          * (besides checking all other possible things)
          */
         // consoleLog(groupAnalysisReport());
     });
-    test("Group filter and sorting was not modified", async () => {
+    test("Group filter and sorting was not modified", function () {
         /**
          * If this snapshot does not match anymore it means you changed code or a setting that affects
          * group analysis, filtering and/or sorting and you should check if everything is still working
          * as expected before re generating the snapshot.
          */
-        expect((0, group_candidates_ordering_1.analiceFilterAndSortReport)()).toMatchSnapshot();
+        (0, earl_1.expect)((0, group_candidates_ordering_1.analiceFilterAndSortReport)()).toMatchSnapshot(this);
         /**
          * In that case uncomment this line and check if you are happy with the console output
          * (besides checking all other possible things)

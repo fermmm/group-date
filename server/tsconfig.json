@@ -6,7 +6,7 @@
       "sourceMap": true,
       "outDir": "build",
       "skipLibCheck": true,
-      "types": ["koa-body", "jest", "jest-extended"]
+      "types": ["koa-body"]
    },
    "include": ["src/**/*.ts"],
    "exclude": ["node_modules"]

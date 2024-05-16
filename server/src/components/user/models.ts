@@ -406,9 +406,9 @@ export async function addNotificationToUser(
 
    // Don't send push notifications on test environment
    if (!isProductionMode() && !ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE) {
-      console.log(
-         "Notification will not send because the environment is not production and ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE is disabled",
-      );
+      // console.log(
+      //    "Notification will not send because the environment is not production and ENABLE_PUSH_AND_EMAIL_NOTIFICATIONS_ON_DEBUG_MODE is disabled",
+      // );
       return;
    }
 

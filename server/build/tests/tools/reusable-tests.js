@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersDataMatches = exports.createdUsersMatchesFakeData = void 0;
-require("jest");
+const earl_1 = require("earl");
 const thenby_1 = require("thenby");
 const js_tools_1 = require("../../common-tools/js-tools/js-tools");
 /**
@@ -9,7 +9,7 @@ const js_tools_1 = require("../../common-tools/js-tools/js-tools");
  * arrays have the same size, so no user is missing.
  */
 function createdUsersMatchesFakeData(createdUsers, dataUsed, alsoCheckOrder = false) {
-    expect(createdUsers).toHaveLength(dataUsed.length);
+    (0, earl_1.expect)(createdUsers).toHaveLength(dataUsed.length);
     if (!alsoCheckOrder) {
         createdUsers = [...createdUsers];
         dataUsed = [...dataUsed];
@@ -20,7 +20,7 @@ function createdUsersMatchesFakeData(createdUsers, dataUsed, alsoCheckOrder = fa
     for (let i = 0; i < createdUsers.length; i++) {
         const user = createdUsers[i];
         const userData = dataUsed[i];
-        expect(usersDataMatches(user, userData)).toBeTrue();
+        (0, earl_1.expect)(usersDataMatches(user, userData)).toEqual(true);
     }
 }
 exports.createdUsersMatchesFakeData = createdUsersMatchesFakeData;

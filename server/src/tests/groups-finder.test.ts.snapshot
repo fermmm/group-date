@@ -1,0 +1,532 @@
+// Group finder Group analysis was not modified 1
+
+[
+  {
+    analysis: {
+      conAmount: 2
+      conCoverage: 0.67
+      distConMetaconnection: 0
+      inequality: 0
+    }
+    approvedReport: "APPROVED"
+    name: "2 for 2"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.4
+      conCoverage: 0.6
+      distConMetaconnection: 0.2
+      inequality: 0.13
+    }
+    approvedReport: "APPROVED"
+    name: "2 for 2 + 1 extra bisexual"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.4
+      conCoverage: 0.6
+      distConMetaconnection: 0.2
+      inequality: 0.13
+    }
+    approvedReport: "APPROVED"
+    name: "2 for 3"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.67
+      conCoverage: 0.53
+      distConMetaconnection: 0.33
+      inequality: 0.2
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "2 for 4"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.86
+      conCoverage: 0.48
+      distConMetaconnection: 0.43
+      inequality: 0.25
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "2 for 5"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 3
+      conCoverage: 0.43
+      distConMetaconnection: 0.5
+      inequality: 0.29
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "2 for 6"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.4
+      conCoverage: 0.36
+      distConMetaconnection: 0.52
+      inequality: 0.33
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "2 for 8"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4
+      conCoverage: 0.8
+      distConMetaconnection: 0.27
+      inequality: 0.15
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "3 for 3"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 3.43
+      conCoverage: 0.57
+      distConMetaconnection: 0.14
+      inequality: 0.08
+    }
+    approvedReport: "APPROVED"
+    name: "3 for 4"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 3.75
+      conCoverage: 0.54
+      distConMetaconnection: 0.25
+      inequality: 0.14
+    }
+    approvedReport: "APPROVED"
+    name: "3 for 5"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4
+      conCoverage: 0.5
+      distConMetaconnection: 0.33
+      inequality: 0.19
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "3 for 6"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 3.6
+      conCoverage: 0.47
+      distConMetaconnection: 0.37
+      inequality: 0.22
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "3 for 7"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 3.27
+      conCoverage: 0.44
+      distConMetaconnection: 0.4
+      inequality: 0.25
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "3 for 8"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4.44
+      conCoverage: 0.56
+      distConMetaconnection: 0.11
+      inequality: 0.06
+    }
+    approvedReport: "APPROVED"
+    name: "4 for 5"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4.8
+      conCoverage: 0.53
+      distConMetaconnection: 0.2
+      inequality: 0.11
+    }
+    approvedReport: "APPROVED"
+    name: "4 for 6"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4.36
+      conCoverage: 0.51
+      distConMetaconnection: 0.26
+      inequality: 0.15
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "4 for 7"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4
+      conCoverage: 0.48
+      distConMetaconnection: 0.31
+      inequality: 0.18
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "4 for 8"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 3.69
+      conCoverage: 0.46
+      distConMetaconnection: 0.35
+      inequality: 0.25
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "4 for 9"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2
+      conCoverage: 1
+      distConMetaconnection: 0
+      inequality: 0
+    }
+    approvedReport: "APPROVED"
+    name: "3 All with all"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.5
+      conCoverage: 0.83
+      distConMetaconnection: 0.21
+      inequality: 0.13
+    }
+    approvedReport: "APPROVED"
+    name: "3 All with all + 1 with 2 connections"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4
+      conCoverage: 1
+      distConMetaconnection: 0
+      inequality: 0
+    }
+    approvedReport: "APPROVED"
+    name: "5 All with all"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4
+      conCoverage: 0.8
+      distConMetaconnection: 0.19
+      inequality: 0.1
+    }
+    approvedReport: "APPROVED"
+    name: "5 All with all + 1 with 2 connections"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4.77
+      conCoverage: 0.63
+      distConMetaconnection: 0.09
+      inequality: 0.16
+    }
+    approvedReport: "APPROVED"
+    name: "1 user with 12 connections, the rest have from 2 to 6 connections"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 2.77
+      conCoverage: 0.31
+      distConMetaconnection: 0.06
+      inequality: 0.14
+    }
+    approvedReport: "NOT MINIMUM QUALITY"
+    name: "1 user with 12 connections, the rest have 2 other connections"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4.83
+      conCoverage: 0.85
+      distConMetaconnection: 0.02
+      inequality: 0.15
+    }
+    approvedReport: "APPROVED"
+    name: "12 users with 4 to 9 connections"
+    problems: "OK"
+  }
+  {
+    analysis: {
+      conAmount: 4.62
+      conCoverage: 0.76
+      distConMetaconnection: 0.11
+      inequality: 0.18
+    }
+    approvedReport: "APPROVED"
+    name: "12 users with 4 to 9 connections + 1 of 2"
+    problems: "OK"
+  }
+]
+
+// Group finder Group filter and sorting was not modified 1
+
+{
+  finalGroups: [
+    {
+      connAmount: 4
+      connAmountR: 4
+      name: "5 All with all"
+      problems: "OK"
+      quality: 0
+      qualityR: 0
+      usersAmount: 5
+    }
+    {
+      connAmount: 2
+      connAmountR: 2
+      name: "2 for 2"
+      problems: "OK"
+      quality: 0
+      qualityR: 0
+      usersAmount: 4
+    }
+    {
+      connAmount: 2
+      connAmountR: 2
+      name: "3 All with all"
+      problems: "OK"
+      quality: 0
+      qualityR: 0
+      usersAmount: 3
+    }
+    {
+      connAmount: 4.444
+      connAmountR: 4
+      name: "4 for 5"
+      problems: "OK"
+      quality: 0.111
+      qualityR: 0.1
+      usersAmount: 9
+    }
+    {
+      connAmount: 3.6
+      connAmountR: 4
+      name: "3 for 3 [MODIFIED]"
+      problems: "OK"
+      quality: 0.14
+      qualityR: 0.1
+      usersAmount: 5
+    }
+    {
+      connAmount: 3.429
+      connAmountR: 3
+      name: "3 for 4"
+      problems: "OK"
+      quality: 0.143
+      qualityR: 0.1
+      usersAmount: 7
+    }
+    {
+      connAmount: 4.833
+      connAmountR: 5
+      name: "12 users with 4 to 9 connections"
+      problems: "OK"
+      quality: 0.158
+      qualityR: 0.2
+      usersAmount: 12
+    }
+    {
+      connAmount: 4.8
+      connAmountR: 5
+      name: "4 for 6"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 10
+    }
+    {
+      connAmount: 4.8
+      connAmountR: 5
+      name: "4 for 7 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 10
+    }
+    {
+      connAmount: 4.8
+      connAmountR: 5
+      name: "4 for 8 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 10
+    }
+    {
+      connAmount: 4.8
+      connAmountR: 5
+      name: "4 for 9 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 10
+    }
+    {
+      connAmount: 4.769
+      connAmountR: 5
+      name: "1 user with 12 connections, the rest have from 2 to 6 connections"
+      problems: "OK"
+      quality: 0.231
+      qualityR: 0.2
+      usersAmount: 13
+    }
+    {
+      connAmount: 4.615
+      connAmountR: 5
+      name: "12 users with 4 to 9 connections + 1 of 2"
+      problems: "OK"
+      quality: 0.194
+      qualityR: 0.2
+      usersAmount: 13
+    }
+    {
+      connAmount: 4
+      connAmountR: 4
+      name: "5 All with all + 1 with 2 connections"
+      problems: "OK"
+      quality: 0.192
+      qualityR: 0.2
+      usersAmount: 6
+    }
+    {
+      connAmount: 2.8
+      connAmountR: 3
+      name: "1 user with 12 connections, the rest have 2 other connections [MODIFIED]"
+      problems: "OK"
+      quality: 0.233
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 2.5
+      connAmountR: 3
+      name: "3 All with all + 1 with 2 connections"
+      problems: "OK"
+      quality: 0.208
+      qualityR: 0.2
+      usersAmount: 4
+    }
+    {
+      connAmount: 2.4
+      connAmountR: 2
+      name: "2 for 2 + 1 extra bisexual"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 2.4
+      connAmountR: 2
+      name: "2 for 3"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 2.4
+      connAmountR: 2
+      name: "2 for 4 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 2.4
+      connAmountR: 2
+      name: "2 for 5 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 2.4
+      connAmountR: 2
+      name: "2 for 6 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 2.4
+      connAmountR: 2
+      name: "2 for 8 [MODIFIED]"
+      problems: "OK"
+      quality: 0.2
+      qualityR: 0.2
+      usersAmount: 5
+    }
+    {
+      connAmount: 3.75
+      connAmountR: 4
+      name: "3 for 5"
+      problems: "OK"
+      quality: 0.25
+      qualityR: 0.3
+      usersAmount: 8
+    }
+    {
+      connAmount: 3.75
+      connAmountR: 4
+      name: "3 for 6 [MODIFIED]"
+      problems: "OK"
+      quality: 0.25
+      qualityR: 0.3
+      usersAmount: 8
+    }
+    {
+      connAmount: 3.75
+      connAmountR: 4
+      name: "3 for 7 [MODIFIED]"
+      problems: "OK"
+      quality: 0.25
+      qualityR: 0.3
+      usersAmount: 8
+    }
+    {
+      connAmount: 3.75
+      connAmountR: 4
+      name: "3 for 8 [MODIFIED]"
+      problems: "OK"
+      quality: 0.25
+      qualityR: 0.3
+      usersAmount: 8
+    }
+  ]
+  removedGroups: 0
+}

@@ -1,5 +1,6 @@
-import "jest";
-import * as JestDateMock from "jest-date-mock";
+import "mocha";
+import { expect } from "earl";
+import { initAppForTests } from "./tools/beforeAllTests";
 import * as GroupCandTestTools from "./tools/group-finder/group-candidate-test-editing";
 import {
    chatPost,
@@ -25,6 +26,9 @@ import { GROUP_ACTIVE_TIME, MIN_GROUP_SIZE } from "../configurations";
 import { createFullUsersFromGroupCandidate } from "./tools/group-finder/user-creation-tools";
 import { hoursToMilliseconds } from "../common-tools/math-tools/general";
 import { decodeString } from "../shared-tools/utility-functions/decodeString";
+import { changeCurrentTimeBy, resetTime } from "./tools/generalTools";
+
+const test = it;
 
 describe("Groups", () => {
    let group: Group;
@@ -36,7 +40,8 @@ describe("Groups", () => {
    let mainUser2: User;
    let mainUser3: User;
 
-   beforeAll(async () => {
+   before(async () => {
+      await initAppForTests();
       fakeUsers = await createFakeUsers(10);
       fakeMatchingUsers = await createFullUsersFromGroupCandidate(
          GroupCandTestTools.createGroupCandidate({
@@ -102,15 +107,15 @@ describe("Groups", () => {
       group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
-      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toInclude(
          mainUser.userId,
       );
-      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toContain(
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[4].userId).votersUserId).toInclude(
          mainUser2.userId,
       );
 
       // The idea 3 only by mainUser
-      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[3].userId).votersUserId).toContain(
+      expect(group.dateIdeasVotes.find(i => i.ideaOfUser === fakeUsers[3].userId).votersUserId).toInclude(
          mainUser.userId,
       );
 
@@ -162,12 +167,12 @@ describe("Groups", () => {
       group = await groupGet({ token: mainUser.token, groupId: group.groupId }, fakeCtx);
 
       // The idea with index 4 should be voted by mainUser and mainUser2.
-      expect(group.dayOptions[4].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
-      expect(group.dayOptions[4].votersUserId.indexOf(mainUser2.userId) !== -1).toBe(true);
+      expect(group.dayOptions[4].votersUserId.indexOf(mainUser.userId) !== -1).toEqual(true);
+      expect(group.dayOptions[4].votersUserId.indexOf(mainUser2.userId) !== -1).toEqual(true);
       // The idea 3 only by mainUser
-      expect(group.dayOptions[3].votersUserId.indexOf(mainUser.userId) !== -1).toBe(true);
+      expect(group.dayOptions[3].votersUserId.indexOf(mainUser.userId) !== -1).toEqual(true);
       // There should be the correct amount of votes
-      expect(group.dayOptions[3].votersUserId.length === 1).toBe(true);
+      expect(group.dayOptions[3].votersUserId.length === 1).toEqual(true);
    });
 
    test("Chat messages are saved correctly", async () => {
@@ -208,43 +213,43 @@ describe("Groups", () => {
          { groupId: group.groupId, token: mainUser2.token },
          fakeCtx,
       );
-      expect(unreadMessages.unread).toBe(5);
+      expect(unreadMessages.unread).toEqual(5);
    });
 
    test("User groups are retrieved correctly", async () => {
       const user1Groups: Group[] = await userGroupsGet({ token: mainUser.token }, fakeCtx);
       const user2Groups: Group[] = await userGroupsGet({ token: mainUser2.token }, fakeCtx);
-      expect(user1Groups.length).toBe(1);
-      expect(user2Groups.length).toBe(2);
+      expect(user1Groups.length).toEqual(1);
+      expect(user2Groups.length).toEqual(2);
    });
 
    test("Group active property is set to false after some time and related tasks are executed", async () => {
       await findInactiveGroups();
 
       group3 = await groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, fakeCtx);
-      expect(group3.isActive).toBeTrue();
+      expect(group3.isActive).toEqual(true);
 
       // Simulate time passing
-      JestDateMock.advanceBy(GROUP_ACTIVE_TIME * 1000 + hoursToMilliseconds(1));
+      changeCurrentTimeBy(GROUP_ACTIVE_TIME * 1000 + hoursToMilliseconds(1));
 
       await findInactiveGroups();
       // This should be executed inside the function of the previous line but it depends on the settings so we call it here
       await createTaskToShowRemoveSeenMenu(group3);
 
       group3 = await groupGet({ token: fakeMatchingUsers[0].token, groupId: group3.groupId }, fakeCtx);
-      expect(group3.isActive).toBeFalse();
+      expect(group3.isActive).toEqual(false);
 
       const updatedUser: Partial<User> = await userGet({ token: fakeMatchingUsers[0].token }, fakeCtx);
       const removeSeenTask = updatedUser.requiredTasks?.find(t => t.type === TaskType.ShowRemoveSeenMenu);
 
-      expect(removeSeenTask).toBeDefined();
+      expect(removeSeenTask).not.toBeNullish();
 
-      JestDateMock.clear();
+      resetTime();
    });
 
    test("SeenMatch can be changed to Match when both users request it", async () => {
       let edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
-      expect(edges.includes("SeenMatch")).toBeTrue();
+      expect(edges.includes("SeenMatch")).toEqual(true);
 
       await setSeenPost(
          {
@@ -257,7 +262,7 @@ describe("Groups", () => {
       );
 
       edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
-      expect(edges.includes("SeenMatch")).toBeTrue();
+      expect(edges.includes("SeenMatch")).toEqual(true);
 
       await setSeenPost(
          {
@@ -270,11 +275,11 @@ describe("Groups", () => {
       );
 
       edges = await getEdgeLabelsBetweenUsers(fakeMatchingUsers[0].userId, fakeMatchingUsers[1].userId);
-      expect(edges.includes("SeenMatch")).toBeFalse();
-      expect(edges.includes("Match")).toBeTrue();
+      expect(edges.includes("SeenMatch")).toEqual(false);
+      expect(edges.includes("Match")).toEqual(true);
    });
 
-   afterAll(async () => {
+   after(async () => {
       await queryToRemoveUsers(getAllTestUsersCreated());
       await queryToRemoveGroups([group, group2]);
    });

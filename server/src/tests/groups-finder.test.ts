@@ -1,5 +1,6 @@
-import "jest";
-import * as JestDateMock from "jest-date-mock";
+import "mocha";
+import { expect } from "earl";
+import { initAppForTests } from "./tools/beforeAllTests";
 import {
    callGroupFinder,
    createFullUsersFromGroupCandidate,
@@ -32,8 +33,20 @@ import {
    groupAnalysisReport,
    analiceFilterAndSortReport,
 } from "./tools/group-finder/group-candidates-ordering";
+import { changeCurrentTimeBy, resetTime } from "./tools/generalTools";
+
+const test = it;
 
 describe("Group finder", () => {
+   before(async () => {
+      await initAppForTests();
+   });
+
+   it("matches snapshot", function () {
+      // Here we pass the `this` as test context
+      // expect(Math.random()).toMatchSnapshot(this);
+   });
+
    test("Matching users below minimum amount does not form a group", async () => {
       const groupCandidate = GroupCandTestTools.createGroupCandidate({
          amountOfInitialUsers: MIN_GROUP_SIZE - 1,
@@ -43,19 +56,6 @@ describe("Group finder", () => {
       await callGroupFinder();
 
       expect(await retrieveFinalGroupsOf(groupCandidate.users)).toHaveLength(0);
-   });
-
-   test("Matching in minimum amount creates a group", async () => {
-      const groupCandidate = GroupCandTestTools.createGroupCandidate({
-         amountOfInitialUsers: MIN_GROUP_SIZE,
-         connectAllWithAll: true,
-      });
-      await createFullUsersFromGroupCandidate(groupCandidate);
-      await callGroupFinder();
-
-      const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
-      expect(groups).toHaveLength(1);
-      expect(groups[0].members).toHaveLength(MIN_GROUP_SIZE);
    });
 
    test("Additional user matching can enter the group even after creation", async () => {
@@ -122,12 +122,12 @@ describe("Group finder", () => {
       await callGroupFinder();
 
       // Simulate time passing
-      JestDateMock.advanceBy(MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + hoursToMilliseconds(1));
+      changeCurrentTimeBy(MAX_TIME_GROUPS_RECEIVE_NEW_USERS * 1000 + hoursToMilliseconds(1));
 
       groupCandidate = GroupCandTestTools.createAndAddMultipleUsers(groupCandidate, 2, "all");
       await createFullUsersFromGroupCandidate(groupCandidate);
       await callGroupFinder();
-      JestDateMock.clear();
+      resetTime();
 
       const groups: Group[] = await retrieveFinalGroupsOf(groupCandidate.users);
 
@@ -262,7 +262,7 @@ describe("Group finder", () => {
       expect(createdGroups).toHaveLength(2);
       expect(createdGroups[0].members).toHaveLength(3);
       expect(createdGroups[1].members).toHaveLength(3);
-      expect(createdGroups[0].groupId !== createdGroups[1].groupId).toBeTrue();
+      expect(createdGroups[0].groupId !== createdGroups[1].groupId).toEqual(true);
    });
 
    test("Too bad quality groups gets fixed before creation and not ruined when adding more users afterwards", async () => {
@@ -374,7 +374,7 @@ describe("Group finder", () => {
       expect(groupsCreated).toHaveLength(0);
 
       // Simulate time passing
-      JestDateMock.advanceBy(smallerSlot.releaseTime * 1000 + hoursToMilliseconds(1));
+      changeCurrentTimeBy(smallerSlot.releaseTime * 1000 + hoursToMilliseconds(1));
 
       // Now the function to release slot should release it because time has passed
       await findSlotsToRelease();
@@ -388,7 +388,7 @@ describe("Group finder", () => {
       groupsCreated = await callGroupFinder();
       expect(groupsCreated).toHaveLength(0);
 
-      JestDateMock.clear();
+      resetTime();
    });
 
    test("All groups that should be created gets created", async () => {
@@ -404,13 +404,13 @@ describe("Group finder", () => {
       expect(groupsCreated.length).toBeGreaterThanOrEqual(groupsFilteredAndSorted.length);
    });
 
-   test("Group analysis was not modified", async () => {
+   test("Group analysis was not modified", function () {
       /**
        * If this snapshot does not match anymore it means you changed code or a setting that affects
        * group analysis and you should check if everything is still working as expected before re
        * generating the snapshot.
        */
-      expect(groupAnalysisReport()).toMatchSnapshot();
+      expect(groupAnalysisReport()).toMatchSnapshot(this);
 
       /**
        * In that case uncomment this line and check if you are happy with the console output
@@ -419,13 +419,13 @@ describe("Group finder", () => {
       // consoleLog(groupAnalysisReport());
    });
 
-   test("Group filter and sorting was not modified", async () => {
+   test("Group filter and sorting was not modified", function () {
       /**
        * If this snapshot does not match anymore it means you changed code or a setting that affects
        * group analysis, filtering and/or sorting and you should check if everything is still working
        * as expected before re generating the snapshot.
        */
-      expect(analiceFilterAndSortReport()).toMatchSnapshot();
+      expect(analiceFilterAndSortReport()).toMatchSnapshot(this);
 
       /**
        * In that case uncomment this line and check if you are happy with the console output

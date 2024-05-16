@@ -1,4 +1,6 @@
-import "jest";
+import "mocha";
+import { expect } from "earl";
+import { initAppForTests } from "./tools/beforeAllTests";
 import {
    adminChatGet,
    adminChatPost,
@@ -13,6 +15,8 @@ import { User } from "../shared-tools/endpoints-interfaces/user";
 import { fakeCtx } from "./tools/replacements";
 import { createFakeUsers, getAllTestUsersCreated } from "./tools/users";
 
+const test = it;
+
 describe("Admin", () => {
    let fakeUsers: User[];
    let mainUser: User;
@@ -20,7 +24,8 @@ describe("Admin", () => {
    let adminUser: User;
    let adminUserNatural: User;
 
-   beforeAll(async () => {
+   before(async () => {
+      await initAppForTests();
       fakeUsers = await createFakeUsers(4);
       mainUser = fakeUsers[0];
       mainUser2 = fakeUsers[1];
@@ -38,7 +43,7 @@ describe("Admin", () => {
    test("Admin users should be able to convert other users into admins", async () => {
       await convertToAdminPost({ token: adminUser.token, targetUserToken: adminUserNatural.token }, fakeCtx);
       adminUserNatural = await retrieveFullyRegisteredUser(adminUserNatural.token, false, fakeCtx);
-      expect(adminUserNatural.isAdmin).toBe(true);
+      expect(adminUserNatural.isAdmin).toEqual(true);
    });
 
    test("Sending messages to admins works", async () => {
@@ -46,7 +51,7 @@ describe("Admin", () => {
       await adminChatPost({ token: mainUser.token, messageText: "una pregunta" }, fakeCtx);
 
       const chat: ChatWithAdmins = await adminChatGet({ token: mainUser.token }, fakeCtx);
-      expect(chat.messages.length).toBe(2);
+      expect(chat.messages.length).toEqual(2);
    });
 
    test("Admins can read messages", async () => {
@@ -55,8 +60,8 @@ describe("Admin", () => {
          fakeCtx,
       );
 
-      expect(chat.messages.length).toBe(2);
-      expect(chat.nonAdminUser.userId).toBe(mainUser.userId);
+      expect(chat.messages.length).toEqual(2);
+      expect(chat.nonAdminUser.userId).toEqual(mainUser.userId);
    });
 
    test("Admins can send messages and identity of admins is hidden", async () => {
@@ -67,8 +72,8 @@ describe("Admin", () => {
       );
 
       const chat: ChatWithAdmins = await adminChatGet({ token: mainUser2.token }, null);
-      expect(chat.messages.length).toBe(2);
-      expect(chat.messages[0].authorUserId).toBe(mainUser2.userId);
+      expect(chat.messages.length).toEqual(2);
+      expect(chat.messages[0].authorUserId).toEqual(mainUser2.userId);
       expect(chat.messages[1].authorUserId).toBeFalsy();
    });
 
@@ -77,7 +82,7 @@ describe("Admin", () => {
          { token: adminUser.token, excludeRespondedByAdmin: false },
          null,
       );
-      expect(chats.length).toBe(2);
+      expect(chats.length).toEqual(2);
    });
 
    test("Admins can get a list of all chats filtered by responded by admins", async () => {
@@ -85,10 +90,10 @@ describe("Admin", () => {
          { token: adminUser.token, excludeRespondedByAdmin: true },
          null,
       );
-      expect(chats.length).toBe(1);
+      expect(chats.length).toEqual(1);
    });
 
-   afterAll(async () => {
+   after(async () => {
       await queryToRemoveUsers(getAllTestUsersCreated());
    });
 });
