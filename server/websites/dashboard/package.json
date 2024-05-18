@@ -16,6 +16,7 @@
     "clsx": "^1.1.1",
     "dotenv": "^8.2.0",
     "fastest-validator": "^1.10.1",
+    "highlight.js": "^11.9.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "nanoid": "^3.1.31",

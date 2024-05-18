@@ -41,6 +41,8 @@ export const ChildrenContainer = styled("div").withConfig({
 
 export const PageContainer = styled("div")`
    width: 100%;
+   height: 100%;
+   overflow: hidden;
 `;
 
 export const ButtonsContainer = styled("div").withConfig({
