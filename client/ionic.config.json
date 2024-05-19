@@ -1,0 +1,7 @@
+{
+  "name": "GroupDate",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
