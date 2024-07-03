@@ -26,11 +26,10 @@ import "@ionic/react/css/display.css";
  */
 
 import "@ionic/react/css/palettes/dark.always.css";
-import "@ionic/react/css/palettes/dark.class.css";
-import "@ionic/react/css/palettes/dark.system.css";
 
 /* Theme variables */
 import "./theme/ionic/variables.css";
+import WelcomeTour from "./components/pages/WelcomeTour/WelcomeTour";
 
 setupIonicReact();
 
@@ -39,7 +38,7 @@ const App: React.FC = () => (
       <IonReactRouter>
          <IonRouterOutlet>
             <Route exact path="/">
-               hola mundos
+               <WelcomeTour />
             </Route>
          </IonRouterOutlet>
       </IonReactRouter>

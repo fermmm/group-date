@@ -1,0 +1,9 @@
+{
+   "cSpell.words": [
+      "swiper",
+      "tailwindcss"
+   ],
+   "tailwindCSS.experimental.classRegex": [
+      ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+   ]
+}
