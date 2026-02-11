@@ -2,9 +2,7 @@ For a full readme with documentation enter on the Server folder.
 
 # Current state of this project
 
-This project was live and worked for more than 2000 users, but I removed the client from the stores because I could not promote the app and didn't want to pay the cost of having it live. Currently I'm working on a new client that will be more suitable for a wider kind of users. This means the client is a work in progress and the server is complete and fully functional.
-
-This is the repo of the React Native client that is complete and fully functional but not live anymore:
+This project was live and worked for more than 2000 users, but I removed the client from the stores because I could not promote the app and didn't want to pay the cost of having it live. Currently I'm working on a new frontend that will be more suitable for a wider kind of users. This means the new client is a work in progress and the server is complete and fully functional. This is the repo of the old frontend React Native client that is complete and fully functional but not live anymore:
 https://github.com/fermmm/group-date-client-rn
 
 # License
