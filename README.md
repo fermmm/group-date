@@ -1,3 +1,5 @@
+Open source "group forming" app, when many people are interested between each other all with all a group chat appears, it can be a polyamory dating app or other kind of social app
+
 For a full readme with documentation enter on the Server folder.
 
 # Current state of this project
